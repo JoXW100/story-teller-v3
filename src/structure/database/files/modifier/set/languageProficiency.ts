@@ -1,12 +1,12 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createMultipleChoiceData, validateChoiceData } from '../common'
+import { createDefaultChoiceData, createMultipleChoiceData, simplifyMultipleChoiceData, validateChoiceData } from '../common'
 import { asEnum, asNumber, isEnum } from 'utils'
 import { Language, ProficiencyLevelBasic } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { INonChoiceData, IModifierSetLanguageProficiencyData, IEditorChoiceData, MultipleChoiceData } from 'types/database/files/modifier'
+import type { IModifierSetLanguageProficiencyData, IEditorChoiceData, MultipleChoiceData } from 'types/database/files/modifier'
 
 class ModifierSetLanguageProficiencyData extends ModifierSetDataBase implements IModifierSetLanguageProficiencyData {
     public override readonly subtype = ModifierSetType.LanguageProficiency
@@ -27,9 +27,9 @@ class ModifierSetLanguageProficiencyData extends ModifierSetDataBase implements 
             simplify: (value) => value
         },
         proficiency: {
-            get value() { return { isChoice: false, value: Language.Common } satisfies INonChoiceData<Language> },
+            get value() { return createDefaultChoiceData(Language.Common) },
             validate: (value) => validateChoiceData(value, (value) => isEnum(value, Language)),
-            simplify: (value) => value.isChoice || value.value !== Language.Common ? value : null
+            simplify: (value) => simplifyMultipleChoiceData(value, Language.Common)
         },
         value: {
             value: ProficiencyLevelBasic.Proficient,

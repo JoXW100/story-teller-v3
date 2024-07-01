@@ -1,12 +1,12 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createSingleChoiceData, validateChoiceData } from '../common'
+import { createDefaultChoiceData, createSingleChoiceData, simplifySingleChoiceData, validateChoiceData } from '../common'
 import { asEnum, isEnum, isNumber, isString } from 'utils'
 import { ConditionBinding } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { SingleChoiceData, INonChoiceData, IModifierAddConditionImmunityData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { SingleChoiceData, IModifierAddConditionImmunityData, IEditorChoiceData } from 'types/database/files/modifier'
 import type { ISourceBinding } from 'types/database/files/creature'
 
 class ModifierAddConditionImmunityData extends ModifierAddDataBase implements IModifierAddConditionImmunityData {
@@ -28,8 +28,9 @@ class ModifierAddConditionImmunityData extends ModifierAddDataBase implements IM
             simplify: (value) => value
         },
         binding: {
-            get value() { return { isChoice: false, value: ConditionBinding.Generic } satisfies INonChoiceData<ConditionBinding> },
-            validate: (value) => validateChoiceData(value, (value) => isEnum(value, ConditionBinding))
+            get value() { return createDefaultChoiceData(ConditionBinding.Generic) },
+            validate: (value) => validateChoiceData(value, (value) => isEnum(value, ConditionBinding)),
+            simplify: (value) => simplifySingleChoiceData(value, ConditionBinding.Generic)
         },
         notes: {
             value: '',

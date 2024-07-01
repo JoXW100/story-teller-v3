@@ -1,12 +1,12 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createMultipleChoiceData, validateChoiceData } from '../common'
+import { createDefaultChoiceData, createMultipleChoiceData, simplifyMultipleChoiceData, validateChoiceData } from '../common'
 import { asEnum, isEnum, isNumber } from 'utils'
 import { ArmorType, ProficiencyLevelBasic } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { MultipleChoiceData, INonChoiceData, IModifierSetArmorProficiencyData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { MultipleChoiceData, IModifierSetArmorProficiencyData, IEditorChoiceData } from 'types/database/files/modifier'
 
 class ModifierSetArmorProficiencyData extends ModifierSetDataBase implements IModifierSetArmorProficiencyData {
     public override readonly subtype = ModifierSetType.ArmorProficiency
@@ -27,9 +27,9 @@ class ModifierSetArmorProficiencyData extends ModifierSetDataBase implements IMo
             simplify: (value) => value
         },
         proficiency: {
-            get value() { return { isChoice: false, value: ArmorType.Light } satisfies INonChoiceData<ArmorType> },
+            get value() { return createDefaultChoiceData(ArmorType.Light) },
             validate: (value) => validateChoiceData(value, (value) => isEnum(value, ArmorType)),
-            simplify: (value) => value.isChoice || value.value !== ArmorType.Light ? value : null
+            simplify: (value) => simplifyMultipleChoiceData(value, ArmorType.Light)
         },
         value: {
             value: ProficiencyLevelBasic.Proficient,

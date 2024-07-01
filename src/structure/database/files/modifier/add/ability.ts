@@ -1,12 +1,12 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createMultipleChoiceData, validateChoiceData } from '../common'
+import { createDefaultChoiceData, createMultipleChoiceData, simplifyMultipleChoiceData, validateChoiceData } from '../common'
 import { asObjectId, isNumber, isObjectIdOrNull } from 'utils'
 import { DocumentType } from 'structure/database'
 import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { MultipleChoiceData, IModifierAddAbilityData, INonChoiceData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { MultipleChoiceData, IModifierAddAbilityData, IEditorChoiceData } from 'types/database/files/modifier'
 
 class ModifierAddAbilityData extends ModifierAddDataBase implements IModifierAddAbilityData {
     public override readonly subtype = ModifierAddType.Ability
@@ -25,8 +25,9 @@ class ModifierAddAbilityData extends ModifierAddDataBase implements IModifierAdd
             simplify: (value) => value
         },
         value: {
-            get value() { return { isChoice: false, value: null } satisfies INonChoiceData<ObjectId | null> },
-            validate: (value) => validateChoiceData(value, isObjectIdOrNull)
+            get value() { return createDefaultChoiceData(null) },
+            validate: (value) => validateChoiceData(value, isObjectIdOrNull),
+            simplify: (value) => simplifyMultipleChoiceData(value, null)
         }
     }
 

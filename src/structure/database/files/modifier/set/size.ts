@@ -1,12 +1,12 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createSingleChoiceData, validateChoiceData } from '../common'
+import { createDefaultChoiceData, createSingleChoiceData, simplifySingleChoiceData, validateChoiceData } from '../common'
 import { asEnum, isEnum, isNumber } from 'utils'
 import { SizeType } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { SingleChoiceData, INonChoiceData, IModifierSetSizeData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { SingleChoiceData, IModifierSetSizeData, IEditorChoiceData } from 'types/database/files/modifier'
 
 class ModifierSetSizeData extends ModifierSetDataBase implements IModifierSetSizeData {
     public override readonly subtype = ModifierSetType.Size
@@ -25,8 +25,9 @@ class ModifierSetSizeData extends ModifierSetDataBase implements IModifierSetSiz
             simplify: (value) => value
         },
         value: {
-            get value() { return { isChoice: false, value: SizeType.Medium } satisfies INonChoiceData<SizeType> },
-            validate: (value) => validateChoiceData(value, (value) => isEnum(value, SizeType))
+            get value() { return createDefaultChoiceData(SizeType.Medium) },
+            validate: (value) => validateChoiceData(value, (value) => isEnum(value, SizeType)),
+            simplify: (value) => simplifySingleChoiceData(value, SizeType.Medium)
         }
     }
 

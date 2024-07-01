@@ -1,6 +1,6 @@
 import { isBoolean, isNumber, isRecord } from 'utils'
 import type { Simplify } from 'types'
-import type { SingleChoiceData, MultipleChoiceData, IMultipleChoiceData } from 'types/database/files/modifier'
+import type { SingleChoiceData, MultipleChoiceData, IMultipleChoiceData, INonChoiceData } from 'types/database/files/modifier'
 
 export enum ModifierType {
     Add = 'add',
@@ -8,7 +8,8 @@ export enum ModifierType {
     Remove = 'remove',
     Set = 'set',
     Choice = 'choice',
-    Ability = 'ability'
+    Ability = 'ability',
+    Variable = 'variable'
 }
 
 export function createSingleChoiceData<T>(data: Simplify<SingleChoiceData<T>> | undefined, toValue: (value: unknown) => T, defaultChoice: boolean = false): SingleChoiceData<T> {
@@ -54,4 +55,41 @@ export function isMultipleChoiceData(value: unknown): value is MultipleChoiceDat
 
 export function validateChoiceData(value: unknown, validateValue: (value: unknown) => boolean): value is SingleChoiceData {
     return isSingleChoiceData(value) && ((value.isChoice && value.value.every(validateValue)) || (!value.isChoice && validateValue(value.value)))
+}
+
+export function createDefaultChoiceData<T>(defaultValue: T): INonChoiceData<T> {
+    return { isChoice: false, value: defaultValue }
+}
+
+export function simplifySingleChoiceData<T>(value: SingleChoiceData<T>, defaultValue: T): Simplify<SingleChoiceData> | null {
+    const result: Record<string, unknown> = {}
+    if (value.isChoice) {
+        result.isChoice = true
+        if (value.value.length > 0) {
+            result.value = value.value
+        }
+    } else if (value.value !== defaultValue) {
+        result.value = value.value
+    } else {
+        return null
+    }
+    return result
+}
+
+export function simplifyMultipleChoiceData<T>(value: MultipleChoiceData<T>, defaultValue: T, defaultNumChoices: number = 1): Simplify<MultipleChoiceData> | null {
+    const result: Record<string, unknown> = {}
+    if (value.isChoice) {
+        result.isChoice = true
+        if (value.value.length > 0) {
+            result.value = value.value
+        }
+        if (value.numChoices !== defaultNumChoices) {
+            result.numChoices = value.numChoices
+        }
+    } else if (value.value !== defaultValue) {
+        result.value = value.value
+    } else {
+        return null
+    }
+    return result
 }

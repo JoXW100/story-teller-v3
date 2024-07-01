@@ -1,12 +1,12 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createMultipleChoiceData, validateChoiceData } from '../common'
+import { createDefaultChoiceData, createMultipleChoiceData, simplifyMultipleChoiceData, validateChoiceData } from '../common'
 import { asEnum, isEnum, isNumber } from 'utils'
 import { WeaponType, ProficiencyLevelBasic } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { MultipleChoiceData, INonChoiceData, IModifierSetWeaponProficiencyData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { MultipleChoiceData, IModifierSetWeaponProficiencyData, IEditorChoiceData } from 'types/database/files/modifier'
 
 class ModifierSetWeaponProficiencyData extends ModifierSetDataBase implements IModifierSetWeaponProficiencyData {
     public override readonly subtype = ModifierSetType.WeaponProficiency
@@ -27,9 +27,9 @@ class ModifierSetWeaponProficiencyData extends ModifierSetDataBase implements IM
             simplify: (value) => value
         },
         proficiency: {
-            get value() { return { isChoice: false, value: WeaponType.Martial } satisfies INonChoiceData<WeaponType> },
+            get value() { return createDefaultChoiceData(WeaponType.Martial) },
             validate: (value) => validateChoiceData(value, (value) => isEnum(value, WeaponType)),
-            simplify: (value) => value.isChoice || value.value !== WeaponType.Martial ? value : null
+            simplify: (value) => simplifyMultipleChoiceData(value, WeaponType.Martial)
         },
         value: {
             value: ProficiencyLevelBasic.Proficient,

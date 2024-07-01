@@ -1,12 +1,12 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createSingleChoiceData, validateChoiceData } from '../common'
+import { createDefaultChoiceData, createSingleChoiceData, simplifySingleChoiceData, validateChoiceData } from '../common'
 import { asEnum, asNumber, isEnum, isNumber } from 'utils'
 import { Sense } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { SingleChoiceData, INonChoiceData, IModifierSetSenseData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { SingleChoiceData, IModifierSetSenseData, IEditorChoiceData } from 'types/database/files/modifier'
 
 class ModifierSetSenseData extends ModifierSetDataBase implements IModifierSetSenseData {
     public override readonly subtype = ModifierSetType.Sense
@@ -27,8 +27,9 @@ class ModifierSetSenseData extends ModifierSetDataBase implements IModifierSetSe
             simplify: (value) => value
         },
         sense: {
-            get value() { return { isChoice: false, value: Sense.DarkVision } satisfies INonChoiceData<Sense> },
-            validate: (value) => validateChoiceData(value, (value) => isEnum(value, Sense))
+            get value() { return createDefaultChoiceData(Sense.DarkVision) },
+            validate: (value) => validateChoiceData(value, (value) => isEnum(value, Sense)),
+            simplify: (value) => simplifySingleChoiceData(value, Sense.DarkVision)
         },
         value: {
             value: 0,

@@ -3,7 +3,7 @@ import GroupItemComponent from './groupItem'
 import { Context, getRelativeFieldObject } from 'components/contexts/file'
 import { type OptionTypeKey, getOptionType, type IOptionType } from 'structure/optionData'
 import SelectionMenu from 'components/layouts/menus/selection'
-import { isEnum, isNumber, isRecord, isString } from 'utils'
+import { asBooleanString, isEnum, isNumber, isRecord, isString } from 'utils'
 import Logger from 'utils/logger'
 import type { LanguageKey } from 'data'
 import type { Enum } from 'types'
@@ -17,9 +17,10 @@ type SelectionInputComponentParams = React.PropsWithoutRef<{
     labelId: LanguageKey
     labelArgs?: any[]
     deps?: string[]
+    fill?: boolean
 }>
 
-const SelectionInputComponent: React.FC<SelectionInputComponentParams> = ({ field, type, optionsType, editOptionsType, labelId, labelArgs, deps = [] }) => {
+const SelectionInputComponent: React.FC<SelectionInputComponentParams> = ({ field, type, optionsType, editOptionsType, labelId, labelArgs, deps = [], fill = false }) => {
     const [context, dispatch] = useContext(Context)
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.SelectionInputComponent', 'Data of incorrect type', context.file.data)
@@ -64,7 +65,11 @@ const SelectionInputComponent: React.FC<SelectionInputComponentParams> = ({ fiel
     }
 
     return (
-        <GroupItemComponent className={styles.editList} labelId={labelId} labelArgs={labelArgs}>
+        <GroupItemComponent
+            className={styles.editList}
+            data={asBooleanString(fill)}
+            labelId={labelId}
+            labelArgs={labelArgs}>
             { type === 'string' &&
                 <SelectionMenu
                     type={type}

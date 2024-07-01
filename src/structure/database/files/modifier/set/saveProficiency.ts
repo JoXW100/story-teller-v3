@@ -1,12 +1,12 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createMultipleChoiceData, validateChoiceData } from '../common'
+import { createDefaultChoiceData, createMultipleChoiceData, simplifyMultipleChoiceData, validateChoiceData } from '../common'
 import { asEnum, isEnum, isNumber } from 'utils'
 import { Attribute, ProficiencyLevel } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { MultipleChoiceData, INonChoiceData, IModifierSetSaveProficiencyData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { MultipleChoiceData, IModifierSetSaveProficiencyData, IEditorChoiceData } from 'types/database/files/modifier'
 
 class ModifierSetSaveProficiencyData extends ModifierSetDataBase implements IModifierSetSaveProficiencyData {
     public override readonly subtype = ModifierSetType.SaveProficiency
@@ -27,9 +27,9 @@ class ModifierSetSaveProficiencyData extends ModifierSetDataBase implements IMod
             simplify: (value) => value
         },
         proficiency: {
-            get value() { return { isChoice: false, value: Attribute.STR } satisfies INonChoiceData<Attribute> },
+            get value() { return createDefaultChoiceData(Attribute.STR) },
             validate: (value) => validateChoiceData(value, (value) => isEnum(value, Attribute)),
-            simplify: (value) => value.isChoice || value.value !== Attribute.STR ? value : null
+            simplify: (value) => simplifyMultipleChoiceData(value, Attribute.STR)
         },
         value: {
             value: ProficiencyLevel.Proficient,

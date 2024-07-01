@@ -1,12 +1,12 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createMultipleChoiceData, validateChoiceData } from '../common'
+import { createDefaultChoiceData, createMultipleChoiceData, simplifyMultipleChoiceData, validateChoiceData } from '../common'
 import { asEnum, isEnum, isNumber } from 'utils'
 import { ToolType, ProficiencyLevel } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { MultipleChoiceData, INonChoiceData, IModifierSetToolProficiencyData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { MultipleChoiceData, IModifierSetToolProficiencyData, IEditorChoiceData } from 'types/database/files/modifier'
 
 class ModifierSetToolProficiencyData extends ModifierSetDataBase implements IModifierSetToolProficiencyData {
     public override readonly subtype = ModifierSetType.ToolProficiency
@@ -27,9 +27,9 @@ class ModifierSetToolProficiencyData extends ModifierSetDataBase implements IMod
             simplify: (value) => value
         },
         proficiency: {
-            get value() { return { isChoice: false, value: ToolType.AlchemistsSupplies } satisfies INonChoiceData<ToolType> },
+            get value() { return createDefaultChoiceData(ToolType.AlchemistsSupplies) },
             validate: (value) => validateChoiceData(value, (value) => isEnum(value, ToolType)),
-            simplify: (value) => value.isChoice || value.value !== ToolType.AlchemistsSupplies ? value : null
+            simplify: (value) => simplifyMultipleChoiceData(value, ToolType.AlchemistsSupplies)
         },
         value: {
             value: ProficiencyLevel.Proficient,

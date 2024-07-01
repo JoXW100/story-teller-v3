@@ -14,6 +14,7 @@ import { ModifierBonusType } from './database/files/modifier/bonus'
 import { ModifierAbilityType } from './database/files/modifier/ability'
 import { ModifierSetType } from './database/files/modifier/set'
 import { LevelModifyType } from './database/files/class/levelData'
+import { ModifierVariableType, OperationType } from './database/files/modifier/variable'
 
 export interface IOptionType<T extends Enum = Enum> {
     enum: T
@@ -267,7 +268,8 @@ const OptionTypes = {
             [ModifierType.Bonus]: 'Bonus',
             [ModifierType.Choice]: 'Choice',
             [ModifierType.Remove]: 'Remove',
-            [ModifierType.Set]: 'Set'
+            [ModifierType.Set]: 'Set',
+            [ModifierType.Variable]: 'Variable'
         }
     } satisfies IOptionType<typeof ModifierType>,
     modifierAbilityType: {
@@ -320,6 +322,22 @@ const OptionTypes = {
             [ModifierSetType.WeaponProficiency]: 'Weapon Proficiency'
         }
     } satisfies IOptionType<typeof ModifierSetType>,
+    modifierVariableType: {
+        enum: ModifierVariableType,
+        default: ModifierVariableType.Number,
+        options: {
+            [ModifierVariableType.Number]: 'Number',
+            [ModifierVariableType.Collection]: 'Collection'
+        }
+    } satisfies IOptionType<typeof ModifierVariableType>,
+    operationType: {
+        enum: OperationType,
+        default: OperationType.Add,
+        options: {
+            [OperationType.Add]: 'Add',
+            [OperationType.Replace]: 'Replace'
+        }
+    } satisfies IOptionType<typeof OperationType>,
     damageType: {
         enum: DamageType,
         default: DamageType.None,

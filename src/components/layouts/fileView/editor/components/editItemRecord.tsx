@@ -16,6 +16,7 @@ type EditItemRecordComponentParams = React.PropsWithoutRef<{
     labelArgs?: any[]
     page: EditorPageKeyType
     deps?: string[]
+    fill?: boolean
 }>
 
 interface IEditItemRecordParams {
@@ -24,7 +25,7 @@ interface IEditItemRecordParams {
     deps: string[]
 }
 
-const EditItemRecordComponent: React.FC<EditItemRecordComponentParams> = ({ field, defaultValue, labelId, labelArgs, page, deps = [] }) => {
+const EditItemRecordComponent: React.FC<EditItemRecordComponentParams> = ({ field, defaultValue, labelId, labelArgs, page, deps = [], fill = false }) => {
     const [context, dispatch] = useContext(Context)
 
     const handleChange = (value: unknown): void => {
@@ -55,7 +56,11 @@ const EditItemRecordComponent: React.FC<EditItemRecordComponentParams> = ({ fiel
     }
 
     return (
-        <GroupItemComponent className={styles.editList} labelId={labelId} labelArgs={labelArgs}>
+        <GroupItemComponent
+            className={styles.editList}
+            data={String(fill)}
+            labelId={labelId}
+            labelArgs={labelArgs}>
             <RecordMenu
                 itemClassName={styles.itemListItem}
                 values={values}

@@ -1,12 +1,12 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createSingleChoiceData, validateChoiceData } from '../common'
+import { createDefaultChoiceData, createSingleChoiceData, simplifySingleChoiceData, validateChoiceData } from '../common'
 import { asEnum, isEnum, isNumber, isString } from 'utils'
 import { AdvantageBinding } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { SingleChoiceData, INonChoiceData, IModifierAddAdvantageData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { SingleChoiceData, IModifierAddAdvantageData, IEditorChoiceData } from 'types/database/files/modifier'
 import type { ISourceBinding } from 'types/database/files/creature'
 
 class ModifierAddAdvantageData extends ModifierAddDataBase implements IModifierAddAdvantageData {
@@ -28,8 +28,9 @@ class ModifierAddAdvantageData extends ModifierAddDataBase implements IModifierA
             simplify: (value) => value
         },
         binding: {
-            get value() { return { isChoice: false, value: AdvantageBinding.Generic } satisfies INonChoiceData<AdvantageBinding> },
-            validate: (value) => validateChoiceData(value, (value) => isEnum(value, AdvantageBinding))
+            get value() { return createDefaultChoiceData(AdvantageBinding.Generic) },
+            validate: (value) => validateChoiceData(value, (value) => isEnum(value, AdvantageBinding)),
+            simplify: (value) => simplifySingleChoiceData(value, AdvantageBinding.Generic)
         },
         notes: {
             value: '',

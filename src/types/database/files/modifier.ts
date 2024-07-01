@@ -3,6 +3,7 @@ import type { ModifierAbilityType } from 'structure/database/files/modifier/abil
 import type { ModifierAddType } from 'structure/database/files/modifier/add'
 import type { ModifierBonusType } from 'structure/database/files/modifier/bonus'
 import type { ModifierSetType } from 'structure/database/files/modifier/set'
+import type { ModifierVariableType, OperationType } from 'structure/database/files/modifier/variable'
 import type { AdvantageBinding, ConditionBinding, Language, OptionalAttribute, ProficiencyLevelBasic, DamageBinding, Sense, SizeType, Attribute, Skill, ToolType, ProficiencyLevel, ArmorType, WeaponType } from 'structure/dnd'
 import type { OptionTypeKey } from 'structure/optionData'
 import type { DocumentType } from 'structure/database'
@@ -208,6 +209,26 @@ export interface IModifierSetWeaponProficiencyData extends IModifierSetDataBase 
     readonly value: ProficiencyLevelBasic
 }
 
+export interface IModifierVariableDataBase extends IModifierDataBase {
+    readonly type: ModifierType.Variable
+    readonly subtype: ModifierVariableType
+    readonly variable: string
+    readonly operation: OperationType
+}
+
+export interface IModifierVariableNumberData extends IModifierVariableDataBase {
+    readonly subtype: ModifierVariableType.Number
+    readonly value: SingleChoiceData<number>
+}
+
+export interface IModifierVariableCollectionData extends IModifierVariableDataBase {
+    readonly subtype: ModifierVariableType.Collection
+    readonly value: MultipleChoiceData<string>
+}
+
+export type IModifierVariableData = IModifierVariableCollectionData |
+IModifierVariableNumberData
+
 export type IModifierSetData = IModifierSetSenseData | IModifierSetSizeData |
 IModifierSetSpellAttributeData | IModifierSetSaveProficiencyData |
 IModifierSetSkillProficiencyData | IModifierSetToolProficiencyData |
@@ -216,7 +237,7 @@ IModifierSetWeaponProficiencyData
 
 export type IModifierData = IModifierAddData | IModifierBonusData |
 IModifierAbilityData | IModifierChoiceData | IModifierRemoveData |
-IModifierSetData
+IModifierSetData | IModifierVariableData
 
 export interface IModifierStorage {
 

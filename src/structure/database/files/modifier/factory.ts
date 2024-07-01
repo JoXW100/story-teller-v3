@@ -1,8 +1,9 @@
 import { asEnum, isRecord } from 'utils'
 import { ModifierType } from './common'
-import AbilityModifierDataFactory, { type ModifierAbilityData } from './ability/factory'
+import ModifierAbilityDataFactory, { type ModifierAbilityData } from './ability/factory'
 import ModifierAddDataFactory, { type ModifierAddData } from './add/factory'
 import ModifierBonusDataFactory, { type ModifierBonusData } from './bonus/factory'
+import type { ModifierVariableData } from './variable/factory'
 import type ModifierChoiceData from './choice'
 import { ModifierChoiceDataFactory } from './choice'
 import type ModifierRemoveData from './remove'
@@ -11,14 +12,16 @@ import ModifierSetDataFactory, { type ModifierSetData } from './set/factory'
 import type { Simplify } from 'types'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
 import type { IModifierData } from 'types/database/files/modifier'
+import ModifierVariableDataFactory from './variable/factory'
 
 export type ModifierData = ModifierAddData | ModifierBonusData |
-ModifierAbilityData | ModifierChoiceData | ModifierRemoveData | ModifierSetData
+ModifierAbilityData | ModifierChoiceData | ModifierRemoveData | ModifierSetData |
+ModifierVariableData
 
 function getFactory(type: ModifierType | null | undefined): IDatabaseFactory<IModifierData, ModifierData> {
     switch (type ?? ModifierType.Add) {
         case ModifierType.Ability:
-            return AbilityModifierDataFactory as IDatabaseFactory<IModifierData, ModifierData>
+            return ModifierAbilityDataFactory as IDatabaseFactory<IModifierData, ModifierData>
         case ModifierType.Add:
             return ModifierAddDataFactory as IDatabaseFactory<IModifierData, ModifierData>
         case ModifierType.Bonus:
@@ -27,9 +30,10 @@ function getFactory(type: ModifierType | null | undefined): IDatabaseFactory<IMo
             return ModifierRemoveDataFactory as IDatabaseFactory<IModifierData, ModifierData>
         case ModifierType.Set:
             return ModifierSetDataFactory as IDatabaseFactory<IModifierData, ModifierData>
-        case ModifierType.Choice: {
+        case ModifierType.Choice:
             return ModifierChoiceDataFactory as IDatabaseFactory<IModifierData, ModifierData>
-        }
+        case ModifierType.Variable:
+            return ModifierVariableDataFactory as IDatabaseFactory<IModifierData, ModifierData>
     }
 }
 

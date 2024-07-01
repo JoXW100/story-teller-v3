@@ -38,9 +38,7 @@ class ModifierRemoveData extends ModifierDataBase implements IModifierRemoveData
     public override apply(data: Modifier, self: ModifierDocument): void {
         const modifier = self.data as ModifierRemoveData
         if (modifier.value !== null) {
-            for (const event of Object.values(data.getAllEvents())) {
-                event.filter.add(modifier.value)
-            }
+            data.properties.filter.add(modifier.value)
         }
     }
 

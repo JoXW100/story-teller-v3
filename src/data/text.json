@@ -243,6 +243,8 @@
             "editor-cantripSlots": "Cantrip Slots",
             "editor-modifyType": "Modify Type",
             "editor-condition": "Condition",
+            "editor-variable": "Variable",
+            "editor-operation": "Operation",
 
             "editor-properties-level": "Level",
             "editor-properties-casterLevel": "Caster Level",

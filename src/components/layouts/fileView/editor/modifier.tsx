@@ -18,6 +18,7 @@ import { ModifierAddType } from 'structure/database/files/modifier/add'
 import { ModifierAbilityType } from 'structure/database/files/modifier/ability'
 import { ModifierSetType } from 'structure/database/files/modifier/set'
 import ConditionFactory from 'structure/database/condition/factory'
+import { ModifierVariableType } from 'structure/database/files/modifier/variable'
 import type { IInnerModifierData } from 'types/database/files/modifier'
 import styles from './style.module.scss'
 
@@ -137,7 +138,21 @@ const ModifierDocumentEditor: React.FC = () => {
                             field='options'
                             labelId='editor-options'
                             defaultValue={defaultInnerModifierValue}
-                            page='innerModifier'/>
+                            page='innerModifier'
+                            fill/>
+                    </>
+                }
+                { context.file.data.type === ModifierType.Variable &&
+                    <>
+                        <EnumComponent field='subtype' type='modifierVariableType' labelId='editor-subtype' deps={['type']}/>
+                        <TextComponent field='variable' labelId='editor-variable' deps={['type']}/>
+                        <EnumComponent field='operation' type='operationType' labelId='editor-operation' deps={['type']}/>
+                        { context.file.data.subtype === ModifierVariableType.Number &&
+                            <ChoiceComponent field='value' type='number' deps={['type', 'subtype']} fill/>
+                        }
+                        { context.file.data.subtype === ModifierVariableType.Collection &&
+                            <ChoiceComponent field='value' type='string' deps={['type', 'subtype']} allowMultipleChoices fill/>
+                        }
                     </>
                 }
             </GroupComponent>

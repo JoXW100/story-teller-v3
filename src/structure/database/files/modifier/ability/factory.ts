@@ -8,7 +8,7 @@ import type { Simplify } from 'types'
 
 export type ModifierAbilityData = ModifierAbilityAttackBonusData
 
-const AbilityModifierDataFactory = {
+const ModifierAbilityDataFactory = {
     create: function (data: Simplify<IModifierAbilityData> = {}): ModifierAbilityData {
         switch (data.subtype) {
             case ModifierAbilityType.AttackBonus:
@@ -36,4 +36,4 @@ const AbilityModifierDataFactory = {
     }
 } satisfies IDatabaseFactory<IModifierAbilityData, ModifierAbilityData>
 
-export default AbilityModifierDataFactory
+export default ModifierAbilityDataFactory

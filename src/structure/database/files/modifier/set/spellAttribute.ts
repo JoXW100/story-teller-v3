@@ -1,12 +1,12 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createSingleChoiceData, validateChoiceData } from '../common'
+import { createDefaultChoiceData, createSingleChoiceData, simplifySingleChoiceData, validateChoiceData } from '../common'
 import { asEnum, isEnum, isNumber } from 'utils'
 import { OptionalAttribute } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { SingleChoiceData, IModifierSetSpellAttributeData, INonChoiceData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { SingleChoiceData, IModifierSetSpellAttributeData, IEditorChoiceData } from 'types/database/files/modifier'
 
 class ModifierSetSpellAttributeData extends ModifierSetDataBase implements IModifierSetSpellAttributeData {
     public override readonly subtype = ModifierSetType.SpellAttribute
@@ -25,8 +25,9 @@ class ModifierSetSpellAttributeData extends ModifierSetDataBase implements IModi
             simplify: (value) => value
         },
         value: {
-            get value() { return { isChoice: false, value: OptionalAttribute.None } satisfies INonChoiceData<OptionalAttribute> },
-            validate: (value) => validateChoiceData(value, (value) => isEnum(value, OptionalAttribute))
+            get value() { return createDefaultChoiceData(OptionalAttribute.None) },
+            validate: (value) => validateChoiceData(value, (value) => isEnum(value, OptionalAttribute)),
+            simplify: (value) => simplifySingleChoiceData(value, OptionalAttribute.None)
         }
     }
 
