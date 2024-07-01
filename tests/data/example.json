@@ -1,0 +1,31 @@
+{
+    "id": "0",
+    "type": "abi",
+    "name": "example",
+    "data": {
+        "name": "Example",
+        "description": "Example ability",
+        "icon": "https://imgur.com/HjsYMYb",
+        "modifiers": [
+            {
+                "key": "0.mod1",
+                "label": "Add Ability",
+                "type": "add",
+                "subtype": "ability",
+                "condition": { "eq": [{ "property": "type" }, "rangedWeapon"] },
+                "value": null
+            },
+            {
+                "key": "0.mod2",
+                "label": "Bonus AC",
+                "type": "bonus",
+                "subtype": "ac",
+                "condition": { "not": { "geq": [{ "property": "senses", "key": "blindSight" }, 10] } },
+                "value": 2
+            }
+        ]
+    },
+    "isOwner": true,
+    "dateCreated": 0,
+    "dateUpdated": 0
+}

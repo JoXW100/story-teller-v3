@@ -1,0 +1,401 @@
+@import 'styles/colors.scss';
+@import 'styles/constants.scss';
+@import 'styles/prefabs.scss';
+@import 'styles/fonts.scss';
+
+$navbarWidth: 35px;
+
+.main {
+    @include colorWithShadow(input);
+    @include colorText(input);
+    display: grid;
+    grid-template-rows: $menuItemHeaderHeight minmax(0, 1fr);
+    justify-self: center;
+
+    @include desktop {
+        top: 80px;
+        width: min(70%, var(--dialog-width));
+        max-height: calc(100% - 160px);
+    }
+
+    @include mobile {
+        top: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    @include mobile-landscape {
+        top: 0;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.header {
+    @include colorWithShadow(main);
+    @include colorText(main);
+    @include fontBold;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 5px;
+    align-items: center;
+    user-select: none;
+    z-index: 100;
+}
+
+.body {
+    display: grid;
+    grid-template-columns: $navbarWidth 1fr;
+    grid-template-rows: 100%;
+    
+    & > .content {
+        @include colorDecoration(second);
+        display: flex;
+        flex-direction: column
+    }
+}
+
+.navigation {
+    @include colorBackground(second);
+    z-index: 10;
+}
+
+.iconButton {
+    @include colorBackground(second);
+    @include colorIcon(second);
+    @include centerFlex;
+    width: 100%;
+    aspect-ratio: 1;
+
+    &[data=open] {
+        @include colorDecoration(second);
+    }
+}
+
+.input {
+    display: flex;
+    align-items: center;
+    padding: 2.5px;
+}
+
+.inputRow {
+    @extend .input;
+    display: flex;
+    height: 35px;
+    width: 100%;
+
+    & > span {
+        @include fontNoLineBreak();
+        font-size: medium;
+        width: $labelWidth;
+    }
+
+    & > input {
+        @include colorBackground(input);
+        font: inherit;
+        font-size: small;
+        border: none;
+        margin: 0;
+        padding-left: 10px;
+        height: 100%;
+        width: 0;
+        flex: 1;
+    }
+
+    & > button {
+        height: 100%;
+        flex: 1;
+        font: inherit;
+    }
+
+    & > .dropdown {
+        height: 30px;
+        flex: 1;
+    }
+}
+
+.inputRowLast {
+    @extend .inputRow;
+    margin-top: auto;
+    justify-self: flex-end;
+    align-self: flex-end;
+}
+
+.dropdownItem {
+    padding: 3px 10px;
+    height: 30px;
+}
+
+.inputArea {
+    @extend .input;
+    display: flex;
+    height: 100px;
+    width: 100%;
+
+    @include desktop {
+        height: 100px;
+    }
+
+    @include mobile {
+        flex: 1;
+    }
+
+    @include mobile-landscape {
+        flex: 1;
+    }
+
+    .upload {
+        @include colorBorder(input);
+        display: flex;
+        position: relative;
+        justify-content: center;
+        flex-direction: column;
+        width: 100%;
+        height: calc(100% - 10px);
+        margin: 5px;
+        padding: 10px;
+        border: 2px dotted;
+        cursor: pointer;
+
+        & > input {
+            position: absolute;
+            background-color: none;
+            align-items: center;
+            border: none;
+            opacity: 0;
+            z-index: 5;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+
+            &:disabled {
+                z-index: -1;
+            }
+        }
+    
+        & > SVG {
+            height: calc(100% - 30px);
+            width: 100%;
+        }
+    
+        & > div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            height: 30px;
+        }
+    }
+}
+
+.inputHeader {
+    @extend .input;
+    @include colorWithShadow(main);
+    display: grid;
+    z-index: 9;
+    overflow: hidden;
+
+    @include desktop {
+        grid-template-columns: minmax($labelLargeWidth, 1fr) auto $controlWidth;
+        gap: 5px;
+    }
+
+    @include mobile {
+        grid-template-columns: minmax($labelLargeWidth, 1fr) auto $controlWidth;
+    }
+
+    @include mobile-landscape {
+        grid-template-columns: minmax($labelLargeWidth, 1fr) $controlWidth 0;
+        gap: 5px;
+    }
+
+    & > b {
+        @include fontNoLineBreak();
+        text-indent: 5px;
+    }
+}
+
+.inputCompendium {
+    @include colorBorder(second);
+    display: grid;
+    grid-template-columns: $labelWidth 1fr;
+    z-index: 1;
+    border-bottom: 1px solid;
+}
+
+.inputCompendiumArea {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    height: calc(100% - 2 * $menuItemHeaderHeight);
+    z-index: 2;
+    overflow: hidden
+}
+
+.inputCompendiumMenu {
+    @include colorBackground(second);
+    @include colorBorder(main);
+    @include scroll;
+    display:  grid;
+    grid-template-rows: auto 1fr;
+    border-right: 1px solid;
+    overflow: auto;
+
+    & > div {
+        @include colorDecoration(second);
+    }
+}
+
+.inputCompendiumValueTable {
+    @include colorBackground(input);
+    @include scroll;
+    position: relative;
+    font-size: small;
+    overflow: auto;
+
+    & > table {
+        background: colorInGroup(input, 'border');
+        width: 100%;
+        border-spacing: 1px;
+    }
+}
+
+.inputCompendiumItem {
+    @include colorBackground(input);
+    &[data=selected] {
+        @include colorDecoration(document);
+    }
+
+    & > td {
+        padding: 0 2px;
+        &:last-child {
+            @include colorInteractive;
+            height: $iconSmallSize;
+            width: $iconSmallSize;
+        }
+    }
+}
+
+.inputCompendiumMenuItem {
+    @extend .input;
+    @include colorText(second);
+    padding: 5px;
+    width: 100%;
+    font: inherit;
+
+    &[value="0"] {
+        @include colorBackground(second);
+    }
+
+    &[value="1"] {
+        @include colorDecoration(second);
+        padding-left: 15px;
+    }
+}
+
+.inputCompendiumListHeader {
+    @extend .inputCompendiumItem;
+    @include colorDecoration(main);
+    position: sticky;
+    top: 0;
+    outline: 1px solid;
+    height: $iconSmallSize + 5px;
+    border: none;
+    font-weight: 500;
+    z-index: 100;
+
+    &:hover { filter: none; }
+
+    & > th {
+        @include colorInteractiveControl;
+        @include colorDecoration(main);
+        position: relative;
+        pointer-events: all;
+        user-select: none;
+        border: none;
+        cursor: pointer;
+
+        &[data=ascending]::after {
+            position: absolute;
+            white-space: normal;
+            right: 3px;
+            top: calc(50% - 5px);
+            border-color: transparent transparent colorInGroup(main, icons) transparent;
+            border-width: 5px;
+            border-style: solid;
+            content: " ";
+        }
+        
+        &[data=descending]::after {
+            position: absolute;
+            white-space: normal;
+            right: 3px;
+            top: calc(50% - 5px);
+            border-color: colorInGroup(main, icons) transparent transparent transparent;
+            border-width: 5px;
+            border-style: solid;
+            content: " ";
+        }
+    }
+}
+
+.compendiumSpellFilterGroup {
+    display: grid;
+    grid-template-columns: repeat(10, $iconNormalSize);
+    align-items: center;
+    height: 100%;
+    gap: 5px;
+
+    @include mobile {
+        display: none;
+    }
+
+    @include mobile-landscape {
+        grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+        grid-column: 1;
+        &:empty {
+            display:  none;
+        }
+    }
+    
+}
+
+.compendiumSpellFilterGroupItem {
+    @include fontNoLineBreak;
+    @include centerFlex;
+    font: inherit;
+    user-select: none;
+    font-size: small;
+    padding: 5px;
+    height: 0.6 * $menuItemHeaderHeight;
+    border-radius: 0.3 * $menuItemHeaderHeight;
+
+    &:not([data=selected]) {
+        @include colorDecoration(interactive);
+    }
+}
+
+.compendiumPaginator {
+    @include colorBackground(second);
+    @include colorBorder(second);
+    @include centerGrid;
+    position: sticky;
+    display: grid;
+    grid-template-columns: auto 10ch auto;
+    justify-content: center;
+    bottom: 0;
+    outline: 1px solid;
+    height: $iconSmallSize + 5px;
+    user-select: none;
+
+    & > button {
+        @include centerGrid;
+        width: $iconSmallSize;
+        height: $iconSmallSize;
+        border-radius: 50%;
+        
+        & > svg {
+            width: 100%;
+            height: 100%;
+        }
+    }
+}

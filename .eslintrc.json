@@ -1,0 +1,23 @@
+{
+    "extends": [
+        "next/core-web-vitals",
+        "standard-with-typescript"
+    ],
+    "parserOptions": {
+        "project": "./tsconfig.json"
+    },
+    "rules": {
+        "@typescript-eslint/indent": ["error", 4],
+        "@typescript-eslint/no-extraneous-class": "off",
+        "@typescript-eslint/no-unsafe-argument": "off",
+        "@typescript-eslint/no-dynamic-delete": "off",
+        "@typescript-eslint/no-empty-interface": "off",
+        "@typescript-eslint/space-before-function-paren": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@next/next/no-img-element": "off",
+        "n/no-callback-literal": "off",
+        "object-shorthand": "off",
+        "no-useless-escape": "off",
+        "quote-props": "off"
+    }
+}

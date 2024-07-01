@@ -1,0 +1,21 @@
+{
+    "id": "000000000000000000000007",
+    "type": "cla",
+    "name": "test",
+    "data": {
+        "name": "Test Class",
+        "description": "Example class",
+        "icon": "https://www.imgur.com/",
+        "levels": [
+            {
+                "modifiers": []
+            },
+            {
+                "modifiers": []
+            }
+        ]
+    },
+    "isOwner": true,
+    "dateCreated": 0,
+    "dateUpdated": 0
+}

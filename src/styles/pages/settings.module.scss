@@ -1,0 +1,16 @@
+@import 'styles/fonts.scss';
+@import 'styles/colors.scss';
+@import 'styles/prefabs.scss';
+@import 'styles/constants.scss';
+@import 'styles/common.scss';
+
+.container {
+    @include colorBackground(second);
+    @include scroll;
+    display: grid;
+    grid-template-columns: 2fr minmax(200px, 1fr);
+    gap: 3px;
+    padding: 10px;
+    overflow-x: hidden;
+    overflow: auto;
+}

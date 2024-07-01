@@ -1,0 +1,63 @@
+@import 'styles/colors.scss';
+@import 'styles/constants.scss';
+
+@mixin mobile {
+    @media (max-width: #{$desktop-smallWidth - 1px}) {
+        @content;
+    }
+}
+
+@mixin mobile-landscape {
+    @media (min-width: #{$desktop-smallWidth}) and (max-width: #{$desktop-width - 1px}) {
+        @content;
+    }
+}
+
+@mixin desktop {
+    @media (min-width: #{$desktop-width}) {
+        @content;
+    }
+}
+
+@mixin centerGrid {
+    display: grid;
+    align-items: center;
+    justify-items: center;
+}
+
+@mixin centerFlex {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@mixin scroll {
+    cursor: auto;
+    overflow: scroll;
+
+    &::-webkit-scrollbar {
+        width: $scrollBarWidth;
+        height: $scrollBarWidth;
+    }
+    
+    &::-webkit-scrollbar-corner {
+        @include colorDecoration(main);
+    }
+
+    &::-webkit-scrollbar-track {
+        @include colorDecoration(main);
+    }
+
+    &::-webkit-scrollbar-thumb  {
+        @include colorBackground(interactive);
+    }
+}
+
+@mixin scrollSmall {
+    @include scroll;
+
+    &::-webkit-scrollbar {
+        width: 2px;
+        height: 2px;
+    }
+}

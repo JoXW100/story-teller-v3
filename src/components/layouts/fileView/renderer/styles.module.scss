@@ -1,0 +1,863 @@
+@import 'styles/colors.scss';
+@import 'styles/constants.scss';
+@import 'styles/fonts.scss';
+@import 'styles/prefabs.scss';
+@import 'styles/animations.scss';
+
+.main {
+    @include colorDefaultBackground;
+    @include fontNormal;
+    @include scroll;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    margin: auto;
+}
+
+.menu {
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+
+    & > div {
+        position: absolute;
+        display: grid;
+        justify-items: center;
+        gap: 3px;
+        margin: 5px;
+        
+        & > span {
+            @include colorBackground(second);
+            @include fontNormal;
+            @include centerGrid;
+            padding: 2px 5px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: small;
+            user-select: none;
+        }
+    
+        & > button {
+            height: $iconNormalSize;
+            width: $iconNormalSize;
+            border-radius: $iconNormalSize / 2;
+        }
+    }
+}
+
+.innerPage {
+    @include colorBackground(document);
+    font-family: $fontDocument;
+    transform-origin: top left;
+    width: $pageWidth;
+    min-width: 0;
+    min-height: 100%;
+    padding: 0.75cm;
+    padding-bottom: 2cm;
+    margin: auto;
+}
+
+.contentHolder {
+    @include contentSlideIn(200ms);
+}
+
+.error {
+    color: color(error);
+    margin: 10px;
+    font-weight: bold;
+}
+
+.horizontal {
+    display: flex;
+    align-items: row;
+}
+
+.rendererBox {
+    @include colorWithShadow(second);
+    @include fontNormal;
+    padding: 5px;
+
+    &[data=open] {
+        cursor: pointer;
+    }
+    
+    &[data=closed] {
+        cursor: pointer;
+        border-bottom: 2px solid;
+    }
+
+    & + & {
+        margin-top: 7px;
+    }
+}
+
+.iconRow {
+    & > span {
+        margin-left: 5px;
+    }
+}
+
+.spellComponent {
+    @include colorBackground(second);
+    @include colorInteractiveControl;
+    border-radius: 3px;
+    display: inline-flex;
+    position: relative;
+    justify-content: center;
+    width: 0.9em;
+    height: 0.9em;
+    font-size: smaller;
+    margin-left: 3px
+}
+
+.chargeToggle {
+    @include colorDecoration(second);
+    display: flex;
+    position: relative;
+    box-shadow: inset colorInGroup(second, shadow) 0 0 5px -1px;
+    height: 15px;
+    width: 15px;
+    content: " ";
+    cursor: pointer;
+
+    &:not(:first-child) {
+        margin-left: 5px;
+    }
+
+    &[data=fixed] {
+        cursor: default;
+        &::after { background: color(accents); }
+    }
+    
+    &[data=expended]::after { background: colorInGroup(second, text); }
+    
+    &[data]::after {
+        position: absolute;
+        z-index: 100;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        margin: 3px;
+        width: auto;
+        height: auto;
+        content: " ";
+    }
+}
+
+.chargeToggleInputHolder {
+    @include colorBackground(input);
+    @include fontNoLineBreak;
+    display: flex;
+    height: $iconSmallSize - 1px;
+    border-radius: $iconSmallSize / 2;
+    align-items: center;
+    font-size: small;
+
+    & > :first-child {
+        min-width: 70px;
+        text-align: center;
+        padding-left: 10px;
+    }
+
+    & > input {
+        width: 70px;
+    }
+
+    & > :last-child {
+        padding-right: 10px;
+    }
+
+    & > input {
+        font-size: small;
+        padding: 0 !important;
+        font-weight: bold;
+    }
+}
+
+.loading {
+    width: 100%;
+    height: 100%;
+    margin-top: 100px;
+    & svg {
+        height: 0.85in;
+    }
+}
+
+.encounterButton {
+    @include colorShadow(interactive);
+    flex: 1;
+    padding: 5px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.encounterAddGroupButton {
+    width: 100%;
+    border-radius: $iconSmallSize;
+}
+
+.encounterCollapsedButtonHolder {
+    display: block;
+    position: relative;
+    font-family: $fontNormal;
+    flex: 1;
+
+    & > button {
+        width: 100%;
+    }
+
+    & > div {
+        @include colorWithShadow(second);
+        position: absolute;
+        display: grid;
+        gap: 5px;
+        grid-template-columns: 1fr;
+        width: 100%;
+        padding: 5px;
+        z-index: 1000;
+
+        &[data=false] {
+            display: none;
+        }
+
+        .dropdownItem {
+            height: $iconSmallSize;
+        }
+
+        & > div {
+            height: $iconSmallSize;
+        }
+
+        & > button {
+            height: $iconNormalSize;
+        }
+    }
+}
+
+.encounterCardHolder {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-column-gap: 10px;
+    grid-row-gap: 10px;
+    margin-top: 5px;
+
+    &[data=true] {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+.encounterCard {
+    @include colorWithShadow(second);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto 16px 16px 16px 1fr;
+    gap: 3px;
+    user-select: none;
+    font-size: 14px;
+    position: relative;
+
+    .encounterCardHeader {
+        @include colorWithShadow(main);
+        padding: 1px 5px;
+        width: 100%;
+
+        & > div {
+            @include fontNoLineBreak;
+            font-size: 15px;
+            font-weight: bold;
+            width: 100%;
+        }
+    }
+
+    .encounterCardToken {
+        @include colorBackground(interactive);
+        @include centerFlex;
+        position: absolute;
+        height: 22px;
+        width: 22px;
+        border-radius: 50%;
+        left: calc(100% - 19px);
+        top: -3px;
+        z-index: 1000;
+
+        &[data=hide] {
+            display: none;
+        }
+    }
+
+    .encounterCardRow {
+        @include colorDecoration(second);
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        padding: 0 2px;
+        align-items: center;
+        margin: 0 3px;
+        gap: 5px;
+
+        & > button {
+            height: 15px;
+            width: 15px;
+            border-radius: 50%;
+            & > svg {
+                height: 100%;
+                width: 100%;
+            }
+        }
+    }
+
+    .encounterCardInputRow {
+        @extend .encounterCardRow;
+        grid-template-columns: auto 1fr auto;
+        gap: 5px;
+    
+        .encounterCardInput {
+            font: inherit;
+            width: 100%;
+            height: 16px;
+            text-align: right;
+            border-radius: 8px;
+            padding: 0 8px;
+    
+            &::-webkit-outer-spin-button,
+            &::-webkit-inner-spin-button {
+                display: none;
+            }
+        }
+    }
+
+    .encounterCardTextarea {
+        display: flex;
+        font: inherit;
+        border: none;
+        outline: none;
+        padding: 2px;
+        min-height: 22px;
+        margin: 0 3px 3px 3px;
+        resize: vertical;
+        min-height: calc(100% - 3px);
+    }
+}
+
+.encounterCardPortrait {
+    @include centerFlex;
+    overflow: hidden;
+    margin: 3px;
+    aspect-ratio: 1;
+    position: relative;
+
+    & > img {
+        width: 100%;
+        margin: auto;
+    }
+}
+
+.encounterInitiativeCounter {
+    @include colorDecoration(second);
+    @include centerFlex;
+    position: absolute;
+    z-index: 100;
+    height: $iconSmallSize;
+    width: $iconSmallSize;
+    border-radius: 100%;
+}
+
+.encounterTurnOrderEntry {
+    @include colorWithShadow(second);
+    display: grid;
+    grid-template-columns: $iconSmallSize * 2 1fr;
+    margin-top: 5px;
+    padding-right: 10px;
+    align-items: center;
+    pointer-events: none;
+    user-select: none;
+
+    & > img {
+        width: 100%;
+    }
+
+    & > b {
+        @include fontNoLineBreak;
+    }
+
+    &:not(& + &) {
+        @include colorBackground(main);
+    }
+    
+    &[data=true] {
+        border-top: 2px solid;
+    }
+}
+
+.sheetBox {
+    @include colorDecoration(second);
+    display: grid;
+    justify-items: center;
+    border: 2px solid;
+    margin: 0 1px;
+    padding: 3px;
+    flex: 1;
+    font-size: 14px;
+}
+
+.attributeBox {
+    @extend .sheetBox;
+    border-radius: 15px;
+
+    & > div {
+        width: 100%;
+        border-bottom: 1px solid;
+        margin: 5px 0;
+    }
+
+    & > span {
+        width: 100%;
+        margin: 1px;
+    }
+}
+
+.armorBox {
+    @extend .sheetBox;
+    border-bottom-left-radius: 50%;
+    border-bottom-right-radius: 50%;
+    max-width: 55px;
+
+    & > b:first-child { align-self: center; }
+}
+
+.initiativeBox {
+    @extend .sheetBox;
+    border-radius: 15px;
+    max-width: 70px;
+
+    & > b { align-self: center; }
+    & > span { width: 100%; }
+}
+
+.healthBox {
+    @extend .sheetBox;
+    grid-template-columns: auto minmax(0, 1fr);
+    flex: 3;
+    padding: 0;
+    height: 60px;
+    overflow: hidden;
+
+    & > :first-child {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        width: 60px;
+        border-right: 2px solid;
+
+        & > button {
+            height: 19px;
+        }
+
+        & > input {
+            font-weight: bold;
+            min-width: 0;
+            text-align: center;
+            padding-left: 15px;
+        }
+    }
+
+    & > :last-child {
+        display: grid;
+        grid-template-columns: 1fr 1ch 1fr 45px;
+        justify-content: center;
+        text-align: center;
+        gap: 1px;
+        width: 100%;
+        padding: 3px;
+
+        & > b {
+            font-size: small;
+            pointer-events: none;
+        }
+
+        & > input {
+            font-weight: bold;
+            min-width: 0;
+            text-align: center;
+            height: 16px;
+        }
+
+        & > :last-child {
+            grid-column: span 3;
+        }
+    }
+}
+
+.proficiencyBox {
+    @extend .sheetBox;
+    max-width: 16.5%;
+    border-radius: 15px;
+    & > b { align-self: center; }
+    & > span { width: 100%; }
+}
+
+.passivesBox {
+    @extend .sheetBox;
+    border-radius: 15px;
+    justify-items: left;
+    padding: 0 10px;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto auto;
+}
+
+.speedBox {
+    @extend .sheetBox;
+    border-radius: 15px;
+    max-width: 33%;
+    & > b { align-self: center; }
+}
+
+.pageSelector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    gap: 3px;
+
+    & > button {
+        height: $smallMenuItemHeight;
+
+        &:first-child {
+            border-top-left-radius: $smallMenuItemHeight / 2;
+            border-bottom-left-radius: $smallMenuItemHeight / 2;
+        }
+
+        &:last-child {
+            border-top-right-radius: $smallMenuItemHeight / 2;
+            border-bottom-right-radius: $smallMenuItemHeight / 2;
+        }
+    }
+}
+
+.pageItem {
+    &[data=false] {
+        display: none;
+    }
+}
+
+.skillTable {
+    @extend .sheetBox;
+    border-radius: 15px;
+    font-family: $fontNormal;
+    & > div {
+        display: grid;
+        grid-template-columns: auto 10px minmax(0, 1fr) $iconSmallSize * 2 55px;
+        gap: 5px;
+        height: $iconSmallSize;
+        width: 100%;
+
+        & > .label {
+            font-family: $fontDocument;
+        }
+
+        & > .proficiencyMarker {
+            @include colorBorder(document);
+            height: 9px;
+            width: 9px;
+            margin-bottom: 3px;
+            align-self: center;
+            justify-self: center;
+
+            &[data=proficient] {
+                border: 2px solid;
+                border-radius: 100%;
+            }
+            &[data=halfProficient] {
+                border: 1px solid;
+                border-radius: 100%;
+            }
+            &[data=expert] {
+                border: 2px solid;
+                border-radius: 100%;
+                background-color: color(accents);
+            }
+            &[data=none] {
+                pointer-events: none;
+            }
+        }
+
+        & > *:last-child {
+            text-align: center;
+            justify-self: center;
+            align-self: center;
+            height: fit-content;
+        }
+    }
+
+    & > div:first-child {
+        border-bottom: 2px solid;
+        margin-bottom: 2px;
+    }
+
+    & > div:not(:first-child,:last-child) {
+        border-bottom: 1px solid;
+    }
+}
+
+.iconHolder {
+    display: flex;
+    justify-content: center;
+    & > * {
+        &[disabled] {
+            filter: opacity(60%) grayscale(0.8)
+        }
+
+        & > svg {
+            padding: 1px;
+        }
+    }
+}
+
+.modifierChoice {
+    @include fontNormal;
+    @include colorDecoration(second);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) $labelLargeWidth;
+    grid-template-rows: $iconSmallSize;
+    font-family: $fontNormal;
+    gap: 5px;
+    padding: 3px;
+    font: inherit;
+
+    & > b {
+        @include fontNoLineBreak;
+        font-size: smaller;
+        text-indent: 4px;
+        align-self: center;
+    }
+
+    & > .modifierChoiceItem {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) $iconSmallSize;
+    }
+
+    .dropdownItem {
+        opacity: 100%;
+        font-size: small;
+        height: $iconSmallSize;
+    }
+}
+
+.spellFilterMenu {
+    display: grid;
+    grid-template-columns: 60px repeat(auto-fit, $iconSmallSize);
+    gap: 1px;
+    border: 1px solid;
+    border-radius: 10px;
+    margin-bottom: 5px;
+
+    & > b {
+        align-self: center;
+        text-indent: 5px
+    }
+}
+
+.spellFilterMenuItem {
+    @include centerFlex;
+    height: $iconSmallSize;
+    border: 1px solid inherit;
+
+    &[data=false] {
+        filter: opacity(80%);
+    }
+}
+
+.spellItem {
+    @include colorDecoration(second);
+    display: grid;
+    align-items: center;
+    grid-template-columns: auto auto auto 1fr auto auto;
+    height: $iconSmallSize;
+    text-indent: 10px;
+    margin-bottom: 1px;
+    gap: 1px;
+}
+
+.inventoryItem {
+    @include colorDecoration(second);
+    display: grid;
+    grid-template-columns: $iconNormalSize 1fr 1.5 * $iconNormalSize 1.5 * $iconNormalSize 1.5 * $iconNormalSize $iconNormalSize;
+    font-size: smaller;
+    height: $iconNormalSize;
+    margin-bottom: 1px;
+    align-items: center;
+
+    &[data=true] {
+        @include colorDecoration(main);
+    }
+
+    & > div {
+        @include fontNoLineBreak;
+        display: grid;
+        text-indent: 10px;
+
+        & > b {
+            @include colorByRarity;
+        }
+
+        & > span {
+            font-size: small;
+        }
+    }
+
+    & > span {
+        justify-self: center;
+    }
+
+    & > button {
+        padding: 5px;
+        width: $iconNormalSize;
+        height: $iconNormalSize;
+        margin-left: 1px;
+        & > svg {
+            width: 100%;
+            height: 100%;
+        }
+    }
+}
+
+.inventoryHeader {
+    display: grid;
+    grid-template-columns: $iconNormalSize 1fr 1.5 * $iconNormalSize 1.5 * $iconNormalSize 1.5 * $iconNormalSize;
+    font-size: small;
+    border-bottom: 2px solid;
+    padding-right: $iconNormalSize;
+    justify-items: center;
+
+    & > b:nth-child(2) {
+        justify-self: start;
+        text-indent: 10px;
+    }
+}
+
+.inventoryAttunementDropdown {
+    background-color: colorInGroup(second, decoration) !important;
+    color: colorInGroup(second, text) !important;
+    height: $iconSmallSize !important;
+    max-height: $iconSmallSize;
+    border-radius: $iconSmallSize / 2;
+    margin-bottom: 5px;
+
+    & > :first-child > * {
+        border-radius: $iconSmallSize / 2;
+    }
+
+    & > :last-child {
+        border-radius: 50%;
+        margin-left: 2px;
+    }
+}
+
+.inventoryAttunementDropdownItem {
+    background-color: colorInGroup(second, decoration) !important;
+    color: colorInGroup(second, text) !important;
+    height: $iconSmallSize !important;
+    text-indent: 5px;
+    font-weight: bold;
+
+    &:hover {
+        background-color: colorInGroup(interactive, background) !important;
+    }
+}
+
+.inventoryInput {
+    @include colorDecoration(second);
+    @include scroll;
+    @include fontNormal;
+    width: 100%;
+    resize: vertical;
+    overflow-x: hidden;
+    overflow-y: auto;
+    outline: none;
+    border: none;
+    border-radius: $iconSmallSize / 2;
+    padding: $iconSmallSize / 2;
+    min-height: 28px + $iconSmallSize / 2;
+}
+
+.namePlate {
+    display: grid;
+    grid-template-columns: 60px 1fr $iconSmallSize + 5px;
+    grid-template-rows: 60px 1fr;
+    gap: 3px;
+}
+
+.restPanel {
+    display: grid;
+    height: 100%;
+    gap: 3px;
+}
+
+.shortRestSidePanel {
+    padding: 5px;
+
+    & > .shortRestRecoverChargesHolder {
+        @include colorDecoration(second);
+        display: grid;
+        gap: 5px;
+        margin-bottom: 5px;
+
+        & > div {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+
+            & > span {
+                margin-right: 5px;
+            }
+
+            &:not(:has(div)){
+                display: none;
+            }
+        }
+    }
+
+    & > button {
+        width: 100%;
+        height: $iconSmallSize;
+
+        &:not(:last-child) {
+            margin-bottom: 5px;
+        }
+    }
+}
+
+.upcastGroup {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.upcastButton {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    width: 15px;
+    height: 15px;
+}
+
+.map {
+    @include colorBackground(second);
+    @include colorBorder(document);
+    display: grid;
+    padding: 2px;
+    gap: 2px;
+
+    & > * {
+        @include colorBackground(document);
+        cursor: pointer;
+
+        &[data=true] {
+            @include colorDecoration(second);
+        }
+
+        & > * {
+            pointer-events: none;
+        }
+    }
+}

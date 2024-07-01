@@ -1,0 +1,81 @@
+@import 'styles/fonts.scss';
+@import 'styles/colors.scss';
+@import 'styles/constants.scss';
+
+html {
+    height: 100vh;
+    height: 100svh;
+}
+
+body {
+    @include colorDefaultBackground;
+    font-family: $fontNormal;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+}
+
+#__next {
+    height: 100%;
+    width: 100%;
+    min-width: $mobile-width;
+}
+
+div, p, span, textarea, code {
+    tab-size: 4;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+svg {
+    user-select: none;
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
+    font-size: 1.5rem;
+}
+
+input {
+    @include colorBackground(input);
+    font-family: inherit;
+    border: none;
+    padding-left: 6px;
+
+    &:focus {
+        outline: none;
+    }
+}
+
+textarea {
+    @include colorBackground(input);
+    font-family: inherit;
+    border: none;
+    padding: 8px;
+    resize: none;
+
+    &:focus {
+        outline: none;
+    }
+}
+
+button {
+    @include colorInteractive;
+    font-family: inherit;
+    border: none;
+    padding: 0;
+
+    &:focus-visible {
+        outline: 1px solid;
+        outline-offset: -1px
+    }
+}
+
+* {
+    box-sizing: border-box;
+    [error=true] {
+        color: color(error) !important;
+    }
+}

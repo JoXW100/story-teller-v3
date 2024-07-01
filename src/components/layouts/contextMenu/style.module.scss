@@ -1,0 +1,62 @@
+@import 'styles/colors.scss';
+@import 'styles/fonts.scss';
+@import 'styles/constants.scss';
+
+.main {
+    @include colorWithShadow(input);
+    display: block;
+    position: absolute;
+    z-index: 1000;
+}
+
+.item {
+    @include colorInteractiveControl;
+    @include fontNoLineBreak;
+    @include fontThin;
+    display: grid;
+    grid-template-columns: $iconSmallSize auto;
+    gap: 5px;
+    position: relative;
+    padding: 2.5px 10px 2.5px 2px;
+    height: 26px;
+    user-select: none;
+    width: 100%;
+
+    & > svg {
+        width: $iconSmallSize;
+        height: $iconSmallSize;
+    }
+
+    & > span, svg {
+        pointer-events: none;
+    }
+
+    &[data=content] {
+        &:after {
+            position: absolute;
+            right: -3px;
+            top: calc(50% - 5px);
+            border-color: transparent transparent transparent colorInGroup(input, border);
+            border-width: 5px;
+            border-style: solid;
+            content: " ";
+        }
+
+        &:hover > .content { 
+            visibility: visible; 
+        }
+        
+        & > .content {
+            @include colorShadow(input);
+            visibility: hidden;
+            display: block;
+            width: 100%;
+            height: fit-content;
+            transform: translateX(calc(100% + 10px)) translateY(-2.5px);
+        }
+    }
+
+    &[data=hide] {
+        display: none;
+    }
+}

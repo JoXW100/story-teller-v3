@@ -1,0 +1,58 @@
+$fontNormal: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+$fontDocument: 'Mrs Eaves';
+
+
+@mixin fontNoLineBreak {
+    white-space: pre;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+@mixin fontNormal {
+    font-size: medium;
+    font-weight: normal;
+}
+
+@mixin fontBold {
+    font-size: medium;
+    font-weight: bold;
+}
+
+@mixin fontLarge {
+    font-size: larger;
+    font-weight: bold;
+}
+
+@mixin fontSmall {
+    font-size: small;
+    font-weight: 100;
+}
+
+@mixin fontThin {
+    font-size: normal;
+    font-weight: 100;
+}
+
+@mixin fontHeader1 {
+    @include fontNoLineBreak;
+    font-size: xx-large;
+    font-weight: 300;
+}
+
+@mixin fontHeader2 {
+    @include fontNoLineBreak;
+    font-size: x-large;
+    font-weight: 300;
+}
+
+@mixin fontHeader3 {
+    @include fontNoLineBreak;
+    font-size: large;
+    font-weight: 300;
+}
+
+@mixin fontHeaderPage {
+    @include fontNoLineBreak;
+    font-weight: 700;
+    font-size: 20px;
+}

@@ -1,0 +1,10 @@
+export type Enum = Record<string, string | number | symbol>
+export type EnumValue = Enum[keyof Enum]
+export type KeysOf<T> = { [K in keyof T]: T[K] | string | object }
+export type ValueOf<T> = T[keyof T]
+export type KeysOfTwo<T1, T2> = KeysOf<T1> | { [K in Exclude<keyof T2, keyof T1>]: 0 }
+export type Simplify<T> = T extends object ? { [K in keyof T]?: Simplify<T[K]> } : T
+export type Editable<T extends Record<string, any>, K extends string> = { [P in K]: T[P] }
+export type BooleanString = 'true' | 'false'
+const ObjectIdBrand: unique symbol = Symbol('An unique database object identifier')
+export type ObjectId = string & { [ObjectIdBrand]: never }

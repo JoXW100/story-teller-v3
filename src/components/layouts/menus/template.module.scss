@@ -1,0 +1,137 @@
+@import 'styles/colors.scss';
+@import 'styles/constants.scss';
+@import 'styles/prefabs.scss';
+@import 'styles/fonts.scss';
+
+$size: 20px;
+
+.main {
+    @include colorBackground(input);
+    display: flex;
+    flex-direction: column;
+    background-color: inherit;
+    min-width: 0;
+    user-select: none;
+    height: inherit;
+    font: inherit;
+    flex: 1;
+
+    & > .addRow {
+        @include colorBackground(input);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        min-width: 0;
+        flex-shrink: 0;
+    }
+    
+    & > .content {
+        @include colorDefaultBackground;
+        @include scroll;
+        color: colorInGroup(main, text);
+        display: block;
+        flex: 1;
+        overflow-x: auto;
+        overflow-y: scroll;
+        direction: rtl;
+        cursor: default;
+    }
+}
+
+.input {
+    @include colorBackground(input);
+    display: flex;
+    height: $iconSmallSize;
+    min-width: 0;
+    flex-shrink: 0;
+    border: none;
+    outline: none;
+    font: inherit;
+    padding: 0 5px;
+    flex: 1;
+
+    &[data=highlight] {
+        filter: brightness(120%);
+    }
+
+    &[data=template] {
+        color: color(syntax-variable)
+    }
+}
+
+.inputRow {
+    display: grid;
+    grid-template-columns: $labelWidth minmax(0, 1fr);
+    max-height: $size;
+
+    & > b {
+        @include fontNoLineBreak;
+        display: flex;
+        align-items: center;
+    }
+}
+
+.row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    direction: ltr;
+    height: $iconSmallSize;
+    align-items: center;
+    background-color: inherit;
+    align-items: stretch;
+    user-select: text;
+    text-indent: 5px;
+    margin-top: 1px;
+}
+
+.collection {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+
+    &[error=true] {
+        color: color(error) !important;
+    }
+}
+
+.itemComponent {
+    display: flex;
+    margin-right: 2px;
+    height: 100%;
+    flex: 1;
+
+    & > button {
+        max-width: $smallButtonWidth;
+        min-width: $smallButtonWidth;
+        flex: 1;
+    }
+}
+
+.button {
+    aspect-ratio: 1;
+    padding: 2px;
+    user-select: none;
+    height: $size;
+    width: $size;
+    text-indent: 0;
+
+    & > svg {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.inputHolder {
+    display: flex;
+    position: relative;
+    flex: 1;
+
+    & > pre {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+}
+
+.dialog {
+    font-size: small !important; 
+}

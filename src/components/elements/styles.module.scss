@@ -1,0 +1,298 @@
+@import 'styles/colors.scss';
+@import 'styles/fonts.scss';
+@import 'styles/constants.scss';
+@import 'styles/prefabs.scss';
+
+@mixin fontExtension {
+    font-weight: bold;
+    font-size: small;
+    text-align: center;
+}
+
+@mixin roundedExtension {
+    @include colorDecoration(second);
+    @include colorShadow(second);
+    border-radius: 10px;
+    padding: 0 5px;
+}
+
+.center {
+    @include centerFlex;
+    flex: 1;
+    height: 100%;
+    width: 100%;
+}
+
+.save {
+    @include fontExtension;
+    @include roundedExtension;
+    
+    display: inline-flex;
+    user-select: none;
+    align-items: center;
+    flex: 1 1;
+    width: fit-content;
+    cursor: pointer;
+}
+
+.link {
+    color: color(accents);
+    text-decoration: none;
+    cursor: pointer;
+    
+    &:hover {
+        text-decoration: underline;
+        filter: brightness(105%);
+    }
+    &:active {
+        filter: brightness(110%);
+    }
+}
+
+.linkContent {
+    display: block;
+    cursor: pointer;
+
+    & > div {
+        @extend .box;
+    }
+}
+
+.linkTitle {
+    @extend .link
+}
+
+.linkLoading {
+    @extend .box;
+    @extend .header;
+    user-select: none;
+    cursor: pointer;
+}
+
+.line {
+    border-bottom: 2px solid colorInGroup(document, border);
+    margin: 5px 0;
+}
+
+.line-vertical {
+    border-right: 2px solid colorInGroup(document, border);
+    border-bottom: none !important;
+    margin: 0 5px;
+}
+
+.space {
+    margin: 5px 0;
+}
+
+.space-vertical {
+    margin: 0 5px;
+}
+
+.align {
+    display: flex;
+    align-content: stretch;
+    align-items: stretch;
+    flex: 1;
+
+    &[data=v], &[data=vc], &[data=cv] {
+        flex-direction: column; 
+    }
+
+    &[data=h], &[data=hc], &[data=ch], &[data=c] {
+        flex-direction: row;
+        & > .line { @extend .line-vertical; }
+        & > .space { @extend .space-vertical; }
+    }
+
+    &[data=c], &[data=hc], &[data=ch], &[data=vc], &[data=cv], 
+    &[data=vch], &[data=vhc], &[data=vch], &[data=hcv], &[data=vhc], &[data=hvc] {
+        align-items: center;
+        & > .line { align-self: stretch; }
+    }
+}
+
+.roll {
+    @include fontExtension();
+    @include roundedExtension();
+
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    user-select: none;
+    flex: 1;
+    font-family: $fontNormal;
+    cursor: pointer;
+
+    & > span {
+        display: inline-flex;
+        margin-left: 5px;
+        font-family: $fontDocument;
+    }
+}
+
+.fill {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    height: 100%;
+    flex: 1;
+}
+
+.box {
+    @include colorBackground(second);
+    padding: 5px;
+
+    &[data=true] {
+        border: 2px solid;
+    }
+    
+    &[data=false] {
+        @include colorShadow(second);
+    }
+}
+
+.margin {
+    display: block;
+    flex: 1;
+}
+
+.block {
+    flex: 1;
+    width: 100%;
+}
+
+.image {
+    display: flex;
+    width: 100%;
+    height: fit-content;
+
+    &[border=true] {
+        @include colorBorder(second);
+        border: 2px solid;
+    }
+
+    & > img { width: 100%; }
+}
+
+.header {
+    font-weight: bold;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    display: flex;
+    align-items: center;
+
+    &[data=true] {
+        border-bottom: 2px solid map-get($palette, border);
+        margin-bottom: 6px;
+    }
+}
+
+.header1 {
+    @extend .header;
+    font-size: x-large;
+    margin-top: 1px;
+    margin-bottom: 2px;
+}
+
+.header2 {
+    @extend .header;
+    font-size: larger;
+}
+
+.header3 {
+    @extend .header;
+    font-size: large;
+}
+
+.error {
+    @include centerFlex;
+    @include fontLarge;
+    color: color(error);
+    width: 100%;
+    flex: 1;
+    height: 50px;
+}
+
+.icon {
+    font:  inherit;
+    display: inline-block;
+    height: 0.9em;
+    width: auto;
+    color: inherit;
+    fill: colorInGroup(second, decoration);
+}
+
+.toggle {
+    flex: 1;
+    width: fit-content;
+    cursor: pointer;
+    user-select: none;
+}
+
+.row {
+    display: inline-flex;
+    flex-direction: row;
+    & > .line { @extend .line-vertical; }
+    & > .space { @extend .space-vertical; }
+}
+
+.table {
+    flex: 1;
+    width: 100%;
+
+    &[data=true] {
+        background: colorInGroup(document, border);
+        th, td {
+            @include colorBackground(document);
+        }
+    }
+    
+    &[data=false] {
+        @include colorShadow(second);
+    }
+}
+
+.item {
+    position: relative;
+    padding-left: 2ch;
+    min-width: 3ch;
+    min-height: 2.5ch;
+
+    &[data=\-]::before {
+        position: absolute;
+        width: 1ch;
+        height: 0.4ch;
+        left: 0;
+        top: 0.9ch;
+        background: colorInGroup(document, text);
+        content: " ";
+    }
+    &[data=\*]::before {
+        position: absolute;
+        width: 0.8ch;
+        height: 0.8ch;
+        left: 0;
+        top: 0.7ch;
+        border-radius: 100%;
+        background: colorInGroup(document, text);
+        content: " ";
+    }
+    &[data='0'] {
+        counter-increment: itemNum;
+        &::before {
+            @include fontBold;
+            font-size: small;
+            position: absolute;
+            left: 0;
+            top: 0.1ch;
+            content: counter(itemNum);
+        }
+    }
+}
+
+:not(.item) + .item,
+.item + :not(.item) {
+    counter-reset: (itemNum);
+}

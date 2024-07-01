@@ -1,0 +1,36 @@
+{
+    "name": "story-teller-3",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "build": "next build",
+        "dev": "next dev",
+        "start": "next dev",
+        "lint": "ts-node lint",
+        "test": "jest --coverage"
+    },
+    "dependencies": {
+        "@auth0/nextjs-auth0": "^3.5.0",
+        "@emotion/react": "^11.11.3",
+        "@emotion/styled": "^11.11.0",
+        "@monaco-editor/react": "^4.6.0",
+        "@mui/icons-material": "^5.15.7",
+        "@mui/material": "^5.15.7",
+        "@svgr/webpack": "^8.1.0",
+        "mongodb": "^6.3.0",
+        "next": "^14.1.0",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "sass": "^1.70.0",
+        "ts-node": "^10.9.2"
+    },
+    "devDependencies": {
+        "@types/jest": "^29.5.12",
+        "@types/mongodb": "^4.0.7",
+        "@types/node": "^20.11.16",
+        "@types/react": "^18.2.53",
+        "eslint": "^8.14.0",
+        "eslint-config-next": "^12.0.4",
+        "ts-jest": "^29.1.2"
+    }
+}

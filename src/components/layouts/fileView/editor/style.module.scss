@@ -1,0 +1,380 @@
+@import 'styles/colors.scss';
+@import 'styles/prefabs.scss';
+@import 'styles/fonts.scss';
+@import 'styles/constants.scss';
+
+$size: $iconSmallSize;
+$bottomMargin: 30ch;
+$sizeLarge: ($size + 1px) * 5 - 1px;
+$sizeExtra: ($size + 1px) * 8 - 1px;
+
+.main {
+    @include colorBackground(document);
+    @include scroll;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+
+    & > * {
+        margin-bottom: 2px;
+    }
+
+    & > *[data=false]:last-child {
+        margin-bottom: $bottomMargin;
+    }
+}
+
+.editGroup {
+    @include colorDecoration(second);
+
+    &[data=true] {
+        min-height: 200px;
+    }
+}
+
+.editGroupHeader {
+    @include fontLarge;
+    display: flex;
+    justify-items: start;
+    position: relative;
+    padding: 1px 5px;
+    padding-right: 10px;
+    overflow: hidden;
+    width: 100%;
+
+    &[data=true]::after {
+        position: absolute;
+        right: 5px;
+        top: 0.5ch;
+        border-color: transparent colorInGroup(interactive, text) transparent transparent;
+        border-width: 6px;
+        border-style: solid;
+        content: " ";
+    }
+
+    &[data=false]::after {
+        position: absolute;
+        right: -1px;
+        top: 0.5ch;
+        border-color: transparent transparent transparent colorInGroup(interactive, text);
+        border-width: 6px;
+        border-style: solid;
+        content: " ";
+    }
+}
+
+.editGroupItem {
+    display: grid;
+    height: $size;
+    flex-shrink: 0;
+    margin: 2px 0 2px 5px;
+    gap: 5px;
+    
+    @include desktop {
+        grid-template-columns: $labelWidth minmax(0, 1fr);
+    }
+
+    @include mobile {
+        grid-template-columns: $mobile-labelWidth minmax(0, 1fr);
+    }
+
+    @include mobile-landscape {
+        grid-template-columns: $mobile-labelWidth minmax(0, 1fr);
+    }
+
+    & > input {
+        height: 100%;
+    }
+
+    & > *:disabled {
+        filter: brightness(90%);
+        pointer-events: none;
+    }
+
+    & > *:first-child {
+        height: $size;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+        user-select: none;
+
+        @include desktop {
+            font-size: 12px;
+        }
+
+        @include mobile {
+            font-size: 11px;
+        }
+
+        @include mobile-landscape {
+            font-size: 11px;
+        }
+    }
+}
+
+.editInput {
+    @include colorBackground(input);
+    min-width: 0;
+    border: none;
+    outline: none;
+    font: inherit;
+    font-size: small;
+    text-indent: 3px;
+    width: 100%;
+    height: 100%;
+    padding-left: 3px;
+
+    &[error=true] {
+        color: color(error);
+        caret-color: colorInGroup(input, text);
+    }
+
+    &[data=highlight] {
+        filter: brightness(120%);
+    }
+
+    &:disabled {
+        filter: brightness(90%);
+        pointer-events: none;
+    }
+
+    &::-webkit-inner-spin-button{
+        appearance: none;
+    }
+
+    &::placeholder {
+        opacity: 60%;
+    }
+}
+
+.editTextArea {
+    @extend .editGroupItem;
+    height: $sizeExtra;
+
+    &[data=true] {
+        height: 100%;
+        flex: 1;
+    }
+
+    @include mobile {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
+        text-indent: 5px;
+        margin: 0;
+    }
+}
+
+.editTextEditor {
+    height: calc(100vh - $pageHeaderHeight - 6px);
+    width: 100%;
+}
+
+.dropdown {
+    font: inherit;
+    font-size: small;
+}
+
+.dropdownItem {
+    height: $size !important;
+}
+
+.editList {
+    @extend .editGroupItem;
+    height: $sizeLarge;
+    flex-shrink: 0;
+    font: inherit;
+    font-size: small;
+
+    &[data=true] {
+        height: auto;
+        flex: 1;
+    }
+}
+
+.editListItem {
+    @extend .editGroupItem;
+    margin: 0;
+    gap: 0;
+    align-items: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.editRecordItem {
+    @extend .editGroupItem;
+    margin: 0;
+    gap: 0;
+    align-items: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.editSelectionItem {
+    @extend .editGroupItem;
+    margin: 0;
+    align-items: center;
+}
+
+.itemListItem {
+    min-height: $size;
+}
+
+.editOption {
+    @extend .editGroupItem;
+
+    @include desktop {
+        grid-template-columns: $labelWidth $labelWidth 1fr;
+    }
+
+    @include mobile {
+        grid-template-columns: $mobile-labelWidth $mobile-labelWidth 1fr;
+    }
+
+    @include mobile-landscape {
+        grid-template-columns: $mobile-labelWidth $mobile-labelWidth 1fr;
+    }
+}
+
+.editBoolean {
+    @extend .editGroupItem;
+
+    @include desktop {
+        grid-template-columns: $labelWidth auto 1fr;
+    }
+
+    @include mobile {
+        grid-template-columns: $mobile-labelWidth auto 1fr;
+    }
+
+    @include mobile-landscape {
+        grid-template-columns: $mobile-labelWidth auto 1fr;
+    }
+
+    & > a {
+        display: flex;
+        overflow: hidden;
+        flex: 1;
+    }
+}
+
+.linkHolder {
+    @include fontNoLineBreak;
+    flex: 1;
+    justify-content: left;
+    text-indent: 5px;
+}
+
+.loading {
+    width: 100%;
+    margin-top: 100px + 0.75cm !important;
+    & svg {
+        height: 0.85in;
+    }
+}
+
+.navigation {
+    @include colorWithShadow(main);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    position: static;
+    top: 0;
+    z-index: 1000;
+    align-items: center;
+    font-size: large;
+    font-weight: bold;
+    padding: 1px;
+    text-indent: 5px;
+}
+
+.editLinkItemHolder {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-auto-rows: 100%;
+    height: inherit;
+    width: 100%;
+
+    & > button {
+        display: flex;
+        height: $size;
+        width: $size;
+
+        & > svg {
+            height: 100%;
+            width: 100%;
+        }
+    }
+}
+
+.editRecordItem {
+    display: grid;
+    height: $size;
+    flex-shrink: 0;
+    gap: 1px;
+    grid-template-columns: minmax(0, 1fr) auto;
+
+    & > input {
+        height: 100%;
+    }
+
+    & > *:disabled {
+        filter: brightness(90%);
+        pointer-events: none;
+    }
+
+    & > *:first-child {
+        height: $size;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+        user-select: none;
+
+        @include desktop {
+            font-size: 12px;
+        }
+
+        @include mobile {
+            font-size: 11px;
+        }
+
+        @include mobile-landscape {
+            font-size: 11px;
+        }
+    }
+}
+
+.editCondition {
+    @extend .editGroupItem;
+    max-height: $sizeLarge + $size;
+    height: fit-content;
+    flex-shrink: 0;
+    font: inherit;
+    font-size: small;
+
+    & > div {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+}
+
+.editConditionValueEditItem {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.paletteGrid {
+    display: grid;
+    gap: 2px;
+    width: fit-content;
+}
+
+.classLevelRow {
+    width: 100%;
+    & > button {
+        width: 100%;
+        aspect-ratio: 0;
+        overflow: hidden;
+    }
+}

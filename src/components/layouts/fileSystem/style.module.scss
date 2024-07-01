@@ -1,0 +1,78 @@
+@import 'styles/colors.scss';
+@import 'styles/fonts.scss';
+@import 'styles/prefabs.scss';
+
+.main {
+    @include colorDecoration(second);
+    @include colorShadow(second);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    position: relative;
+    gap: 1px;
+    height: 100%;
+    z-index: 100;
+
+    & > .header {
+        @include colorWithShadow(main);
+        z-index: 100;
+    }
+
+    & > .body {
+        @include scroll();
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-bottom: 1cm;
+    }
+}
+
+.headerFilterRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) $iconNormalSize;
+    flex: 1;
+}
+
+.headerButton {
+    height: $iconNormalSize;
+    width: $iconNormalSize;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.collapsedButton {
+    @extend .headerButton;
+    width: $iconSmallSize;
+    height: 100%;
+}
+
+.headerEndButton {
+    @extend .headerButton;
+    justify-self: flex-end;
+    margin-left: auto;
+}
+
+.fileFilterMenu {
+    @include colorWithShadow(second);
+    position: absolute;
+    left: 100%;
+    margin-left: 5px;
+}
+
+.fileFilterMenuHeader {
+    @include colorWithShadow(main);
+    @include centerFlex;
+    margin-bottom: 5px;
+    text-indent: 10px;
+}
+
+.fileFilterMenuItem {
+    @include colorFileByType;
+    @include fontNoLineBreak;
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    gap: 2px;
+    margin: 2px;
+    align-items: center;
+    height: $iconSmallSize;
+}
+

@@ -1,0 +1,93 @@
+@import 'styles/colors.scss';
+@import 'styles/fonts.scss';
+@import 'styles/prefabs.scss';
+
+.file {
+    @include colorDecoration(second);
+    @include colorInteractiveControl;
+    @include colorFileByType;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    user-select: none;
+    height: fit-content;
+    font: inherit;
+
+    & > svg {
+        padding: 4px 2px 1px 0;
+        width: $iconSmallSize;
+        height: $iconSmallSize;
+    }
+
+    & > .text {
+        flex: 1;
+        height: 1em;
+        width: 0;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    input {
+        display: block;
+        flex: 1;
+        width: 100%;
+        height: inherit;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        margin-left: -2px;
+        color: inherit;
+        font: inherit;
+
+        &:disabled {
+            background-color: inherit;
+            cursor: pointer;
+            pointer-events: none;
+        }
+    }
+}
+
+.folder {
+    @extend .file;
+    display: flex;
+    position: relative;
+    min-width: 0px;
+    width: 100%;
+
+    &[value=open]::after {
+        position: absolute;
+        right: 3px;
+        top: calc(50% - 5px);
+        border-color: transparent color('folder') transparent transparent;
+        border-width: 5px;
+        border-style: solid;
+        content: " ";
+    }
+
+    &[value=closed]::after {
+        position: absolute;
+        right: -3px;
+        top: calc(50% - 5px);
+        border-color: transparent transparent transparent color('folder');
+        border-width: 5px;
+        border-style: solid;
+        content: " ";
+    }
+}
+
+.folderHolder {
+    display: block;
+
+    &[data=highlight] {
+        filter: brightness(120%);
+    }
+}
+
+.content {
+    display: block;
+    margin-left: 1ch;
+    border-left: 1px solid color(folder);
+}
+
+.selected {
+    filter: brightness(125%) !important;
+}

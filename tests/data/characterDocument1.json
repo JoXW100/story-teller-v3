@@ -1,0 +1,20 @@
+{
+    "id": "000000000000000000000005",
+    "type": "cha",
+    "name": "test",
+    "data": {
+        "name": "Test Character",
+        "description": "Example character.",
+        "ac": { "mode": "auto" },
+        "classes": { 
+            "000000000000000000000007": 4 
+        },
+        "abilities": [
+            "000000000000000000000000",
+            "000000000000000000000001"
+        ]
+    },
+    "isOwner": true,
+    "dateCreated": 0,
+    "dateUpdated": 0
+}

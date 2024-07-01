@@ -1,0 +1,21 @@
+@import 'styles/fonts.scss';
+@import 'styles/colors.scss';
+@import 'styles/prefabs.scss';
+@import 'styles/constants.scss';
+
+.main {
+    @include colorWithShadow(main);
+    display: flex;
+    flex-direction: row-reverse;
+    height: $pageHeaderHeight;
+    gap: 1px;
+    z-index: 100;
+}
+
+.header {
+    @include fontHeaderPage;
+    @include centerGrid;
+    grid-template-columns: $pageHeaderHeight minmax(0, 1fr);
+    margin-right: auto;
+    height: 100%;
+}

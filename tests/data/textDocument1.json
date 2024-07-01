@@ -1,0 +1,13 @@
+{
+    "id": "000000000000000000000012",
+    "type": "txt",
+    "name": "test",
+    "data": {
+        "title": "Test",
+        "description": "Test ability.",
+        "body": ""
+    },
+    "isOwner": true,
+    "dateCreated": 0,
+    "dateUpdated": 0
+}

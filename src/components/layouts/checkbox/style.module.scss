@@ -1,0 +1,22 @@
+@import 'styles/colors.scss';
+
+.main {
+    @include colorBackground(input);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1 / 1;
+    height: inherit;
+    user-select: none;
+    cursor: pointer;
+    height: 100%;
+    flex: 1;
+
+    &[data=true] > svg {
+        @include colorIcons(input);
+    }
+
+    &[data=false] > svg {
+        color: colorInGroup(input, 'background');
+    } 
+}

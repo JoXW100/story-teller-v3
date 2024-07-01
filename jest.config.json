@@ -1,0 +1,26 @@
+{
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "verbose": true,
+    "coverageDirectory": "./out",
+    "moduleNameMapper": {
+        "^assets$": "<rootDir>/src/assets",
+        "^assets/(.*)$": "<rootDir>/src/assets/$1",
+        "^components$": "<rootDir>/src/components",
+        "^components/(.*)$": "<rootDir>/src/components/$1",
+        "^data$": "<rootDir>/src/data",
+        "^data/(.*)$": "<rootDir>/src/data/$1",
+        "^structure$": "<rootDir>/src/structure",
+        "^structure/(.*)$": "<rootDir>/src/structure/$1",
+        "^types$": "<rootDir>/src/types",
+        "^types/(.*)$": "<rootDir>/src/types/$1",
+        "^utils$": "<rootDir>/src/utils",
+        "^utils/(.*)$": "<rootDir>/src/utils/$1",
+        "^views$": "<rootDir>/src/views",
+        "^views/(.*)$": "<rootDir>/src/views/$1"
+    },
+    "transform": {
+        "^.+\\.tsx?$": "ts-jest",
+        "^.+\\.svg$": "<rootDir>/jest.transform.js"
+    }
+}

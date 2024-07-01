@@ -1,0 +1,77 @@
+@import 'styles/colors.scss';
+@import 'styles/prefabs.scss';
+
+.dropdown {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-auto-rows: 100%;
+    height: inherit;
+    max-height: inherit;
+    width: 100%;
+
+    &[data=false] > button {
+        display: none;
+    }
+    
+    &[disabled] {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+}
+
+.content {
+    @include colorBackground(input);
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+}
+
+.menu {
+    @include scroll();
+    display: grid;
+    grid-template-columns: 100%;
+    background: inherit;
+    overflow-y: auto;
+    overflow-x: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-height: 500%;
+    min-height: 100%;
+    width: 100%;
+    z-index: 1000;
+
+    &[data=false] {
+        max-height: 100%;
+        & > :not(:first-child) {
+            display: none;
+        }
+    }
+
+    &[data=true] {
+        @include colorShadow(input);
+        @include colorBorder(input);
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        & > :not(:last-child) {
+            border-bottom: 1px solid;
+            padding-top: 1px;
+        }
+
+        & > :hover {
+            @include colorBackground(interactive);
+        }
+    }
+}
+
+.dropdownItem {
+    @include colorBackground(input);
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0 5px;
+    height: 100%;
+    min-height: 100%;
+}

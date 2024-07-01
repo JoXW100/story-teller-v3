@@ -1,0 +1,102 @@
+@import 'styles/colors.scss';
+@import 'styles/prefabs.scss';
+@import 'styles/animations.scss';
+
+.main {
+    @include colorWithShadow(second);
+    @include scroll;
+    z-index: 1000;
+    position: absolute;
+    width: 100%;
+    overflow-x: hidden;
+    overflow: auto;
+
+    @include mobile-landscape {
+        max-height: $mobile-width - $pageHeaderHeight - 20px;
+    }
+
+    &[data=true] {
+        @include contentSlideIn(400ms);
+        display: block;
+    }
+    &[data=false] {
+        @include contentSlideOut(400ms);
+        display: none;
+    }
+}
+
+.holder {
+    position: relative;
+
+    @include mobile {
+        display: none;
+    }
+
+    &[data=true] {
+        @include colorShadow(second);
+        margin-right: 2px;
+
+        & > * {
+            @include desktop {
+                min-width: $smallMenuWidth;
+            }
+            @include mobile-landscape {
+                min-width: $mobile-smallMenuWidth;
+            }
+            @include mobile {
+                min-width: $mobile-smallMenuWidth;
+            }
+        }
+    }
+}
+
+.entry {
+    @include colorDecoration(second);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 3px;
+    margin-bottom: 1px;
+
+    b[data] {
+        margin-left: auto;
+        margin-right: 10px;
+
+        &[data=adv] { color: color(good); }
+        &[data=dis] { color: color(bad); }
+        &[data=fail] { color: color(bad); }
+        &[data=crit] { color: color(neutral); }
+    }
+}
+
+.entryHeader {
+    display: inline-flex;
+    user-select: none;
+}
+
+.entryContent {
+    margin: 0 2px;
+    overflow: hidden;
+
+    & > * {
+        @include colorBackground(second);
+        display: flex;
+        padding: 1px 0px 1px 3px;
+
+        &:not(:last-child) {
+            margin-bottom: 3px;
+        }
+    
+        &[data=false] {
+            opacity: 0.5;
+        }
+    }
+}
+
+.entryTotal {
+    display: inline-flex;
+
+    & > *:not(:first-child) {
+        text-indent: 1ch;
+    }
+}

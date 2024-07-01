@@ -1,0 +1,26 @@
+<svg 
+    fill='none' 
+    viewBox="0 0 48 48"
+    xmlns='http://www.w3.org/2000/svg'
+>
+    <!--
+    <path
+        d='M0,0 L0,32 L32,32 L32,0 Z' 
+        stroke='#e0a3a3' 
+        stroke-width='1'
+    />
+    -->
+    <path 
+        fill="#c6aa29" 
+        d="M44.39,12.1,23.89.39,3.5,12.29,3.61,35.9l20.5,11.71L44.5,35.71Z"
+    />
+
+    <text 
+        font-size="42"
+        fill="#fff"
+        font-family="Mrs Eaves"
+        text-anchor="middle"
+        x="23"
+        y="38"
+    > C </text>
+</svg>

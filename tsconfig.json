@@ -1,0 +1,42 @@
+{
+    "compilerOptions": {
+        "baseUrl": "./src",
+        "jsx": "preserve",
+        "target": "es6",
+        "module": "esnext",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "isolatedModules": true,
+        "sourceMap": true,
+        "strict": true,
+        "strictNullChecks": true,
+        "noEmit": true,
+        "incremental": true,
+        "skipLibCheck": true,
+        "allowJs": true,
+        "forceConsistentCasingInFileNames": true,
+        "types": ["node", "jest"],
+        "lib": [
+            "esnext",
+            "dom",
+            "dom.iterable"
+        ]
+    },
+    "include": [
+        "next-env.d.ts",
+        "next.config.js",
+        "jest.transform.js",
+        "src/*.ts",
+        "src/*.d.ts",
+        "src/**.ts",
+        "src/**.d.ts",
+        "src/**.tsx",
+        "tests/**/*.test.ts",
+        "src/", 
+        "public"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}

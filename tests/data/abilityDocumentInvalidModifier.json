@@ -1,0 +1,16 @@
+{
+    "id": "000000000000000000000004",
+    "type": "abi",
+    "name": "test",
+    "data": {
+        "name": "Test",
+        "description": "Test ability.",
+        "icon": "https://imgur.com/",
+        "modifiers": [
+            { "key": "000000000000000000000004.mod1" }
+        ]
+    },
+    "isOwner": true,
+    "dateCreated": 0,
+    "dateUpdated": 0
+}

@@ -1,0 +1,20 @@
+{
+    "id": "0_abi03",
+    "type": "abi",
+    "name": "defense",
+    "data": {
+        "name": "Defense",
+        "description": "While you are wearing armor, you gain a +1 bonus to AC.",
+        "icon": "https://imgur.com/",
+        "modifiers": [
+            {
+                "key": "0",
+                "label": "+1 Bonus AC",
+                "type": "bonus",
+                "subtype": "ac",
+                "condition": { "eq": [{ "property": "_tags", "key": "armorEquipped" }, true] },
+                "value": 1
+            }
+        ]
+    }
+}

@@ -1,0 +1,58 @@
+{
+    "background": "#4663a0",
+    "accents": "#7290de",
+
+    "good": "#01ae01",
+    "bad": "#ff0000",
+    "neutral": "#f8a525",
+    "warning": "#f8a525",
+    "error": "#ff0000",
+
+    "folder": "#02c1ff",
+    "abi": "#00b4ff",
+    "cha": "#2fff00",
+    "cla": "#fffc00",
+    "cre": "#fd00ff",
+    "doc": "#ffffff",
+    "enc": "#ff0000",
+    "spe": "#875dff",
+    "ite": "#7290de",
+    "rce": "#7290de",
+
+    "syntax-function-name": "#22ffa7",
+    "syntax-function-option": "#91ffd3",
+    "syntax-function-separator": "#ffffff",
+    "syntax-calc-value": "#7290de",
+    "syntax-calc-number": "#22ffa7",
+    "syntax-bracket": "#a6ec95",
+    "syntax-variable": "#7290de",
+    "syntax-tab": "#b5d9ff",
+
+    "document-background": "#121c2b",
+    "document-text": "#b5d9ff",
+    "document-border": "#04daff",
+
+    "input-background": "#121c2b",
+    "input-text": "#b5d9ff",
+    "input-border": "#b5d9ff",
+    "input-icons": "#b3e3ff",
+
+    "interactive-background": "#02c1ff",
+    "interactive-text": "#000000",
+    "interactive-border": "#000000",
+    "interactive-icons": "#000000",
+
+    "main-background": "#0a2647",
+    "main-decoration": "#144272",
+    "main-text": "#b5d9ff",
+    "main-border": "#b5d9ff",
+    "main-shadow": "#57688d",
+    "main-icons": "#b3e3ff",
+
+    "second-background": "#193c6b",
+    "second-decoration": "#305689",
+    "second-text": "#b5d9ff",
+    "second-border": "#b5d9ff",
+    "second-shadow": "#57688d",
+    "second-icons": "#b3e3ff"
+}

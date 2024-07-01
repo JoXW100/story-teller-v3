@@ -1,0 +1,76 @@
+@import 'styles/fonts.scss';
+@import 'styles/colors.scss';
+@import 'styles/prefabs.scss';
+@import 'styles/constants.scss';
+
+.paper {
+    @include centerFlex;
+    background: none;
+    height: 100%;
+    width: 100%;
+}
+
+.holder {
+    @include colorDefaultBackground;
+    @include colorShadow(main);
+    margin: 5px;
+}
+
+.dialogHeader {
+    @include colorWithShadow('main');
+    @include centerFlex;
+    height: $menuItemHeaderHeight;
+    padding: 0 10px;
+}
+
+.dialogHeaderText {
+    @include centerFlex;
+    padding: 0 10px;
+}
+
+.dialogHeaderWithButtons {
+    @include colorWithShadow('main');
+    height: $menuItemHeaderHeight;
+    display: flex;
+    gap: 2px;
+
+    & > button {
+        justify-self: right;
+    }
+}
+
+.dialogBody {
+    @include centerFlex;
+    @include scroll;
+    padding: 10px;
+    flex-direction: column;
+    gap: 2px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.dialogButtonGroup {
+    display: flex;
+    flex-direction: row;
+    height: $largeButtonHeight;
+    gap: 1px;
+    padding: 1px;
+
+    & > button {
+        flex: 1;
+
+        &[data=good] {
+            background-color: color('good')
+        }
+
+        &[data=bad] {
+            background-color: color('bad')
+        }
+    }
+}
+
+.fileItem {
+    @include centerFlex;
+    width: 100%;
+    height: $iconNormalSize;
+}

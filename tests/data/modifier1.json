@@ -1,0 +1,10 @@
+{
+    "key": "0.mod1",
+    "label": "Test",
+    "type": "add",
+    "subtype": "ability",
+    "value": {
+        "isChoice": false,
+        "value": "000000000000000000000001"
+    }
+}

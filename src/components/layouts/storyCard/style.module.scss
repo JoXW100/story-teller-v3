@@ -1,0 +1,90 @@
+@import 'styles/fonts.scss';
+@import 'styles/colors.scss';
+@import 'styles/prefabs.scss';
+@import 'styles/constants.scss';
+
+$iconPadding: 3px;
+
+.card {
+    @include colorInteractiveInnerControl;
+    @include colorShadow(second);
+    @include colorDecoration(second);
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-rows: auto 1fr;
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    & > svg {
+        color: inherit;
+        place-self: center;
+        height: $iconLargeSize;
+        width: $iconLargeSize;
+    }
+}
+
+.label {
+    @include colorWithShadow(main);
+    @include fontNoLineBreak;
+    @include fontBold;
+    @include centerFlex;
+    height: $menuItemHeaderHeight;
+}
+
+.description {
+    overflow: hidden;
+    padding: 10px 10px 2 * $iconPadding + $iconNormalSize 10px;
+
+    & > div {
+        overflow: hidden;
+        white-space: normal;
+        text-overflow: ellipsis;
+        height: 100%;
+    }
+}
+
+.date {
+    position: absolute;
+    user-select: none;
+    overflow: hidden;
+    height: 20px;
+    bottom: $iconPadding;
+    right: $iconPadding;
+}
+
+.icon {
+    position: absolute;
+    width: $iconNormalSize;
+    height: $iconNormalSize;
+    padding: $iconPadding;
+    bottom: $iconPadding;
+    border-radius: 50%;
+    user-select: none;
+
+    & > svg {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.delete {
+    @extend .icon;
+    left: $iconPadding;
+}
+
+.edit {
+    @extend .icon;
+    left: $iconNormalSize + 2 * $iconPadding;
+}
+
+.confirmationDialog {
+    #confirmation-button-positive {
+        flex: 1;
+        color: color('good');
+    }
+    #confirmation-button-negative {
+        flex: 1;
+        color: color('bad');
+    }
+}

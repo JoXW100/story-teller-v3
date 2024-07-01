@@ -1,0 +1,39 @@
+@import 'styles/colors.scss';
+@import 'styles/constants.scss';
+
+.dropdown {
+    height: $iconSmallSize;
+}
+
+.dropdownItem {
+    height: $iconSmallSize;
+}
+
+.list {
+    height: inherit;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: $labelWidth 1fr;
+    height: $iconSmallSize;
+    align-items: center;
+    background-color: inherit;
+    user-select: text;
+    font: inherit;
+
+    &:not(:last-child) {
+        margin-bottom: 1px;
+    }
+
+    .rowContent {
+        flex: 1;
+        margin: 0 0 0 5px;
+        min-width: 0;
+    }
+
+    .button {
+        height: inherit;
+        aspect-ratio: 1;
+    }
+}
