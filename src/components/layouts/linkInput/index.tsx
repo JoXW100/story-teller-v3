@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { Tooltip } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import ClearIcon from '@mui/icons-material/CloseSharp'
 import SelectIcon from '@mui/icons-material/RadioButtonUncheckedSharp'
+import { Context } from 'components/contexts/story'
+import { openDialog } from 'components/dialogs/handler'
 import LocalizedText from 'components/localizedText'
 import { asBooleanString, isEnum, isObjectId, isString } from 'utils'
 import Communication from 'utils/communication'
@@ -10,7 +12,6 @@ import Logger from 'utils/logger'
 import { DocumentType } from 'structure/database'
 import type DatabaseFile from 'structure/database/files'
 import styles from './styles.module.scss'
-import { openDialog } from 'components/dialogs/handler'
 
 interface IComponentPropsBase {
     className?: string
@@ -42,6 +43,7 @@ interface EditLinkInputState {
 }
 
 const LinkInput: React.FC<EditLinkInputComponentProps> = (props) => {
+    const [context] = useContext(Context)
     const [state, setState] = useState<EditLinkInputState>({
         file: null,
         highlight: false
@@ -89,7 +91,7 @@ const LinkInput: React.FC<EditLinkInputComponentProps> = (props) => {
     }
 
     const handleSelect = (): void => {
-        openDialog('selectFile', { id: 'linkInput.selectFile', allowedTypes: props.allowedTypes }).onSelect((file) => {
+        openDialog('selectFile', { id: 'linkInput.selectFile', storyId: context.story.id, allowedTypes: props.allowedTypes }).onSelect((file) => {
             props.onChange?.(file.id)
         })
     }

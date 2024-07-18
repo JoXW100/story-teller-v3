@@ -139,10 +139,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void>
                     { res.status(200).json(await Database.stories?.getLastUpdated(userId) ?? failure()); return }
                     case 'getFile':
                     { res.status(200).json(await Database.files?.get(userId, toObjectId(params.fileId), toEnumArray(params.allowedTypes, DocumentFileType)) ?? failure()); return }
-                    case 'getSubscribedFiles':
-                    { res.status(200).json(await Database.files?.getSubscribedFiles(userId, toEnumArray(params.allowedTypes, DocumentFileType)) ?? failure()); return }
                     case 'getFiles':
                     { res.status(200).json(await Database.files?.getMultiple(userId, toObjectIdArray(params.fileIds), toEnumArray(params.allowedTypes, DocumentFileType)) ?? failure()); return }
+                    case 'getSubclasses':
+                    { res.status(200).json(await Database.files?.getSubclasses(userId, toObjectId(params.storyId), toObjectId(params.classId)) ?? failure()); return }
+                    case 'getFeats':
+                    { res.status(200).json(await Database.files?.getFeats(userId, toObjectId(params.storyId)) ?? failure()); return }
+                    case 'getFightingStyles':
+                    { res.status(200).json(await Database.files?.getFightingStyles(userId, toObjectId(params.storyId)) ?? failure()); return }
+                    case 'getSubscribedFiles':
+                    { res.status(200).json(await Database.files?.getSubscribedFiles(userId, toEnumArray(params.allowedTypes, DocumentFileType)) ?? failure()); return }
                     case 'getFileStructure':
                     { res.status(200).json(await Database.files?.getStructure(userId, toObjectId(params.storyId)) ?? failure()); return }
                     default: break

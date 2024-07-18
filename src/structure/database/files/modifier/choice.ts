@@ -1,13 +1,15 @@
 import type ModifierDocument from '.'
-import ModifierDataBase from './data'
+import type { ModifierData } from './factory'
 import { ModifierType } from './common'
+import ModifierDataBase from './data'
 import type Modifier from './modifier'
-import { isNumber, isObjectId, isRecord, isString, keysOf } from 'utils'
+import { isNumber, isRecord, isString, keysOf } from 'utils'
 import { hasObjectProperties, simplifyObjectProperties, validateObjectProperties } from 'structure/database'
+import Condition, { ConditionType } from 'structure/database/condition'
 import type { Simplify } from 'types'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
-import type { IEditorChoiceData, IInnerModifierData, IModifierChoiceData } from 'types/database/files/modifier'
-import ConditionFactory from 'structure/database/condition/factory'
+import type { IModifierChoiceData } from 'types/database/files/modifier'
+import ModifierDataFactory, { simplifyModifierDataRecord } from './factory'
 
 export const ModifierChoiceDataFactory: IDatabaseFactory<IModifierChoiceData, ModifierChoiceData> = {
     create: function (data: Simplify<IModifierChoiceData> = {}): ModifierChoiceData {
@@ -27,40 +29,10 @@ export const ModifierChoiceDataFactory: IDatabaseFactory<IModifierChoiceData, Mo
     }
 }
 
-export function validateInnerModifierData(value: unknown): value is Simplify<IInnerModifierData> {
-    return isRecord(value) && (!('condition' in value) || ConditionFactory.validate(value.condition)) &&
-        (!('modifiers' in value) || (Array.isArray(value.modifiers) && value.modifiers.every(isObjectId)))
-}
-
-export function isInnerModifierData(value: unknown): value is IInnerModifierData {
-    return isRecord(value) && 'condition' in value &&
-        ConditionFactory.validate(value.condition) && 'modifiers' in value &&
-        Array.isArray(value.modifiers) && value.modifiers.every(isObjectId)
-}
-
-export function simplifyInnerModifierDataRecord(value: Record<string, IInnerModifierData>): Simplify<IInnerModifierData> | null {
-    const result: Record<string, Simplify<IInnerModifierData>> = {}
-    let flag = false
-    for (const key of keysOf(value)) {
-        flag = true
-        const data = value[key]
-        const condition = ConditionFactory.simplify(data.condition)
-        let innerData: Simplify<IInnerModifierData> = {}
-        if (Object.keys(condition).length > 0) {
-            innerData = { ...result, condition: condition }
-        }
-        if (data.modifiers.length > 0) {
-            innerData = { ...result, modifiers: data.modifiers }
-        }
-        result[key] = innerData
-    }
-    return flag ? result : null
-}
-
 class ModifierChoiceData extends ModifierDataBase implements IModifierChoiceData {
     public override readonly type = ModifierType.Choice
     public readonly num: number
-    public readonly options: Record<string, IInnerModifierData>
+    public readonly options: Record<string, ModifierData>
 
     public constructor(data: Simplify<IModifierChoiceData>) {
         super(data)
@@ -68,30 +40,41 @@ class ModifierChoiceData extends ModifierDataBase implements IModifierChoiceData
         this.options = ModifierChoiceData.properties.options.value
         if (data.options !== undefined) {
             for (const key of keysOf(data.options)) {
-                const source = data.options[key]
-                if (source !== undefined) {
-                    this.options[key] = {
-                        condition: ConditionFactory.create(source.condition),
-                        modifiers: []
-                    }
-                    if (source.modifiers !== undefined) {
-                        for (const id of source.modifiers) {
-                            if (isObjectId(id)) {
-                                this.options[key].modifiers.push(id)
-                            }
-                        }
-                    }
-                }
+                this.options[key] = ModifierDataFactory.create(data.options[key])
             }
         }
     }
 
-    public apply(data: Modifier, self: ModifierDocument): void {
-        throw new Error('Not implemented')
-    }
-
-    public override getEditorChoiceData(): IEditorChoiceData | null {
-        return { type: 'value', value: keysOf(this.options), numChoices: this.num }
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+        const optionKeys = keysOf(this.options)
+        modifier.addChoice({
+            source: this,
+            type: 'value',
+            value: optionKeys,
+            numChoices: this.num
+        }, key)
+        for (let i = 0; i < optionKeys.length; i++) {
+            const optionName = optionKeys[i]
+            const option = this.options[optionName]
+            const innerKey = `${key}.${optionName}`
+            option.apply(modifier, self, innerKey)
+            const conditions: Condition[] = [
+                this.condition,
+                option.condition,
+                new Condition({
+                    type: ConditionType.None,
+                    value: (parameters, choices) => {
+                        const indices: unknown = choices[key]
+                        return Array.isArray(indices) && indices.includes(i) &&
+                            (!(key in modifier.properties.conditions) || modifier.properties.conditions[key].evaluate(parameters, choices))
+                    }
+                })
+            ]
+            modifier.addCondition(
+                new Condition({ type: ConditionType.And, value: conditions }),
+                innerKey
+            )
+        }
     }
 
     public static properties: DataPropertyMap<IModifierChoiceData, ModifierChoiceData> = {
@@ -108,8 +91,8 @@ class ModifierChoiceData extends ModifierDataBase implements IModifierChoiceData
         },
         options: {
             get value() { return {} },
-            validate: (value) => isRecord(value, (key, val) => isString(key) && validateInnerModifierData(val)),
-            simplify: simplifyInnerModifierDataRecord
+            validate: (value) => isRecord(value, (key, val) => isString(key) && ModifierDataFactory.validate(val)),
+            simplify: simplifyModifierDataRecord
         }
     }
 }

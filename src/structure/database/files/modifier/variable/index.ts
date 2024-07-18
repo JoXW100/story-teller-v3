@@ -1,5 +1,5 @@
-import ModifierDataBase from '../data'
 import { ModifierType } from '../common'
+import ModifierDataBase from '../data'
 import { asEnum, isEnum, isString } from 'utils'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'

@@ -18,7 +18,7 @@ const RollComponent: React.FC<RollElementParams> = ({ children, dice, critRange,
     const [diceObject, text] = useMemo(() => {
         const flag = RollElement.simplifyDiceMatcher.test(dice)
         let die: DiceBase | null = flag
-            ? DiceFactory.parse(`1d20 + ${dice}`)
+            ? DiceFactory.parse(`1d20+${dice}`)
             : DiceFactory.parse(dice)
         die ??= Die.None
         return [die, flag ? ModifiedDice.stringify(die.modifier) : die.stringify()]

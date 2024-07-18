@@ -1,3 +1,4 @@
+import type { IElement } from '.'
 import AlignElement from './align'
 import BlockElement from './block'
 import BoldElement from './bold'
@@ -23,7 +24,7 @@ import TableHeaderElement from './tableHeader'
 import TextElement from './text'
 import LinkContentElement from './linkContent'
 import LinkTitleElement from './linkTitle'
-import type { IElement } from '.'
+import VariableElement from './variable'
 
 const bold = new BoldElement()
 const header = new HeaderElement()
@@ -64,7 +65,8 @@ export const ElementDefinitionDictionary = {
     'tc': tableCell,
     'tableHeader': tableHeader,
     'th': tableHeader,
-    'text': new TextElement()
+    'text': new TextElement(),
+    'var': new VariableElement()
 } satisfies Record<string, IElement>
 
 export type ElementDefinitions = typeof ElementDefinitionDictionary

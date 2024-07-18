@@ -1,11 +1,11 @@
 import React, { useContext } from 'react'
 import GroupItemComponent from './groupItem'
-import { Context, getRelativeFieldObject } from 'components/contexts/file'
+import { Context } from 'components/contexts/file'
 import DropdownMenu from 'components/layouts/dropdownMenu'
 import NumberInput from 'components/layouts/numericInput'
 import { CalcMode, type ICalcValue } from 'structure/database'
 import { getOptionType } from 'structure/optionData'
-import { isCalcValue, isRecord } from 'utils'
+import { getRelativeFieldObject, isCalcValue, isRecord } from 'utils'
 import type { LanguageKey } from 'data'
 import Logger from 'utils/logger'
 import styles from '../style.module.scss'
@@ -14,10 +14,9 @@ type CalcComponentParams = React.PropsWithChildren<{
     field: string
     labelId: LanguageKey
     labelArgs?: any[]
-    deps?: string[]
 }>
 
-const CalcComponent: React.FC<CalcComponentParams> = ({ field, labelId, labelArgs, deps = [] }) => {
+const CalcComponent: React.FC<CalcComponentParams> = ({ field, labelId, labelArgs }) => {
     const [context, dispatch] = useContext(Context)
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.NumberComponent', 'Data of incorrect type', context.file.data)
@@ -37,11 +36,11 @@ const CalcComponent: React.FC<CalcComponentParams> = ({ field, labelId, labelArg
     }
 
     const handleModeChange = (newMode: CalcMode): void => {
-        dispatch.setData(field, { ...value, mode: newMode } satisfies ICalcValue, deps)
+        dispatch.setData(field, { ...value, mode: newMode } satisfies ICalcValue)
     }
 
     const handleNumericInput = (newValue: number): void => {
-        dispatch.setData(field, { ...value, value: newValue } satisfies ICalcValue, deps)
+        dispatch.setData(field, { ...value, value: newValue } satisfies ICalcValue)
     }
 
     return (

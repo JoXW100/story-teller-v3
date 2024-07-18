@@ -1,13 +1,14 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createDefaultChoiceData, createSingleChoiceData, simplifySingleChoiceData, validateChoiceData } from '../common'
+import { createSingleChoiceData, createDefaultChoiceData, validateChoiceData, simplifySingleChoiceData } from '../../../choice'
 import { asEnum, isEnum, isNumber, isString } from 'utils'
 import { DamageBinding } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { SingleChoiceData, IModifierAddDamageImmunityData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { IModifierAddDamageImmunityData } from 'types/database/files/modifier'
 import type { ISourceBinding } from 'types/database/files/creature'
+import type { SingleChoiceData } from 'types/database/choice'
 
 class ModifierAddDamageImmunityData extends ModifierAddDataBase implements IModifierAddDamageImmunityData {
     public override readonly subtype = ModifierAddType.DamageImmunity
@@ -38,21 +39,24 @@ class ModifierAddDamageImmunityData extends ModifierAddDataBase implements IModi
         }
     }
 
-    public override getEditorChoiceData(): IEditorChoiceData | null {
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
         if (this.binding.isChoice) {
-            return { type: 'enum', value: this.binding.value, enum: 'damageBinding' }
+            modifier.addChoice({
+                source: this,
+                type: 'enum',
+                value: this.binding.value,
+                enum: 'damageBinding'
+            }, key)
         }
-        return null
-    }
-
-    public override apply(data: Modifier, self: ModifierDocument): void {
-        data.damageImmunities.subscribe({
+        modifier.damageImmunities.subscribe({
+            key: key,
             target: self,
+            data: this,
             apply: function (value, choices): Partial<Record<DamageBinding, readonly ISourceBinding[]>> {
-                const modifier = self.data as ModifierAddDamageImmunityData
+                const modifier = this.data as ModifierAddDamageImmunityData
                 let choice: DamageBinding | null
                 if (modifier.binding.isChoice) {
-                    const index: unknown = choices[self.id]
+                    const index: unknown = choices[key]
                     if (!isNumber(index)) {
                         return value
                     }

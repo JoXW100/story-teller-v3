@@ -50,6 +50,7 @@ import ErrorIcon from '@mui/icons-material/ErrorSharp'
 
 export type IconParams = React.PropsWithRef<{
     data?: string
+    className?: string
     style?: CSSProperties
 }>
 

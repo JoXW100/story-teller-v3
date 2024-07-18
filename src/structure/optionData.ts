@@ -1,20 +1,21 @@
 import { AbilityType } from './database/files/ability/common'
-import { ActionType, AdvantageBinding, Alignment, AreaType, ArmorClassBase, ArmorType, Attribute, CastingTime, CreatureType, DamageType, Duration, ItemType, Language, MagicSchool, MeleeWeaponType, MovementType, OptionalAttribute, ProficiencyLevel, ProficiencyLevelBasic, ProficiencyType, RangedWeaponType, Rarity, DamageBinding, RestType, ScalingType, Sense, SizeType, Skill, SpellPreparationType, TargetType, ThrownWeaponType, ToolType, WeaponType, ConditionBinding, ClassLevel, SpellLevel } from './dnd'
+import { ActionType, AdvantageBinding, Alignment, AreaType, ArmorType, Attribute, CastingTime, CreatureType, DamageType, Duration, ItemType, Language, MagicSchool, MeleeWeaponType, MovementType, OptionalAttribute, ProficiencyLevel, ProficiencyLevelBasic, ProficiencyType, RangedWeaponType, Rarity, DamageBinding, RestType, ScalingType, Sense, SizeType, Skill, SpellPreparationType, TargetType, ThrownWeaponType, ToolType, WeaponTypeValue, ConditionBinding, ClassLevel, SpellLevel, WeaponType, WeaponTypeCategory } from './dnd'
 import { DieType } from './dice'
 import { CalcMode } from './database'
 import { EffectConditionType } from './database/effectCondition'
-import { EffectScaling, EffectType } from './database/effect/common'
+import { EffectCategory, EffectScaling, EffectType } from './database/effect/common'
 import { ScalingModifierType } from './database/scalingModifier/common'
 import type { Enum } from 'types'
 import { ViewMode } from 'components/contexts/app'
 import { ConditionType, ConditionValueType } from './database/condition'
-import { ModifierType } from './database/files/modifier/common'
+import { ModifierType } from 'structure/database/files/modifier/common'
 import { ModifierAddType } from './database/files/modifier/add'
 import { ModifierBonusType } from './database/files/modifier/bonus'
 import { ModifierAbilityType } from './database/files/modifier/ability'
 import { ModifierSetType } from './database/files/modifier/set'
 import { LevelModifyType } from './database/files/class/levelData'
 import { ModifierVariableType, OperationType } from './database/files/modifier/variable'
+import { LinkedCategoryType } from './database/files/modifier/add/linked'
 
 export interface IOptionType<T extends Enum = Enum> {
     enum: T
@@ -164,6 +165,8 @@ const OptionTypes = {
         default: AbilityType.Feature,
         options: {
             [AbilityType.Feature]: 'Feature',
+            [AbilityType.Feat]: 'Feat',
+            [AbilityType.FightingStyle]: 'Fighting Style',
             [AbilityType.Attack]: 'Attack',
             [AbilityType.MeleeAttack]: 'Melee Attack',
             [AbilityType.MeleeWeapon]: 'Melee Weapon',
@@ -174,14 +177,13 @@ const OptionTypes = {
     } satisfies IOptionType<typeof AbilityType>,
     itemType: {
         enum: ItemType,
-        default: ItemType.Armor,
+        default: ItemType.WondrousItem,
         options: {
+            [ItemType.WondrousItem]: 'Wondrous Item',
             [ItemType.Armor]: 'Armor',
-            [ItemType.Trinket]: 'Trinket',
             [ItemType.Consumable]: 'Consumable',
-            [ItemType.MeleeWeapon]: 'Melee Weapon',
-            [ItemType.RangedWeapon]: 'Ranged Weapon',
-            [ItemType.ThrownWeapon]: 'Thrown Weapon'
+            [ItemType.Weapon]: 'Weapon',
+            [ItemType.Other]: 'Other'
         }
     } satisfies IOptionType<typeof ItemType>,
     effectType: {
@@ -189,7 +191,8 @@ const OptionTypes = {
         default: EffectType.Text,
         options: {
             [EffectType.Text]: 'Text',
-            [EffectType.Damage]: 'Damage'
+            [EffectType.Damage]: 'Damage',
+            [EffectType.Die]: 'Die'
         }
     },
     condition: {
@@ -205,6 +208,7 @@ const OptionTypes = {
             [ConditionType.Equals]: 'Equals',
             [ConditionType.NotEquals]: 'Not Equals',
             [ConditionType.GreaterEquals]: 'Greater or Equals',
+            [ConditionType.Range]: 'Range',
             [ConditionType.LessEquals]: 'Less or Equals'
         }
     } satisfies IOptionType<typeof ConditionType>,
@@ -235,6 +239,19 @@ const OptionTypes = {
             [EffectScaling.SpellSlot]: 'Spell Slot'
         }
     } satisfies IOptionType<typeof EffectScaling>,
+    effectCategory: {
+        enum: EffectCategory,
+        default: EffectCategory.Uncategorized,
+        options: {
+            [EffectCategory.Uncategorized]: 'Uncategorized',
+            [EffectCategory.AttackDamage]: 'Attack Damage',
+            [EffectCategory.AreaDamage]: 'Area Damage',
+            [EffectCategory.SingleDamage]: 'Single Damage',
+            [EffectCategory.MeleeDamage]: 'Melee Damage',
+            [EffectCategory.RangedDamage]: 'Ranged Damage',
+            [EffectCategory.ThrownDamage]: 'Thrown Damage'
+        }
+    } satisfies IOptionType<typeof EffectCategory>,
     scaling: {
         enum: ScalingType,
         default: ScalingType.None,
@@ -269,14 +286,22 @@ const OptionTypes = {
             [ModifierType.Choice]: 'Choice',
             [ModifierType.Remove]: 'Remove',
             [ModifierType.Set]: 'Set',
-            [ModifierType.Variable]: 'Variable'
+            [ModifierType.Variable]: 'Variable',
+            [ModifierType.Group]: 'Group'
         }
     } satisfies IOptionType<typeof ModifierType>,
     modifierAbilityType: {
         enum: ModifierAbilityType,
         default: ModifierAbilityType.AttackBonus,
         options: {
-            [ModifierAbilityType.AttackBonus]: 'Attack Bonus'
+            [ModifierAbilityType.AttackBonus]: 'Attack Bonus',
+            [ModifierAbilityType.MeleeWeaponAttackBonus]: 'Melee Weapon Attack Bonus',
+            [ModifierAbilityType.RangedWeaponAttackBonus]: 'Ranged Weapon Attack Bonus',
+            [ModifierAbilityType.ThrownWeaponAttackBonus]: 'Thrown Weapon Attack Bonus',
+            [ModifierAbilityType.DamageBonus]: 'Damage Bonus',
+            [ModifierAbilityType.MeleeWeaponDamageBonus]: 'Melee Weapon Damage Bonus',
+            [ModifierAbilityType.RangedWeaponDamageBonus]: 'Ranged Weapon Damage Bonus',
+            [ModifierAbilityType.ThrownWeaponDamageBonus]: 'Thrown Weapon Damage Bonus'
         }
     } satisfies IOptionType<typeof ModifierAbilityType>,
     modifierAddType: {
@@ -285,6 +310,7 @@ const OptionTypes = {
         options: {
             [ModifierAddType.Ability]: 'Ability',
             [ModifierAddType.Spell]: 'Spell',
+            [ModifierAddType.Linked]: 'Linked',
             [ModifierAddType.Advantage]: 'Advantage',
             [ModifierAddType.Disadvantage]: 'Disadvantage',
             [ModifierAddType.Resistance]: 'Resistance',
@@ -304,7 +330,9 @@ const OptionTypes = {
             [ModifierBonusType.Constitution]: 'Constitution',
             [ModifierBonusType.Intelligence]: 'Intelligence',
             [ModifierBonusType.Wisdom]: 'Wisdom',
-            [ModifierBonusType.Charisma]: 'Charisma'
+            [ModifierBonusType.Charisma]: 'Charisma',
+            [ModifierBonusType.Speed]: 'Speed',
+            [ModifierBonusType.Attacks]: 'Attacks'
         }
     } satisfies IOptionType<typeof ModifierBonusType>,
     modifierSetType: {
@@ -312,8 +340,10 @@ const OptionTypes = {
         default: ModifierSetType.SpellAttribute,
         options: {
             [ModifierSetType.SpellAttribute]: 'Spell Attribute',
+            [ModifierSetType.ArmorClassBase]: 'Armor Class Base',
             [ModifierSetType.Sense]: 'Sense',
-            [ModifierSetType.Size]: 'Speed',
+            [ModifierSetType.Speed]: 'Speed',
+            [ModifierSetType.Size]: 'Size',
             [ModifierSetType.SaveProficiency]: 'Save Proficiency',
             [ModifierSetType.SkillProficiency]: 'Skill Proficiency',
             [ModifierSetType.ToolProficiency]: 'Tool Proficiency',
@@ -446,71 +476,121 @@ const OptionTypes = {
             [ArmorType.Light]: 'Light Armor',
             [ArmorType.Medium]: 'Medium Armor',
             [ArmorType.Heavy]: 'Heavy Armor',
-            [ArmorType.Shields]: 'Shields'
+            [ArmorType.Shield]: 'Shield',
+            [ArmorType.Clothing]: 'Clothing'
         }
     } satisfies IOptionType<typeof ArmorType>,
+    weaponTypeValue: {
+        enum: WeaponTypeValue,
+        default: WeaponTypeValue.Simple,
+        options: {
+            [WeaponTypeValue.Simple]: 'Simple Weapons',
+            [WeaponTypeValue.Martial]: 'Martial Weapons',
+            [WeaponTypeValue.Club]: 'Clubs',
+            [WeaponTypeValue.Battleaxe]: 'Battleaxes',
+            [WeaponTypeValue.Blowgun]: 'Blowguns',
+            [WeaponTypeValue.Dagger]: 'Daggers',
+            [WeaponTypeValue.Dart]: 'Darts',
+            [WeaponTypeValue.Flail]: 'Flails',
+            [WeaponTypeValue.Glaive]: 'Glaive',
+            [WeaponTypeValue.Greataxe]: 'Greataxes',
+            [WeaponTypeValue.Greatclub]: 'Greatclubs',
+            [WeaponTypeValue.Greatsword]: 'Greatsword',
+            [WeaponTypeValue.Halberd]: 'Halberds',
+            [WeaponTypeValue.Handaxe]: 'Handaxes',
+            [WeaponTypeValue.HandCrossbow]: 'Hand Crossbows',
+            [WeaponTypeValue.HeavyCrossbow]: 'Heavy Crossbows',
+            [WeaponTypeValue.Javelin]: 'Javelins',
+            [WeaponTypeValue.Lance]: 'Lances',
+            [WeaponTypeValue.LightHammer]: 'Light Hammers',
+            [WeaponTypeValue.LightCrossbow]: 'Light Crossbows',
+            [WeaponTypeValue.Longbow]: 'Longbows',
+            [WeaponTypeValue.Longsword]: 'Longswords',
+            [WeaponTypeValue.Mace]: 'Maces',
+            [WeaponTypeValue.Maul]: 'Mauls',
+            [WeaponTypeValue.Net]: 'Nets',
+            [WeaponTypeValue.Morningstar]: 'Morningstars',
+            [WeaponTypeValue.Pike]: 'Pikes',
+            [WeaponTypeValue.Quarterstaff]: 'Quarterstaffs',
+            [WeaponTypeValue.Rapier]: 'Rapiers',
+            [WeaponTypeValue.Scimitar]: 'Scimitars',
+            [WeaponTypeValue.Shortsword]: 'Shortswords',
+            [WeaponTypeValue.Shortbow]: 'Shortbows',
+            [WeaponTypeValue.Sling]: 'Slings',
+            [WeaponTypeValue.Sickle]: 'Sickles',
+            [WeaponTypeValue.Spear]: 'Spears',
+            [WeaponTypeValue.Trident]: 'Tridents',
+            [WeaponTypeValue.WarPick]: 'War Picks',
+            [WeaponTypeValue.Warhammer]: 'Warhammers',
+            [WeaponTypeValue.Whip]: 'Whips',
+            [WeaponTypeValue.Improvised]: 'Improvised'
+        }
+    } satisfies IOptionType<typeof WeaponTypeValue>,
     weaponType: {
         enum: WeaponType,
-        default: WeaponType.Simple,
+        default: WeaponType.Club,
         options: {
-            [WeaponType.Simple]: 'Simple Weapons',
-            [WeaponType.Martial]: 'Martial Weapons',
-            [WeaponType.Club]: 'Clubs',
-            [WeaponType.Battleaxe]: 'Battleaxes',
-            [WeaponType.Blowgun]: 'Blowguns',
-            [WeaponType.Dagger]: 'Daggers',
-            [WeaponType.Dart]: 'Darts',
-            [WeaponType.Flail]: 'Flails',
-            [WeaponType.Greataxe]: 'Greataxes',
-            [WeaponType.Greatclub]: 'Greatclubs',
+            [WeaponType.Club]: 'Club',
+            [WeaponType.Battleaxe]: 'Battleaxe',
+            [WeaponType.Blowgun]: 'Blowgun',
+            [WeaponType.Dagger]: 'Dagger',
+            [WeaponType.Dart]: 'Dart',
+            [WeaponType.Flail]: 'Flail',
+            [WeaponType.Glaive]: 'Glaive',
+            [WeaponType.Greataxe]: 'Greataxe',
+            [WeaponType.Greatclub]: 'Greatclub',
             [WeaponType.Greatsword]: 'Greatsword',
-            [WeaponType.Halberd]: 'Halberds',
-            [WeaponType.Handaxe]: 'Handaxes',
-            [WeaponType.HandCrossbow]: 'Hand Crossbows',
-            [WeaponType.HeavyCrossbow]: 'Heavy Crossbows',
-            [WeaponType.Javelin]: 'Javelins',
-            [WeaponType.Lance]: 'Lances',
-            [WeaponType.LightHammer]: 'Light Hammers',
-            [WeaponType.LightCrossbow]: 'Light Crossbows',
-            [WeaponType.Longbow]: 'Longbows',
-            [WeaponType.Longsword]: 'Longswords',
-            [WeaponType.Mace]: 'Maces',
-            [WeaponType.Maul]: 'Mauls',
-            [WeaponType.Net]: 'Nets',
-            [WeaponType.Morningstar]: 'Morningstars',
-            [WeaponType.Pike]: 'Pikes',
-            [WeaponType.Quarterstaff]: 'Quarterstaffs',
-            [WeaponType.Rapier]: 'Rapiers',
-            [WeaponType.Scimitar]: 'Scimitars',
-            [WeaponType.Shortsword]: 'Shortswords',
-            [WeaponType.Shortbow]: 'Shortbows',
-            [WeaponType.Sling]: 'Slings',
-            [WeaponType.Sickle]: 'Sickles',
-            [WeaponType.Spear]: 'Spears',
-            [WeaponType.Trident]: 'Tridents',
-            [WeaponType.WarPick]: 'War Picks',
-            [WeaponType.Warhammer]: 'Warhammers',
-            [WeaponType.Whip]: 'Whips',
-            [WeaponType.Improvised]: undefined
+            [WeaponType.Halberd]: 'Halberd',
+            [WeaponType.Handaxe]: 'Handaxe',
+            [WeaponType.HandCrossbow]: 'Hand Crossbow',
+            [WeaponType.HeavyCrossbow]: 'Heavy Crossbow',
+            [WeaponType.Javelin]: 'Javelin',
+            [WeaponType.Lance]: 'Lance',
+            [WeaponType.LightHammer]: 'Light Hammer',
+            [WeaponType.LightCrossbow]: 'Light Crossbow',
+            [WeaponType.Longbow]: 'Longbow',
+            [WeaponType.Longsword]: 'Longsword',
+            [WeaponType.Mace]: 'Mace',
+            [WeaponType.Maul]: 'Maul',
+            [WeaponType.Net]: 'Net',
+            [WeaponType.Morningstar]: 'Morningstar',
+            [WeaponType.Pike]: 'Pike',
+            [WeaponType.Quarterstaff]: 'Quarterstaff',
+            [WeaponType.Rapier]: 'Rapier',
+            [WeaponType.Scimitar]: 'Scimitar',
+            [WeaponType.Shortsword]: 'Shortsword',
+            [WeaponType.Shortbow]: 'Shortbow',
+            [WeaponType.Sling]: 'Sling',
+            [WeaponType.Sickle]: 'Sickle',
+            [WeaponType.Spear]: 'Spear',
+            [WeaponType.Trident]: 'Trident',
+            [WeaponType.WarPick]: 'War Pick',
+            [WeaponType.Warhammer]: 'Warhammer',
+            [WeaponType.Whip]: 'Whip'
         }
     } satisfies IOptionType<typeof WeaponType>,
+    weaponTypeCategory: {
+        enum: WeaponTypeCategory,
+        default: WeaponTypeCategory.Simple,
+        options: {
+            [WeaponTypeCategory.Simple]: 'Simple',
+            [WeaponTypeCategory.Martial]: 'Martial',
+            [WeaponTypeCategory.Improvised]: 'Improvised'
+        }
+    } satisfies IOptionType<typeof WeaponTypeCategory>,
     meleeWeapon: {
         enum: MeleeWeaponType,
         default: MeleeWeaponType.Battleaxe,
         options: {
             [MeleeWeaponType.Battleaxe]: 'Battleaxe',
             [MeleeWeaponType.Club]: 'Club',
-            [MeleeWeaponType.Dagger]: 'Dagger',
-            [MeleeWeaponType.Dart]: 'Dart',
             [MeleeWeaponType.Flail]: 'Flail',
+            [MeleeWeaponType.Glaive]: 'Glaive',
             [MeleeWeaponType.Greataxe]: 'Greataxe',
             [MeleeWeaponType.Greatclub]: 'Greatclub',
             [MeleeWeaponType.Greatsword]: 'Greatsword',
             [MeleeWeaponType.Halberd]: 'Halberd',
-            [MeleeWeaponType.Handaxe]: 'Handaxe',
-            [MeleeWeaponType.Javelin]: 'Javelin',
             [MeleeWeaponType.Lance]: 'Lance',
-            [MeleeWeaponType.LightHammer]: 'Light Hammer',
             [MeleeWeaponType.Longsword]: 'Longsword',
             [MeleeWeaponType.Mace]: 'Mace',
             [MeleeWeaponType.Maul]: 'Maul',
@@ -521,12 +601,9 @@ const OptionTypes = {
             [MeleeWeaponType.Scimitar]: 'Scimitar',
             [MeleeWeaponType.Shortsword]: 'Shortsword',
             [MeleeWeaponType.Sickle]: 'Sickle',
-            [MeleeWeaponType.Spear]: 'Spear',
-            [MeleeWeaponType.Trident]: 'Trident',
             [MeleeWeaponType.WarPick]: 'War Pick',
             [MeleeWeaponType.Warhammer]: 'Warhammer',
-            [MeleeWeaponType.Whip]: 'Whip',
-            [MeleeWeaponType.Improvised]: 'Improvised'
+            [MeleeWeaponType.Whip]: 'Whip'
         }
     } satisfies IOptionType<typeof MeleeWeaponType>,
     thrownWeapon: {
@@ -539,8 +616,7 @@ const OptionTypes = {
             [ThrownWeaponType.Javelin]: 'Javelin',
             [ThrownWeaponType.LightHammer]: 'Light Hammer',
             [ThrownWeaponType.Trident]: 'Trident',
-            [ThrownWeaponType.Spear]: 'Spear',
-            [ThrownWeaponType.Improvised]: 'Improvised'
+            [ThrownWeaponType.Spear]: 'Spear'
         }
     } satisfies IOptionType<typeof ThrownWeaponType>,
     rangedWeapon: {
@@ -554,8 +630,7 @@ const OptionTypes = {
             [RangedWeaponType.Longbow]: 'Longbow',
             [RangedWeaponType.Net]: 'Net',
             [RangedWeaponType.Shortbow]: 'Shortbow',
-            [RangedWeaponType.Sling]: 'Sling',
-            [RangedWeaponType.Improvised]: 'Improvised'
+            [RangedWeaponType.Sling]: 'Sling'
         }
     } satisfies IOptionType<typeof RangedWeaponType>,
     language: {
@@ -687,15 +762,6 @@ const OptionTypes = {
             [Rarity.Artifact]: 'Artifact'
         }
     } satisfies IOptionType<typeof Rarity>,
-    acBase: {
-        enum: ArmorClassBase,
-        default: ArmorClassBase.DEX,
-        options: {
-            [ArmorClassBase.DEX]: 'Dexterity',
-            [ArmorClassBase.DEXAndAttribute]: 'Dexterity + Attribute',
-            [ArmorClassBase.DEXAndFixed]: 'Dexterity + Value'
-        }
-    } satisfies IOptionType<typeof ArmorClassBase>,
     spellPreparation: {
         enum: SpellPreparationType,
         default: SpellPreparationType.None,
@@ -720,6 +786,13 @@ const OptionTypes = {
             [AdvantageBinding.IntelligenceSave]: 'Intelligence Save',
             [AdvantageBinding.WisdomSave]: 'Wisdom Save',
             [AdvantageBinding.CharismaSave]: 'Charisma Save',
+            [AdvantageBinding.StrengthChecks]: 'Strength Checks',
+            [AdvantageBinding.DexterityChecks]: 'Dexterity Checks',
+            [AdvantageBinding.ConstitutionChecks]: 'Constitution Checks',
+            [AdvantageBinding.IntelligenceChecks]: 'Intelligence Checks',
+            [AdvantageBinding.Checks]: 'Checks',
+            [AdvantageBinding.WisdomChecks]: 'Wisdom Checks',
+            [AdvantageBinding.CharismaChecks]: 'Charisma Checks',
             [AdvantageBinding.SkillChecks]: 'Skill Checks',
             [AdvantageBinding.AcrobaticsCheck]: 'Acrobatics Check',
             [AdvantageBinding.AnimalHandlingCheck]: 'Animal Handling Check',
@@ -738,7 +811,9 @@ const OptionTypes = {
             [AdvantageBinding.ReligionCheck]: 'Religion Check',
             [AdvantageBinding.SleightOfHandCheck]: 'Sleight of Hand Check',
             [AdvantageBinding.StealthCheck]: 'Stealth Check',
-            [AdvantageBinding.SurvivalCheck]: 'Survival Check'
+            [AdvantageBinding.SurvivalCheck]: 'Survival Check',
+            [AdvantageBinding.Initiative]: 'Initiative',
+            [AdvantageBinding.Attack]: 'Attacks'
         }
     } satisfies IOptionType<typeof AdvantageBinding>,
     damageBinding: {
@@ -826,7 +901,15 @@ const OptionTypes = {
             [LevelModifyType.Add]: 'Add',
             [LevelModifyType.Replace]: 'Replace'
         }
-    } satisfies IOptionType<typeof LevelModifyType>
+    } satisfies IOptionType<typeof LevelModifyType>,
+    linkedCategory: {
+        enum: LinkedCategoryType,
+        default: LinkedCategoryType.Feat,
+        options: {
+            [LinkedCategoryType.Feat]: 'Feat',
+            [LinkedCategoryType.FightingStyle]: 'Fighting Style'
+        }
+    } satisfies IOptionType<typeof LinkedCategoryType>
 } satisfies Record<string, IOptionType>
 
 export type OptionTypeKey = keyof typeof OptionTypes

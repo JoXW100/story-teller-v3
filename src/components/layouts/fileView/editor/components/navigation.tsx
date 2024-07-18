@@ -7,7 +7,7 @@ import styles from '../style.module.scss'
 
 const NavigationComponent = (): JSX.Element => {
     const [context, dispatch] = useContext(Context)
-    const page = context.editorPages.map(page => page.name).join(' -> ')
+    const page = context.editorPages.map(page => page.name).join(' → ')
 
     const handleClick = (): void => {
         dispatch.popEditorPage()
@@ -15,7 +15,7 @@ const NavigationComponent = (): JSX.Element => {
 
     return (
         <div className={styles.navigation}>
-            <label>{page ?? 'Missing page name'}</label>
+            <label>{page}</label>
             <Tooltip title={<LocalizedText id='button-back'/>}>
                 <button
                     className={styles.navigationButton}

@@ -28,11 +28,13 @@ class ModifierBonusDexterityData extends ModifierBonusDataBase implements IModif
         }
     }
 
-    public apply(data: Modifier, self: ModifierDocument): void {
-        data.dex.subscribe({
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+        modifier.dex.subscribe({
+            key: key,
             target: self,
+            data: this,
             apply: function (value): number {
-                return value + (self.data as ModifierBonusDexterityData).value
+                return value + (this.data as ModifierBonusDexterityData).value
             }
         })
     }

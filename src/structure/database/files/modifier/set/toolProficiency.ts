@@ -1,12 +1,13 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createDefaultChoiceData, createMultipleChoiceData, simplifyMultipleChoiceData, validateChoiceData } from '../common'
+import { createMultipleChoiceData, createDefaultChoiceData, validateChoiceData, simplifyMultipleChoiceData } from '../../../choice'
 import { asEnum, isEnum, isNumber } from 'utils'
 import { ToolType, ProficiencyLevel } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { MultipleChoiceData, IModifierSetToolProficiencyData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { IModifierSetToolProficiencyData } from 'types/database/files/modifier'
+import type { MultipleChoiceData } from 'types/database/choice'
 
 class ModifierSetToolProficiencyData extends ModifierSetDataBase implements IModifierSetToolProficiencyData {
     public override readonly subtype = ModifierSetType.ToolProficiency
@@ -37,32 +38,38 @@ class ModifierSetToolProficiencyData extends ModifierSetDataBase implements IMod
         }
     }
 
-    public override getEditorChoiceData(): IEditorChoiceData | null {
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
         if (this.proficiency.isChoice) {
-            return { type: 'enum', value: this.proficiency.value, enum: 'tool' }
+            modifier.addChoice({
+                source: this,
+                type: 'enum',
+                value: this.proficiency.value,
+                enum: 'tool',
+                numChoices: this.proficiency.numChoices
+            }, key)
         }
-        return null
-    }
-
-    public override apply(data: Modifier, self: ModifierDocument): void {
-        data.proficienciesTool.subscribe({
+        modifier.proficienciesTool.subscribe({
+            key: key,
             target: self,
+            data: this,
             apply: function (value, choices): Partial<Record<ToolType, ProficiencyLevel>> {
-                const modifier = self.data as ModifierSetToolProficiencyData
+                const modifier = this.data as ModifierSetToolProficiencyData
                 if (modifier.proficiency.isChoice) {
-                    const index: unknown = choices[self.id]
-                    if (!isNumber(index)) {
+                    const indices: unknown = choices[key]
+                    if (!Array.isArray(indices) || indices.some((value) => !isNumber(value))) {
                         return value
                     }
 
-                    const proficiency = modifier.proficiency.value[index] ?? null
-                    if (proficiency !== null) {
-                        return { ...value, [proficiency]: modifier.value }
+                    for (const index of indices) {
+                        const proficiency = modifier.proficiency.value[index] ?? null
+                        if (proficiency !== null) {
+                            value = { ...value, [proficiency]: modifier.value }
+                        }
                     }
+                    return value
                 } else {
                     return { ...value, [modifier.proficiency.value]: modifier.value }
                 }
-                return value
             }
         })
     }

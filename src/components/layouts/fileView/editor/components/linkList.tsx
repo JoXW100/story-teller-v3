@@ -1,8 +1,8 @@
 import React, { useContext } from 'react'
 import GroupItemComponent from './groupItem'
-import { Context, getRelativeFieldObject } from 'components/contexts/file'
+import { Context } from 'components/contexts/file'
 import LinkListMenu from 'components/layouts/menus/link'
-import { asBooleanString, isObjectId, isRecord, isString } from 'utils'
+import { asBooleanString, isObjectId, isRecord, isString, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
 import { isValidAbilityFormat, toAbility } from 'utils/importers/stringFormatAbilityImporter'
 import { useLocalizedText } from 'utils/hooks/localizedText'
@@ -22,10 +22,9 @@ type LinkListComponentParams = React.PropsWithChildren<{
     placeholderArgs?: any[]
     fill?: boolean
     allowText?: boolean
-    deps?: string[]
 }>
 
-const LinkListComponent: React.FC<LinkListComponentParams> = ({ field, labelId, labelArgs, allowedTypes, placeholderId, placeholderArgs, fill = false, allowText = false, deps = [] }) => {
+const LinkListComponent: React.FC<LinkListComponentParams> = ({ field, labelId, labelArgs, allowedTypes, placeholderId, placeholderArgs, fill = false, allowText = false }) => {
     const [context, dispatch] = useContext(Context)
     const placeholder = useLocalizedText(placeholderId, placeholderArgs)
     if (!isRecord(context.file.data)) {
@@ -50,7 +49,7 @@ const LinkListComponent: React.FC<LinkListComponentParams> = ({ field, labelId, 
     }
 
     const handleChange = (values: Array<ObjectId | string>): void => {
-        dispatch.setData(field, values, deps)
+        dispatch.setData(field, values)
     }
 
     const handleParseText = (value: string): DatabaseFile | null => {

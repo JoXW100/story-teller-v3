@@ -1,28 +1,28 @@
 import React, { useContext } from 'react'
 import GroupItemComponent from './groupItem'
-import { Context, getRelativeFieldObject } from 'components/contexts/file'
+import { Context } from 'components/contexts/file'
 import ListMenu from 'components/layouts/menus/list'
-import { asBooleanString, isNumber, isRecord, isString } from 'utils'
+import { asBooleanString, isNumber, isRecord, isString, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
 import { useLocalizedText } from 'utils/hooks/localizedText'
 import type { LanguageKey } from 'data'
+import { getOptionType, type IOptionType, type OptionTypeKey } from 'structure/optionData'
 import styles from '../style.module.scss'
 
 type ListComponentParams = React.PropsWithChildren<{
     field: string
-    type: 'string' | 'number'
+    type: 'string' | 'number' | 'enum'
+    enumType?: OptionTypeKey
     labelId: LanguageKey
     labelArgs?: any[]
     placeholderId?: LanguageKey
     placeholderArgs?: any[]
     allowNegative?: boolean
-    allowDecimal?: boolean
     editEnabled?: boolean
     fill?: boolean
-    deps?: string[]
 }>
 
-const ListComponent: React.FC<ListComponentParams> = ({ field, type, labelId, labelArgs, placeholderId, placeholderArgs, fill = false, editEnabled = false, allowDecimal = false, allowNegative = false, deps = [] }) => {
+const ListComponent: React.FC<ListComponentParams> = ({ field, type, enumType, labelId, labelArgs, placeholderId, placeholderArgs, fill = false, editEnabled = false, allowNegative = false }) => {
     const [context, dispatch] = useContext(Context)
     const placeholder = useLocalizedText(placeholderId, placeholderArgs)
     if (!isRecord(context.file.data)) {
@@ -34,6 +34,19 @@ const ListComponent: React.FC<ListComponentParams> = ({ field, type, labelId, la
     if (relative === null) {
         Logger.throw('Editor.LinkListComponent', 'Failed to get relative field', field)
         return null
+    }
+
+    let options: IOptionType | null = null
+    if (type === 'enum') {
+        if (enumType === undefined) {
+            Logger.throw('Editor.LinkListComponent', 'No enum type specified', field)
+            return null
+        }
+        options = getOptionType(enumType)
+        if (options === null) {
+            Logger.throw('Editor.LinkListComponent', 'Invalid enum type specified', field, enumType)
+            return null
+        }
     }
 
     const handleValidate = (value: unknown): boolean => {
@@ -48,36 +61,44 @@ const ListComponent: React.FC<ListComponentParams> = ({ field, type, labelId, la
     }
 
     const handleChange = (values: unknown[]): void => {
-        dispatch.setData(field, values, deps)
+        dispatch.setData(field, values)
     }
 
     return (
         <GroupItemComponent className={styles.editList} data={asBooleanString(fill)} labelId={labelId} labelArgs={labelArgs}>
             { type === 'number' &&
-                <ListMenu<number>
+                <ListMenu
                     itemClassName={styles.itemListItem}
                     values={value}
                     type={type}
                     defaultValue={0}
                     onChange={handleChange}
-                    createValue={(value) => allowDecimal ? value : Math.floor(value)}
-                    createInput={Number}
                     validateInput={handleValidate}
                     placeholder={placeholder}
                     editEnabled={editEnabled}
                     addLast/>
             }
             { type === 'string' &&
-                <ListMenu<string>
+                <ListMenu
                     itemClassName={styles.itemListItem}
                     values={value}
                     type={type}
                     defaultValue=''
                     onChange={handleChange}
-                    createValue={String}
-                    createInput={String}
                     validateInput={handleValidate}
                     placeholder={placeholder}
+                    editEnabled={editEnabled}
+                    addLast/>
+            }
+            { type === 'enum' &&
+                <ListMenu
+                    itemClassName={styles.itemListItem}
+                    values={value}
+                    type={type}
+                    options={options!.options}
+                    defaultValue={options!.default}
+                    onChange={handleChange}
+                    validateInput={handleValidate}
                     editEnabled={editEnabled}
                     addLast/>
             }

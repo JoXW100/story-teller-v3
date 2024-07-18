@@ -1,12 +1,12 @@
+import type { MultipleChoiceData, SingleChoiceData } from '../choice'
 import type { ModifierType } from 'structure/database/files/modifier/common'
 import type { ModifierAbilityType } from 'structure/database/files/modifier/ability'
 import type { ModifierAddType } from 'structure/database/files/modifier/add'
 import type { ModifierBonusType } from 'structure/database/files/modifier/bonus'
 import type { ModifierSetType } from 'structure/database/files/modifier/set'
 import type { ModifierVariableType, OperationType } from 'structure/database/files/modifier/variable'
-import type { AdvantageBinding, ConditionBinding, Language, OptionalAttribute, ProficiencyLevelBasic, DamageBinding, Sense, SizeType, Attribute, Skill, ToolType, ProficiencyLevel, ArmorType, WeaponType } from 'structure/dnd'
-import type { OptionTypeKey } from 'structure/optionData'
-import type { DocumentType } from 'structure/database'
+import type { LinkedCategoryType } from 'structure/database/files/modifier/add/linked'
+import type { AdvantageBinding, ConditionBinding, Language, OptionalAttribute, ProficiencyLevelBasic, DamageBinding, Sense, SizeType, Attribute, Skill, ToolType, ProficiencyLevel, ArmorType, WeaponTypeValue, MovementType } from 'structure/dnd'
 import type { ICondition } from 'types/database/condition'
 import type { ObjectId } from 'types'
 
@@ -27,7 +27,49 @@ export interface IModifierAbilityAttackBonusData extends IModifierAbilityDataBas
     readonly value: number
 }
 
-export type IModifierAbilityData = IModifierAbilityAttackBonusData
+export interface IModifierAbilityMeleeWeaponAttackBonusData extends IModifierAbilityDataBase {
+    readonly subtype: ModifierAbilityType.MeleeWeaponAttackBonus
+    readonly value: number
+}
+
+export interface IModifierAbilityRangedWeaponAttackBonusData extends IModifierAbilityDataBase {
+    readonly subtype: ModifierAbilityType.RangedWeaponAttackBonus
+    readonly value: number
+}
+
+export interface IModifierAbilityThrownWeaponAttackBonusData extends IModifierAbilityDataBase {
+    readonly subtype: ModifierAbilityType.ThrownWeaponAttackBonus
+    readonly value: number
+}
+
+export interface IModifierAbilityDamageBonusData extends IModifierAbilityDataBase {
+    readonly subtype: ModifierAbilityType.DamageBonus
+    readonly value: number
+}
+
+export interface IModifierAbilityMeleeWeaponDamageBonusData extends IModifierAbilityDataBase {
+    readonly subtype: ModifierAbilityType.MeleeWeaponDamageBonus
+    readonly value: number
+}
+
+export interface IModifierAbilityRangedWeaponDamageBonusData extends IModifierAbilityDataBase {
+    readonly subtype: ModifierAbilityType.RangedWeaponDamageBonus
+    readonly value: number
+}
+
+export interface IModifierAbilityThrownWeaponDamageBonusData extends IModifierAbilityDataBase {
+    readonly subtype: ModifierAbilityType.ThrownWeaponDamageBonus
+    readonly value: number
+}
+
+export type IModifierAbilityData = IModifierAbilityAttackBonusData |
+IModifierAbilityMeleeWeaponAttackBonusData |
+IModifierAbilityRangedWeaponAttackBonusData |
+IModifierAbilityThrownWeaponAttackBonusData |
+IModifierAbilityDamageBonusData |
+IModifierAbilityMeleeWeaponDamageBonusData |
+IModifierAbilityRangedWeaponDamageBonusData |
+IModifierAbilityThrownWeaponDamageBonusData
 
 export interface IModifierAddDataBase extends IModifierDataBase {
     readonly type: ModifierType.Add
@@ -37,6 +79,12 @@ export interface IModifierAddDataBase extends IModifierDataBase {
 export interface IModifierAddAbilityData extends IModifierAddDataBase {
     readonly subtype: ModifierAddType.Ability
     readonly value: MultipleChoiceData<ObjectId | null>
+}
+
+export interface IModifierAddLinkedData extends IModifierAddDataBase {
+    readonly subtype: ModifierAddType.Linked
+    readonly category: LinkedCategoryType
+    readonly numChoices: number
 }
 
 export interface IModifierAddSpellData extends IModifierAddDataBase {
@@ -83,7 +131,8 @@ export interface IModifierAddConditionImmunityData extends IModifierAddDataBase 
 export type IModifierAddData = IModifierAddAbilityData | IModifierAddSpellData |
 IModifierAddAdvantageData | IModifierAddDisadvantageData |
 IModifierAddResistanceData | IModifierAddVulnerabilityData |
-IModifierAddDamageImmunityData | IModifierAddConditionImmunityData
+IModifierAddDamageImmunityData | IModifierAddConditionImmunityData |
+IModifierAddLinkedData
 
 export interface IModifierRemoveData extends IModifierDataBase {
     readonly type: ModifierType.Remove
@@ -135,26 +184,44 @@ export interface IModifierBonusAllAttributesData extends IModifierBonusDataBase 
     readonly value: number
 }
 
+export interface IModifierBonusAttacksData extends IModifierBonusDataBase {
+    readonly subtype: ModifierBonusType.Attacks
+    readonly value: number
+}
+
+export interface IModifierBonusSpeedData extends IModifierBonusDataBase {
+    readonly subtype: ModifierBonusType.Speed
+    readonly value: Partial<Record<MovementType, number>>
+}
+
 export type IModifierBonusData = IModifierBonusACData |
 IModifierBonusStrengthData | IModifierBonusDexterityData |
 IModifierBonusConstitutionData | IModifierBonusIntelligenceData |
 IModifierBonusWisdomData | IModifierBonusCharismaData |
-IModifierBonusAllAttributesData
-
-export interface IInnerModifierData {
-    readonly condition: ICondition
-    readonly modifiers: ObjectId[]
-}
+IModifierBonusAllAttributesData | IModifierBonusAttacksData |
+IModifierBonusSpeedData
 
 export interface IModifierChoiceData extends IModifierDataBase {
     readonly type: ModifierType.Choice
     readonly num: number
-    readonly options: Record<string, IInnerModifierData>
+    readonly options: Record<string, IModifierData>
 }
 
 export interface IModifierSetDataBase extends IModifierDataBase {
     readonly type: ModifierType.Set
     readonly subtype: ModifierSetType
+}
+
+export interface IModifierSetSpellAttributeData extends IModifierSetDataBase {
+    readonly subtype: ModifierSetType.SpellAttribute
+    readonly value: SingleChoiceData<OptionalAttribute>
+}
+
+export interface IModifierSetArmorClassBaseData extends IModifierSetDataBase {
+    readonly subtype: ModifierSetType.ArmorClassBase
+    readonly values: Partial<Record<Attribute, number>>
+    readonly maxValues: Partial<Record<Attribute, number>>
+    readonly bonus: number
 }
 
 export interface IModifierSetSizeData extends IModifierSetDataBase {
@@ -168,9 +235,10 @@ export interface IModifierSetSenseData extends IModifierSetDataBase {
     readonly value: number
 }
 
-export interface IModifierSetSpellAttributeData extends IModifierSetDataBase {
-    readonly subtype: ModifierSetType.SpellAttribute
-    readonly value: SingleChoiceData<OptionalAttribute>
+export interface IModifierSetSpeedData extends IModifierSetDataBase {
+    readonly subtype: ModifierSetType.Speed
+    readonly speed: SingleChoiceData<MovementType>
+    readonly value: number
 }
 
 export interface IModifierSetSaveProficiencyData extends IModifierSetDataBase {
@@ -205,9 +273,16 @@ export interface IModifierSetArmorProficiencyData extends IModifierSetDataBase {
 
 export interface IModifierSetWeaponProficiencyData extends IModifierSetDataBase {
     readonly subtype: ModifierSetType.WeaponProficiency
-    readonly proficiency: MultipleChoiceData<WeaponType>
+    readonly proficiency: MultipleChoiceData<WeaponTypeValue>
     readonly value: ProficiencyLevelBasic
 }
+
+export type IModifierSetData = IModifierSetSenseData | IModifierSetSpeedData |
+IModifierSetSizeData | IModifierSetSpellAttributeData |
+IModifierSetSaveProficiencyData | IModifierSetSkillProficiencyData |
+IModifierSetToolProficiencyData | IModifierSetLanguageProficiencyData |
+IModifierSetArmorProficiencyData | IModifierSetWeaponProficiencyData |
+IModifierSetArmorClassBaseData
 
 export interface IModifierVariableDataBase extends IModifierDataBase {
     readonly type: ModifierType.Variable
@@ -229,41 +304,15 @@ export interface IModifierVariableCollectionData extends IModifierVariableDataBa
 export type IModifierVariableData = IModifierVariableCollectionData |
 IModifierVariableNumberData
 
-export type IModifierSetData = IModifierSetSenseData | IModifierSetSizeData |
-IModifierSetSpellAttributeData | IModifierSetSaveProficiencyData |
-IModifierSetSkillProficiencyData | IModifierSetToolProficiencyData |
-IModifierSetLanguageProficiencyData | IModifierSetArmorProficiencyData |
-IModifierSetWeaponProficiencyData
+export interface IModifierGroupData extends IModifierDataBase {
+    readonly type: ModifierType.Group
+    readonly modifiers: Record<string, IModifierData>
+}
 
 export type IModifierData = IModifierAddData | IModifierBonusData |
 IModifierAbilityData | IModifierChoiceData | IModifierRemoveData |
-IModifierSetData | IModifierVariableData
+IModifierSetData | IModifierVariableData | IModifierGroupData
 
 export interface IModifierStorage {
 
-}
-
-export interface ISingleChoiceData<V = unknown> {
-    readonly isChoice: true
-    readonly value: V[]
-}
-
-export interface IMultipleChoiceData<V = unknown> extends ISingleChoiceData<V> {
-    readonly numChoices: number
-}
-
-export interface INonChoiceData<V = unknown> {
-    readonly isChoice: false
-    readonly value: V
-}
-
-export type SingleChoiceData<T = unknown> = ISingleChoiceData<T> | INonChoiceData<T>
-export type MultipleChoiceData<T = unknown> = IMultipleChoiceData<T> | INonChoiceData<T>
-
-export interface IEditorChoiceData {
-    readonly type: 'enum' | 'id' | 'value'
-    readonly value: unknown[]
-    readonly numChoices?: number
-    readonly enum?: OptionTypeKey
-    readonly allowedTypes?: readonly DocumentType[]
 }

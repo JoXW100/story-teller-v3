@@ -13,4 +13,15 @@ export interface ICreatureStats {
     proficiency: number
     critRange: number
     multiAttack: number
+    armorLevel: number // 0 = None, 1 = Light, 2 = Medium, 3 = Heavy
+    shieldLevel: number
+}
+
+export interface IBonusGroup {
+    readonly bonus: number
+    readonly areaBonus: number
+    readonly singleBonus: number
+    readonly meleeBonus: number
+    readonly rangedBonus: number
+    readonly thrownBonus: number
 }

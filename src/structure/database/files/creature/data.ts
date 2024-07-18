@@ -1,5 +1,5 @@
 import { type ICalcValue, AutoCalcValue, createCalcValue, simplifyCalcValue } from 'structure/database'
-import { Alignment, CreatureType, SizeType, MovementType, Sense, OptionalAttribute, AdvantageBinding, ConditionBinding, DamageBinding, SpellLevel, Attribute, ProficiencyLevel, Skill, ToolType, Language, ArmorType, WeaponType, ProficiencyLevelBasic } from 'structure/dnd'
+import { Alignment, CreatureType, SizeType, MovementType, Sense, OptionalAttribute, AdvantageBinding, ConditionBinding, DamageBinding, SpellLevel, Attribute, ProficiencyLevel, Skill, ToolType, Language, ArmorType, WeaponTypeValue, ProficiencyLevelBasic } from 'structure/dnd'
 import { DieType } from 'structure/dice'
 import EmptyToken from 'structure/language/tokens/empty'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
@@ -12,6 +12,19 @@ import type { TokenContext } from 'types/language'
 
 export function isSourceBinding(value: unknown): value is ISourceBinding {
     return isRecord(value) && isObjectIdOrNull(value.source) && isString(value.description)
+}
+
+export function simplifyNumberRecord(value: Record<any, number>, defaultNumber: number = 0): Simplify<typeof value> | null {
+    const result: Simplify<Record<any, number>> = {}
+    let flag = false
+    for (const key of keysOf(value)) {
+        const number = value[key]
+        if (number !== defaultNumber) {
+            result[key] = number
+            flag = true
+        }
+    }
+    return flag ? result : null
 }
 
 class CreatureData implements ICreatureData {
@@ -50,7 +63,7 @@ class CreatureData implements ICreatureData {
     public readonly proficienciesTool: Partial<Record<ToolType, ProficiencyLevel>>
     public readonly proficienciesLanguage: Partial<Record<Language, ProficiencyLevelBasic>>
     public readonly proficienciesArmor: Partial<Record<ArmorType, ProficiencyLevelBasic>>
-    public readonly proficienciesWeapon: Partial<Record<WeaponType, ProficiencyLevelBasic>>
+    public readonly proficienciesWeapon: Partial<Record<WeaponTypeValue, ProficiencyLevelBasic>>
     // Advantages
     public readonly advantages: Partial<Record<AdvantageBinding, ISourceBinding[]>>
     public readonly disadvantages: Partial<Record<AdvantageBinding, ISourceBinding[]>>
@@ -102,7 +115,15 @@ class CreatureData implements ICreatureData {
         this.proficienciesSkill = data.proficienciesSkill ?? CreatureData.properties.proficienciesSkill.value
         this.proficienciesTool = data.proficienciesTool ?? CreatureData.properties.proficienciesTool.value
         this.proficienciesLanguage = data.proficienciesLanguage ?? CreatureData.properties.proficienciesLanguage.value
-        this.proficienciesArmor = data.proficienciesArmor ?? CreatureData.properties.proficienciesArmor.value
+        this.proficienciesArmor = CreatureData.properties.proficienciesArmor.value
+        if (data.proficienciesArmor !== undefined) {
+            for (const armorType of keysOf(data.proficienciesArmor)) {
+                const value = data.proficienciesArmor[armorType]
+                if (isEnum(armorType, ArmorType) && isEnum(value, ProficiencyLevelBasic)) {
+                    this.proficienciesArmor[armorType] = value
+                }
+            }
+        }
         this.proficienciesWeapon = data.proficienciesWeapon ?? CreatureData.properties.proficienciesWeapon.value
         // Advantages
         this.advantages = CreatureData.properties.advantages.value
@@ -280,12 +301,12 @@ class CreatureData implements ICreatureData {
         speed: {
             get value() { return {} },
             validate: (value) => isRecord(value, (key, value) => isEnum(key, MovementType) && isNumber(value) && value >= 0),
-            simplify: (value) => Object.keys(value).length > 0 ? value : null
+            simplify: simplifyNumberRecord
         },
         senses: {
             get value() { return {} },
             validate: (value) => isRecord(value, (key, value) => isEnum(key, Sense) && isNumber(value) && value >= 0),
-            simplify: (value) => Object.keys(value).length > 0 ? value : null
+            simplify: simplifyNumberRecord
         },
         // Attributes
         str: {
@@ -356,7 +377,7 @@ class CreatureData implements ICreatureData {
         },
         proficienciesWeapon: {
             get value() { return {} },
-            validate: (value) => isRecord(value, (key, value) => isEnum(key, WeaponType) && isEnum(value, ProficiencyLevelBasic)),
+            validate: (value) => isRecord(value, (key, value) => isEnum(key, WeaponTypeValue) && isEnum(value, ProficiencyLevelBasic)),
             simplify: (value) => Object.values(value).some((value) => value !== ProficiencyLevelBasic.None) ? value : null
         },
         // Advantages
@@ -419,7 +440,7 @@ class CreatureData implements ICreatureData {
     }
 
     public createContexts(elements: ElementDefinitions): [TokenContext] {
-        const descriptionContext = {
+        const descriptionContext: TokenContext = {
             title: new EmptyToken(elements, this.name),
             name: new EmptyToken(elements, this.name)
         }

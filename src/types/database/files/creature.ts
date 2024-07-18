@@ -1,6 +1,6 @@
 import type { ICalcValue } from 'structure/database'
 import type { DieType } from 'structure/dice'
-import type { AdvantageBinding, Alignment, ArmorType, Attribute, ConditionBinding, CreatureType, Language, MovementType, OptionalAttribute, ProficiencyLevel, ProficiencyLevelBasic, DamageBinding, Sense, SizeType, Skill, ToolType, WeaponType, SpellLevel } from 'structure/dnd'
+import type { AdvantageBinding, Alignment, ArmorType, Attribute, ConditionBinding, CreatureType, Language, MovementType, OptionalAttribute, ProficiencyLevel, ProficiencyLevelBasic, DamageBinding, Sense, SizeType, Skill, ToolType, WeaponTypeValue, SpellLevel } from 'structure/dnd'
 import type { ObjectId } from 'types'
 
 export interface ISourceBinding {
@@ -44,7 +44,7 @@ export interface ICreatureData {
     readonly proficienciesTool: Partial<Record<ToolType, ProficiencyLevel>>
     readonly proficienciesLanguage: Partial<Record<Language, ProficiencyLevelBasic>>
     readonly proficienciesArmor: Partial<Record<ArmorType, ProficiencyLevelBasic>>
-    readonly proficienciesWeapon: Partial<Record<WeaponType, ProficiencyLevelBasic>>
+    readonly proficienciesWeapon: Partial<Record<WeaponTypeValue, ProficiencyLevelBasic>>
     // Advantages
     readonly advantages: Partial<Record<AdvantageBinding, readonly ISourceBinding[]>>
     readonly disadvantages: Partial<Record<AdvantageBinding, readonly ISourceBinding[]>>
@@ -67,5 +67,5 @@ export interface ICreatureStorage {
     readonly healthTemp: number | null
     readonly abilitiesExpendedCharges: Record<string, number>
     readonly spellsExpendedSlots: Partial<Record<SpellLevel, number>>
-    readonly choices: Record<ObjectId, unknown>
+    readonly choices: Record<string, unknown>
 }

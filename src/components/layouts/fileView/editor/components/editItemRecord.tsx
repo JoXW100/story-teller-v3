@@ -1,9 +1,9 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
 import GroupItemComponent from './groupItem'
 import type { EditorPageKeyType } from '..'
-import { Context, getRelativeFieldObject } from 'components/contexts/file'
+import { Context } from 'components/contexts/file'
 import RecordMenu, { type RecordComponentProps } from 'components/layouts/menus/record'
-import { asBooleanString, isRecord } from 'utils'
+import { asBooleanString, isRecord, createField, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
 import type { LanguageKey } from 'data'
 import styles from '../style.module.scss'
@@ -15,28 +15,25 @@ type EditItemRecordComponentParams = React.PropsWithoutRef<{
     labelId: LanguageKey
     labelArgs?: any[]
     page: EditorPageKeyType
-    deps?: string[]
     fill?: boolean
 }>
 
 interface IEditItemRecordParams {
     page: EditorPageKeyType
     field: string
-    deps: string[]
 }
 
-const EditItemRecordComponent: React.FC<EditItemRecordComponentParams> = ({ field, defaultValue, labelId, labelArgs, page, deps = [], fill = false }) => {
+const EditItemRecordComponent: React.FC<EditItemRecordComponentParams> = ({ field, defaultValue, labelId, labelArgs, page, fill = false }) => {
     const [context, dispatch] = useContext(Context)
 
     const handleChange = (value: unknown): void => {
-        dispatch.setData(field, value, deps)
+        dispatch.setData(field, value)
     }
 
     const params = useMemo<IEditItemRecordParams>(() => ({
         page: page,
-        field: field,
-        deps: deps
-    }), [page, field, deps])
+        field: field
+    }), [page, field])
 
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.RecordComponent', 'Data of incorrect type', context.file.data)
@@ -55,10 +52,14 @@ const EditItemRecordComponent: React.FC<EditItemRecordComponentParams> = ({ fiel
         return null
     }
 
+    const handleValidate = (value: string): boolean => {
+        return !value.includes('.')
+    }
+
     return (
         <GroupItemComponent
             className={styles.editList}
-            data={String(fill)}
+            data={asBooleanString(fill)}
             labelId={labelId}
             labelArgs={labelArgs}>
             <RecordMenu
@@ -66,6 +67,7 @@ const EditItemRecordComponent: React.FC<EditItemRecordComponentParams> = ({ fiel
                 values={values}
                 defaultValue={defaultValue}
                 onChange={handleChange}
+                validateInput={handleValidate}
                 params={params}
                 Component={EditItemRecordItemComponent}
                 EditComponent={EditItemRecordEditComponent}/>
@@ -75,11 +77,11 @@ const EditItemRecordComponent: React.FC<EditItemRecordComponentParams> = ({ fiel
 
 type RecordItemComponentParams = RecordComponentProps<unknown, IEditItemRecordParams>
 
-const EditItemRecordItemComponent: React.FC<RecordItemComponentParams> = ({ itemKey, value, values, update, params }) => {
+const EditItemRecordItemComponent: React.FC<RecordItemComponentParams> = ({ itemKey, values, update, params }) => {
     const [label, setLabel] = useState(itemKey)
 
     const validateKey = (key: string): boolean => {
-        return key.length > 0 && !(key in values)
+        return key.length > 0 && !(key in values) && !key.includes('.')
     }
 
     const handleInput: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -100,12 +102,12 @@ const EditItemRecordItemComponent: React.FC<RecordItemComponentParams> = ({ item
                 value={label}
                 type="text"
                 onChange={handleInput}
-                data={asBooleanString(label === itemKey)}/>
+                data={asBooleanString(label === itemKey)}
+                error={asBooleanString(label.includes('.'))}/>
             <EditItemButtonComponent
                 pageKey={params.page}
-                root={`${params.field}.${itemKey}`}
-                name={itemKey}
-                deps={params.deps}/>
+                root={createField(params.field, itemKey)}
+                name={itemKey}/>
         </div>
     )
 }
@@ -120,7 +122,8 @@ const EditItemRecordEditComponent: React.FC<RecordItemComponentParams> = ({ item
             className={styles.editInput}
             value={itemKey}
             type="text"
-            onChange={handleInput}/>
+            onChange={handleInput}
+            error={asBooleanString(itemKey.includes('.'))}/>
     )
 }
 

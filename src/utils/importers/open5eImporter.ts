@@ -1,22 +1,28 @@
+import { asEnum, asNumber, capitalizeFirstLetter, isString } from 'utils'
 import Communication from 'utils/communication'
 import Logger from 'utils/logger'
-import { asEnum, asNumber } from 'utils'
+import { getSpellLevelFromValue } from 'utils/calculations'
 import { DieType } from 'structure/dice'
-import { CalcMode } from 'structure/database'
-import { AreaType, Attribute, CastingTime, DamageType, Duration, TargetType } from 'structure/dnd'
+import { AutoCalcValue, CalcMode } from 'structure/database'
+import { AreaType, Attribute, CastingTime, DamageType, Duration, MagicSchool, ScalingType, SpellLevel, TargetType } from 'structure/dnd'
 import { EffectConditionType } from 'structure/database/effectCondition'
 import CreatureData from 'structure/database/files/creature/data'
-import SpellDataFactory from 'structure/database/files/spell/factory'
 import type { Editable } from 'types'
 import type { ICreatureData } from 'types/database/files/creature'
-import type { ISpellData } from 'types/database/files/spell'
+import type { ISpellAreaData, ISpellData, ISpellDataBase, ISpellMultipleData, ISpellNoneData, ISpellSelfData, ISpellSingleData, ISpellTouchData } from 'types/database/files/spell'
 import type { IOpen5eCreature } from 'types/open5eCompendium'
+import { EffectCategory, EffectType } from 'structure/database/effect/common'
+import { type IEffectCondition } from 'types/database/effectCondition'
+import { type IArea, type IAreaCone, type IAreaCube, type IAreaCuboid, type IAreaCylinder, type IAreaLine, type IAreaNone, type IAreaRectangle, type IAreaSphere, type IAreaSquare } from 'types/database/area'
+import { type IDamageEffect, type IEffect, type ITextEffect } from 'types/database/effect'
 
 const castTimeExpr = /([0-9]+)? *([A-z-]+)/
 const durationMatchExpr = /([0-9]+)? *([A-z]+)/g
 const areaMatchExpr = /([0-9]+)[- ]*(?:foot|feet)[- ]*([A-z]+)[- ]*(sphere|centered|cylinder)?/g
 const damageMatchExpr = /([0-9]+)d([0-9]+)[ -]+([A-z]+) *damage/
 const conditionMatchExpr = /(?:([A-z]+) (saving[- ]*throw)|(ranged|melee) (spell[- ]*attack))/
+const higherLevelIncreaseMatchExpr = /([A-z]+) increases by ([0-9]+)d([0-9]+)/i
+const higherLevelMatchExpr = /([0-9]+)th level \(([0-9]+)d([0-9]+)\)/ig
 
 interface Open5eSpell {
     archetype: string
@@ -30,6 +36,8 @@ interface Open5eSpell {
     higher_level: string
     level: string
     level_int: number
+    spell_level: number
+    spell_lists: string[]
     material: string
     name: string
     page: string
@@ -53,7 +61,7 @@ export const getCastingTime = (time: string): { time: CastingTime, timeCustom: s
     }
 }
 
-export const getDuration = (duration: string): { duration: Duration, durationValue: number } => {
+export const getDuration = (duration: string): { duration: Duration, durationCustom: string, durationValue: number } => {
     const expr = new RegExp(durationMatchExpr)
     let value: number = 0
     let type: Duration = Duration.Custom
@@ -90,6 +98,7 @@ export const getDuration = (duration: string): { duration: Duration, durationVal
 
     return {
         duration: type,
+        durationCustom: duration,
         durationValue: value
     }
 }
@@ -100,7 +109,7 @@ export const getRange = (range: string): number => {
     }
 
     const res = /([0-9]+)/.exec(range) ?? []
-    return asNumber(res[1])
+    return asNumber(res[1], 0)
 }
 
 export const getAttribute = (attribute: string): Attribute => {
@@ -149,21 +158,21 @@ export const getCondition = (desc: string): { condition: EffectConditionType, sa
     return { condition: EffectConditionType.None }
 }
 
-export const getDamage = (desc: string): { damageType: DamageType, effectDice: DieType, effectDiceNum: number } => {
-    let effectDiceNum: number = 1
-    let effectDice: DieType = DieType.None
+export const getDamage = (desc: string): { damageType: DamageType, effectDie: DieType, effectDieNum: number } => {
+    let effectDieNum: number = 1
+    let effectDie: DieType = DieType.None
     let damageType: DamageType = DamageType.None
 
     const res = damageMatchExpr.exec(desc.toLowerCase())
     if (res !== null) {
-        effectDiceNum = asNumber(res[1], effectDiceNum)
-        effectDice = asEnum(asNumber(res[2], effectDiceNum), DieType, DieType.None)
+        effectDieNum = asNumber(res[1], effectDieNum)
+        effectDie = asEnum(`d${res[2]}`, DieType, DieType.None)
         damageType = asEnum(res[3], DamageType, DamageType.None)
     }
 
     return {
-        effectDiceNum: effectDiceNum,
-        effectDice: effectDice,
+        effectDieNum: effectDieNum,
+        effectDie: effectDie,
         damageType: damageType
     }
 }
@@ -229,7 +238,7 @@ export const getTarget = (area: AreaType, range: string): TargetType => {
         return TargetType.Touch
     }
 
-    if (Number(range) === 0) {
+    if (range.toLowerCase() === 'self' || Number(range) === 0) {
         return TargetType.Self
     }
 
@@ -272,58 +281,224 @@ export const open5eCreatureImporter = async (id: string): Promise<ICreatureData 
     }
 }
 
+function createCondition(res: Open5eSpell): IEffectCondition {
+    const { condition, saveAttr } = getCondition(res.desc)
+    switch (condition) {
+        case EffectConditionType.None:
+            return { type: condition }
+        case EffectConditionType.Hit:
+            return { type: condition, scaling: ScalingType.SpellModifier, proficiency: true, modifier: { ...AutoCalcValue } }
+        case EffectConditionType.Save:
+            return { type: condition, attribute: saveAttr ?? Attribute.STR, scaling: ScalingType.SpellModifier, proficiency: true, modifier: { ...AutoCalcValue } }
+    }
+}
+
+function createTargetArea(res: Open5eSpell): [TargetType, IArea] {
+    const { area, areaSize, areaHeight } = getArea(res.desc)
+    let result: IArea
+
+    switch (area) {
+        case AreaType.None:
+            result = { type: area } satisfies IAreaNone
+            break
+        case AreaType.Line:
+            result = { type: area, length: areaSize } satisfies IAreaLine
+            break
+        case AreaType.Cone:
+            result = { type: area, side: areaSize } satisfies IAreaCone
+            break
+        case AreaType.Square:
+            result = { type: area, side: areaSize } satisfies IAreaSquare
+            break
+        case AreaType.Rectangle:
+            result = { type: area, length: areaSize, width: areaHeight ?? areaSize } satisfies IAreaRectangle
+            break
+        case AreaType.Cube:
+            result = { type: area, side: areaSize } satisfies IAreaCube
+            break
+        case AreaType.Cuboid:
+            result = { type: area, length: areaSize, width: areaSize, height: areaHeight ?? areaSize } satisfies IAreaCuboid
+            break
+        case AreaType.Sphere:
+            result = { type: area, radius: areaSize } satisfies IAreaSphere
+            break
+        case AreaType.Cylinder:
+            result = { type: area, radius: areaSize, height: areaHeight ?? areaSize } satisfies IAreaCylinder
+            break
+    }
+
+    return [getTarget(area, res.range), result]
+}
+
+function createEffects(res: Open5eSpell): Record<string, IEffect> {
+    const { damageType, effectDie, effectDieNum } = getDamage(res.desc)
+    const effects: Record<string, IEffect> = {}
+    if (damageType === DamageType.None) {
+        effects.main = {
+            type: EffectType.Text,
+            label: 'Effect',
+            condition: {},
+            text: res.name
+        } satisfies ITextEffect
+    } else {
+        effects.main = {
+            type: EffectType.Damage,
+            label: 'Damage',
+            condition: {},
+            category: EffectCategory.Uncategorized,
+            damageType: damageType,
+            scaling: ScalingType.None,
+            proficiency: false,
+            die: effectDie,
+            dieCount: effectDieNum,
+            modifier: { ...AutoCalcValue }
+        } satisfies IDamageEffect
+    }
+    if (effects.main.type === EffectType.Damage && isString(res.higher_level) && res.higher_level.length > 0) {
+        const increaseMatch = higherLevelIncreaseMatchExpr.exec(res.higher_level)
+        if (increaseMatch !== null) {
+            console.log('createEffects.higherLevelIncreaseMatchExpr', increaseMatch)
+            const type = increaseMatch[1]
+            if (type !== 'damage') {
+                Logger.warn('Imported spell with unexpected "higher_level" field: ', res.higher_level, increaseMatch)
+                return effects
+            }
+
+            const expr = new RegExp(higherLevelMatchExpr)
+            let hit: RegExpExecArray | null
+            let prevLevel = 0
+            let prevKey: keyof typeof effects = 'main'
+            let prevDie: DieType = effects.main.die
+            let prevDieCount: number = effects.main.dieCount
+            while ((hit = expr.exec(res.higher_level)) != null) {
+                const level = asNumber(hit[1])
+                const higherDie = asEnum(`d${hit[3]}`, DieType, DieType.None)
+                const higherDieCount = asNumber(hit[2], 0)
+                if (!isNaN(level)) {
+                    effects[prevKey] = {
+                        ...effects.main,
+                        die: prevDie,
+                        dieCount: prevDieCount,
+                        condition: prevLevel > 0
+                            ? { range: [prevLevel, { property: 'casterLevel' }, level - 1] }
+                            : { leq: [{ property: 'casterLevel' }, level - 1] }
+                    }
+                    prevLevel = level
+                    prevKey = `lv${level}`
+                    prevDie = higherDie
+                    prevDieCount = higherDieCount
+                }
+            }
+            if (prevLevel > 0) {
+                effects[prevKey] = {
+                    ...effects.main,
+                    die: prevDie,
+                    dieCount: prevDieCount,
+                    condition: { geq: [{ property: 'casterLevel' }, prevLevel] }
+                }
+            }
+        }
+    }
+
+    return effects
+}
+
+function createDescription(res: Open5eSpell): string {
+    let text = res.desc + '\n'
+    if (isString(res.higher_level) && res.higher_level.length > 0) {
+        text += `\\space\n\\b{At Higher Levels.}~${res.higher_level}\n`
+    }
+    if (Array.isArray(res.spell_lists) && res.spell_lists.length > 0) {
+        text += `\\space\n\\b{Spell Lists.}~${res.spell_lists.map(capitalizeFirstLetter).join(', ')}\n`
+    }
+    return text
+}
+
 export const open5eSpellImporter = async (id: string): Promise<ISpellData | null> => {
     const res = await Communication.open5eFetchOne<Open5eSpell>('spells', id)
     if (res === null) { return null }
-    /*
-    const { time, timeCustom, timeValue } = getCastingTime(res.casting_time)
-    const { duration, durationValue } = getDuration(res.duration)
-    const { condition, saveAttr } = getCondition(res.desc)
-    const { damageType, effectDice, effectDiceNum } = getDamage(res.desc)
-    const { area, areaSize, areaHeight } = getArea(res.desc)
+
+    const [target, area] = createTargetArea(res)
     const components = res.components.toLowerCase()
-    const metadata: ISpellMetadata = {
+
+    const data: ISpellDataBase = {
         name: res.name,
-        description: res.desc,
-        level: res.level_int,
+        description: createDescription(res),
+        notes: '',
+        level: getSpellLevelFromValue(res.level_int) ?? SpellLevel.Cantrip,
         school: asEnum(res.school.toLowerCase(), MagicSchool) ?? MagicSchool.Abjuration,
-        time: time,
-        timeCustom: timeCustom,
-        timeValue: timeValue,
-        duration: duration,
-        durationValue: durationValue,
+        // Time
+        ...getCastingTime(res.casting_time),
+        ...getDuration(res.duration),
+        // Properties
+        allowUpcast: res.level_int > 0,
         ritual: res.ritual.toLowerCase() === 'yes',
         concentration: res.concentration.toLowerCase() === 'yes',
-        componentMaterial: components.includes('m'),
-        materials: res.material,
-        componentSomatic: components.includes('s'),
         componentVerbal: components.includes('v'),
-        condition: condition,
-        saveAttr: saveAttr,
-        target: getTarget(area, res.range), // TODO: Find in description
-        range: getRange(res.range),
-        area: area,
-        areaSize: areaSize,
-        areaHeight: areaHeight,
-        conditionScaling: ScalingType.SpellModifier,
-        conditionProficiency: true,
-        effects: [
-            {
-                id: 'main',
-                label: damageType === DamageType.None ? 'Effect' : 'Damage',
-                text: damageType === DamageType.None ? res.name : '',
-                damageType: damageType,
-                dice: effectDice,
-                diceNum: effectDiceNum
-            }
-        ]
-    } satisfies KeysOf<ISpellMetadata>
+        componentMaterial: components.includes('m'),
+        componentSomatic: components.includes('s'),
+        materials: res.material
+    }
 
-    Logger.log('toSpell', { file: res, result: metadata })
-    */
+    let result: ISpellData
+    switch (target) {
+        case TargetType.None:
+            result = {
+                ...data,
+                target: target,
+                condition: { type: EffectConditionType.None },
+                effects: createEffects(res)
+            } satisfies ISpellNoneData
+            break
+        case TargetType.Touch:
+            result = {
+                ...data,
+                target: target,
+                condition: createCondition(res),
+                effects: createEffects(res)
+            } satisfies ISpellTouchData
+            break
+        case TargetType.Self:
+            result = {
+                ...data,
+                target: target,
+                area: area,
+                condition: createCondition(res),
+                effects: createEffects(res)
+            } satisfies ISpellSelfData
+            break
+        case TargetType.Single:
+            result = {
+                ...data,
+                target: target,
+                range: getRange(res.range),
+                condition: createCondition(res),
+                effects: createEffects(res)
+            } satisfies ISpellSingleData
+            break
+        case TargetType.Multiple:
+            result = {
+                ...data,
+                target: target,
+                range: getRange(res.range),
+                count: 1,
+                condition: createCondition(res),
+                effects: createEffects(res)
+            } satisfies ISpellMultipleData
+            break
+        case TargetType.Point:
+        case TargetType.Area:
+            result = {
+                ...data,
+                target: target,
+                range: getRange(res.range),
+                area: area,
+                condition: createCondition(res),
+                effects: createEffects(res)
+            } satisfies ISpellAreaData
+            break
+    }
 
-    const data: Partial<ISpellData> = {}
-    const metadata = SpellDataFactory.create(data)
-    Logger.log('toSpell', { file: res, result: metadata })
-    return metadata
+    Logger.log('toSpell', { file: res, result: data })
+    return result
 }

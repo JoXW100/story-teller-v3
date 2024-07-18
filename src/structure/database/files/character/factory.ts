@@ -1,10 +1,10 @@
 import CharacterData from './data'
 import CharacterStorage from './storage'
-import { isRecord } from 'utils'
+import { isBoolean, isNumber, isRecord } from 'utils'
 import { hasObjectProperties, validateObjectProperties, simplifyObjectProperties } from 'structure/database'
 import type { Simplify } from 'types'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
-import type { ICharacterData, ICharacterStorage } from 'types/database/files/character'
+import type { ICharacterData, ICharacterStorage, IInventoryItemData } from 'types/database/files/character'
 
 const CharacterDataFactory: IDatabaseFactory<ICharacterData, CharacterData> = {
     create: function (data: Simplify<ICharacterData> = {}): CharacterData {
@@ -39,6 +39,36 @@ export const CharacterStorageFactory: IDatabaseFactory<ICharacterStorage, Charac
     },
     properties: function (data: unknown): DataPropertyMap<ICharacterStorage, CharacterStorage> {
         return CharacterStorage.properties
+    }
+}
+
+export const InventoryItemDataFactory: IDatabaseFactory<IInventoryItemData> = {
+    create: function (data: Simplify<IInventoryItemData> = {}): IInventoryItemData {
+        return {
+            equipped: data.equipped ?? false,
+            quantity: data.quantity ?? 1
+        }
+    },
+    is: function (data: unknown): data is IInventoryItemData {
+        return isRecord(data) && hasObjectProperties(data, this.properties(data))
+    },
+    validate: function (data: unknown): data is Simplify<IInventoryItemData> {
+        return isRecord(data) && validateObjectProperties(data, this.properties(data))
+    },
+    simplify: function (data: IInventoryItemData): Simplify<IInventoryItemData> {
+        return simplifyObjectProperties(data, this.properties(data))
+    },
+    properties: function (): DataPropertyMap<IInventoryItemData> {
+        return {
+            equipped: {
+                value: false,
+                validate: isBoolean
+            },
+            quantity: {
+                value: 1,
+                validate: isNumber
+            }
+        }
     }
 }
 

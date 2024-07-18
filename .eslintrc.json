@@ -14,6 +14,7 @@
         "@typescript-eslint/no-empty-interface": "off",
         "@typescript-eslint/space-before-function-paren": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/class-literal-property-style": "off",
         "@next/next/no-img-element": "off",
         "n/no-callback-literal": "off",
         "object-shorthand": "off",

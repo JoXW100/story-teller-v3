@@ -42,6 +42,8 @@ const AbilityRange: React.FC<AbilityRangeProps> = ({ data }) => {
                 </div>
             )
         case AbilityType.Feature:
+        case AbilityType.Feat:
+        case AbilityType.FightingStyle:
         default:
             return null
     }

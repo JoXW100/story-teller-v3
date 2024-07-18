@@ -1,5 +1,5 @@
 import type { ICondition, ConditionValue, ConditionData, IConditionProperties } from 'types/database/condition'
-import { getRelativeFieldObject } from 'components/contexts/file'
+import { isBoolean, getRelativeFieldObject } from 'utils'
 
 export enum ConditionType {
     None = 'none',
@@ -7,11 +7,12 @@ export enum ConditionType {
     NotEquals = 'neq',
     GreaterEquals = 'geq',
     LessEquals = 'leq',
+    Range = 'range',
     Not = 'not',
     Or = 'or',
     Nor = 'nor',
     And = 'and',
-    Nand = 'nand'
+    Nand = 'nand',
 }
 
 export enum ConditionValueType {
@@ -27,6 +28,7 @@ class Condition implements ICondition {
     public get neq(): ConditionValue[] | undefined { return this.data.type === ConditionType.NotEquals ? this.data.value : undefined }
     public get geq(): ConditionValue[] | undefined { return this.data.type === ConditionType.GreaterEquals ? this.data.value : undefined }
     public get leq(): ConditionValue[] | undefined { return this.data.type === ConditionType.LessEquals ? this.data.value : undefined }
+    public get range(): ConditionValue[] | undefined { return this.data.type === ConditionType.Range ? this.data.value : undefined }
     public get not(): ICondition | undefined { return this.data.type === ConditionType.Not ? this.data.value : undefined }
     public get or(): ICondition[] | undefined { return this.data.type === ConditionType.Or ? this.data.value : undefined }
     public get nor(): ICondition[] | undefined { return this.data.type === ConditionType.Nor ? this.data.value : undefined }
@@ -37,10 +39,12 @@ class Condition implements ICondition {
         this.data = data
     }
 
-    public evaluate(data: Partial<IConditionProperties>): boolean {
+    public evaluate(data: Partial<IConditionProperties>, choices: Record<string, unknown> = {}): boolean {
         switch (this.data.type) {
             case ConditionType.None: {
-                return true
+                return this.data.value === undefined ||
+                    (isBoolean(this.data.value) && this.data.value) ||
+                    (!isBoolean(this.data.value) && this.data.value(data, choices))
             }
             case ConditionType.Equals: {
                 const value = Condition.valueOf(this.data.value[0], data)
@@ -76,12 +80,21 @@ class Condition implements ICondition {
                 }
                 return false
             }
+            case ConditionType.Range: {
+                if (this.data.value.length === 3) {
+                    const value1 = Condition.valueOf(this.data.value[0], data)
+                    const value2 = Condition.valueOf(this.data.value[1], data)
+                    const value3 = Condition.valueOf(this.data.value[2], data)
+                    return Number(value1) <= Number(value2) && Number(value2) <= Number(value3)
+                }
+                return false
+            }
             case ConditionType.Not: {
-                return !this.data.value.evaluate(data)
+                return !this.data.value.evaluate(data, choices)
             }
             case ConditionType.Or: {
                 for (const x of this.data.value) {
-                    if (x.evaluate(data)) {
+                    if (x.evaluate(data, choices)) {
                         return true
                     }
                 }
@@ -89,7 +102,7 @@ class Condition implements ICondition {
             }
             case ConditionType.Nor: {
                 for (const x of this.data.value) {
-                    if (x.evaluate(data)) {
+                    if (x.evaluate(data, choices)) {
                         return false
                     }
                 }
@@ -97,7 +110,7 @@ class Condition implements ICondition {
             }
             case ConditionType.And: {
                 for (const x of this.data.value) {
-                    if (!x.evaluate(data)) {
+                    if (!x.evaluate(data, choices)) {
                         return false
                     }
                 }
@@ -105,7 +118,7 @@ class Condition implements ICondition {
             }
             case ConditionType.Nand: {
                 for (const x of this.data.value) {
-                    if (!x.evaluate(data)) {
+                    if (!x.evaluate(data, choices)) {
                         return true
                     }
                 }
@@ -119,7 +132,11 @@ class Condition implements ICondition {
     public simplify(): ICondition {
         switch (this.data.type) {
             case ConditionType.None:
-                return {}
+                if (isBoolean(this.data.value)) {
+                    return { [this.data.type]: this.data.value }
+                } else {
+                    return {}
+                }
             case ConditionType.Not:
                 return { [this.data.type]: this.data.value.simplify() }
             case ConditionType.Or:

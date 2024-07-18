@@ -3,11 +3,12 @@ import Database, { failure, success } from '.'
 import { DocumentCollectionName, DocumentCollectionTestName } from './constants'
 import { isKeyOf, isRecord, keysOf } from 'utils'
 import Logger from 'utils/logger'
-import { type DocumentFileType, FileType } from 'structure/database'
+import { DocumentFileType, FileType } from 'structure/database'
 import DatabaseFile from 'structure/database/files'
 import DocumentFactory from 'structure/database/files/factory'
 import type { KeysOfTwo } from 'types'
 import type { DBResponse, IFileStructure, IDatabaseFile } from 'types/database'
+import { AbilityType } from 'structure/database/files/ability/common'
 
 interface IDBDocument {
     _userId: string
@@ -427,7 +428,8 @@ class FileCollection {
                         isOwner: { $eq: ['$_userId', userId] },
                         dateCreated: '$dateCreated',
                         dateUpdated: '$dateUpdated',
-                        data: { $ifNull: ['$data', {}] }
+                        data: { $ifNull: ['$data', {}] },
+                        storage: { $ifNull: ['$storage', {}] }
                     } satisfies KeysOfTwo<IDatabaseFile, object>
                 }
             ]).toArray()
@@ -475,7 +477,8 @@ class FileCollection {
                         isOwner: { $eq: ['$_userId', userId] },
                         dateCreated: '$dateCreated',
                         dateUpdated: '$dateUpdated',
-                        data: { $ifNull: ['$data', {}] }
+                        data: { $ifNull: ['$data', {}] },
+                        storage: { $ifNull: ['$storage', {}] }
                     } satisfies KeysOfTwo<IDatabaseFile, object>
                 }
             ]).toArray()
@@ -484,6 +487,139 @@ class FileCollection {
             return success(result)
         } catch (error) {
             Logger.error('file.getSubscribedFiles', error)
+            if (error instanceof Error) {
+                return failure(error.message)
+            } else {
+                return failure(String(error))
+            }
+        }
+    }
+
+    /**
+     * Gets subscribed subclasses to the given class
+     * @param userId The Auth0 sub of the user
+     * @param storyId The story to fetch subclasses for
+     * @param classId The id of the class to get subclasses to
+     * @returns The subscribed subclass documents, or an error message
+     */
+    async getSubclasses(userId: string, storyId: ObjectId, classId: ObjectId): Promise<DBResponse<IDatabaseFile[]>> {
+        try {
+            const result = await this.collection.aggregate<IDatabaseFile>([
+                {
+                    $match: {
+                        _userId: userId,
+                        _storyId: storyId,
+                        type: DocumentFileType.Subclass,
+                        'data.parentClass': String(classId)
+                    } satisfies KeysOfTwo<IDatabaseFile, object>
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        id: '$_id',
+                        type: '$type',
+                        name: '$name',
+                        isOwner: { $eq: ['$_userId', userId] },
+                        dateCreated: '$dateCreated',
+                        dateUpdated: '$dateUpdated',
+                        data: { $ifNull: ['$data', {}] },
+                        storage: { $ifNull: ['$storage', {}] }
+                    } satisfies KeysOfTwo<IDatabaseFile, object>
+                }
+            ]).toArray()
+
+            Logger.log('file.getSubclasses', String(classId), result.map(x => x.name).join(', '))
+            return success(result)
+        } catch (error) {
+            Logger.error('file.getSubclasses', error)
+            if (error instanceof Error) {
+                return failure(error.message)
+            } else {
+                return failure(String(error))
+            }
+        }
+    }
+
+    /**
+     * Gets subscribed feats
+     * @param userId The Auth0 sub of the user
+     * @param storyId The story to fetch feats for
+     * @returns The subscribed feat documents, or an error message
+     */
+    async getFeats(userId: string, storyId: ObjectId): Promise<DBResponse<IDatabaseFile[]>> {
+        try {
+            const result = await this.collection.aggregate<IDatabaseFile>([
+                {
+                    $match: {
+                        _userId: userId,
+                        _storyId: storyId,
+                        type: DocumentFileType.Ability,
+                        'data.type': AbilityType.Feat
+                    } satisfies KeysOfTwo<IDatabaseFile, object>
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        id: '$_id',
+                        type: '$type',
+                        name: '$name',
+                        isOwner: { $eq: ['$_userId', userId] },
+                        dateCreated: '$dateCreated',
+                        dateUpdated: '$dateUpdated',
+                        data: { $ifNull: ['$data', {}] },
+                        storage: { $ifNull: ['$storage', {}] }
+                    } satisfies KeysOfTwo<IDatabaseFile, object>
+                }
+            ]).toArray()
+
+            Logger.log('file.getFeats', result.map(x => x.name).join(', '))
+            return success(result)
+        } catch (error) {
+            Logger.error('file.getFeats', error)
+            if (error instanceof Error) {
+                return failure(error.message)
+            } else {
+                return failure(String(error))
+            }
+        }
+    }
+
+    /**
+     * Gets subscribed fighting styles
+     * @param userId The Auth0 sub of the user
+     * @param storyId The story to fetch fighting styles for
+     * @returns The subscribed fighting style documents, or an error message
+     */
+    async getFightingStyles(userId: string, storyId: ObjectId): Promise<DBResponse<IDatabaseFile[]>> {
+        try {
+            const result = await this.collection.aggregate<IDatabaseFile>([
+                {
+                    $match: {
+                        _userId: userId,
+                        _storyId: storyId,
+                        type: DocumentFileType.Ability,
+                        'data.type': AbilityType.FightingStyle
+                    } satisfies KeysOfTwo<IDatabaseFile, object>
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        id: '$_id',
+                        type: '$type',
+                        name: '$name',
+                        isOwner: { $eq: ['$_userId', userId] },
+                        dateCreated: '$dateCreated',
+                        dateUpdated: '$dateUpdated',
+                        data: { $ifNull: ['$data', {}] },
+                        storage: { $ifNull: ['$storage', {}] }
+                    } satisfies KeysOfTwo<IDatabaseFile, object>
+                }
+            ]).toArray()
+
+            Logger.log('file.getFightingStyles', result.map(x => x.name).join(', '))
+            return success(result)
+        } catch (error) {
+            Logger.error('file.getFightingStyles', error)
             if (error instanceof Error) {
                 return failure(error.message)
             } else {

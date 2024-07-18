@@ -61,4 +61,5 @@ export interface IDatabaseFactory<T extends object, U extends T = T> {
 export type ServerRequestType = 'isConnected' | 'getStory' | 'getAllStories' |
 'getLastUpdatedStory' | 'getFile' | 'getFiles' | 'getFileStructure' |
 'getSubscribedFiles' | 'addStory' | 'updateStory' | 'addFile' | 'copyFile' |
-'updateFile' | 'moveFile' | 'deleteStory' | 'deleteFile'
+'updateFile' | 'moveFile' | 'deleteStory' | 'deleteFile' | 'getSubclasses' |
+'getFeats' | 'getFightingStyles'

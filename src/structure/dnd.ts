@@ -141,12 +141,11 @@ export enum AreaType {
 }
 
 export enum ItemType {
+    WondrousItem = 'wondrousItem',
     Armor = 'armor',
-    Trinket = 'trinket',
     Consumable = 'consumable',
-    MeleeWeapon = 'meleeWeapon',
-    RangedWeapon = 'rangedWeapon',
-    ThrownWeapon = 'thrownWeapon',
+    Weapon = 'weapon',
+    Other = 'other'
 }
 
 export enum ActionType {
@@ -189,19 +188,21 @@ export enum CastingTime {
 }
 
 export enum ArmorType {
+    Clothing = 'clothing',
     Light = 'light',
     Medium = 'medium',
     Heavy = 'heavy',
-    Shields = 'shields'
+    Shield = 'shield'
 }
 
-export enum WeaponType {
+export enum WeaponTypeValue {
     Battleaxe = 'battleaxe',
     Club = 'club',
     Dagger = 'dagger',
     Dart = 'dart',
     Flail = 'flail',
     Greataxe = 'greataxe',
+    Glaive = 'glaive',
     Greatclub = 'greatclub',
     Greatsword = 'greatsword',
     Halberd = 'halberd',
@@ -237,60 +238,111 @@ export enum WeaponType {
     Improvised = 'improvised'
 }
 
+export enum SimpleWeapon {
+    Club = WeaponTypeValue.Club,
+    Dagger = WeaponTypeValue.Dagger,
+    Greatclub = WeaponTypeValue.Greatclub,
+    Handaxe = WeaponTypeValue.Handaxe,
+    Javelin = WeaponTypeValue.Javelin,
+    LightHammer = WeaponTypeValue.LightHammer,
+    Mace = WeaponTypeValue.Mace,
+    Quarterstaff = WeaponTypeValue.Quarterstaff,
+    Sickle = WeaponTypeValue.Sickle,
+    Spear = WeaponTypeValue.Spear
+}
+
+export enum MartialWeapon {
+    Battleaxe = WeaponTypeValue.Battleaxe,
+    Flail = WeaponTypeValue.Flail,
+    Glaive = WeaponTypeValue.Glaive,
+    Greataxe = WeaponTypeValue.Greataxe,
+    Greatsword = WeaponTypeValue.Greatsword,
+    Halberd = WeaponTypeValue.Halberd,
+    Lance = WeaponTypeValue.Lance,
+    Longsword = WeaponTypeValue.Longsword,
+    Maul = WeaponTypeValue.Maul,
+    Morningstar = WeaponTypeValue.Morningstar,
+    Pike = WeaponTypeValue.Pike,
+    Rapier = WeaponTypeValue.Rapier,
+    Scimitar = WeaponTypeValue.Scimitar,
+    Shortsword = WeaponTypeValue.Shortsword,
+    Trident = WeaponTypeValue.Trident,
+    WarPick = WeaponTypeValue.WarPick,
+    Warhammer = WeaponTypeValue.Warhammer,
+    Whip = WeaponTypeValue.Whip,
+    Blowgun = WeaponTypeValue.Blowgun,
+    HandCrossbow = WeaponTypeValue.HandCrossbow,
+    HeavyCrossbow = WeaponTypeValue.HeavyCrossbow,
+    Longbow = WeaponTypeValue.Longbow,
+    Net = WeaponTypeValue.Net
+}
+
+export enum WeaponTypeCategory {
+    Simple = WeaponTypeValue.Simple,
+    Martial = WeaponTypeValue.Martial,
+    Improvised = WeaponTypeValue.Improvised
+}
+
 export enum MeleeWeaponType {
-    Battleaxe = WeaponType.Battleaxe,
-    Club = WeaponType.Club,
-    Dagger = WeaponType.Dagger,
-    Dart = WeaponType.Dart,
-    Flail = WeaponType.Flail,
-    Greataxe = WeaponType.Greataxe,
-    Greatclub = WeaponType.Greatclub,
-    Greatsword = WeaponType.Greatsword,
-    Halberd = WeaponType.Halberd,
-    Handaxe = WeaponType.Handaxe,
-    Javelin = WeaponType.Javelin,
-    Lance = WeaponType.Lance,
-    LightHammer = WeaponType.LightHammer,
-    Longsword = WeaponType.Longsword,
-    Mace = WeaponType.Mace,
-    Maul = WeaponType.Maul,
-    Morningstar = WeaponType.Morningstar,
-    Pike = WeaponType.Pike,
-    Quarterstaff = WeaponType.Quarterstaff,
-    Rapier = WeaponType.Rapier,
-    Scimitar = WeaponType.Scimitar,
-    Shortsword = WeaponType.Shortsword,
-    Sickle = WeaponType.Sickle,
-    Spear = WeaponType.Spear,
-    Trident = WeaponType.Trident,
-    WarPick = WeaponType.WarPick,
-    Warhammer = WeaponType.Warhammer,
-    Whip = WeaponType.Whip,
-    Improvised = WeaponType.Improvised
+    Battleaxe = WeaponTypeValue.Battleaxe,
+    Club = WeaponTypeValue.Club,
+    Flail = WeaponTypeValue.Flail,
+    Glaive = WeaponTypeValue.Glaive,
+    Greataxe = WeaponTypeValue.Greataxe,
+    Greatclub = WeaponTypeValue.Greatclub,
+    Greatsword = WeaponTypeValue.Greatsword,
+    Halberd = WeaponTypeValue.Halberd,
+    Lance = WeaponTypeValue.Lance,
+    Longsword = WeaponTypeValue.Longsword,
+    Mace = WeaponTypeValue.Mace,
+    Maul = WeaponTypeValue.Maul,
+    Morningstar = WeaponTypeValue.Morningstar,
+    Pike = WeaponTypeValue.Pike,
+    Quarterstaff = WeaponTypeValue.Quarterstaff,
+    Rapier = WeaponTypeValue.Rapier,
+    Scimitar = WeaponTypeValue.Scimitar,
+    Shortsword = WeaponTypeValue.Shortsword,
+    Sickle = WeaponTypeValue.Sickle,
+    WarPick = WeaponTypeValue.WarPick,
+    Warhammer = WeaponTypeValue.Warhammer,
+    Whip = WeaponTypeValue.Whip
 }
 
 export enum ThrownWeaponType {
-    Dagger = WeaponType.Dagger,
-    Dart = WeaponType.Dart,
-    Handaxe = WeaponType.Handaxe,
-    Javelin = WeaponType.Javelin,
-    LightHammer = WeaponType.LightHammer,
-    Trident = WeaponType.Trident,
-    Spear = WeaponType.Spear,
-    Improvised = WeaponType.Improvised
+    Dagger = WeaponTypeValue.Dagger,
+    Dart = WeaponTypeValue.Dart,
+    Handaxe = WeaponTypeValue.Handaxe,
+    Javelin = WeaponTypeValue.Javelin,
+    LightHammer = WeaponTypeValue.LightHammer,
+    Spear = WeaponTypeValue.Spear,
+    Trident = WeaponTypeValue.Trident
 }
 
 export enum RangedWeaponType {
-    Blowgun = WeaponType.Blowgun,
-    HandCrossbow = WeaponType.HandCrossbow,
-    HeavyCrossbow = WeaponType.HeavyCrossbow,
-    LightCrossbow = WeaponType.LightCrossbow,
-    Longbow = WeaponType.Longbow,
-    Net = WeaponType.Net,
-    Shortbow = WeaponType.Shortbow,
-    Sling = WeaponType.Sling,
-    Improvised = WeaponType.Improvised
+    Blowgun = WeaponTypeValue.Blowgun,
+    HandCrossbow = WeaponTypeValue.HandCrossbow,
+    HeavyCrossbow = WeaponTypeValue.HeavyCrossbow,
+    LightCrossbow = WeaponTypeValue.LightCrossbow,
+    Longbow = WeaponTypeValue.Longbow,
+    Net = WeaponTypeValue.Net,
+    Shortbow = WeaponTypeValue.Shortbow,
+    Sling = WeaponTypeValue.Sling
 }
+
+export const WeaponType = {
+    ...MeleeWeaponType,
+    ...ThrownWeaponType,
+    ...RangedWeaponType
+}
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export type WeaponType = MeleeWeaponType | ThrownWeaponType | RangedWeaponType
+
+export const WeaponCategoryType = {
+    ...WeaponType,
+    ...WeaponTypeCategory
+}
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export type WeaponCategoryType = WeaponType | WeaponTypeCategory
 
 export enum ToolType {
     AlchemistsSupplies = 'alchemistsSupplies',
@@ -413,7 +465,15 @@ export enum AdvantageBinding {
     WisdomSave = 'wisSave',
     CharismaSave = 'chaSave',
     // Checks
-    SkillChecks = 'skillChecks',
+    Checks = 'checks',
+    StrengthChecks = 'strCheck',
+    DexterityChecks = 'dexCheck',
+    ConstitutionChecks = 'conCheck',
+    IntelligenceChecks = 'intCheck',
+    WisdomChecks = 'wisCheck',
+    CharismaChecks = 'chaCheck',
+    // Skills
+    SkillChecks = 'skillCheck',
     AcrobaticsCheck = 'acrobaticsCheck',
     AnimalHandlingCheck = 'animalCheck',
     ArcanaCheck = 'arcanaCheck',
@@ -432,6 +492,10 @@ export enum AdvantageBinding {
     SleightOfHandCheck = 'sleightCheck',
     StealthCheck = 'stealthCheck',
     SurvivalCheck = 'survivalCheck',
+    // Attacks
+    Attack = 'attack',
+    // Other
+    Initiative = 'initiative',
 }
 
 export enum DamageBinding {
@@ -454,12 +518,6 @@ export enum DamageBinding {
 export enum ConditionBinding {
     Generic = 'generic',
     Charmed = 'charmed'
-}
-
-export enum ArmorClassBase {
-    DEX = 'dex',
-    DEXAndAttribute = 'dexAndAttr',
-    DEXAndFixed = 'dexAndFixed'
 }
 
 export enum SpellPreparationType {

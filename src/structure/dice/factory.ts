@@ -3,6 +3,7 @@ import { DiceGroup } from './group'
 import { Die } from './die'
 import { DiceCollection, DiceOperator } from './collection'
 import { ModifiedDice } from './modified'
+import { asNumber } from 'utils'
 
 const dieMatcher = /^d([0-9]+)$/i
 const diceTestMatcher = /(?:([\+\-])? *(?:([0-9]+)?d([0-9]+)|([0-9]+)))+/i
@@ -27,7 +28,6 @@ export default abstract class DiceFactory {
         let prevOperator: string = '+'
         while ((match = diceMatcher.exec(text)) !== null) {
             const operator = match[1] ?? '+'
-            const type = typeFromNumber(Number(match[3]))
 
             const modifier = Number(match[4])
             if (!isNaN(modifier)) {
@@ -35,8 +35,8 @@ export default abstract class DiceFactory {
                 continue
             }
 
-            const quantity = Number(match[2] ?? 1)
-            if (isNaN(quantity) || quantity < 1) {
+            const quantity = asNumber(match[2], 1)
+            if (quantity < 1) {
                 continue
             }
 
@@ -48,8 +48,10 @@ export default abstract class DiceFactory {
                     : DiceOperator.Subtract
                 )
             }
-
-            group.addDiceOfType(type, quantity)
+            const typeNum = asNumber(match[3], 0)
+            if (typeNum > 0) {
+                group.addDiceOfType(typeFromNumber(typeNum), quantity)
+            }
         }
 
         if (modifierSum !== 0) {

@@ -28,11 +28,13 @@ class ModifierBonusWisdomData extends ModifierBonusDataBase implements IModifier
         }
     }
 
-    public apply(data: Modifier, self: ModifierDocument): void {
-        data.wis.subscribe({
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+        modifier.wis.subscribe({
+            key: key,
             target: self,
+            data: this,
             apply: function (value): number {
-                return value + (self.data as ModifierBonusWisdomData).value
+                return value + (this.data as ModifierBonusWisdomData).value
             }
         })
     }

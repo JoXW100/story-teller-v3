@@ -1,12 +1,13 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createDefaultChoiceData, createSingleChoiceData, simplifySingleChoiceData, validateChoiceData } from '../common'
+import { createSingleChoiceData, createDefaultChoiceData, validateChoiceData, simplifySingleChoiceData } from '../../../choice'
 import { asEnum, asNumber, isEnum, isNumber } from 'utils'
 import { Sense } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { SingleChoiceData, IModifierSetSenseData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { IModifierSetSenseData } from 'types/database/files/modifier'
+import type { SingleChoiceData } from 'types/database/choice'
 
 class ModifierSetSenseData extends ModifierSetDataBase implements IModifierSetSenseData {
     public override readonly subtype = ModifierSetType.Sense
@@ -37,20 +38,23 @@ class ModifierSetSenseData extends ModifierSetDataBase implements IModifierSetSe
         }
     }
 
-    public override getEditorChoiceData(): IEditorChoiceData | null {
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
         if (this.sense.isChoice) {
-            return { type: 'enum', value: this.sense.value, enum: 'sense' }
+            modifier.addChoice({
+                source: this,
+                type: 'enum',
+                value: this.sense.value,
+                enum: 'sense'
+            }, key)
         }
-        return null
-    }
-
-    public override apply(data: Modifier, self: ModifierDocument): void {
-        data.senses.subscribe({
+        modifier.senses.subscribe({
+            key: key,
             target: self,
+            data: this,
             apply: function (value, choices): Partial<Record<Sense, number>> {
-                const modifier = self.data as ModifierSetSenseData
+                const modifier = this.data as ModifierSetSenseData
                 if (modifier.sense.isChoice) {
-                    const index: unknown = choices[self.id]
+                    const index: unknown = choices[key]
                     if (!isNumber(index)) {
                         return value
                     }

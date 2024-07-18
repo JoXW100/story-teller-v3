@@ -1,12 +1,13 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createDefaultChoiceData, createSingleChoiceData, simplifySingleChoiceData, validateChoiceData } from '../common'
+import { createSingleChoiceData, createDefaultChoiceData, validateChoiceData, simplifySingleChoiceData } from '../../../choice'
 import { asEnum, isEnum, isNumber } from 'utils'
 import { OptionalAttribute } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { SingleChoiceData, IModifierSetSpellAttributeData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { IModifierSetSpellAttributeData } from 'types/database/files/modifier'
+import type { SingleChoiceData } from 'types/database/choice'
 
 class ModifierSetSpellAttributeData extends ModifierSetDataBase implements IModifierSetSpellAttributeData {
     public override readonly subtype = ModifierSetType.SpellAttribute
@@ -31,20 +32,23 @@ class ModifierSetSpellAttributeData extends ModifierSetDataBase implements IModi
         }
     }
 
-    public override getEditorChoiceData(): IEditorChoiceData | null {
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
         if (this.value.isChoice) {
-            return { type: 'enum', value: this.value.value, enum: 'attr' }
+            modifier.addChoice({
+                source: this,
+                type: 'enum',
+                value: this.value.value,
+                enum: 'attr'
+            }, key)
         }
-        return null
-    }
-
-    public override apply(data: Modifier, self: ModifierDocument): void {
-        data.spellAttribute.subscribe({
+        modifier.spellAttribute.subscribe({
+            key: key,
             target: self,
+            data: this,
             apply: function (value, choices): OptionalAttribute {
-                const modifier = self.data as ModifierSetSpellAttributeData
+                const modifier = this.data as ModifierSetSpellAttributeData
                 if (modifier.value.isChoice) {
-                    const index: unknown = choices[self.id]
+                    const index: unknown = choices[key]
                     if (!isNumber(index)) {
                         return value
                     }

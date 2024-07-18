@@ -39,12 +39,16 @@ const ProficienciesPage = ({ facade }: DataProps): JSX.Element => {
                             <div className={styles.iconHolder}>
                                 { SkillAdvantageBindingMap[skill] in facade.advantages &&
                                     <Tooltip title={<SourceTooltips type='advantage' binding={SkillAdvantageBindingMap[skill]} values={facade.advantages}/>}>
-                                        <Icon className='small-icon' icon='advantage'/>
+                                        <span>
+                                            <Icon className='small-icon' icon='advantage'/>
+                                        </span>
                                     </Tooltip>
                                 }
-                                { SkillAdvantageBindingMap[skill] in facade.advantages &&
+                                { SkillAdvantageBindingMap[skill] in facade.disadvantages &&
                                     <Tooltip title={<SourceTooltips type='disadvantage' binding={SkillAdvantageBindingMap[skill]} values={facade.disadvantages}/>}>
-                                        <Icon className='small-icon' icon='disadvantage'/>
+                                        <span>
+                                            <Icon className='small-icon' icon='disadvantage'/>
+                                        </span>
                                     </Tooltip>
                                 }
                             </div>

@@ -2,23 +2,25 @@ import { ModifierSetType } from '.'
 import ModifierSetSpellAttributeData from './spellAttribute'
 import ModifierSetSenseData from './sense'
 import ModifierSetSizeData from './size'
+import ModifierSetSpeedData from './speed'
 import ModifierSetLanguageProficiencyData from './languageProficiency'
 import ModifierSetSaveProficiencyData from './saveProficiency'
 import ModifierSetSkillProficiencyData from './skillProficiency'
 import ModifierSetToolProficiencyData from './toolProficiency'
 import ModifierSetArmorProficiencyData from './armorProficiency'
 import ModifierSetWeaponProficiencyData from './weaponProficiency'
+import ModifierSetArmorClassBaseData from './armorClassBase'
 import { simplifyObjectProperties, validateObjectProperties, hasObjectProperties } from 'structure/database'
 import { isEnum, isRecord } from 'utils'
 import type { Simplify } from 'types'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
 import type { IModifierSetData, IModifierSetSpellAttributeData } from 'types/database/files/modifier'
 
-export type ModifierSetData = ModifierSetSpellAttributeData |
+export type ModifierSetData = ModifierSetSpellAttributeData | ModifierSetSpeedData |
 ModifierSetSenseData | ModifierSetSizeData | ModifierSetSaveProficiencyData |
 ModifierSetSkillProficiencyData | ModifierSetToolProficiencyData |
 ModifierSetLanguageProficiencyData | ModifierSetArmorProficiencyData |
-ModifierSetWeaponProficiencyData
+ModifierSetWeaponProficiencyData | ModifierSetArmorClassBaseData
 
 const ModifierSetDataFactory = {
     create: function (data: Simplify<IModifierSetData> = {}): ModifierSetData {
@@ -27,6 +29,8 @@ const ModifierSetDataFactory = {
                 return new ModifierSetSizeData(data)
             case ModifierSetType.Sense:
                 return new ModifierSetSenseData(data)
+            case ModifierSetType.Speed:
+                return new ModifierSetSpeedData(data)
             case ModifierSetType.SaveProficiency:
                 return new ModifierSetSaveProficiencyData(data)
             case ModifierSetType.SkillProficiency:
@@ -39,6 +43,8 @@ const ModifierSetDataFactory = {
                 return new ModifierSetArmorProficiencyData(data)
             case ModifierSetType.WeaponProficiency:
                 return new ModifierSetWeaponProficiencyData(data)
+            case ModifierSetType.ArmorClassBase:
+                return new ModifierSetArmorClassBaseData(data)
             case ModifierSetType.SpellAttribute:
             default:
                 return new ModifierSetSpellAttributeData(data as IModifierSetSpellAttributeData)
@@ -64,6 +70,8 @@ const ModifierSetDataFactory = {
                 return ModifierSetSizeData.properties
             case ModifierSetType.Sense:
                 return ModifierSetSenseData.properties
+            case ModifierSetType.Speed:
+                return ModifierSetSpeedData.properties
             case ModifierSetType.SaveProficiency:
                 return ModifierSetSaveProficiencyData.properties
             case ModifierSetType.SkillProficiency:
@@ -76,6 +84,8 @@ const ModifierSetDataFactory = {
                 return ModifierSetArmorProficiencyData.properties
             case ModifierSetType.WeaponProficiency:
                 return ModifierSetWeaponProficiencyData.properties
+            case ModifierSetType.ArmorClassBase:
+                return ModifierSetArmorClassBaseData.properties
         }
     }
 } satisfies IDatabaseFactory<IModifierSetData, ModifierSetData>

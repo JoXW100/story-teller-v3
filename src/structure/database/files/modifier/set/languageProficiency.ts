@@ -1,12 +1,13 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createDefaultChoiceData, createMultipleChoiceData, simplifyMultipleChoiceData, validateChoiceData } from '../common'
-import { asEnum, asNumber, isEnum } from 'utils'
+import { createMultipleChoiceData, createDefaultChoiceData, validateChoiceData, simplifyMultipleChoiceData } from '../../../choice'
+import { asEnum, isEnum, isNumber } from 'utils'
 import { Language, ProficiencyLevelBasic } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { IModifierSetLanguageProficiencyData, IEditorChoiceData, MultipleChoiceData } from 'types/database/files/modifier'
+import type { IModifierSetLanguageProficiencyData } from 'types/database/files/modifier'
+import type { MultipleChoiceData } from 'types/database/choice'
 
 class ModifierSetLanguageProficiencyData extends ModifierSetDataBase implements IModifierSetLanguageProficiencyData {
     public override readonly subtype = ModifierSetType.LanguageProficiency
@@ -37,26 +38,35 @@ class ModifierSetLanguageProficiencyData extends ModifierSetDataBase implements 
         }
     }
 
-    public override getEditorChoiceData(): IEditorChoiceData | null {
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
         if (this.proficiency.isChoice) {
-            return { type: 'enum', value: this.proficiency.value, enum: 'language' }
+            modifier.addChoice({
+                source: this,
+                type: 'enum',
+                value: this.proficiency.value,
+                enum: 'language',
+                numChoices: this.proficiency.numChoices
+            }, key)
         }
-        return null
-    }
-
-    public override apply(data: Modifier, self: ModifierDocument): void {
-        data.proficienciesLanguage.subscribe({
+        modifier.proficienciesLanguage.subscribe({
+            key: key,
             target: self,
+            data: this,
             apply: function (value, choices): Partial<Record<Language, ProficiencyLevelBasic>> {
-                const modifier = self.data as ModifierSetLanguageProficiencyData
+                const modifier = this.data as ModifierSetLanguageProficiencyData
                 if (modifier.proficiency.isChoice) {
-                    const index = asNumber(choices[self.id])
-                    if (index in modifier.proficiency.value) {
-                        const proficiency = modifier.proficiency.value[index]
-                        return { ...value, [proficiency]: modifier.value }
-                    } else {
+                    const indices: unknown = choices[key]
+                    if (!Array.isArray(indices) || indices.some((value) => !isNumber(value))) {
                         return value
                     }
+
+                    for (const index of indices) {
+                        const proficiency = modifier.proficiency.value[index] ?? null
+                        if (proficiency !== null) {
+                            value = { ...value, [proficiency]: modifier.value }
+                        }
+                    }
+                    return value
                 } else {
                     return { ...value, [modifier.proficiency.value]: modifier.value }
                 }

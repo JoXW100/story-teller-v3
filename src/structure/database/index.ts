@@ -2,7 +2,7 @@ import { isKeyOf, keysOf } from 'utils'
 import Logger from 'utils/logger'
 import { OptionalAttribute } from 'structure/dnd'
 import type { DataPropertyMap } from 'types/database'
-import type { ICreatureStats } from 'types/editor'
+import type { IBonusGroup, ICreatureStats } from 'types/editor'
 
 export enum DocumentType {
     Ability = 'abi',
@@ -11,8 +11,9 @@ export enum DocumentType {
     Class = 'cla',
     Subclass = 'scl',
     Race = 'rce',
-    Modifier = 'mod',
+    Item = 'ite',
     Map = 'map',
+    Modifier = 'mod',
     Spell = 'spe',
     Text = 'txt'
 }
@@ -75,7 +76,18 @@ export const EmptyCreatureStats: ICreatureStats = {
     spellAttribute: OptionalAttribute.None,
     proficiency: 2,
     critRange: 20,
-    multiAttack: 1
+    multiAttack: 1,
+    armorLevel: 0,
+    shieldLevel: 0
+}
+
+export const EmptyBonusGroup: IBonusGroup = {
+    bonus: 0,
+    areaBonus: 0,
+    singleBonus: 0,
+    meleeBonus: 0,
+    rangedBonus: 0,
+    thrownBonus: 0
 }
 
 export const DocumentFileType = { ...DocumentType, ...FileType }

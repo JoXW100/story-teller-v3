@@ -1,11 +1,11 @@
 import Logger from 'utils/logger'
 import { asEnum, asNumber } from 'utils'
 import { EffectConditionType } from 'structure/database/effectCondition'
-import { ActionType, DamageType, ScalingType, TargetType } from 'structure/dnd'
+import { ActionType, DamageType, RestType, ScalingType, TargetType } from 'structure/dnd'
 import { CalcMode } from 'structure/database'
 import AbilityDataFactory, { type AbilityData } from 'structure/database/files/ability/factory'
 import { DieType } from 'structure/dice'
-import { EffectType } from 'structure/database/effect/common'
+import { EffectCategory, EffectType } from 'structure/database/effect/common'
 import { AbilityType } from 'structure/database/files/ability/common'
 import type { IEffect } from 'types/database/effect'
 import type { IAbilityData } from 'types/database/files/ability'
@@ -80,25 +80,42 @@ export function isValidAbilityFormat(text: string): boolean {
 }
 
 function createEffect(damageType: DamageType, text: string, die: DieType, dieCount: number, modifier: number): IEffect {
-    const type = damageType === DamageType.None ? EffectType.Damage : EffectType.Text
+    const type = damageType !== DamageType.None
+        ? EffectType.Damage
+        : dieCount > 0
+            ? EffectType.Die
+            : EffectType.Text
     switch (type) {
         case EffectType.Damage:
             return {
                 type: type,
                 label: 'Damage',
+                category: EffectCategory.Uncategorized,
                 damageType: damageType,
                 scaling: ScalingType.None,
                 proficiency: false,
                 die: die,
                 dieCount: dieCount,
                 modifier: { mode: CalcMode.Override, value: modifier },
-                scalingModifiers: {}
+                condition: {}
+            } satisfies IEffect
+        case EffectType.Die:
+            return {
+                type: type,
+                label: 'Roll',
+                scaling: ScalingType.None,
+                proficiency: false,
+                die: die,
+                dieCount: dieCount,
+                modifier: { mode: CalcMode.Override, value: modifier },
+                condition: {}
             } satisfies IEffect
         case EffectType.Text:
             return {
                 type: type,
                 label: 'Effect',
-                text: text
+                text: text,
+                condition: {}
             } satisfies IEffect
     }
 }
@@ -128,6 +145,9 @@ export function toAbility(text: string): AbilityData | null {
                 },
                 target: getTargetType(res[6]),
                 range: ranges.range,
+                notes: '',
+                charges: 0,
+                chargesReset: RestType.None,
                 effects: { main: createEffect(damageType, text, die, dieCount, modifier) },
                 modifiers: []
             }
@@ -146,6 +166,9 @@ export function toAbility(text: string): AbilityData | null {
                     modifier: { mode: CalcMode.Override, value: getRollMod(res[4]) }
                 },
                 reach: ranges.range,
+                notes: '',
+                charges: 0,
+                chargesReset: RestType.None,
                 effects: { main: createEffect(damageType, text, die, dieCount, modifier) },
                 modifiers: []
             }
@@ -165,6 +188,9 @@ export function toAbility(text: string): AbilityData | null {
                 },
                 range: ranges.range,
                 rangeLong: ranges.rangeLong,
+                notes: '',
+                charges: 0,
+                chargesReset: RestType.None,
                 effects: { main: createEffect(damageType, text, die, dieCount, modifier) },
                 modifiers: []
             } satisfies IAbilityData
@@ -176,6 +202,9 @@ export function toAbility(text: string): AbilityData | null {
                 description: res[11] ?? '',
                 type: AbilityType.Feature,
                 action: getAction(res[1], type),
+                notes: '',
+                charges: 0,
+                chargesReset: RestType.None,
                 modifiers: []
             } satisfies IAbilityData
             break

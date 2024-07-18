@@ -28,11 +28,14 @@ class ModifierBonusACData extends ModifierBonusDataBase implements IModifierBonu
         }
     }
 
-    public apply(data: Modifier, self: ModifierDocument): void {
-        data.ac.subscribe({
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+        modifier.ac.subscribe({
+            key: key,
             target: self,
-            apply: function (value): number {
-                return value + (self.data as ModifierBonusACData).value
+            data: this,
+            apply: function (value, _, _p, variables): number {
+                const bonus = variables['ac.bonus'] = asNumber(variables['ac.bonus'], 0) + (this.data as ModifierBonusACData).value
+                return value + bonus
             }
         })
     }

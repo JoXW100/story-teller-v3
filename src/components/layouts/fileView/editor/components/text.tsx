@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
-import { Context, getRelativeFieldObject } from 'components/contexts/file'
+import { Context } from 'components/contexts/file'
 import GroupItemComponent from './groupItem'
-import { isRecord } from 'utils'
+import { isRecord, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
 import { useLocalizedText } from 'utils/hooks/localizedText'
 import type { LanguageKey } from 'data'
@@ -13,10 +13,9 @@ type TextComponentParams = React.PropsWithoutRef<{
     labelArgs?: any[]
     placeholderId?: LanguageKey
     placeholderArgs?: any[]
-    deps?: string[]
 }>
 
-const TextComponent: React.FC<TextComponentParams> = ({ field, labelId, labelArgs, placeholderId = null, placeholderArgs, deps = [] }) => {
+const TextComponent: React.FC<TextComponentParams> = ({ field, labelId, labelArgs, placeholderId = null, placeholderArgs }) => {
     const [context, dispatch] = useContext(Context)
     const placeholder = useLocalizedText(placeholderId, placeholderArgs)
     if (!isRecord(context.file.data)) {
@@ -37,7 +36,7 @@ const TextComponent: React.FC<TextComponentParams> = ({ field, labelId, labelArg
     }
 
     const handleInput: React.ChangeEventHandler<HTMLInputElement> = (e): void => {
-        dispatch.setData(field, e.target.value, deps)
+        dispatch.setData(field, e.target.value)
     }
 
     return (

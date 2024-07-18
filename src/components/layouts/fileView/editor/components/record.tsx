@@ -1,11 +1,11 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import GroupItemComponent from './groupItem'
-import { Context, getRelativeFieldObject } from 'components/contexts/file'
+import { Context } from 'components/contexts/file'
 import RecordMenu, { type RecordComponentProps } from 'components/layouts/menus/record'
 import NumberInput from 'components/layouts/numericInput'
 import DropdownMenu from 'components/layouts/dropdownMenu'
 import type { LanguageKey } from 'data'
-import { asBooleanString, asEnum, isRecord } from 'utils'
+import { asBooleanString, asEnum, isRecord, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
 import { useLocalizedText } from 'utils/hooks/localizedText'
 import { type OptionTypeKey, getOptionType } from 'structure/optionData'
@@ -22,7 +22,7 @@ type RecordComponentParams = React.PropsWithoutRef<{
     placeholderId?: LanguageKey
     placeholderArgs?: any[]
     allowKeyChange?: boolean
-    deps?: string[]
+    allowNegative?: boolean
 }>
 
 interface IRecordItemComponent {
@@ -36,13 +36,13 @@ interface IRecordItemComponent {
 
 type RecordItemComponentParams = RecordComponentProps<unknown, IRecordItemComponent>
 
-const RecordComponent: React.FC<RecordComponentParams> = ({ field, defaultValue, inputType, valueType, enumType, labelId, labelArgs, placeholderId, placeholderArgs, allowKeyChange, deps = [] }) => {
+const RecordComponent: React.FC<RecordComponentParams> = ({ field, defaultValue, inputType, valueType, enumType, labelId, labelArgs, placeholderId, placeholderArgs, allowKeyChange }) => {
     const [context, dispatch] = useContext(Context)
     const placeholder = useLocalizedText(placeholderId, placeholderArgs)
 
     const handleChange = useCallback((value: unknown): void => {
-        dispatch.setData(field, value, deps)
-    }, [dispatch, field, deps])
+        dispatch.setData(field, value)
+    }, [dispatch, field])
 
     const params = useMemo<IRecordItemComponent>(() => ({
         inputType: inputType,

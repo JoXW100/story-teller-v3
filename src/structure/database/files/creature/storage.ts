@@ -1,5 +1,5 @@
 import { isEnum, isNumber, isNumberOrNull, isRecord, keysOf } from 'utils'
-import type { ObjectId, Simplify } from 'types'
+import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { ICreatureStorage } from 'types/database/files/creature'
 import { SpellLevel } from 'structure/dnd'
@@ -22,7 +22,7 @@ class CreatureStorage implements ICreatureStorage {
     public readonly healthTemp: number | null
     public readonly abilitiesExpendedCharges: Record<string, number>
     public readonly spellsExpendedSlots: Partial<Record<SpellLevel, number>>
-    public readonly choices: Record<ObjectId, unknown>
+    public readonly choices: Record<string, unknown>
 
     public constructor(storage: Simplify<ICreatureStorage>) {
         this.health = storage.health ?? CreatureStorage.properties.health.value

@@ -1,7 +1,7 @@
 import { useContext } from 'react'
 import { Context } from 'components/contexts/file'
 import { ElementDictionary } from 'components/elements'
-import { ClassLevel, OptionalAttribute } from 'structure/dnd'
+import { ClassLevel } from 'structure/dnd'
 import ClassDocument from 'structure/database/files/class'
 import TextEditor from 'components/textEditor'
 import GroupComponent from './components/group'
@@ -32,15 +32,16 @@ const ClassDocumentEditor: React.FC = () => {
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
                 <TextComponent field='name' labelId='editor-name'/>
                 <EnumComponent field='hitDie' labelId='editor-hitDie' type='die'/>
+                <EnumComponent field='subclassLevel' labelId='editor-subclassLevel' type='classLevel'/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-levels'/>} open>
                 { Object.values(ClassLevel).map((level) => (
                     <GroupItemComponent key={level} labelId='empty' labelArgs={[option.options[level]]}>
-                        <span className={styles.classLevelRow}>
-                            <EditItemButtonComponent pageKey='classLevel' root={`levels.${level}`} name={option.options[level]} deps={['levels']}/>
+                        <span>
+                            <EditItemButtonComponent pageKey='classLevel' root={`levels.${level}`} name={option.options[level]} />
                         </span>
                     </GroupItemComponent>
-                ))}
+                )) }
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-proficiencies'/>} open>
                 <SelectionInputComponent
@@ -64,28 +65,24 @@ const ClassDocumentEditor: React.FC = () => {
                 <SelectionInputComponent
                     field='proficienciesWeapon'
                     type='enum'
-                    optionsType='weaponType'
+                    optionsType='weaponTypeValue'
                     editOptionsType='proficiencyLevelBasic'
                     labelId='editor-proficiencies-weapon' />
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-spells'/>} open>
                 <EnumComponent field='spellAttribute' type='optionalAttr' labelId='editor-spellAttribute'/>
-                { data.spellAttribute !== OptionalAttribute.None &&
-                    <>
-                        <GroupComponent header={<LocalizedText id='editor-header-preparedSpells'/>} open>
-                            <BooleanComponent field='preparationAll' labelId='editor-preparationAll' deps={['spellAttribute']}/>
-                            { !data.preparationAll &&
-                                <EnumComponent field='preparationSlotsScaling' type='optionalAttr' labelId='editor-preparationSlotsScaling' deps={['spellAttribute', 'preparationAll']}/>
-                            }
-                        </GroupComponent>
-                        <GroupComponent header={<LocalizedText id='editor-header-learnedSpells'/>} open>
-                            <BooleanComponent field='learnedAll' labelId='editor-learnedAll' deps={['spellAttribute']}/>
-                            { !data.learnedAll &&
-                                <EnumComponent field='learnedSlotsScaling' type='optionalAttr' labelId='editor-learnedSlotsScaling' deps={['spellAttribute', 'learnedAll']}/>
-                            }
-                        </GroupComponent>
-                    </>
-                }
+                <GroupComponent header={<LocalizedText id='editor-header-preparedSpells'/>} open>
+                    <BooleanComponent field='preparationAll' labelId='editor-preparationAll' />
+                    { !data.preparationAll &&
+                        <EnumComponent field='preparationSlotsScaling' type='optionalAttr' labelId='editor-preparationSlotsScaling' />
+                    }
+                </GroupComponent>
+                <GroupComponent header={<LocalizedText id='editor-header-learnedSpells'/>} open>
+                    <BooleanComponent field='learnedAll' labelId='editor-learnedAll' />
+                    { !data.learnedAll &&
+                        <EnumComponent field='learnedSlotsScaling' type='optionalAttr' labelId='editor-learnedSlotsScaling' />
+                    }
+                </GroupComponent>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-description'/>} open fill>
                 <TextEditor

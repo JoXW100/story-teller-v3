@@ -1,5 +1,6 @@
 import type { AbilityType } from 'structure/database/files/ability/common'
-import type { ActionType, RestType, TargetType } from 'structure/dnd'
+import type { ActionType, TargetType } from 'structure/dnd'
+import type { IChargesData } from '../charges'
 import type { ObjectId } from 'types'
 import type { IEffect } from 'types/database/effect'
 import type { IEffectCondition } from 'types/database/effectCondition'
@@ -11,14 +12,13 @@ export interface IAbilityDataBase {
     // readonly icon: string
     readonly action: ActionType
     // Charges
-    readonly charges: number
-    readonly chargesReset: RestType
+    readonly charges: Record<string, IChargesData>
     // Modifiers
     readonly modifiers: ObjectId[]
 }
 
 export interface IAbilityFeatureData extends IAbilityDataBase {
-    readonly type: AbilityType.Feature
+    readonly type: AbilityType.Feature | AbilityType.Feat | AbilityType.FightingStyle
 }
 
 export interface IAbilityAttackData extends IAbilityDataBase {
@@ -53,7 +53,8 @@ export interface IAbilityThrownAttackData extends IAbilityDataBase {
     readonly effects: Record<string, IEffect>
 }
 
-export type IAbilityData = IAbilityFeatureData | IAbilityAttackData | IAbilityMeleeAttackData | IAbilityRangedAttackData | IAbilityThrownAttackData
+export type IAbilityData = IAbilityFeatureData | IAbilityAttackData |
+IAbilityMeleeAttackData | IAbilityRangedAttackData | IAbilityThrownAttackData
 
 export interface IAbilityStorage {
 

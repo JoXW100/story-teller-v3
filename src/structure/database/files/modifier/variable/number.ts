@@ -1,11 +1,12 @@
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createDefaultChoiceData, createSingleChoiceData, simplifySingleChoiceData, validateChoiceData } from '../common'
+import { createSingleChoiceData, createDefaultChoiceData, validateChoiceData, simplifySingleChoiceData } from '../../../choice'
 import ModifierVariableDataBase, { ModifierVariableType, OperationType } from '.'
 import { asNumber, isNumber } from 'utils'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { IEditorChoiceData, IModifierVariableNumberData, SingleChoiceData } from 'types/database/files/modifier'
+import type { IModifierVariableNumberData } from 'types/database/files/modifier'
+import type { SingleChoiceData } from 'types/database/choice'
 
 class ModifierVariableNumberData extends ModifierVariableDataBase implements IModifierVariableNumberData {
     public override readonly subtype = ModifierVariableType.Number
@@ -30,21 +31,23 @@ class ModifierVariableNumberData extends ModifierVariableDataBase implements IMo
         }
     }
 
-    public override getEditorChoiceData(): IEditorChoiceData | null {
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
         if (this.value.isChoice) {
-            return { type: 'value', value: this.value.value }
+            modifier.addChoice({
+                source: this,
+                type: 'value',
+                value: this.value.value
+            }, key)
         }
-        return null
-    }
-
-    public override apply(data: Modifier, self: ModifierDocument): void {
-        data.variables.subscribe({
+        modifier.variables.subscribe({
+            key: key,
+            data: this,
             target: self,
-            apply: function (value, choices, flags): Record<string, unknown> {
-                const modifier = self.data as ModifierVariableNumberData
+            apply: function (value, choices): Record<string, string> {
+                const modifier = this.data as ModifierVariableNumberData
                 let choice: number
                 if (modifier.value.isChoice) {
-                    const index: unknown = choices[self.id]
+                    const index: unknown = choices[key]
                     if (!isNumber(index)) {
                         return value
                     }
@@ -56,16 +59,16 @@ class ModifierVariableNumberData extends ModifierVariableDataBase implements IMo
 
                 switch (modifier.operation) {
                     case OperationType.Add: {
-                        const current = value[modifier.variable]
+                        const current = Number(value[modifier.variable])
                         return {
                             ...value,
-                            [modifier.variable]: isNumber(current)
-                                ? current + choice
-                                : choice
+                            [modifier.variable]: isNaN(current)
+                                ? String(choice)
+                                : String(current + choice)
                         }
                     }
                     case OperationType.Replace:
-                        return { ...value, [modifier.variable]: choice }
+                        return { ...value, [modifier.variable]: String(choice) }
                 }
             }
         })

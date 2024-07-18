@@ -20,6 +20,7 @@ type RecordMenuProps<T, P> = React.PropsWithRef<{
     Component: React.FC<RecordComponentProps<T, P>>
     EditComponent: React.FC<RecordComponentProps<T, P>>
     onChange?: (selection: Record<string, T>) => void
+    validateInput?: (value: string) => boolean
 }>
 
 type RecordMenuComponentParams<T, P> = React.PropsWithRef<{
@@ -32,7 +33,7 @@ type RecordMenuComponentParams<T, P> = React.PropsWithRef<{
 }>
 
 function RecordMenu<T, P>(props: RecordMenuProps<T, P>): React.ReactNode {
-    const { className, values, defaultValue, onChange } = props
+    const { className, values, defaultValue, onChange, validateInput } = props
     const listValues = useMemo(() => Object.keys(values), [values])
 
     const handleChange = (newValues: string[]): void => {
@@ -62,7 +63,7 @@ function RecordMenu<T, P>(props: RecordMenuProps<T, P>): React.ReactNode {
     }
 
     const handleValidate = (value: string): boolean => {
-        return value.length > 0 && !isKeyOf(value, values)
+        return value.length > 0 && !isKeyOf(value, values) && (validateInput === undefined || validateInput(value))
     }
 
     return (

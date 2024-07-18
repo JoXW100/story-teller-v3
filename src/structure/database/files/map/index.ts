@@ -13,6 +13,10 @@ class MapDocument extends DatabaseFile<DocumentType.Map, IMapStorage, IMapData, 
         return this.data.name
     }
 
+    public override getDescription(): string {
+        return this.data.description
+    }
+
     public override getTokenizedDescription(elements: ElementDefinitions): IToken {
         const [description] = this.data.createContexts(elements)
         return StoryScript.tokenize(elements, this.data.description, description).root

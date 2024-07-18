@@ -130,7 +130,7 @@ const CharacterDocumentEditor: React.FC = () => {
                 <SelectionInputComponent
                     field='proficienciesWeapon'
                     type='enum'
-                    optionsType='weaponType'
+                    optionsType='weaponTypeValue'
                     editOptionsType='proficiencyLevelBasic'
                     labelId='editor-proficiencies-weapon' />
             </GroupComponent>

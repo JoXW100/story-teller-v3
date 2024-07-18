@@ -34,6 +34,12 @@ export function getFileIcon(type: DocumentFileType): React.FC<IconParams> {
             return IconMap.spell
         case DocumentType.Modifier:
             return IconMap.settings
+        case DocumentType.Item:
+            return IconMap.item
+        case DocumentType.Race:
+            return IconMap.character
+        case DocumentType.Subclass:
+            return IconMap.class
         case DocumentType.Text:
         default:
             return IconMap.document

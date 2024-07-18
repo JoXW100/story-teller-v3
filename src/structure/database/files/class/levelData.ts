@@ -11,8 +11,8 @@ export enum LevelModifyType {
 }
 
 class ClassLevelData implements IClassLevelData {
-    public readonly type: LevelModifyType
     public readonly spellAttribute: OptionalAttribute
+    public readonly type: LevelModifyType
     public readonly spellSlots: Partial<Record<SpellLevel, number>>
     public readonly preparationSlots: number
     public readonly learnedSlots: number
@@ -20,11 +20,18 @@ class ClassLevelData implements IClassLevelData {
     public readonly modifiers: ObjectId[]
 
     constructor(data: Simplify<IClassLevelData> = {}) {
-        this.type = data.type ?? ClassLevelData.properties.type.value
         this.spellAttribute = data.spellAttribute ?? ClassLevelData.properties.spellAttribute.value
-        this.spellSlots = data.spellSlots ?? ClassLevelData.properties.spellSlots.value
-        this.preparationSlots = data.preparationSlots ?? ClassLevelData.properties.preparationSlots.value
-        this.learnedSlots = data.learnedSlots ?? ClassLevelData.properties.learnedSlots.value
+        if (this.spellAttribute !== OptionalAttribute.None) {
+            this.type = data.type ?? ClassLevelData.properties.type.value
+            this.spellSlots = data.spellSlots ?? ClassLevelData.properties.spellSlots.value
+            this.preparationSlots = data.preparationSlots ?? ClassLevelData.properties.preparationSlots.value
+            this.learnedSlots = data.learnedSlots ?? ClassLevelData.properties.learnedSlots.value
+        } else {
+            this.type = ClassLevelData.properties.type.value
+            this.spellSlots = ClassLevelData.properties.spellSlots.value
+            this.preparationSlots = ClassLevelData.properties.preparationSlots.value
+            this.learnedSlots = ClassLevelData.properties.learnedSlots.value
+        }
         this.abilities = ClassLevelData.properties.abilities.value
         if (Array.isArray(data.abilities)) {
             for (const id of data.abilities) {
@@ -33,8 +40,10 @@ class ClassLevelData implements IClassLevelData {
         }
         this.modifiers = ClassLevelData.properties.modifiers.value
         if (Array.isArray(data.modifiers)) {
-            for (const id of data.modifiers) {
-                this.modifiers.push(id as ObjectId)
+            for (const modifier of data.modifiers) {
+                if (isObjectId(modifier)) {
+                    this.modifiers.push(modifier)
+                }
             }
         }
     }
@@ -69,7 +78,7 @@ class ClassLevelData implements IClassLevelData {
         modifiers: {
             get value() { return [] },
             validate: (value) => Array.isArray(value) && value.every(isObjectId),
-            simplify: (value) => value.length === 0 ? null : value
+            simplify: (value) => value.length > 0 ? value : null
         }
     }
 }

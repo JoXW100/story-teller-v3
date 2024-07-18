@@ -38,7 +38,10 @@ class SpellSelfData extends SpellDataBase implements ISpellSelfData {
     }
 
     public override get targetText(): string {
-        return `Self (${this.area.text})`
+        const areaText = this.area.text
+        return areaText.length > 0
+            ? `Self (${areaText})`
+            : 'Self'
     }
 
     public override get targetIcon(): IconType | null {

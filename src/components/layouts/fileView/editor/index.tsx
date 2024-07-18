@@ -5,14 +5,16 @@ import CharacterDocumentEditor from './character'
 import ClassDocumentEditor from './class'
 import ClassLevelEditor from './classLevel'
 import AbilityDocumentEditor from './ability'
-import SpellDocumentEditor from './spell'
-import RaceDocumentEditor from './race'
+import ItemDocumentEditor from './item'
 import MapDocumentEditor from './map'
 import ModifierDocumentEditor from './modifier'
+import RaceDocumentEditor from './race'
+import SpellDocumentEditor from './spell'
+import SubclassDocumentEditor from './subclass'
 import EffectEditor from './effect'
 import ScalingModifierEditor from './scalingModifier'
-import InnerModifierEditor from './innerModifier'
 import ConditionEditor from './condition'
+import ChargesEditor from './charges'
 import { Context } from 'components/contexts/file'
 import { isKeyOf } from 'utils'
 import { DocumentType } from 'structure/database'
@@ -22,16 +24,19 @@ export const DocumentEditorMap = {
     [DocumentType.Creature]: CreatureDocumentEditor,
     [DocumentType.Character]: CharacterDocumentEditor,
     [DocumentType.Class]: ClassDocumentEditor,
+    [DocumentType.Item]: ItemDocumentEditor,
     [DocumentType.Map]: MapDocumentEditor,
     [DocumentType.Modifier]: ModifierDocumentEditor,
     [DocumentType.Race]: RaceDocumentEditor,
     [DocumentType.Spell]: SpellDocumentEditor,
+    [DocumentType.Subclass]: SubclassDocumentEditor,
     [DocumentType.Text]: TextDocumentEditor,
     'classLevel': ClassLevelEditor,
     'effect': EffectEditor,
     'scalingModifier': ScalingModifierEditor,
-    'innerModifier': InnerModifierEditor,
+    'conditionInner': ConditionEditor,
     'condition': ConditionEditor,
+    'charges': ChargesEditor,
     'none': () => null
 }
 
@@ -46,8 +51,7 @@ const Editor: React.FC = () => {
         dispatch.setEditorPage({
             pageKey: isKeyOf(context.file.type, DocumentEditorMap) ? context.file.type : 'none',
             root: 'data',
-            name: title,
-            deps: []
+            name: title
         })
     }, [context.file.type, title, dispatch])
 

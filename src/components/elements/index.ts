@@ -24,6 +24,7 @@ import * as Table from './table'
 import * as TableCell from './tableCell'
 import * as TableHeader from './tableHeader'
 import * as Text from './text'
+import * as Variable from './variable'
 import type { IElement } from 'structure/elements'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 
@@ -54,7 +55,8 @@ export const ElementDictionary: ElementDefinitions = {
     ...Table.element,
     ...TableCell.element,
     ...TableHeader.element,
-    ...Text.element
+    ...Text.element,
+    ...Variable.element
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

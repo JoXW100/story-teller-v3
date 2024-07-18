@@ -5,19 +5,22 @@ import AbilityDataBase from 'structure/database/files/ability/data'
 import AbilityDataFactory, { type AbilityData } from 'structure/database/files/ability/factory'
 import type { ObjectId } from 'types'
 import type { IAbilityData } from 'types/database/files/ability'
-import type { ICreatureStats } from 'types/editor'
+import type { IBonusGroup, ICreatureStats } from 'types/editor'
 import styles from '../styles.module.scss'
 
 type AbilityLinkRendererProps = React.PropsWithRef<{
     id: ObjectId | string
     data: IAbilityData
     stats?: ICreatureStats
+    classLevel?: number
+    attackBonuses?: IBonusGroup
+    damageBonuses?: IBonusGroup
     expendedCharges?: number
     setExpendedCharges?: (value: number) => void
     startCollapsed?: boolean
 }>
 
-export const AbilityLinkRenderer: React.FC<AbilityLinkRendererProps> = ({ id, data, stats, startCollapsed = false, expendedCharges, setExpendedCharges }) => {
+export const AbilityLinkRenderer: React.FC<AbilityLinkRendererProps> = ({ id, data, stats, classLevel, attackBonuses, damageBonuses, startCollapsed = false, expendedCharges, setExpendedCharges }) => {
     const [open, setOpen] = useState(!startCollapsed)
 
     const ability = useMemo(() =>
@@ -39,6 +42,9 @@ export const AbilityLinkRenderer: React.FC<AbilityLinkRendererProps> = ({ id, da
                 id={id}
                 data={ability}
                 stats={stats}
+                classLevel={classLevel}
+                attackBonuses={attackBonuses}
+                damageBonuses={damageBonuses}
                 open={open}
                 expendedCharges={expendedCharges}
                 setExpendedCharges={setExpendedCharges}/>

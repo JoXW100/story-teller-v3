@@ -28,41 +28,53 @@ class ModifierBonusAllAbilityScoresData extends ModifierBonusDataBase implements
         }
     }
 
-    public apply(data: Modifier, self: ModifierDocument): void {
-        data.str.subscribe({
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+        modifier.str.subscribe({
+            key: key,
             target: self,
+            data: this,
             apply: function (value): number {
-                return value + (self.data as ModifierBonusAllAbilityScoresData).value
+                return value + (this.data as ModifierBonusAllAbilityScoresData).value
             }
         })
-        data.dex.subscribe({
+        modifier.dex.subscribe({
+            key: key,
             target: self,
+            data: this,
             apply: function (value): number {
-                return value + (self.data as ModifierBonusAllAbilityScoresData).value
+                return value + (this.data as ModifierBonusAllAbilityScoresData).value
             }
         })
-        data.con.subscribe({
+        modifier.con.subscribe({
+            key: key,
             target: self,
+            data: this,
             apply: function (value): number {
-                return value + (self.data as ModifierBonusAllAbilityScoresData).value
+                return value + (this.data as ModifierBonusAllAbilityScoresData).value
             }
         })
-        data.int.subscribe({
+        modifier.int.subscribe({
+            key: key,
             target: self,
+            data: this,
             apply: function (value): number {
-                return value + (self.data as ModifierBonusAllAbilityScoresData).value
+                return value + (this.data as ModifierBonusAllAbilityScoresData).value
             }
         })
-        data.wis.subscribe({
+        modifier.wis.subscribe({
+            key: key,
             target: self,
+            data: this,
             apply: function (value): number {
-                return value + (self.data as ModifierBonusAllAbilityScoresData).value
+                return value + (this.data as ModifierBonusAllAbilityScoresData).value
             }
         })
-        data.cha.subscribe({
+        modifier.cha.subscribe({
+            key: key,
             target: self,
+            data: this,
             apply: function (value): number {
-                return value + (self.data as ModifierBonusAllAbilityScoresData).value
+                return value + (this.data as ModifierBonusAllAbilityScoresData).value
             }
         })
     }

@@ -1,21 +1,22 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createDefaultChoiceData, createMultipleChoiceData, simplifyMultipleChoiceData, validateChoiceData } from '../common'
+import { createMultipleChoiceData, createDefaultChoiceData, validateChoiceData, simplifyMultipleChoiceData } from '../../../choice'
 import { asEnum, isEnum, isNumber } from 'utils'
-import { WeaponType, ProficiencyLevelBasic } from 'structure/dnd'
+import { WeaponTypeValue, ProficiencyLevelBasic } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { MultipleChoiceData, IModifierSetWeaponProficiencyData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { IModifierSetWeaponProficiencyData } from 'types/database/files/modifier'
+import type { MultipleChoiceData } from 'types/database/choice'
 
 class ModifierSetWeaponProficiencyData extends ModifierSetDataBase implements IModifierSetWeaponProficiencyData {
     public override readonly subtype = ModifierSetType.WeaponProficiency
-    public readonly proficiency: MultipleChoiceData<WeaponType>
+    public readonly proficiency: MultipleChoiceData<WeaponTypeValue>
     public readonly value: ProficiencyLevelBasic
 
     public constructor(data: Simplify<IModifierSetWeaponProficiencyData>) {
         super(data)
-        this.proficiency = createMultipleChoiceData<WeaponType>(data.proficiency, (value) => asEnum(value, WeaponType) ?? WeaponType.Martial)
+        this.proficiency = createMultipleChoiceData<WeaponTypeValue>(data.proficiency, (value) => asEnum(value, WeaponTypeValue) ?? WeaponTypeValue.Martial)
         this.value = asEnum(data.value, ProficiencyLevelBasic) ?? ModifierSetWeaponProficiencyData.properties.value.value
     }
 
@@ -27,9 +28,9 @@ class ModifierSetWeaponProficiencyData extends ModifierSetDataBase implements IM
             simplify: (value) => value
         },
         proficiency: {
-            get value() { return createDefaultChoiceData(WeaponType.Martial) },
-            validate: (value) => validateChoiceData(value, (value) => isEnum(value, WeaponType)),
-            simplify: (value) => simplifyMultipleChoiceData(value, WeaponType.Martial)
+            get value() { return createDefaultChoiceData(WeaponTypeValue.Martial) },
+            validate: (value) => validateChoiceData(value, (value) => isEnum(value, WeaponTypeValue)),
+            simplify: (value) => simplifyMultipleChoiceData(value, WeaponTypeValue.Martial)
         },
         value: {
             value: ProficiencyLevelBasic.Proficient,
@@ -37,32 +38,38 @@ class ModifierSetWeaponProficiencyData extends ModifierSetDataBase implements IM
         }
     }
 
-    public override getEditorChoiceData(): IEditorChoiceData | null {
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
         if (this.proficiency.isChoice) {
-            return { type: 'enum', value: this.proficiency.value, enum: 'weaponType' }
+            modifier.addChoice({
+                source: this,
+                type: 'enum',
+                value: this.proficiency.value,
+                enum: 'weaponType',
+                numChoices: this.proficiency.numChoices
+            }, key)
         }
-        return null
-    }
-
-    public override apply(data: Modifier, self: ModifierDocument): void {
-        data.proficienciesWeapon.subscribe({
+        modifier.proficienciesWeapon.subscribe({
+            key: key,
             target: self,
-            apply: function (value, choices): Partial<Record<WeaponType, ProficiencyLevelBasic>> {
-                const modifier = self.data as ModifierSetWeaponProficiencyData
+            data: this,
+            apply: function (value, choices): Partial<Record<WeaponTypeValue, ProficiencyLevelBasic>> {
+                const modifier = this.data as ModifierSetWeaponProficiencyData
                 if (modifier.proficiency.isChoice) {
-                    const index: unknown = choices[self.id]
-                    if (!isNumber(index)) {
+                    const indices: unknown = choices[key]
+                    if (!Array.isArray(indices) || indices.some((value) => !isNumber(value))) {
                         return value
                     }
 
-                    const proficiency = modifier.proficiency.value[index] ?? null
-                    if (proficiency !== null) {
-                        return { ...value, [proficiency]: modifier.value }
+                    for (const index of indices) {
+                        const proficiency = modifier.proficiency.value[index] ?? null
+                        if (proficiency !== null) {
+                            value = { ...value, [proficiency]: modifier.value }
+                        }
                     }
+                    return value
                 } else {
                     return { ...value, [modifier.proficiency.value]: modifier.value }
                 }
-                return value
             }
         })
     }

@@ -1,8 +1,8 @@
 import React, { useContext } from 'react'
 import GroupItemComponent from './groupItem'
-import { Context, getRelativeFieldObject } from 'components/contexts/file'
+import { Context } from 'components/contexts/file'
 import LinkInput from 'components/layouts/linkInput'
-import { asObjectId, isObjectIdOrNull, isRecord } from 'utils'
+import { asObjectId, getRelativeFieldObject, isObjectIdOrNull, isRecord } from 'utils'
 import Logger from 'utils/logger'
 import { useLocalizedText } from 'utils/hooks/localizedText'
 import type { LanguageKey } from 'data'
@@ -16,10 +16,9 @@ type LinkComponentParams = React.PropsWithChildren<{
     allowedTypes: readonly DocumentType[]
     placeholderId?: LanguageKey
     placeholderArgs?: any[]
-    deps?: string[]
 }>
 
-const LinkComponent: React.FC<LinkComponentParams> = ({ field, labelId, labelArgs, allowedTypes, placeholderId, placeholderArgs, deps = [] }) => {
+const LinkComponent: React.FC<LinkComponentParams> = ({ field, labelId, labelArgs, allowedTypes, placeholderId, placeholderArgs }) => {
     const [context, dispatch] = useContext(Context)
     const placeholder = useLocalizedText(placeholderId, placeholderArgs)
     if (!isRecord(context.file.data)) {
@@ -42,7 +41,7 @@ const LinkComponent: React.FC<LinkComponentParams> = ({ field, labelId, labelArg
     const handleChange = (newValue: string): void => {
         const res = asObjectId(newValue)
         if (res !== value) {
-            dispatch.setData(field, res, deps)
+            dispatch.setData(field, res)
         }
     }
 

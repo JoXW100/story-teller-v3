@@ -3,18 +3,24 @@ import AbilityDocument from './ability'
 import CharacterDocument from './character'
 import ClassDocument from './class'
 import CreatureDocument from './creature'
+import ItemDocument from './item'
 import MapDocument from './map'
 import ModifierDocument from './modifier'
 import RaceDocument from './race'
 import SpellDocument from './spell'
 import TextDocument from './text'
 import FolderFile from './folder'
+import type MapStorage from './map/storage'
+import SubclassDocument from './subclass'
+import type SubclassData from './subclass/data'
+import SubclassDataFactory from './subclass/factory'
 import AbilityDataFactory, { type AbilityData } from './ability/factory'
 import CharacterDataFactory, { CharacterStorageFactory } from './character/factory'
 import CreatureDataFactory, { CreatureStorageFactory } from './creature/factory'
 import ClassDataFactory from './class/factory'
 import SpellDataFactory, { type SpellData } from './spell/factory'
 import RaceDataFactory from './race/factory'
+import ItemDataFactory, { type ItemData } from './item/factory'
 import MapDataFactory, { MapStorageFactory } from './map/factory'
 import ModifierDataFactory from './modifier/factory'
 import TextDataFactory from './text/factory'
@@ -33,15 +39,13 @@ import { isEnum, isObjectId, isRecord } from 'utils'
 import { DocumentType, type DocumentFileType, FileType, validateObjectProperties, hasObjectProperties } from 'structure/database'
 import type { DataPropertyMap, IDatabaseFactory, IDatabaseFile } from 'types/database'
 import type { DocumentIDataMap, DocumentIStorageMap } from 'types/database/files/factory'
-import type MapStorage from './map/storage'
-import type SubclassDocument from './subclass'
-import type SubclassData from './subclass/data'
 
 export interface DocumentDataMap {
     [DocumentType.Ability]: AbilityData
     [DocumentType.Creature]: CreatureData
     [DocumentType.Character]: CharacterData
     [DocumentType.Class]: ClassData
+    [DocumentType.Item]: ItemData
     [DocumentType.Map]: MapData
     [DocumentType.Modifier]: ModifierData
     [DocumentType.Race]: RaceData
@@ -56,6 +60,7 @@ export interface DocumentStorageMap {
     [DocumentType.Creature]: CreatureStorage
     [DocumentType.Character]: CharacterStorage
     [DocumentType.Class]: DocumentIStorageMap[DocumentType.Class]
+    [DocumentType.Item]: DocumentIStorageMap[DocumentType.Item]
     [DocumentType.Map]: MapStorage
     [DocumentType.Modifier]: DocumentIStorageMap[DocumentType.Modifier]
     [DocumentType.Race]: DocumentIStorageMap[DocumentType.Race]
@@ -71,6 +76,7 @@ export interface DocumentTypeMap {
     [DocumentType.Character]: CharacterDocument
     [DocumentType.Class]: ClassDocument
     [DocumentType.Subclass]: SubclassDocument
+    [DocumentType.Item]: ItemDocument
     [DocumentType.Map]: MapDocument
     [DocumentType.Modifier]: ModifierDocument
     [DocumentType.Race]: RaceDocument
@@ -107,8 +113,12 @@ const DocumentFactory: IDocumentFactory = {
                 return new CreatureDocument({ ...data, type: data.type, data: CreatureDataFactory.create(data.data), storage: CreatureStorageFactory.create(data.storage) })
             case DocumentType.Class:
                 return new ClassDocument({ ...data, type: data.type, data: ClassDataFactory.create(data.data) })
+            case DocumentType.Subclass:
+                return new SubclassDocument({ ...data, type: data.type, data: SubclassDataFactory.create(data.data) })
             case DocumentType.Race:
                 return new RaceDocument({ ...data, type: data.type, data: RaceDataFactory.create(data.data) })
+            case DocumentType.Item:
+                return new ItemDocument({ ...data, type: data.type, data: ItemDataFactory.create(data.data) })
             case DocumentType.Spell:
                 return new SpellDocument({ ...data, type: data.type, data: SpellDataFactory.create(data.data) })
             case DocumentType.Map:
@@ -156,12 +166,16 @@ const DocumentFactory: IDocumentFactory = {
                 return CreatureDataFactory
             case DocumentType.Class:
                 return ClassDataFactory
+            case DocumentType.Subclass:
+                return SubclassDataFactory
             case DocumentType.Spell:
                 return SpellDataFactory
             case DocumentType.Race:
                 return RaceDataFactory
             case DocumentType.Map:
                 return MapDataFactory
+            case DocumentType.Item:
+                return ItemDataFactory
             case DocumentType.Modifier:
                 return ModifierDataFactory
             case DocumentType.Text:

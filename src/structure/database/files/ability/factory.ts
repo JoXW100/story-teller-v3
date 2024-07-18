@@ -25,6 +25,9 @@ const AbilityDataFactory: IDatabaseFactory<IAbilityData, AbilityData> = {
                 return new AbilityRangedAttackData(data)
             case AbilityType.ThrownWeapon:
                 return new AbilityThrownAttackData(data)
+            case AbilityType.Feature:
+            case AbilityType.Feat:
+            case AbilityType.FightingStyle:
             default:
                 return new AbilityFeatureData(data as IAbilityFeatureData)
         }
@@ -54,6 +57,8 @@ const AbilityDataFactory: IDatabaseFactory<IAbilityData, AbilityData> = {
             case AbilityType.ThrownWeapon:
                 return AbilityThrownAttackData.properties
             case AbilityType.Feature:
+            case AbilityType.Feat:
+            case AbilityType.FightingStyle:
                 return AbilityFeatureData.properties
         }
     }

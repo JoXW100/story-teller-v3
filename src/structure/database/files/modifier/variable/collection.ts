@@ -1,11 +1,12 @@
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createDefaultChoiceData, createMultipleChoiceData, simplifyMultipleChoiceData, validateChoiceData } from '../common'
+import { createMultipleChoiceData, createDefaultChoiceData, validateChoiceData, simplifyMultipleChoiceData } from '../../../choice'
 import ModifierVariableDataBase, { ModifierVariableType, OperationType } from '.'
 import { isNumber, isString } from 'utils'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { IEditorChoiceData, IModifierVariableCollectionData, MultipleChoiceData } from 'types/database/files/modifier'
+import type { IModifierVariableCollectionData } from 'types/database/files/modifier'
+import type { MultipleChoiceData } from 'types/database/choice'
 
 class ModifierVariableCollectionData extends ModifierVariableDataBase implements IModifierVariableCollectionData {
     public override readonly subtype = ModifierVariableType.Collection
@@ -30,21 +31,24 @@ class ModifierVariableCollectionData extends ModifierVariableDataBase implements
         }
     }
 
-    public override getEditorChoiceData(): IEditorChoiceData | null {
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
         if (this.value.isChoice) {
-            return { type: 'value', value: this.value.value, numChoices: this.value.numChoices }
+            modifier.addChoice({
+                source: this,
+                type: 'value',
+                value: this.value.value,
+                numChoices: this.value.numChoices
+            }, key)
         }
-        return null
-    }
-
-    public override apply(data: Modifier, self: ModifierDocument): void {
-        data.variables.subscribe({
+        modifier.variables.subscribe({
+            key: key,
+            data: this,
             target: self,
-            apply: function (value, choices, flags): Record<string, unknown> {
-                const modifier = self.data as ModifierVariableCollectionData
+            apply: function (value, choices): Record<string, string> {
+                const modifier = this.data as ModifierVariableCollectionData
                 let selected: string[]
                 if (modifier.value.isChoice) {
-                    const choice: unknown = choices[self.id]
+                    const choice: unknown = choices[key]
                     if (!Array.isArray(choice)) {
                         return value
                     }
@@ -72,13 +76,13 @@ class ModifierVariableCollectionData extends ModifierVariableDataBase implements
                         const current = value[modifier.variable]
                         return {
                             ...value,
-                            [modifier.variable]: Array.isArray(current)
-                                ? [...current, ...selected]
-                                : selected
+                            [modifier.variable]: isString(current) && current.length > 0
+                                ? [...current.split(', ') ?? [], ...selected].join(', ')
+                                : selected.join(', ')
                         }
                     }
                     case OperationType.Replace:
-                        return { ...value, [modifier.variable]: selected }
+                        return { ...value, [modifier.variable]: selected.join(', ') }
                 }
             }
         })

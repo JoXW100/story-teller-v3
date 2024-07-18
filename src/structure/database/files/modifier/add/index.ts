@@ -1,10 +1,11 @@
-import ModifierDataBase from '../data'
 import { ModifierType } from '../common'
+import ModifierDataBase from '../data'
 import type { Simplify } from 'types'
 import type { IModifierAddDataBase } from 'types/database/files/modifier'
 import type { DataPropertyMap } from 'types/database'
 
 export enum ModifierAddType {
+    Linked = 'linked',
     Ability = 'ability',
     Spell = 'spell',
     Advantage = 'advantage',

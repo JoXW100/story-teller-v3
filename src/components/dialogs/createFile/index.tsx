@@ -20,6 +20,7 @@ type CreateFilePopupCallback = (selected: CreateFilePopupData) => void
 
 export type CreateContentProps = React.PropsWithRef<{
     callback: CreateFilePopupCallback
+    close: () => void
 }>
 
 export interface CreateFilePopupData {
@@ -89,8 +90,8 @@ const CreateFilePopup: React.FC<DialogArgs<'createFile'>> = ({ id, type, callbac
                     </div>
                     <LocalizedText id='dialog-createFile-header'/>
                     <Tooltip placement='right' title={<LocalizedText id='dialog-createFile-closeTooltips'/>}>
-                        <button className='center-flex fill-height square' onClick={close}>
-                            <CloseIcon/>
+                        <button className='center-flex fill-height square' onClick={handleClose}>
+                            <CloseIcon className='small-icon'/>
                         </button>
                     </Tooltip>
                 </div>
@@ -108,7 +109,7 @@ const CreateFilePopup: React.FC<DialogArgs<'createFile'>> = ({ id, type, callbac
                         ))}
                     </div>
                     <div className={styles.content}>
-                        { Content != null && <Content callback={handleCallback}/>}
+                        { Content != null && <Content callback={handleCallback} close={handleClose}/>}
                     </div>
                 </div>
             </div>

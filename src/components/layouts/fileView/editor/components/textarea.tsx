@@ -1,8 +1,8 @@
 import React, { useContext } from 'react'
 import GroupItemComponent from './groupItem'
 import TextEditor from 'components/textEditor'
-import { Context, getRelativeFieldObject } from 'components/contexts/file'
-import { isRecord } from 'utils'
+import { Context } from 'components/contexts/file'
+import { isRecord, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
 import type { LanguageKey } from 'data'
 import type { IToken, TokenContext } from 'types/language'
@@ -14,10 +14,9 @@ type TextareaComponentParams = React.PropsWithoutRef<{
     labelArgs?: any[]
     languageContext?: TokenContext
     fill?: boolean
-    deps?: string[]
 }>
 
-const TextareaComponent: React.FC<TextareaComponentParams> = ({ field, labelId, labelArgs, languageContext = {}, fill = false, deps = [] }) => {
+const TextareaComponent: React.FC<TextareaComponentParams> = ({ field, labelId, labelArgs, languageContext = {}, fill = false }) => {
     const [context, dispatch] = useContext(Context)
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.TextareaComponent', 'Data of incorrect type', context.file.data)
@@ -38,7 +37,7 @@ const TextareaComponent: React.FC<TextareaComponentParams> = ({ field, labelId, 
 
     const handleInput = (value: string, token: IToken | null): void => {
         dispatch.setToken(field, token)
-        dispatch.setData(field, value, deps)
+        dispatch.setData(field, value)
     }
 
     return (

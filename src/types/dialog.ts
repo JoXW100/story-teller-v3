@@ -2,6 +2,7 @@ import type { CreateFilePopupData } from 'components/dialogs/createFile'
 import type { LanguageKey } from 'data'
 import type { DocumentType } from 'structure/database'
 import type { IDatabaseFile } from './database'
+import type { ObjectId } from 'types'
 
 export enum InputType {
     File = 'file',
@@ -29,6 +30,7 @@ export interface INoticeDialogParams extends IDialogParams {
 
 export interface ISelectFileDialogParams extends IDialogParams {
     allowedTypes: readonly DocumentType[]
+    storyId: ObjectId
 }
 
 export interface ICreateFileDialogParams extends IDialogParams {

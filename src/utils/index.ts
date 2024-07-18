@@ -194,3 +194,61 @@ export function clamp(value: number, min: number, max: number): number {
 export function lerp(value1: number, value2: number, factor: number): number {
     return value1 * (1 - factor) + factor * value2
 }
+
+export function capitalizeFirstLetter(string: string): string {
+    return string.charAt(0).toUpperCase() + string.slice(1)
+}
+
+export function getRelativeFieldObject(field: string, data: Record<string, unknown>): { key: string, relative: Record<string, unknown> } | null {
+    const keys = field.split('.')
+    let relativeData: Record<string, unknown> = data
+    for (let i = 0; i < keys.length - 1; i++) {
+        if (keys[i].length === 0) {
+            continue
+        }
+
+        const next = relativeData[keys[i]]
+        if (isRecord(next) || Array.isArray(next)) {
+            relativeData = next as Record<string, unknown>
+        } else {
+            return null
+        }
+    }
+
+    const key = keys[keys.length - 1]
+    if (!isKeyOf(key, relativeData)) {
+        return null
+    }
+
+    return {
+        key: key,
+        relative: relativeData
+    }
+}
+
+export function createField(...parts: Array<string | undefined>): string {
+    let field = ''
+    let flag = true
+    for (const part of parts) {
+        switch (part) {
+            case undefined:
+                continue
+            case 'data':
+                if (flag) {
+                    continue
+                }
+                flag = false
+                field += '.' + part
+                break
+            default:
+                flag = false
+                if (field === '') {
+                    field = part
+                } else {
+                    field += '.' + part
+                }
+                break
+        }
+    }
+    return field
+}

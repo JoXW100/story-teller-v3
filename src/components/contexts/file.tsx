@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useReducer } from 'react'
 import Loading from 'components/loading'
-import { isKeyOf, isRecord } from 'utils'
 import Communication from 'utils/communication'
 import Logger from 'utils/logger'
 import RequestBuffer from 'utils/buffer'
@@ -11,12 +10,13 @@ import type { ObjectId } from 'types'
 import type { IToken } from 'types/language'
 import type { ContextProvider, DispatchAction, DispatchActionNoData, DispatchActionWithDispatch, ISetFieldData } from 'types/context'
 import type { DBResponse } from 'types/database'
+import { getRelativeFieldObject } from 'utils'
+import Head from 'next/head'
 
 export interface IEditorPageData {
     pageKey: EditorPageKeyType
     root: string
     name: string
-    deps: string[]
 }
 
 interface FileContextState {
@@ -29,8 +29,8 @@ interface FileContextState {
 
 export interface FileContextDispatch {
     setToken: (field: string, token: IToken | null) => void
-    setData: (field: string, value: any, deps?: string[]) => void
-    setStorage: (field: string, value: any, deps?: string[]) => void
+    setData: (field: string, value: any) => void
+    setStorage: (field: string, value: any) => void
     setEditorPage: (data: IEditorPageData) => void
     pushEditorPage: (data: IEditorPageData) => void
     popEditorPage: () => void
@@ -74,33 +74,6 @@ export const Context = React.createContext<FileContextProvider>([
     defaultContextState,
     defaultContextDispatch
 ])
-
-export function getRelativeFieldObject(field: string, data: Record<string, unknown>): { key: string, relative: Record<string, unknown> } | null {
-    const keys = field.split('.')
-    let relativeData: Record<string, unknown> = data
-    for (let i = 0; i < keys.length - 1; i++) {
-        if (keys[i].length === 0) {
-            continue
-        }
-
-        const next = relativeData[keys[i]]
-        if (isRecord(next) || Array.isArray(next)) {
-            relativeData = next as Record<string, unknown>
-        } else {
-            return null
-        }
-    }
-
-    const key = keys[keys.length - 1]
-    if (!isKeyOf(key, relativeData)) {
-        return null
-    }
-
-    return {
-        key: key,
-        relative: relativeData
-    }
-}
 
 const reducer: React.Reducer<FileContextState, FileContextAction> = (state, action) => {
     Logger.log('file.reducer', action)
@@ -206,8 +179,8 @@ const FileContext: React.FC<FileContextProps> = ({ children, fileId }) => {
 
     const memoisedDispatch = useMemo<FileContextDispatch>(() => ({
         setToken(field, value) { dispatch({ type: 'setToken', data: { field: field, value: value } }) },
-        setData(field, value, deps = []) { dispatch({ type: 'setData', data: { field: field, value: value, deps: deps }, dispatch: dispatch }) },
-        setStorage(field, value, deps = []) { dispatch({ type: 'setStorage', data: { field: field, value: value, deps: deps }, dispatch: dispatch }) },
+        setData(field, value) { dispatch({ type: 'setData', data: { field: field, value: value }, dispatch: dispatch }) },
+        setStorage(field, value) { dispatch({ type: 'setStorage', data: { field: field, value: value }, dispatch: dispatch }) },
         setEditorPage(data) { dispatch({ type: 'setEditorPage', data: data }) },
         pushEditorPage(data) { dispatch({ type: 'pushEditorPage', data: data }) },
         popEditorPage() { dispatch({ type: 'popEditorPage' }) }
@@ -216,9 +189,28 @@ const FileContext: React.FC<FileContextProps> = ({ children, fileId }) => {
     return (
         <Context.Provider value={[state, memoisedDispatch]}>
             <Loading loaded={!state.loading && state.file !== null}>
+                <FileHeader file={state.file}/>
                 { children }
             </Loading>
         </Context.Provider>
+    )
+}
+
+type FileHeaderProps = React.PropsWithoutRef<{
+    file: DatabaseFile
+}>
+
+const FileHeader: React.FC<FileHeaderProps> = ({ file }): JSX.Element => {
+    const fileTitle = (file != null ? file.getTitle() + ' - ' : '') + 'Story Teller'
+    const fileDescription = file?.getDescription() ?? 'Create your own story!'
+
+    return (
+        <Head>
+            <title key="title">{fileTitle}</title>
+            <meta key="description" name="description" content={fileDescription}/>
+            <meta key="og:title" property="og:title" content={fileTitle}/>
+            <meta key="og:description" property="og:description" content={fileDescription}/>
+        </Head>
     )
 }
 

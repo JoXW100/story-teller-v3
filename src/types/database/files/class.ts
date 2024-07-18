@@ -1,6 +1,6 @@
 import type { LevelModifyType } from 'structure/database/files/class/levelData'
 import type { DieType } from 'structure/dice'
-import type { ArmorType, Attribute, ClassLevel, OptionalAttribute, ProficiencyLevel, ProficiencyLevelBasic, SpellLevel, ToolType, WeaponType } from 'structure/dnd'
+import type { ArmorType, Attribute, ClassLevel, OptionalAttribute, ProficiencyLevel, ProficiencyLevelBasic, SpellLevel, ToolType, WeaponTypeValue } from 'structure/dnd'
 import type { ObjectId } from 'types'
 
 export interface IClassLevelData {
@@ -20,12 +20,13 @@ export interface IClassData {
     readonly name: string
     readonly description: string
     readonly hitDie: DieType
+    readonly subclassLevel: ClassLevel
     readonly levels: Record<ClassLevel, IClassLevelData>
     // Proficiencies
     readonly proficienciesSave: Partial<Record<Attribute, ProficiencyLevel>>
     readonly proficienciesTool: Partial<Record<ToolType, ProficiencyLevel>>
     readonly proficienciesArmor: Partial<Record<ArmorType, ProficiencyLevelBasic>>
-    readonly proficienciesWeapon: Partial<Record<WeaponType, ProficiencyLevelBasic>>
+    readonly proficienciesWeapon: Partial<Record<WeaponTypeValue, ProficiencyLevelBasic>>
     // Spells
     readonly spellAttribute: OptionalAttribute
     readonly preparationAll: boolean

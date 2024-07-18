@@ -1,8 +1,0 @@
-{
-    "key": "0.mod3",
-    "label": "Test",
-    "type": "bonus",
-    "subtype": "ac",
-    "condition": { "leq": [{ "property": "ac" }, 12] },
-    "value": 2
-}

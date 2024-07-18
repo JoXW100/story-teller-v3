@@ -1,12 +1,13 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createDefaultChoiceData, createSingleChoiceData, simplifySingleChoiceData, validateChoiceData } from '../common'
+import { createSingleChoiceData, createDefaultChoiceData, validateChoiceData, simplifySingleChoiceData } from '../../../choice'
 import { asEnum, isEnum, isNumber } from 'utils'
 import { SizeType } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { SingleChoiceData, IModifierSetSizeData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { IModifierSetSizeData } from 'types/database/files/modifier'
+import type { SingleChoiceData } from 'types/database/choice'
 
 class ModifierSetSizeData extends ModifierSetDataBase implements IModifierSetSizeData {
     public override readonly subtype = ModifierSetType.Size
@@ -31,20 +32,23 @@ class ModifierSetSizeData extends ModifierSetDataBase implements IModifierSetSiz
         }
     }
 
-    public override getEditorChoiceData(): IEditorChoiceData | null {
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
         if (this.value.isChoice) {
-            return { type: 'enum', value: this.value.value, enum: 'size' }
+            modifier.addChoice({
+                source: this,
+                type: 'enum',
+                value: this.value.value,
+                enum: 'size'
+            }, key)
         }
-        return null
-    }
-
-    public override apply(data: Modifier, self: ModifierDocument): void {
-        data.size.subscribe({
+        modifier.size.subscribe({
+            key: key,
             target: self,
-            apply: function (value, choices, flags): SizeType {
-                const modifier = self.data as ModifierSetSizeData
+            data: this,
+            apply: function (value, choices): SizeType {
+                const modifier = this.data as ModifierSetSizeData
                 if (modifier.value.isChoice) {
-                    const index: unknown = choices[self.id]
+                    const index: unknown = choices[key]
                     if (!isNumber(index)) {
                         return value
                     }

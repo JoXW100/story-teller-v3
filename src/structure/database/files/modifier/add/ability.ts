@@ -1,12 +1,13 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createDefaultChoiceData, createMultipleChoiceData, simplifyMultipleChoiceData, validateChoiceData } from '../common'
+import { createDefaultChoiceData, createMultipleChoiceData, simplifyMultipleChoiceData, validateChoiceData } from '../../../choice'
 import { asObjectId, isNumber, isObjectIdOrNull } from 'utils'
-import { DocumentType } from 'structure/database'
 import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { MultipleChoiceData, IModifierAddAbilityData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { IModifierAddAbilityData } from 'types/database/files/modifier'
+import type { MultipleChoiceData } from 'types/database/choice'
+import { ModifierSourceType } from '../modifier'
 
 class ModifierAddAbilityData extends ModifierAddDataBase implements IModifierAddAbilityData {
     public override readonly subtype = ModifierAddType.Ability
@@ -31,21 +32,32 @@ class ModifierAddAbilityData extends ModifierAddDataBase implements IModifierAdd
         }
     }
 
-    public override getEditorChoiceData(): IEditorChoiceData | null {
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
         if (this.value.isChoice) {
-            return { type: 'id', value: this.value.value, numChoices: this.value.numChoices, allowedTypes: [DocumentType.Ability] }
+            modifier.addChoice({
+                source: this,
+                type: 'id',
+                value: this.value.value,
+                numChoices: this.value.numChoices
+            }, key)
+            for (const id of this.value.value) {
+                if (id !== null) {
+                    modifier.addSource(id, ModifierSourceType.Modifier, key)
+                }
+            }
+        } else if (this.value.value !== null) {
+            modifier.addSource(this.value.value, ModifierSourceType.Modifier, key)
         }
-        return null
-    }
 
-    public override apply(data: Modifier, self: ModifierDocument): void {
-        data.abilities.subscribe({
+        modifier.abilities.subscribe({
+            key: key,
             target: self,
-            apply: function (value, choices, flags): Array<ObjectId | string> {
-                const modifier = self.data as ModifierAddAbilityData
+            data: this,
+            apply: function (value, choices): Array<ObjectId | string> {
+                const modifier = this.data as ModifierAddAbilityData
                 const existing = new Set(value)
                 if (modifier.value.isChoice) {
-                    const choice: unknown = choices[self.id]
+                    const choice: unknown = choices[key]
                     if (!Array.isArray(choice)) {
                         return value
                     }
@@ -64,9 +76,9 @@ class ModifierAddAbilityData extends ModifierAddDataBase implements IModifierAdd
                         existing.add(id)
                     }
 
-                    value = Array.from(existing)
+                    return Array.from(existing)
                 } else if (modifier.value.value !== null && !existing.has(modifier.value.value)) {
-                    value.push(modifier.value.value)
+                    return [...value, modifier.value.value]
                 }
                 return value
             }

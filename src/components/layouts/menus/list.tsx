@@ -1,114 +1,130 @@
 import ListTemplateMenu, { type ListTemplateComponentProps } from './template'
 import styles from './list.module.scss'
+import DropdownMenu from '../dropdownMenu'
+import { asKeyOf } from 'utils'
 
-interface IListMenuProps<A, B, T extends string> {
-    values: A[]
-    type: T
-    defaultValue: B
-    createValue: (value: B) => A
-    createInput: (value: A) => B
-    createComponent?: (value: A, values: A[]) => React.ReactNode
-    validateInput?: (value: B, values: A[]) => boolean
-    onChange?: (selection: A[]) => void
-}
-
-type ListMenuProps<T> = React.PropsWithRef<{
+interface IListMenuProps<A, T extends string> {
     className?: string
     itemClassName?: string
-    editEnabled: boolean
+    values: A[]
+    type: T
+    defaultValue: A
+    editEnabled?: boolean
     placeholder?: string
     addLast?: boolean
-} & (IListMenuProps<T, string, 'string'> | IListMenuProps<T, number, 'number'>)>
-
-type ListMenuComponentParams<T> = React.PropsWithRef<{
+    disabled?: boolean
+    createComponent?: (value: A, values: A[]) => React.ReactNode
+    validateInput?: (value: A, values: A[]) => boolean
+    onChange?: (selection: A[]) => void
+}
+interface IListMenuEnumProps<O extends Record<string | number | symbol, React.ReactNode>> {
+    className?: string
     itemClassName?: string
-    placeholder?: string
-    type: ListMenuProps<any>['type']
-    editEnabled: boolean
-    createValue: (value: string | number) => T
-    createInput: (value: T) => string | number
-    createComponent?: (value: T, values: T[]) => React.ReactNode
-}>
+    values: Array<keyof O>
+    type: 'enum'
+    options: O
+    defaultValue: keyof O
+    editEnabled?: boolean
+    addLast?: boolean
+    disabled?: boolean
+    createComponent?: (value: keyof O, values: Array<keyof O>) => React.ReactNode
+    validateInput?: (value: keyof O, values: Array<keyof O>) => boolean
+    onChange?: (selection: Array<keyof O>) => void
+}
 
-function ListMenu<T>({ className, itemClassName, values, type, defaultValue, editEnabled = false, placeholder, addLast, createValue, createInput, createComponent, validateInput, onChange }: ListMenuProps<T>): React.ReactNode {
-    const handleCreateValue = (value: string | number): T => {
-        if (type === 'string') {
-            return createValue(String(value))
-        } else {
-            return createValue(Number(value))
+type ListMenuPropsType = IListMenuProps<string, 'string'> | IListMenuProps<number, 'number'> | IListMenuEnumProps<Record<string | number | symbol, React.ReactNode>>
+type ListMenuProps = React.PropsWithRef<ListMenuPropsType>
+
+const ListMenu: React.FC<ListMenuProps> = (props: ListMenuProps) => {
+    const handleCreateValue = (value: ListMenuProps['defaultValue']): ListMenuProps['defaultValue'] => {
+        switch (props.type) {
+            case 'string':
+                return String(value)
+            case 'number':
+                return Number(value)
+            case 'enum':
+                return asKeyOf(value, props.options) ?? props.defaultValue
         }
     }
 
-    const handleValidateInput = (value: string | number, values: T[]): boolean => {
-        if (validateInput === undefined) {
+    const handleValidateInput = (value: ListMenuProps['defaultValue'], values: ListMenuProps['values']): boolean => {
+        if (props.disabled === true) {
+            return false
+        }
+        if (props.validateInput === undefined) {
             return true
         }
-        if (type === 'string') {
-            return validateInput(String(value), values)
-        } else {
-            return validateInput(Number(value), values)
+        switch (props.type) {
+            case 'string':
+                return props.validateInput(value as string, values as string[])
+            case 'number':
+                return props.validateInput(value as number, values as number[])
+            case 'enum':
+                return props.validateInput(value, values)
         }
     }
 
     return (
-        <ListTemplateMenu<T, string | number, ListMenuComponentParams<T>>
-            className={className}
-            defaultValue={defaultValue}
-            values={values}
-            addLast={addLast}
+        <ListTemplateMenu
+            className={props.className}
+            defaultValue={props.defaultValue}
+            values={props.values}
+            addLast={props.addLast}
             createValue={handleCreateValue}
             validateInput={handleValidateInput}
-            onChange={onChange}
-            Component={Component<T>}
-            EditComponent={EditComponent<T>}
-            params={{
-                itemClassName: itemClassName,
-                placeholder: placeholder,
-                type: type,
-                editEnabled: editEnabled,
-                createValue: createValue as ListMenuComponentParams<T>['createValue'],
-                createInput: createInput,
-                createComponent: createComponent
-            }}/>
+            onChange={props.onChange}
+            Component={Component}
+            EditComponent={EditComponent}
+            params={props}/>
     )
 }
 
-function Component<T>({ value, values, onUpdate, params, ...other }: ListTemplateComponentProps<T, T, ListMenuComponentParams<T>>): React.ReactNode {
-    if (params.editEnabled) {
-        const handleUpdate = (value: string | number): void => {
-            onUpdate(params.createValue(value))
-        }
-
-        return EditComponent<T>({ ...other, value: params.createInput(value), values: values, onUpdate: handleUpdate, params: params })
+const Component: React.FC<ListTemplateComponentProps<any, any, ListMenuPropsType>> = ({ value, values, params, ...other }): React.ReactNode => {
+    if (params.editEnabled === true) {
+        return EditComponent({ ...other, value: value, values: values, params: params })
     } else {
         return (
             <div className={params.itemClassName}>
-                {params.createComponent?.(value, values) ?? String(value)}
+                {params.type === 'enum' && (params.createComponent?.(value, values) ?? params.options[value] ?? String(value)) }
+                {params.type === 'number' && (params.createComponent?.(value, values) ?? Number(value)) }
+                {params.type === 'string' && (params.createComponent?.(value, values) ?? String(value)) }
             </div>
         )
     }
 }
 
-function EditComponent<T>({ value, onUpdate, params }: ListTemplateComponentProps<T, string | number, ListMenuComponentParams<T>>): React.ReactNode {
+const EditComponent: React.FC<ListTemplateComponentProps<any, any, ListMenuPropsType>> = ({ value, values, onUpdate, params }) => {
     const style = params.itemClassName !== undefined ? `${params.itemClassName} ${styles.input}` : styles.input
 
     const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
         if (params.type === 'number') {
             const value = Number(e.target.value)
             onUpdate((isNaN(value) ? 0 : value))
-        } else {
+        } else if (params.type === 'string') {
             onUpdate(e.target.value)
         }
     }
 
-    return (
-        <input
-            className={style}
-            value={value}
-            type={params.type}
-            placeholder={params.placeholder}
-            onChange={handleChange}/>
-    )
+    if (params.type === 'enum') {
+        return (
+            <DropdownMenu
+                value={value}
+                values={params.options}
+                exclude={values}
+                onChange={onUpdate}
+                disabled={params.disabled}/>
+        )
+    } else {
+        return (
+            <input
+                className={style}
+                value={value}
+                type={params.type}
+                placeholder={params.placeholder}
+                onChange={handleChange}
+                disabled={params.disabled}/>
+        )
+    }
 }
 
 export default ListMenu

@@ -1,10 +1,17 @@
-import ModifierDataBase from '../data'
 import { ModifierType } from '../common'
+import ModifierDataBase from '../data'
 import type { DataPropertyMap } from 'types/database'
 import type { IModifierAbilityDataBase } from 'types/database/files/modifier'
 
 export enum ModifierAbilityType {
-    AttackBonus = 'attackBonus'
+    AttackBonus = 'attackBonus',
+    MeleeWeaponAttackBonus = 'meleeWeaponAttackBonus',
+    RangedWeaponAttackBonus = 'rangedWeaponAttackBonus',
+    ThrownWeaponAttackBonus = 'thrownWeaponAttackBonus',
+    DamageBonus = 'damageBonus',
+    MeleeWeaponDamageBonus = 'meleeWeaponDamageBonus',
+    RangedWeaponDamageBonus = 'rangedWeaponDamageBonus',
+    ThrownWeaponDamageBonus = 'thrownWeaponDamageBonus'
 }
 
 abstract class ModifierAbilityDataBase extends ModifierDataBase implements IModifierAbilityDataBase {

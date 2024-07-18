@@ -4,19 +4,19 @@ import LinkComponent from './link'
 import LinkListComponent from './linkList'
 import EnumComponent from './enum'
 import SelectionInputComponent from './selectionInput'
-import { Context, getRelativeFieldObject } from 'components/contexts/file'
-import Checkbox from 'components/layouts/checkbox'
-import NumberInput from 'components/layouts/numericInput'
-import { isRecord } from 'utils'
-import Logger from 'utils/logger'
-import { isMultipleChoiceData, isSingleChoiceData } from 'structure/database/files/modifier/common'
-import { DocumentType } from 'structure/database'
-import { AdvantageBinding, ArmorType, Attribute, ConditionBinding, DamageBinding, Language, OptionalAttribute, Sense, SizeType, Skill, ToolType, WeaponType } from 'structure/dnd'
-import type { IMultipleChoiceData, MultipleChoiceData, SingleChoiceData } from 'types/database/files/modifier'
-import styles from '../style.module.scss'
 import ListComponent from './list'
 import TextComponent from './text'
 import NumberComponent from './number'
+import { Context } from 'components/contexts/file'
+import Checkbox from 'components/layouts/checkbox'
+import NumberInput from 'components/layouts/numericInput'
+import { getRelativeFieldObject, isRecord } from 'utils'
+import Logger from 'utils/logger'
+import { AdvantageBinding, ArmorType, Attribute, ConditionBinding, DamageBinding, Language, OptionalAttribute, Sense, SizeType, Skill, ToolType, WeaponTypeValue } from 'structure/dnd'
+import { DocumentType } from 'structure/database'
+import { isMultipleChoiceData, isSingleChoiceData } from 'structure/database/choice'
+import type { MultipleChoiceData, SingleChoiceData, IMultipleChoiceData } from 'types/database/choice'
+import styles from '../style.module.scss'
 
 export const DefaultChoiceValueMap = {
     'number': 0,
@@ -33,8 +33,8 @@ export const DefaultChoiceValueMap = {
     'skill': Skill.Acrobatics,
     'tool': ToolType.AlchemistsSupplies,
     'language': Language.Common,
-    'armor': ArmorType.Light,
-    'weapon': WeaponType.Martial
+    'armor': ArmorType.Clothing,
+    'weaponTypeValue': WeaponTypeValue.Martial
 } satisfies Record<string, unknown>
 
 export type ChoiceValueType = keyof typeof DefaultChoiceValueMap
@@ -43,14 +43,13 @@ type ChoiceComponentParams = React.PropsWithoutRef<{
     field: string
     type: ChoiceValueType
     allowMultipleChoices?: boolean
-    deps?: string[]
     fill?: boolean
 }>
 
 const AbilityAllowedTypes = [DocumentType.Ability]
 const SpellAllowedTypes = [DocumentType.Spell]
 
-const ChoiceComponent: React.FC<ChoiceComponentParams> = ({ field, type, allowMultipleChoices = false, deps = [], fill = false }) => {
+const ChoiceComponent: React.FC<ChoiceComponentParams> = ({ field, type, allowMultipleChoices = false, fill = false }) => {
     const [context, dispatch] = useContext(Context)
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.BooleanComponent', 'Data of incorrect type', context.file.data)
@@ -72,12 +71,12 @@ const ChoiceComponent: React.FC<ChoiceComponentParams> = ({ field, type, allowMu
     const handleIsChoiceChange = (val: boolean): void => {
         if (val) {
             if (allowMultipleChoices) {
-                dispatch.setData(field, { isChoice: true, numChoices: 1, value: [] } satisfies MultipleChoiceData, deps)
+                dispatch.setData(field, { isChoice: true, numChoices: 1, value: [] } satisfies MultipleChoiceData)
             } else {
-                dispatch.setData(field, { isChoice: true, value: [] } satisfies SingleChoiceData, deps)
+                dispatch.setData(field, { isChoice: true, value: [] } satisfies SingleChoiceData)
             }
         } else {
-            dispatch.setData(field, { isChoice: false, value: DefaultChoiceValueMap[type] } satisfies SingleChoiceData, deps)
+            dispatch.setData(field, { isChoice: false, value: DefaultChoiceValueMap[type] } satisfies SingleChoiceData)
         }
     }
 
@@ -85,7 +84,7 @@ const ChoiceComponent: React.FC<ChoiceComponentParams> = ({ field, type, allowMu
         if (!value.isChoice) {
             return
         }
-        dispatch.setData(field, { ...value, numChoices: val } satisfies MultipleChoiceData, deps)
+        dispatch.setData(field, { ...value, numChoices: val } satisfies MultipleChoiceData)
     }
 
     return (
@@ -111,56 +110,56 @@ const ChoiceComponent: React.FC<ChoiceComponentParams> = ({ field, type, allowMu
                 : <LinkComponent field={`${field}.value`} labelId='editor-value' allowedTypes={AbilityAllowedTypes}/>
             )}
             { type === 'spellObjectId' && (value.isChoice
-                ? <LinkListComponent field={`${field}.value`} labelId='editor-options' allowedTypes={SpellAllowedTypes} />
+                ? <LinkListComponent field={`${field}.value`} labelId='editor-options' allowedTypes={SpellAllowedTypes} fill={fill}/>
                 : <LinkComponent field={`${field}.value`} labelId='editor-value' allowedTypes={SpellAllowedTypes}/>
             )}
             { type === 'advantageBinding' && (value.isChoice
-                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='advantageBinding' deps={[...deps, field]} fill={fill}/>
-                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='advantageBinding' deps={[...deps, field]}/>
+                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='advantageBinding' fill={fill}/>
+                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='advantageBinding' />
             )}
             { type === 'damageBinding' && (value.isChoice
-                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='damageBinding' deps={[...deps, field]} fill={fill}/>
-                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='damageBinding' deps={[...deps, field]}/>
+                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='damageBinding' fill={fill}/>
+                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='damageBinding' />
             )}
             { type === 'conditionBinding' && (value.isChoice
-                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='conditionBinding' deps={[...deps, field]} fill={fill}/>
-                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='conditionBinding' deps={[...deps, field]}/>
+                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='conditionBinding' fill={fill}/>
+                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='conditionBinding' />
             )}
             { type === 'spellAttribute' && (value.isChoice
-                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='optionalAttr' deps={[...deps, field]} fill={fill}/>
-                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='optionalAttr' deps={[...deps, field]}/>
+                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='optionalAttr' fill={fill}/>
+                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='optionalAttr' />
             )}
             { type === 'sense' && (value.isChoice
-                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='sense' deps={[...deps, field]} fill={fill}/>
-                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='sense' deps={[...deps, field]}/>
+                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='sense' fill={fill}/>
+                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='sense' />
             )}
             { type === 'size' && (value.isChoice
-                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='size' deps={[...deps, field]} fill={fill}/>
-                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='size' deps={[...deps, field]}/>
+                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='size' fill={fill}/>
+                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='size' />
             )}
             { type === 'attribute' && (value.isChoice
-                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='attr' deps={[...deps, field]} fill={fill}/>
-                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='attr' deps={[...deps, field]}/>
+                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='attr' fill={fill}/>
+                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='attr' />
             )}
             { type === 'skill' && (value.isChoice
-                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='skill' deps={[...deps, field]} fill={fill}/>
-                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='skill' deps={[...deps, field]}/>
+                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='skill' fill={fill}/>
+                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='skill' />
             )}
             { type === 'tool' && (value.isChoice
-                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='tool' deps={[...deps, field]} fill={fill}/>
-                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='tool' deps={[...deps, field]}/>
+                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='tool' fill={fill}/>
+                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='tool' />
             )}
             { type === 'language' && (value.isChoice
-                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='language' deps={[...deps, field]} fill={fill}/>
-                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='language' deps={[...deps, field]}/>
+                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='language' fill={fill}/>
+                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='language' />
             )}
-            { type === 'weapon' && (value.isChoice
-                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='weaponType' deps={[...deps, field]} fill={fill}/>
-                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='weaponType' deps={[...deps, field]}/>
+            { type === 'weaponTypeValue' && (value.isChoice
+                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='weaponTypeValue' fill={fill}/>
+                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='weaponTypeValue' />
             )}
             { type === 'armor' && (value.isChoice
-                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='armor' deps={[...deps, field]} fill={fill}/>
-                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='armor' deps={[...deps, field]}/>
+                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='armor' fill={fill}/>
+                : <EnumComponent field={`${field}.value`} labelId='editor-value' type='armor' />
             )}
         </>
     )

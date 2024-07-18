@@ -6,8 +6,9 @@ import { hasObjectProperties, simplifyObjectProperties, validateObjectProperties
 import type { Simplify } from 'types'
 import type { IEffect } from 'types/database/effect'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
+import DieEffect from './die'
 
-export type Effect = TextEffect | DamageEffect
+export type Effect = TextEffect | DamageEffect | DieEffect
 
 export function simplifyEffectRecord(value: Record<string, IEffect>): Record<string, unknown> | null {
     if (Object.keys(value).length === 0) {
@@ -32,6 +33,8 @@ const EffectFactory: IDatabaseFactory<IEffect, Effect> = {
         switch (data.type) {
             case EffectType.Damage:
                 return new DamageEffect(data)
+            case EffectType.Die:
+                return new DieEffect(data)
             default:
                 return new TextEffect(data as Record<string, unknown>)
         }
@@ -52,6 +55,8 @@ const EffectFactory: IDatabaseFactory<IEffect, Effect> = {
         switch (type) {
             case EffectType.Damage:
                 return DamageEffect.properties
+            case EffectType.Die:
+                return DieEffect.properties
             case EffectType.Text:
                 return TextEffect.properties
         }

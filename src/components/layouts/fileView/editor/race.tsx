@@ -12,6 +12,7 @@ import { DocumentType } from 'structure/database'
 import RaceDocument from 'structure/database/files/race'
 import styles from './style.module.scss'
 
+const AllowedTypes = [DocumentType.Modifier] as const
 const RaceDocumentEditor: React.FC = () => {
     const [context, dispatch] = useContext(Context)
 
@@ -45,7 +46,7 @@ const RaceDocumentEditor: React.FC = () => {
                     labelId='editor-proficiencies-language' />
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-modifiers'/>} open>
-                <LinkListComponent field='modifiers' allowedTypes={[DocumentType.Modifier]} labelId='editor-modifiers'/>
+                <LinkListComponent field='modifiers' labelId='editor-modifiers' allowedTypes={AllowedTypes} fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-abilities'/>} open>
                 <LinkListComponent

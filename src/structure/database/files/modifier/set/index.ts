@@ -1,13 +1,13 @@
-import type ModifierDocument from '..'
-import ModifierDataBase from '../data'
 import { ModifierType } from '../common'
-import type Modifier from '../modifier'
+import ModifierDataBase from '../data'
 import type { DataPropertyMap } from 'types/database'
 import type { IModifierSetDataBase } from 'types/database/files/modifier'
 
 export enum ModifierSetType {
     SpellAttribute = 'spellAttribute',
+    ArmorClassBase = 'acBase',
     Size = 'size',
+    Speed = 'speed',
     Sense = 'sense',
     SaveProficiency = 'saveProficiency',
     SkillProficiency = 'skillProficiency',
@@ -20,10 +20,6 @@ export enum ModifierSetType {
 abstract class ModifierSetDataBase extends ModifierDataBase implements IModifierSetDataBase {
     public readonly type = ModifierType.Set
     public abstract readonly subtype: ModifierSetType
-
-    public apply(data: Modifier, self: ModifierDocument): void {
-        data.subscribe(self)
-    }
 
     public static properties: Omit<DataPropertyMap<IModifierSetDataBase, ModifierSetDataBase>, 'subtype'> = {
         ...ModifierDataBase.properties,

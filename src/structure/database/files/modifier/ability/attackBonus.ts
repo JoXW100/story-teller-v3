@@ -1,5 +1,5 @@
-import ModifierAbilityDataBase, { ModifierAbilityType } from '.'
 import type ModifierDocument from '..'
+import ModifierAbilityDataBase, { ModifierAbilityType } from '.'
 import type Modifier from '../modifier'
 import { asNumber, isNumber } from 'utils'
 import type { Simplify } from 'types'
@@ -28,8 +28,15 @@ class ModifierAbilityAttackBonusData extends ModifierAbilityDataBase implements 
         }
     }
 
-    public apply(data: Modifier, self: ModifierDocument): void {
-        throw new Error('Method not implemented.')
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+        modifier.abilityAttackBonus.subscribe({
+            key: key,
+            target: self,
+            data: this,
+            apply: function (value): number {
+                return (this.data as ModifierAbilityAttackBonusData).value + value
+            }
+        })
     }
 }
 

@@ -138,7 +138,7 @@ const AppContext: React.FC<React.PropsWithChildren> = ({ children }) => {
 
     const memoisedDispatch = useMemo<AppContextDispatch>(() => ({
         setLanguage(language) { dispatch({ type: 'setLanguage', data: language }) },
-        setOption(field, value) { dispatch({ type: 'setOption', data: { field: field, value: value, deps: [] } }) }
+        setOption(field, value) { dispatch({ type: 'setOption', data: { field: field, value: value } }) }
     }), [dispatch])
 
     return (

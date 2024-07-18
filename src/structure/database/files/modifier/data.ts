@@ -1,16 +1,17 @@
-import { isString } from 'utils'
 import type ModifierDocument from '.'
-import type Modifier from './modifier'
 import type { ModifierType } from './common'
+import type Modifier from './modifier'
+import { isString } from 'utils'
 import type Condition from 'structure/database/condition'
-import ConditionFactory from 'structure/database/condition/factory'
+import ConditionFactory, { simplifyCondition } from 'structure/database/condition/factory'
 import EmptyToken from 'structure/language/tokens/empty'
 import type { Simplify } from 'types'
 import type { TokenContext } from 'types/language'
 import type { DataPropertyMap } from 'types/database'
-import type { IEditorChoiceData, IModifierDataBase } from 'types/database/files/modifier'
+import type { IModifierDataBase } from 'types/database/files/modifier'
 import type { IConditionProperties } from 'types/database/condition'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
+import StoryScript from 'structure/language/storyscript'
 
 abstract class ModifierDataBase implements IModifierDataBase {
     public abstract readonly type: ModifierType
@@ -39,7 +40,7 @@ abstract class ModifierDataBase implements IModifierDataBase {
         condition: {
             get value() { return ConditionFactory.create() },
             validate: ConditionFactory.validate,
-            simplify: ConditionFactory.simplify
+            simplify: simplifyCondition
         }
     }
 
@@ -51,6 +52,11 @@ abstract class ModifierDataBase implements IModifierDataBase {
         return [descriptionContext]
     }
 
+    public static tokenizeDescription(self: ModifierDataBase, elements: ElementDefinitions): React.ReactNode {
+        const [description] = self.createContexts(elements)
+        return StoryScript.tokenize(elements, self.description, description).root.build()
+    }
+
     public checkCondition(data: Partial<IConditionProperties>): boolean {
         return this.condition === null || this.condition.evaluate(data)
     }
@@ -60,11 +66,7 @@ abstract class ModifierDataBase implements IModifierDataBase {
         return stringifiedObject
     }
 
-    public getEditorChoiceData(): IEditorChoiceData | null {
-        return null
-    }
-
-    public abstract apply(data: Modifier, self: ModifierDocument): void
+    public abstract apply(modifier: Modifier, self: ModifierDocument, key: string): void
 }
 
 export default ModifierDataBase

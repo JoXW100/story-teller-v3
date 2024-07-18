@@ -7,35 +7,50 @@ import { Context } from 'components/contexts/file'
 import LocalizedText from 'components/localizedText'
 import Elements, { ElementDictionary } from 'components/elements'
 import { asBooleanString, isDefined, keysOf } from 'utils'
+import { getSpellLevelFromValue, getSpellLevelValue } from 'utils/calculations'
 import { useLocalizedText } from 'utils/hooks/localizedText'
 import SpellDataBase from 'structure/database/files/spell/data'
 import SpellDataFactory, { type SpellData } from 'structure/database/files/spell/factory'
 import { EffectConditionType } from 'structure/database/effectCondition'
-import { EmptyCreatureStats } from 'structure/database'
+import { EmptyBonusGroup, EmptyCreatureStats } from 'structure/database'
 import { RollMethodType, RollType } from 'structure/dice'
+import { SpellLevel, TargetType } from 'structure/dnd'
 import StoryScript from 'structure/language/storyscript'
 import type { ObjectId } from 'types'
-import type { ICreatureStats } from 'types/editor'
+import type { IBonusGroup, ICreatureStats } from 'types/editor'
 import type { ISpellData } from 'types/database/files/spell'
 import type { IConditionProperties } from 'types/database/condition'
 import styles from '../styles.module.scss'
-import { getSpellLevelFromValue, getSpellLevelValue } from 'utils/calculations'
-import { SpellLevel } from 'structure/dnd'
 
 type SpellRendererProps = React.PropsWithRef<{
     id: ObjectId
     data: SpellData
     stats?: ICreatureStats
+    attackBonuses?: IBonusGroup
+    damageBonuses?: IBonusGroup
 }>
 
 type SpellToggleRendererProps = React.PropsWithRef<{
     id: ObjectId
     data: ISpellData
     stats?: ICreatureStats
+    attackBonuses?: IBonusGroup
+    damageBonuses?: IBonusGroup
     startCollapsed?: boolean
 }>
 
-const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCreatureStats }) => {
+function getBonus(type: TargetType, bonuses: IBonusGroup): number {
+    switch (type) {
+        case TargetType.Area:
+            return bonuses.bonus + bonuses.areaBonus
+        case TargetType.Single:
+            return bonuses.bonus + bonuses.singleBonus
+        default:
+            return 0
+    }
+}
+
+const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCreatureStats, attackBonuses = EmptyBonusGroup, damageBonuses = EmptyBonusGroup }) => {
     const [context] = useContext(Context)
     const [upcastLevel, setUpcastLevel] = useState(data.level)
     const targetIconTooltips = useLocalizedText(data.targetIcon !== null ? `icon-${data.targetIcon}` : null) ?? null
@@ -67,6 +82,7 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCr
 
     const properties: IConditionProperties = {
         ...stats,
+        classLevel: 0,
         spellLevel: getSpellLevelValue(upcastLevel)
     }
 
@@ -122,7 +138,7 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCr
                     }
                 </div>
                 <div className={styles.iconRow}>
-                    { data.timeText }
+                    { data.timeValueText }
                     { data.ritual &&
                         <Elements.icon icon='ritual' tooltips={ritualIconTooltips}/>
                     }
@@ -158,7 +174,7 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCr
                         <Elements.b>HIT/DC </Elements.b>
                         { data.condition.type === EffectConditionType.Hit &&
                             <Elements.roll
-                                dice={String(data.condition.getModifierValue(stats))}
+                                dice={String(data.condition.getModifierValue(stats) + getBonus(data.target, attackBonuses))}
                                 desc={`${data.name} Attack`}
                                 details={null}
                                 tooltips={`Roll ${data.name} Attack`}
@@ -178,6 +194,7 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCr
                         key={key}
                         data={data.effects[key]}
                         stats={stats}
+                        bonuses={damageBonuses}
                         desc={`${data.name} ${data.effects[key].label}`}
                         tooltipsId='render-effect-rollTooltips'
                         tooltipsArgs={[data.name, data.effects[key].label]}/>

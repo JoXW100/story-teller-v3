@@ -31,6 +31,7 @@
 .headerButton {
     @include centerFlex;
     height: 100%;
+    padding-right: 5px;
 
     @include mobile {
         aspect-ratio: 1 / 1;

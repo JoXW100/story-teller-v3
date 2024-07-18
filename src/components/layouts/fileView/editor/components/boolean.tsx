@@ -1,8 +1,8 @@
 import React, { useContext } from 'react'
-import { Context, getRelativeFieldObject } from 'components/contexts/file'
+import { Context } from 'components/contexts/file'
 import Checkbox from 'components/layouts/checkbox'
 import GroupItemComponent from './groupItem'
-import { isRecord } from 'utils'
+import { getRelativeFieldObject, isRecord } from 'utils'
 import Logger from 'utils/logger'
 import type { LanguageKey } from 'data'
 import styles from '../style.module.scss'
@@ -11,10 +11,9 @@ type BooleanComponentParams = React.PropsWithoutRef<{
     field: string
     labelId: LanguageKey
     labelArgs?: any[]
-    deps?: string[]
 }>
 
-const BooleanComponent: React.FC<BooleanComponentParams> = ({ field, labelId, labelArgs, deps = [] }) => {
+const BooleanComponent: React.FC<BooleanComponentParams> = ({ field, labelId, labelArgs }) => {
     const [context, dispatch] = useContext(Context)
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.BooleanComponent', 'Data of incorrect type', context.file.data)
@@ -34,7 +33,7 @@ const BooleanComponent: React.FC<BooleanComponentParams> = ({ field, labelId, la
     }
 
     const handleInput = (value: boolean): void => {
-        dispatch.setData(field, value, deps)
+        dispatch.setData(field, value)
     }
 
     return (

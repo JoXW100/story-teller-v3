@@ -1,9 +1,9 @@
 import React, { useContext } from 'react'
 import DropdownMenu from 'components/layouts/dropdownMenu'
-import { Context, getRelativeFieldObject } from 'components/contexts/file'
+import { Context } from 'components/contexts/file'
 import { type OptionTypeKey, getOptionType } from 'structure/optionData'
 import GroupItemComponent from './groupItem'
-import { isEnum, isRecord } from 'utils'
+import { isEnum, isRecord, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
 import type { LanguageKey } from 'data'
 import styles from '../style.module.scss'
@@ -13,10 +13,9 @@ type EnumComponentParams = React.PropsWithoutRef<{
     type: OptionTypeKey
     labelId: LanguageKey
     labelArgs?: any[]
-    deps?: string[]
 }>
 
-const EnumComponent: React.FC<EnumComponentParams> = ({ field, type, labelId, labelArgs, deps = [] }) => {
+const EnumComponent: React.FC<EnumComponentParams> = ({ field, type, labelId, labelArgs }) => {
     const [context, dispatch] = useContext(Context)
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.NumberComponent', 'Data of incorrect type', context.file.data)
@@ -42,7 +41,7 @@ const EnumComponent: React.FC<EnumComponentParams> = ({ field, type, labelId, la
     }
 
     const handleInput = (x: typeof value): void => {
-        dispatch.setData(field, x, deps)
+        dispatch.setData(field, x)
     }
 
     return (

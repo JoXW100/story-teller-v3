@@ -1,9 +1,9 @@
 import { AdvantageBinding, Attribute, type OptionalAttribute, ProficiencyLevel, ScalingType, Skill, SpellLevel, type ClassLevel } from 'structure/dnd'
 import type { ICreatureStats } from 'types/editor'
-import { asEnum } from 'utils'
+import { asEnum, asNumber } from 'utils'
 
-export function getAttributeModifier(stats: ICreatureStats, attr: Attribute): number {
-    return Math.ceil((stats[attr] - 11) / 2.0)
+export function getAttributeModifier(stats: Partial<ICreatureStats>, attr: Attribute): number {
+    return Math.ceil((asNumber(stats[attr], 10) - 11) / 2.0)
 }
 
 export function getScalingValue(scaling: ScalingType | OptionalAttribute, stats: ICreatureStats): number {

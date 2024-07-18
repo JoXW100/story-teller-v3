@@ -5,7 +5,7 @@ import type { DataPropertyMap } from 'types/database'
 import type { IAbilityFeatureData } from 'types/database/files/ability'
 
 class AbilityFeatureData extends AbilityDataBase implements IAbilityFeatureData {
-    public readonly type: AbilityType.Feature
+    public readonly type: AbilityType.Feature | AbilityType.Feat | AbilityType.FightingStyle
 
     public constructor(data: Simplify<IAbilityFeatureData>) {
         super(data)
@@ -16,7 +16,7 @@ class AbilityFeatureData extends AbilityDataBase implements IAbilityFeatureData 
         ...AbilityDataBase.properties,
         type: {
             value: AbilityType.Feature,
-            validate: (value) => value === AbilityType.Feature,
+            validate: (value) => value === AbilityType.Feature || value === AbilityType.Feat || value === AbilityType.FightingStyle,
             simplify: (value) => value
         }
     }

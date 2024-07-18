@@ -1,9 +1,10 @@
 import CreatureStorage from '../creature/storage'
-import { isEnum, isNumber, isObjectId, isRecord, keysOf } from 'utils'
+import { InventoryItemDataFactory } from './factory'
+import { isEnum, isNumber, isObjectId, isRecord, isString, keysOf } from 'utils'
 import { SpellLevel, SpellPreparationType } from 'structure/dnd'
 import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { ICharacterStorage } from 'types/database/files/character'
+import type { ICharacterStorage, IInventoryItemData } from 'types/database/files/character'
 
 function simplifySpell(value: Record<ObjectId, Record<ObjectId, SpellPreparationType>>): Record<ObjectId, Record<ObjectId, SpellPreparationType>> | null {
     const result: Record<ObjectId, Record<ObjectId, SpellPreparationType>> = {}
@@ -22,12 +23,35 @@ function simplifySpell(value: Record<ObjectId, Record<ObjectId, SpellPreparation
     return hasValue ? result : null
 }
 
+function simplifyInventoryItemDataRecord(value: Record<ObjectId, IInventoryItemData>): Simplify<Record<ObjectId, IInventoryItemData>> | null {
+    const result: Simplify<Record<ObjectId, IInventoryItemData>> = {}
+    let flag = false
+    for (const id of keysOf(value)) {
+        flag = true
+        result[id] = InventoryItemDataFactory.simplify(value[id])
+    }
+    return flag ? result : null
+}
+
 class CharacterStorage extends CreatureStorage implements ICharacterStorage {
+    public readonly subclasses: Record<ObjectId, ObjectId>
     public readonly spellPreparations: Record<ObjectId, Record<ObjectId, SpellPreparationType>>
     public readonly preparationsExpendedSlots: Record<ObjectId, Partial<Record<SpellLevel, number>>>
+    public readonly inventory: Record<ObjectId, IInventoryItemData>
+    public readonly attunement: ObjectId[]
+    public readonly inventoryText: string
 
     public constructor(storage: Simplify<ICharacterStorage>) {
         super(storage)
+        this.subclasses = CharacterStorage.properties.subclasses.value
+        if (storage.subclasses !== undefined) {
+            for (const id of keysOf(storage.subclasses)) {
+                const subclassId = storage.subclasses[id]
+                if (isObjectId(subclassId)) {
+                    this.subclasses[id] = subclassId
+                }
+            }
+        }
         this.spellPreparations = CharacterStorage.properties.spellPreparations.value
         if (storage.spellPreparations !== undefined) {
             for (const id of keysOf(storage.spellPreparations)) {
@@ -58,10 +82,32 @@ class CharacterStorage extends CreatureStorage implements ICharacterStorage {
                 }
             }
         }
+        this.inventory = CharacterStorage.properties.inventory.value
+        if (storage.inventory !== undefined) {
+            for (const id of keysOf(storage.inventory)) {
+                const data = storage.inventory[id]
+                if (data !== undefined) {
+                    this.inventory[id] = InventoryItemDataFactory.create(data)
+                }
+            }
+        }
+        this.attunement = CharacterStorage.properties.attunement.value
+        if (storage.attunement !== undefined) {
+            for (const id of storage.attunement) {
+                if (isObjectId(id)) {
+                    this.attunement.push(id)
+                }
+            }
+        }
+        this.inventoryText = storage.inventoryText ?? CharacterStorage.properties.inventoryText.value
     }
 
     public static properties: DataPropertyMap<ICharacterStorage, CharacterStorage> = {
         ...CreatureStorage.properties,
+        subclasses: {
+            get value() { return {} },
+            validate: (value) => isRecord(value, (key, val) => isObjectId(key) && isObjectId(val))
+        },
         spellPreparations: {
             get value() { return {} },
             validate: (value) => isRecord(value, (classId, classPreparations) =>
@@ -74,6 +120,20 @@ class CharacterStorage extends CreatureStorage implements ICharacterStorage {
             validate: (value) => isRecord(value, (classId, expendedSlots) =>
                 isObjectId(classId) && isRecord(expendedSlots, (level, count) =>
                     isEnum(level, SpellLevel) && isNumber(count)))
+        },
+        inventory: {
+            get value() { return {} },
+            validate: (value) => isRecord(value, (id, data) => isObjectId(id) && InventoryItemDataFactory.validate(data)),
+            simplify: simplifyInventoryItemDataRecord
+        },
+        attunement: {
+            get value() { return [] },
+            validate: (value) => Array.isArray(value) && value.every(isObjectId),
+            simplify: (value) => value.length > 0 ? value : null
+        },
+        inventoryText: {
+            value: '',
+            validate: isString
         }
     }
 }

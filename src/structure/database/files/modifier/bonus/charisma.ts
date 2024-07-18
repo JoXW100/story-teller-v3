@@ -28,11 +28,13 @@ class ModifierBonusCharismaData extends ModifierBonusDataBase implements IModifi
         }
     }
 
-    public apply(data: Modifier, self: ModifierDocument): void {
-        data.cha.subscribe({
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+        modifier.cha.subscribe({
+            key: key,
             target: self,
+            data: this,
             apply: function (value): number {
-                return value + (self.data as ModifierBonusCharismaData).value
+                return value + (this.data as ModifierBonusCharismaData).value
             }
         })
     }

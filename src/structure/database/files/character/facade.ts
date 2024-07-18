@@ -2,27 +2,68 @@ import type CharacterData from './data'
 import type CharacterStorage from './storage'
 import type RaceData from '../race/data'
 import type ClassData from '../class/data'
+import type SubclassData from '../subclass/data'
 import type Modifier from '../modifier/modifier'
+import type { ItemData } from '../item/factory'
 import CreatureFacade from '../creature/facade'
-import { keysOf } from 'utils'
-import { getMaxProficiencyLevel, getPreviousClassLevels } from 'utils/calculations'
-import { type ClassLevel, type CreatureType, type Language, type MovementType, type ProficiencyLevelBasic, type Sense, type SizeType, SpellLevel, type Attribute, type ProficiencyLevel, type ToolType, type ArmorType, type WeaponType } from 'structure/dnd'
+import { LevelModifyType } from '../class/levelData'
+import type ClassLevelData from '../class/levelData'
+import { ModifierSourceType } from '../modifier/modifier'
+import ItemArmorData from '../item/armor'
+import { isKeyOf, keysOf } from 'utils'
+import { getMaxProficiencyLevel, getMaxSpellLevel, getPreviousClassLevels } from 'utils/calculations'
+import { type ClassLevel, type CreatureType, type Language, type MovementType, type Sense, type SizeType, ArmorType, SpellLevel, type Attribute, type ProficiencyLevel, type ToolType, type WeaponTypeValue, OptionalAttribute, AdvantageBinding, ProficiencyLevelBasic } from 'structure/dnd'
 import type { ObjectId } from 'types'
 import type { ICharacterData } from 'types/database/files/character'
 import type { IConditionProperties } from 'types/database/condition'
+import type { ISourceBinding } from 'types/database/files/creature'
 
 class CharacterFacade extends CreatureFacade implements ICharacterData {
     public override readonly data: CharacterData
     public override readonly storage: CharacterStorage
     public readonly raceData: RaceData | null
     public readonly classesData: Record<ObjectId, ClassData>
+    public readonly subclassesData: Record<ObjectId, SubclassData>
+    public readonly itemsData: Record<ObjectId, ItemData>
 
-    constructor(data: CharacterData, storage: CharacterStorage, modifier: Modifier, raceData: RaceData | null = null, classesData: Record<ObjectId, ClassData> = {}, properties: Partial<IConditionProperties> = {}) {
+    constructor(data: CharacterData, storage: CharacterStorage, modifier: Modifier, raceData: RaceData | null = null, classesData: Record<ObjectId, ClassData> = {}, subclassesData: Record<ObjectId, SubclassData> = {}, itemsData: Record<ObjectId, ItemData> = {}, properties: Partial<IConditionProperties> = {}) {
         super(data, storage, modifier, properties)
         this.data = data
         this.storage = storage
         this.raceData = raceData
         this.classesData = classesData
+        this.subclassesData = subclassesData
+        this.itemsData = itemsData
+
+        let bonus = 0
+        for (const key of keysOf(this.storage.inventory)) {
+            const data = this.storage.inventory[key]
+            if (!data.equipped) {
+                continue
+            }
+            const item = this.itemsData[key]
+            if (item instanceof ItemArmorData) {
+                switch (item.subtype) {
+                    case ArmorType.Light:
+                        this.armorLevel = 1
+                        this.armorAC = item.ac
+                        break
+                    case ArmorType.Medium:
+                        this.armorLevel = 2
+                        this.armorAC = item.ac
+                        break
+                    case ArmorType.Heavy:
+                        this.armorLevel = 3
+                        this.armorAC = item.ac
+                        break
+                    case ArmorType.Shield:
+                        this.shieldLevel = 1
+                        bonus += item.ac
+                        break
+                }
+            }
+        }
+        this.armorAC += bonus
     }
 
     public get hasClass(): boolean {
@@ -69,14 +110,6 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
         }
     }
 
-    public override get proficienciesLanguage(): Partial<Record<Language, ProficiencyLevelBasic>> {
-        if (this.raceData === null) {
-            return this.modifier.proficienciesLanguage.call(this.data.proficienciesLanguage, this.properties, this.storage.choices)
-        } else {
-            return this.modifier.proficienciesLanguage.call({ ...this.raceData.languages, ...this.data.proficienciesLanguage }, this.properties, this.storage.choices)
-        }
-    }
-
     public get gender(): string {
         return this.data.gender
     }
@@ -112,6 +145,32 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
     public get namePlateText(): string {
         const className = keysOf(this.classesData).map((key) => `${this.classesData[key].name} (${this.classes[key] ?? 0})`).join(', ')
         return `${this.gender} ${this.raceText} ${className}`
+    }
+
+    public override get proficienciesLanguage(): Partial<Record<Language, ProficiencyLevelBasic>> {
+        if (this.raceData === null) {
+            return this.modifier.proficienciesLanguage.call({ ...this.data.proficienciesLanguage }, this.properties, this.storage.choices)
+        } else {
+            return this.modifier.proficienciesLanguage.call({ ...this.raceData.languages, ...this.data.proficienciesLanguage }, this.properties, this.storage.choices)
+        }
+    }
+
+    public get isNotProficientInEquippedArmor(): boolean {
+        return (this.armorLevel === 1 && this.proficienciesArmor[ArmorType.Light] !== ProficiencyLevelBasic.Proficient) ||
+        (this.armorLevel === 2 && this.proficienciesArmor[ArmorType.Medium] !== ProficiencyLevelBasic.Proficient) ||
+        (this.armorLevel === 3 && this.proficienciesArmor[ArmorType.Heavy] !== ProficiencyLevelBasic.Proficient) ||
+        (this.shieldLevel > 0 && this.proficienciesArmor[ArmorType.Shield] !== ProficiencyLevelBasic.Proficient)
+    }
+
+    public override get disadvantages(): Partial<Record<AdvantageBinding, readonly ISourceBinding[]>> {
+        const value = { ...this.data.disadvantages }
+        if (this.isNotProficientInEquippedArmor) {
+            const source = { source: null, description: 'Not proficient in Equipped Armor' }
+            value[AdvantageBinding.Checks] = [...(value[AdvantageBinding.Checks] ?? []), source]
+            value[AdvantageBinding.Saves] = [...(value[AdvantageBinding.Saves] ?? []), source]
+            value[AdvantageBinding.Attack] = [...(value[AdvantageBinding.Attack] ?? []), source]
+        }
+        return this.modifier.disadvantages.call(value, this.properties, this.storage.choices)
     }
 
     public override get proficienciesSave(): Partial<Record<Attribute, ProficiencyLevel>> {
@@ -153,7 +212,7 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
         return this.modifier.proficienciesArmor.call(proficiencies, this.properties, this.storage.choices)
     }
 
-    public override get proficienciesWeapon(): Partial<Record<WeaponType, ProficiencyLevelBasic>> {
+    public override get proficienciesWeapon(): Partial<Record<WeaponTypeValue, ProficiencyLevelBasic>> {
         const proficiencies = { ...this.data.proficienciesWeapon }
         for (const id of keysOf(this.data.classes)) {
             if (id in this.classesData) {
@@ -175,18 +234,119 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
     }
 
     public override get abilities(): Array<ObjectId | string> {
-        let abilities: Array<ObjectId | string> = this.data.abilities
+        const abilities: Array<ObjectId | string> = [...this.data.abilities]
         if (this.raceData !== null) {
-            abilities = [...this.raceData.abilities, ...abilities]
+            for (const ability of this.raceData.abilities) {
+                abilities.push(ability)
+            }
         }
         for (const id of keysOf(this.data.classes)) {
             const classLevel = this.data.classes[id]
             const classData = this.classesData[id]
             for (const level of getPreviousClassLevels(classLevel)) {
-                abilities = [...abilities, ...classData.levels[level].abilities]
+                for (const ability of classData.levels[level].abilities) {
+                    abilities.push(ability)
+                }
+            }
+        }
+        for (const id of keysOf(this.storage.subclasses)) {
+            const subclassData = this.subclassesData[id]
+            const subclassLevel = this.data.classes[subclassData.parentClass!]
+            for (const level of getPreviousClassLevels(subclassLevel)) {
+                for (const ability of subclassData.levels[level].abilities) {
+                    abilities.push(ability)
+                }
             }
         }
         return this.modifier.abilities.call(abilities, this.properties, this.storage.choices)
+    }
+
+    public getClassSpellAttribute(classId: ObjectId): OptionalAttribute {
+        if (this.isNotProficientInEquippedArmor) {
+            return OptionalAttribute.None
+        }
+        let result: OptionalAttribute = OptionalAttribute.None
+        for (const levelData of this.getClassLevelData(classId)) {
+            if (levelData.spellAttribute !== OptionalAttribute.None) {
+                result = levelData.spellAttribute
+            }
+        }
+        return result
+    }
+
+    public getClassSpellSlots(classId: ObjectId): Partial<Record<SpellLevel, number>> {
+        let result: Partial<Record<SpellLevel, number>> = {}
+        for (const levelData of this.getClassLevelData(classId)) {
+            switch (levelData.type) {
+                case LevelModifyType.Add: {
+                    for (const spellLevel of keysOf(levelData.spellSlots)) {
+                        result[spellLevel] = (result[spellLevel] ?? 0) + (levelData.spellSlots[spellLevel] ?? 0)
+                    }
+                    break
+                }
+                case LevelModifyType.Replace: {
+                    result = { ...levelData.spellSlots }
+                    break
+                }
+            }
+        }
+        return result
+    }
+
+    public getClassSpellSlotInfo(classId: ObjectId): [number, number, Partial<Record<SpellLevel, number>>, SpellLevel] {
+        let learnedSlots = 0
+        let preparationSlots = 0
+        let spellSlots: Partial<Record<SpellLevel, number>> = {}
+        for (const levelData of this.getClassLevelData(classId)) {
+            switch (levelData.type) {
+                case LevelModifyType.Add:
+                    learnedSlots += levelData.learnedSlots
+                    preparationSlots += levelData.preparationSlots
+                    for (const spellLevel of keysOf(levelData.spellSlots)) {
+                        spellSlots[spellLevel] = (spellSlots[spellLevel] ?? 0) + (levelData.spellSlots[spellLevel] ?? 0)
+                    }
+                    break
+                case LevelModifyType.Replace:
+                    learnedSlots = levelData.learnedSlots
+                    preparationSlots = levelData.preparationSlots
+                    spellSlots = { ...levelData.spellSlots }
+                    break
+            }
+        }
+        if (classId in this.classesData) {
+            const classData = this.classesData[classId]
+            learnedSlots += this.getAttributeModifier(classData.learnedSlotsScaling)
+            preparationSlots += this.getAttributeModifier(classData.preparationSlotsScaling)
+        }
+        return [learnedSlots, preparationSlots, spellSlots, getMaxSpellLevel(...keysOf(spellSlots))]
+    }
+
+    public override getAbilityClassLevel(key: string): number {
+        const source = this.findSourceOfType(key, ModifierSourceType.Class)
+        if (source !== null && isKeyOf(source.key, this.data.classes)) {
+            return Number(this.data.classes[source.key])
+        }
+        return 0
+    }
+
+    protected getClassLevelData(classId: ObjectId): ClassLevelData[] {
+        if (!(classId in this.classesData)) {
+            return []
+        }
+        const classLevel = this.classes[classId]
+        const classData = this.classesData[classId]
+        const levels = getPreviousClassLevels(classLevel)
+        const subclassData = classId in this.storage.subclasses && Number(classLevel) >= Number(classData.subclassLevel)
+            ? this.subclassesData[this.storage.subclasses[classId]] ?? null
+            : null
+        const result: ClassLevelData[] = []
+        for (const level of levels) {
+            result.push(classData.levels[level])
+            if (subclassData !== null) {
+                result.push(subclassData.levels[level])
+            }
+        }
+        return result
     }
 }
 

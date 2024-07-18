@@ -1,13 +1,14 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createDefaultChoiceData, createSingleChoiceData, simplifySingleChoiceData, validateChoiceData } from '../common'
+import { createDefaultChoiceData, createSingleChoiceData, simplifySingleChoiceData, validateChoiceData } from '../../../choice'
 import { asEnum, isEnum, isNumber, isString } from 'utils'
 import { AdvantageBinding } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { SingleChoiceData, IModifierAddAdvantageData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { IModifierAddAdvantageData } from 'types/database/files/modifier'
 import type { ISourceBinding } from 'types/database/files/creature'
+import type { SingleChoiceData } from 'types/database/choice'
 
 class ModifierAddAdvantageData extends ModifierAddDataBase implements IModifierAddAdvantageData {
     public override readonly subtype = ModifierAddType.Advantage
@@ -38,21 +39,24 @@ class ModifierAddAdvantageData extends ModifierAddDataBase implements IModifierA
         }
     }
 
-    public override getEditorChoiceData(): IEditorChoiceData | null {
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
         if (this.binding.isChoice) {
-            return { type: 'enum', value: this.binding.value, enum: 'advantageBinding' }
+            modifier.addChoice({
+                source: this,
+                type: 'enum',
+                value: this.binding.value,
+                enum: 'advantageBinding'
+            }, key)
         }
-        return null
-    }
-
-    public override apply(data: Modifier, self: ModifierDocument): void {
-        data.advantages.subscribe({
+        modifier.advantages.subscribe({
+            key: key,
             target: self,
+            data: this,
             apply: function (value, choices): Partial<Record<AdvantageBinding, readonly ISourceBinding[]>> {
-                const modifier = self.data as ModifierAddAdvantageData
+                const modifier = this.data as ModifierAddAdvantageData
                 let choice: AdvantageBinding | null
                 if (modifier.binding.isChoice) {
-                    const index: unknown = choices[self.id]
+                    const index: unknown = choices[key]
                     if (!isNumber(index)) {
                         return value
                     }

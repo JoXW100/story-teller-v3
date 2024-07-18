@@ -1,12 +1,12 @@
 import { useContext, useState } from 'react'
 import { Context } from 'components/contexts/file'
 import Elements from 'components/elements'
+import LocalizedText from 'components/localizedText'
 import { asNumber } from 'utils'
 import Beyond20 from 'utils/beyond20'
 import type CreatureFacade from 'structure/database/files/creature/facade'
 import { RollMethodType, RollType } from 'structure/dice'
 import styles from '../styles.module.scss'
-import LocalizedText from 'components/localizedText'
 
 type HealthBoxProps = React.PropsWithRef<{
     data: CreatureFacade

@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react'
+import { useContext } from 'react'
 import TextEditor from 'components/textEditor'
 import { Context } from 'components/contexts/file'
 import LocalizedText from 'components/localizedText'
@@ -10,164 +10,210 @@ import ChoiceComponent from './components/choice'
 import ConditionComponent from './components/condition'
 import { ElementDictionary } from 'components/elements'
 import EditItemRecordComponent from './components/editItemRecord'
+import SelectionInputComponent from './components/selectionInput'
 import LinkComponent from './components/link'
+import NavigationComponent from './components/navigation'
+import { createField, getRelativeFieldObject } from 'utils'
 import { DocumentType } from 'structure/database'
-import ModifierDocument from 'structure/database/files/modifier'
 import { ModifierType } from 'structure/database/files/modifier/common'
 import { ModifierAddType } from 'structure/database/files/modifier/add'
 import { ModifierAbilityType } from 'structure/database/files/modifier/ability'
 import { ModifierSetType } from 'structure/database/files/modifier/set'
-import ConditionFactory from 'structure/database/condition/factory'
+import { ModifierBonusType } from 'structure/database/files/modifier/bonus'
 import { ModifierVariableType } from 'structure/database/files/modifier/variable'
-import type { IInnerModifierData } from 'types/database/files/modifier'
+import ModifierDataBase from 'structure/database/files/modifier/data'
+import type { ModifierData } from 'structure/database/files/modifier/factory'
+import ModifierDataFactory from 'structure/database/files/modifier/factory'
 import styles from './style.module.scss'
+
+function isModifierData(data: unknown): data is ModifierData {
+    return data instanceof ModifierDataBase
+}
 
 const AllowedTypes = [DocumentType.Modifier] as const
 const ModifierDocumentEditor: React.FC = () => {
     const [context, dispatch] = useContext(Context)
-    const defaultInnerModifierValue = useMemo<IInnerModifierData>(() => {
-        return { condition: ConditionFactory.create(), modifiers: [] } satisfies IInnerModifierData
-    }, [])
+    const page = context.editorPages[context.editorPages.length - 1]
+    const field = page?.root
+    let data
+    if (field === 'data') {
+        data = context.file.data
+    } else {
+        const relative = getRelativeFieldObject(field, context.file.data)
+        data = relative?.relative[relative.key]
+    }
 
-    if (!(context.file instanceof ModifierDocument)) {
+    if (!isModifierData(data)) {
         return null
     }
 
-    const [descriptionContext] = context.file.data.createContexts(ElementDictionary)
+    const [descriptionContext] = data.createContexts(ElementDictionary)
 
     return (
         <div className={styles.main}>
+            { field !== 'data' &&
+                <NavigationComponent/>
+            }
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
-                <TextComponent field='name' labelId='editor-name'/>
-                <EnumComponent field='type' type='modifierType' labelId='editor-type'/>
-                { context.file.data.type === ModifierType.Ability &&
+                <TextComponent field={createField(field, 'name')} labelId='editor-name' />
+                <EnumComponent field={createField(field, 'type')} type='modifierType' labelId='editor-type' />
+                { data.type === ModifierType.Ability &&
                     <>
-                        <EnumComponent field='subtype' type='modifierAbilityType' labelId='editor-subtype' deps={['type']}/>
-                        { context.file.data.subtype === ModifierAbilityType.AttackBonus &&
-                            <NumberComponent field='value' labelId='editor-value' deps={['type', 'subtype']} allowNegative/>
+                        <EnumComponent field={createField(field, 'subtype')} type='modifierAbilityType' labelId='editor-subtype'/>
+                        { (data.subtype === ModifierAbilityType.AttackBonus || data.subtype === ModifierAbilityType.MeleeWeaponAttackBonus || data.subtype === ModifierAbilityType.RangedWeaponAttackBonus || data.subtype === ModifierAbilityType.ThrownWeaponAttackBonus) &&
+                            <NumberComponent field={createField(field, 'value')} labelId='editor-value' allowNegative/>
                         }
                     </>
                 }
-                { context.file.data.type === ModifierType.Add &&
+                { data.type === ModifierType.Add &&
                     <>
-                        <EnumComponent field='subtype' type='modifierAddType' labelId='editor-subtype' deps={['type']}/>
-                        { context.file.data.subtype === ModifierAddType.Ability &&
-                            <ChoiceComponent field='value' type='abilityObjectId' deps={['type', 'subtype']} allowMultipleChoices/>
+                        <EnumComponent field={createField(field, 'subtype')} type='modifierAddType' labelId='editor-subtype'/>
+                        { data.subtype === ModifierAddType.Ability &&
+                            <ChoiceComponent field={createField(field, 'value')} type='abilityObjectId' allowMultipleChoices fill/>
                         }
-                        { context.file.data.subtype === ModifierAddType.Spell &&
-                            <ChoiceComponent field='value' type='spellObjectId' deps={['type', 'subtype']} allowMultipleChoices/>
+                        { data.subtype === ModifierAddType.Spell &&
+                            <ChoiceComponent field={createField(field, 'value')} type='spellObjectId' allowMultipleChoices fill/>
                         }
-                        { (context.file.data.subtype === ModifierAddType.Advantage || context.file.data.subtype === ModifierAddType.Disadvantage) &&
+                        { data.subtype === ModifierAddType.Linked &&
                             <>
-                                <ChoiceComponent field='binding' type='advantageBinding' deps={['type', 'subtype']}/>
-                                <TextComponent field='notes' labelId='editor-notes'/>
+                                <EnumComponent field={createField(field, 'category')} type='linkedCategory' labelId='editor-category'/>
+                                <NumberComponent field={createField(field, 'numChoices')} labelId='editor-numChoices'/>
                             </>
                         }
-                        { (context.file.data.subtype === ModifierAddType.Resistance || context.file.data.subtype === ModifierAddType.Vulnerability || context.file.data.subtype === ModifierAddType.DamageImmunity) &&
+                        { (data.subtype === ModifierAddType.Advantage || data.subtype === ModifierAddType.Disadvantage) &&
                             <>
-                                <ChoiceComponent field='binding' type='damageBinding' deps={['type', 'subtype']}/>
-                                <TextComponent field='notes' labelId='editor-notes'/>
+                                <ChoiceComponent field={createField(field, 'binding')} type='advantageBinding' fill/>
+                                <TextComponent field={createField(field, 'notes')} labelId='editor-notes'/>
                             </>
                         }
-                        { context.file.data.subtype === ModifierAddType.ConditionImmunity &&
+                        { (data.subtype === ModifierAddType.Resistance || data.subtype === ModifierAddType.Vulnerability || data.subtype === ModifierAddType.DamageImmunity) &&
                             <>
-                                <ChoiceComponent field='binding' type='conditionBinding' deps={['type', 'subtype']}/>
-                                <TextComponent field='notes' labelId='editor-notes'/>
+                                <ChoiceComponent field={createField(field, 'binding')} type='damageBinding' fill/>
+                                <TextComponent field={createField(field, 'notes')} labelId='editor-notes'/>
+                            </>
+                        }
+                        { data.subtype === ModifierAddType.ConditionImmunity &&
+                            <>
+                                <ChoiceComponent field={createField(field, 'binding')} type='conditionBinding' fill/>
+                                <TextComponent field={createField(field, 'notes')} labelId='editor-notes'/>
                             </>
                         }
                     </>
-                }
-                { context.file.data.type === ModifierType.Remove &&
-                    <LinkComponent field='source' labelId='editor-source' allowedTypes={AllowedTypes}/>
-                }
-                { context.file.data.type === ModifierType.Bonus &&
+                }{ data.type === ModifierType.Remove &&
+                    <LinkComponent field={createField(field, 'source')} labelId='editor-source' placeholderId='editor-modifier-placeholder' allowedTypes={AllowedTypes}/>
+                }{ data.type === ModifierType.Bonus &&
                     <>
-                        <EnumComponent field='subtype' type='modifierBonusType' labelId='editor-subtype' deps={['type']}/>
-                        <NumberComponent field='value' labelId='editor-value' deps={['type', 'subtype']} allowNegative/>
+                        <EnumComponent field={createField(field, 'subtype')} type='modifierBonusType' labelId='editor-subtype' />
+                        { data.subtype === ModifierBonusType.Speed
+                            ? <SelectionInputComponent
+                                field={createField(field, 'value')}
+                                type='number'
+                                optionsType='movement'
+                                labelId='editor-value' />
+                            : <NumberComponent field={createField(field, 'value')} labelId='editor-value' allowNegative/>
+                        }
                     </>
-                }
-                { context.file.data.type === ModifierType.Set &&
+                }{ data.type === ModifierType.Set &&
                     <>
-                        <EnumComponent field='subtype' type='modifierSetType' labelId='editor-subtype' deps={['type']}/>
-                        { context.file.data.subtype === ModifierSetType.SpellAttribute &&
-                            <ChoiceComponent field='value' type='spellAttribute' deps={['type', 'subtype']}/>
-                        }{ context.file.data.subtype === ModifierSetType.Size &&
-                            <ChoiceComponent field='value' type='size' deps={['type', 'subtype']}/>
-                        }{ context.file.data.subtype === ModifierSetType.Sense &&
+                        <EnumComponent field={createField(field, 'subtype')} type='modifierSetType' labelId='editor-subtype' />
+                        { data.subtype === ModifierSetType.SpellAttribute &&
+                            <ChoiceComponent field={createField(field, 'value')} type='spellAttribute' fill/>
+                        }{ data.subtype === ModifierSetType.Size &&
+                            <ChoiceComponent field={createField(field, 'value')} type='size' fill/>
+                        }{ data.subtype === ModifierSetType.Sense &&
                             <>
-                                <ChoiceComponent field='sense' type='sense' deps={['type', 'subtype']} allowMultipleChoices/>
-                                <NumberComponent field='value' labelId='editor-value' deps={['type', 'subtype']}/>
+                                <ChoiceComponent field={createField(field, 'sense')} type='sense' allowMultipleChoices fill/>
+                                <NumberComponent field={createField(field, 'value')} labelId='editor-value' />
                             </>
-                        }{ context.file.data.subtype === ModifierSetType.SaveProficiency &&
+                        }{ data.subtype === ModifierSetType.SaveProficiency &&
                             <>
-                                <ChoiceComponent field='proficiency' type='attribute' deps={['type', 'subtype']} allowMultipleChoices/>
-                                <EnumComponent field='value' type='proficiencyLevel' labelId='editor-value' deps={['type', 'subtype']}/>
+                                <ChoiceComponent field={createField(field, 'proficiency')} type='attribute' allowMultipleChoices fill/>
+                                <EnumComponent field={createField(field, 'value')} type='proficiencyLevel' labelId='editor-value' />
                             </>
-                        }{ context.file.data.subtype === ModifierSetType.SkillProficiency &&
+                        }{ data.subtype === ModifierSetType.SkillProficiency &&
                             <>
-                                <ChoiceComponent field='proficiency' type='skill' deps={['type', 'subtype']} allowMultipleChoices/>
-                                <EnumComponent field='value' type='proficiencyLevel' labelId='editor-value' deps={['type', 'subtype']}/>
+                                <ChoiceComponent field={createField(field, 'proficiency')} type='skill' allowMultipleChoices fill/>
+                                <EnumComponent field={createField(field, 'value')} type='proficiencyLevel' labelId='editor-value' />
                             </>
-                        }{ context.file.data.subtype === ModifierSetType.ToolProficiency &&
+                        }{ data.subtype === ModifierSetType.ToolProficiency &&
                             <>
-                                <ChoiceComponent field='proficiency' type='tool' deps={['type', 'subtype']} allowMultipleChoices/>
-                                <EnumComponent field='value' type='proficiencyLevel' labelId='editor-value' deps={['type', 'subtype']}/>
+                                <ChoiceComponent field={createField(field, 'proficiency')} type='tool' allowMultipleChoices fill/>
+                                <EnumComponent field={createField(field, 'value')} type='proficiencyLevel' labelId='editor-value' />
                             </>
-                        }{ context.file.data.subtype === ModifierSetType.LanguageProficiency &&
+                        }{ data.subtype === ModifierSetType.LanguageProficiency &&
                             <>
-                                <ChoiceComponent field='proficiency' type='language' deps={['type', 'subtype']} allowMultipleChoices/>
-                                <EnumComponent field='value' type='proficiencyLevelBasic' labelId='editor-value' deps={['type', 'subtype']}/>
+                                <ChoiceComponent field={createField(field, 'proficiency')} type='language' allowMultipleChoices fill/>
+                                <EnumComponent field={createField(field, 'value')} type='proficiencyLevelBasic' labelId='editor-value' />
                             </>
-                        }{ context.file.data.subtype === ModifierSetType.ArmorProficiency &&
+                        }{ data.subtype === ModifierSetType.ArmorProficiency &&
                             <>
-                                <ChoiceComponent field='proficiency' type='armor' deps={['type', 'subtype']} allowMultipleChoices/>
-                                <EnumComponent field='value' type='proficiencyLevelBasic' labelId='editor-value' deps={['type', 'subtype']}/>
+                                <ChoiceComponent field={createField(field, 'proficiency')} type='armor' allowMultipleChoices fill/>
+                                <EnumComponent field={createField(field, 'value')} type='proficiencyLevelBasic' labelId='editor-value' />
                             </>
-                        }{ context.file.data.subtype === ModifierSetType.WeaponProficiency &&
+                        }{ data.subtype === ModifierSetType.WeaponProficiency &&
                             <>
-                                <ChoiceComponent field='proficiency' type='weapon' deps={['type', 'subtype']} allowMultipleChoices/>
-                                <EnumComponent field='value' type='proficiencyLevelBasic' labelId='editor-value' deps={['type', 'subtype']}/>
+                                <ChoiceComponent field={createField(field, 'proficiency')} type='weaponTypeValue' allowMultipleChoices fill/>
+                                <EnumComponent field={createField(field, 'value')} type='proficiencyLevelBasic' labelId='editor-value' />
+                            </>
+                        }{ data.subtype === ModifierSetType.ArmorClassBase &&
+                            <>
+                                <SelectionInputComponent
+                                    field={createField(field, 'values')}
+                                    type='number'
+                                    optionsType='attr'
+                                    labelId='editor-attributeMultipliers' />
+                                <SelectionInputComponent
+                                    field={createField(field, 'maxValues')}
+                                    type='number'
+                                    optionsType='attr'
+                                    labelId='editor-maxAttributeValues' />
+                                <NumberComponent field={createField(field, 'bonus')} labelId='editor-bonus'/>
                             </>
                         }
                     </>
-                }
-                { context.file.data.type === ModifierType.Choice &&
+                }{ data.type === ModifierType.Choice &&
                     <>
-                        <NumberComponent field='num' labelId='editor-numChoices' deps={['type']}/>
+                        <NumberComponent field={createField(field, 'num')} labelId='editor-numChoices' />
                         <EditItemRecordComponent
-                            field='options'
+                            field={createField(field, 'options')}
                             labelId='editor-options'
-                            defaultValue={defaultInnerModifierValue}
-                            page='innerModifier'
+                            defaultValue={ModifierDataFactory.create()}
+                            page={DocumentType.Modifier}
                             fill/>
                     </>
-                }
-                { context.file.data.type === ModifierType.Variable &&
+                }{ data.type === ModifierType.Variable &&
                     <>
-                        <EnumComponent field='subtype' type='modifierVariableType' labelId='editor-subtype' deps={['type']}/>
-                        <TextComponent field='variable' labelId='editor-variable' deps={['type']}/>
-                        <EnumComponent field='operation' type='operationType' labelId='editor-operation' deps={['type']}/>
-                        { context.file.data.subtype === ModifierVariableType.Number &&
-                            <ChoiceComponent field='value' type='number' deps={['type', 'subtype']} fill/>
+                        <EnumComponent field={createField(field, 'subtype')} type='modifierVariableType' labelId='editor-subtype' />
+                        <TextComponent field={createField(field, 'variable')} labelId='editor-variable' />
+                        <EnumComponent field={createField(field, 'operation')} type='operationType' labelId='editor-operation' />
+                        { data.subtype === ModifierVariableType.Number &&
+                            <ChoiceComponent field={createField(field, 'value')} type='number' fill/>
                         }
-                        { context.file.data.subtype === ModifierVariableType.Collection &&
-                            <ChoiceComponent field='value' type='string' deps={['type', 'subtype']} allowMultipleChoices fill/>
+                        { data.subtype === ModifierVariableType.Collection &&
+                            <ChoiceComponent field={createField(field, 'value')} type='string' allowMultipleChoices fill/>
                         }
                     </>
+                }{ data.type === ModifierType.Group &&
+                    <EditItemRecordComponent
+                        field={createField(field, 'modifiers')}
+                        labelId='editor-modifiers'
+                        defaultValue={ModifierDataFactory.create()}
+                        page={DocumentType.Modifier}
+                        fill/>
                 }
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-condition'/>} open>
-                <ConditionComponent field='condition' labelId='editor-header-condition'/>
+                <ConditionComponent field={createField(field, 'condition')} labelId='editor-header-condition'/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-description'/>} open fill>
                 <TextEditor
-                    value={context.file.data.description}
+                    value={data.description}
                     className={styles.editTextEditor}
                     context={descriptionContext}
                     onMount={(token) => { dispatch.setToken('description', token) }}
                     onChange={(text, token) => {
-                        dispatch.setData('description', text)
-                        dispatch.setToken('description', token)
+                        dispatch.setData(createField(field, 'description'), text)
+                        dispatch.setToken(createField(field, 'description'), token)
                     }}/>
             </GroupComponent>
         </div>

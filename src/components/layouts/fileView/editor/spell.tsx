@@ -33,15 +33,16 @@ const SpellDocumentEditor: React.FC = () => {
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-time'/>} open>
                 <EnumComponent field='time' labelId='editor-time' type='castingTime'/>
-                { context.file.data.time === CastingTime.Custom &&
-                    <TextComponent field='timeCustom' labelId='editor-timeCustom'/>
+                { context.file.data.time === CastingTime.Custom
+                    ? <TextComponent field='timeCustom' labelId='editor-timeCustom'/>
+                    : <NumberComponent field='timeValue' labelId='editor-timeValue'/>
                 }
-                <NumberComponent field='timeValue' labelId='editor-timeValue'/>
                 <EnumComponent field='duration' labelId='editor-duration' type='duration'/>
-                { context.file.data.duration === Duration.Custom &&
-                    <TextComponent field='durationCustom' labelId='editor-durationCustom'/>
+                { context.file.data.duration === Duration.Custom
+                    ? <TextComponent field='durationCustom' labelId='editor-durationCustom'/>
+                    : context.file.data.duration !== Duration.Instantaneous &&
+                    <NumberComponent field='durationValue' labelId='editor-durationValue'/>
                 }
-                <NumberComponent field='durationValue' labelId='editor-durationValue'/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-details'/>} open>
                 <EnumComponent field='target' type='target' labelId='editor-target'/>
@@ -56,12 +57,11 @@ const SpellDocumentEditor: React.FC = () => {
                     field='effects'
                     labelId='editor-effects'
                     defaultValue={{}}
-                    page='effect'
-                    deps={['type']}/>
+                    page='effect'/>
             </GroupComponent>
             { (context.file.data.target === TargetType.Self || context.file.data.target === TargetType.Point || context.file.data.target === TargetType.Area) &&
                 <GroupComponent header={<LocalizedText id='editor-header-area'/>} open>
-                    <EnumComponent field='area.type' labelId='editor-time' type='area' deps={['target']}/>
+                    <EnumComponent field='area.type' labelId='editor-area' type='area' />
                     { (context.file.data.area.type === AreaType.Cone || context.file.data.area.type === AreaType.Square || context.file.data.area.type === AreaType.Cube) &&
                         <NumberComponent field='area.side' labelId='editor-area-side'/>
                     }
@@ -81,20 +81,20 @@ const SpellDocumentEditor: React.FC = () => {
             }
             { context.file.data.target !== TargetType.None &&
                 <GroupComponent header={<LocalizedText id='editor-header-condition'/>} open>
-                    <EnumComponent field='condition.type' type='effectConditionType' labelId='editor-condition-type' deps={['target']}/>
+                    <EnumComponent field='condition.type' type='effectConditionType' labelId='editor-condition-type' />
                     { context.file.data.condition.type === EffectConditionType.Hit &&
                         <>
-                            <EnumComponent field='condition.scaling' type='scaling' labelId='editor-condition-scaling' deps={['target', 'condition.type']}/>
-                            <BooleanComponent field='condition.proficiency' labelId='editor-condition-proficiency' deps={['target', 'condition.type']}/>
-                            <CalcComponent field='condition.modifier' labelId='editor-condition-modifier' deps={['target', 'condition.type']}/>
+                            <EnumComponent field='condition.scaling' type='scaling' labelId='editor-condition-scaling' />
+                            <BooleanComponent field='condition.proficiency' labelId='editor-condition-proficiency' />
+                            <CalcComponent field='condition.modifier' labelId='editor-condition-modifier' />
                         </>
                     }
                     { context.file.data.condition.type === EffectConditionType.Save &&
                         <>
-                            <EnumComponent field='condition.attribute' type='attr' labelId='editor-condition-attribute' deps={['target', 'condition.type']}/>
-                            <EnumComponent field='condition.scaling' type='scaling' labelId='editor-condition-scaling' deps={['target', 'condition.type']}/>
-                            <BooleanComponent field='condition.proficiency' labelId='editor-condition-proficiency' deps={['target', 'condition.type']}/>
-                            <CalcComponent field='condition.modifier' labelId='editor-condition-modifier' deps={['target', 'condition.type']}/>
+                            <EnumComponent field='condition.attribute' type='attr' labelId='editor-condition-attribute' />
+                            <EnumComponent field='condition.scaling' type='scaling' labelId='editor-condition-scaling' />
+                            <BooleanComponent field='condition.proficiency' labelId='editor-condition-proficiency' />
+                            <CalcComponent field='condition.modifier' labelId='editor-condition-modifier' />
                         </>
                     }
                 </GroupComponent>

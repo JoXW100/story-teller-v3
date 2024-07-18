@@ -1,8 +1,8 @@
 import { useContext } from 'react'
 import GroupItemComponent from './groupItem'
-import { Context, getRelativeFieldObject } from 'components/contexts/file'
+import { Context } from 'components/contexts/file'
 import NumberInput from 'components/layouts/numericInput'
-import { isRecord } from 'utils'
+import { isRecord, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
 import type { LanguageKey } from 'data'
 import styles from '../style.module.scss'
@@ -13,10 +13,9 @@ type NumberComponentParams = React.PropsWithoutRef<{
     labelArgs?: any[]
     allowDecimal?: boolean
     allowNegative?: boolean
-    deps?: string[]
 }>
 
-const NumberComponent: React.FC<NumberComponentParams> = ({ field, labelId, labelArgs, allowDecimal = false, allowNegative = false, deps = [] }) => {
+const NumberComponent: React.FC<NumberComponentParams> = ({ field, labelId, labelArgs, allowDecimal = false, allowNegative = false }) => {
     const [context, dispatch] = useContext(Context)
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.NumberComponent', 'Data of incorrect type', context.file.data)
@@ -36,7 +35,7 @@ const NumberComponent: React.FC<NumberComponentParams> = ({ field, labelId, labe
     }
 
     const handleChange = (value: number): void => {
-        dispatch.setData(field, value, deps)
+        dispatch.setData(field, value)
     }
 
     return (

@@ -12,11 +12,14 @@ import ModifierBonusIntelligenceData from './intelligence'
 import ModifierBonusWisdomData from './wisdom'
 import ModifierBonusCharismaData from './charisma'
 import ModifierBonusAllAbilityScoresData from './allAbilityScores'
+import ModifierBonusAttacksData from './attacks'
+import ModifierBonusSpeedData from './speed'
 
 export type ModifierBonusData = ModifierBonusACData | ModifierBonusStrengthData |
 ModifierBonusDexterityData | ModifierBonusConstitutionData |
 ModifierBonusIntelligenceData | ModifierBonusWisdomData |
-ModifierBonusCharismaData | ModifierBonusAllAbilityScoresData
+ModifierBonusCharismaData | ModifierBonusAllAbilityScoresData |
+ModifierBonusAttacksData | ModifierBonusSpeedData
 
 const ModifierBonusDataFactory: IDatabaseFactory<IModifierBonusData, ModifierBonusData> = {
     create: function (data: Simplify<IModifierBonusData> = {}): ModifierBonusData {
@@ -35,6 +38,10 @@ const ModifierBonusDataFactory: IDatabaseFactory<IModifierBonusData, ModifierBon
                 return new ModifierBonusWisdomData(data)
             case ModifierBonusType.Charisma:
                 return new ModifierBonusCharismaData(data)
+            case ModifierBonusType.Attacks:
+                return new ModifierBonusAttacksData(data)
+            case ModifierBonusType.Speed:
+                return new ModifierBonusSpeedData(data)
             case ModifierBonusType.AC:
             default:
                 return new ModifierBonusACData(data as Simplify<IModifierBonusACData>)
@@ -70,6 +77,10 @@ const ModifierBonusDataFactory: IDatabaseFactory<IModifierBonusData, ModifierBon
                 return ModifierBonusCharismaData.properties
             case ModifierBonusType.AC:
                 return ModifierBonusACData.properties
+            case ModifierBonusType.Attacks:
+                return ModifierBonusAttacksData.properties
+            case ModifierBonusType.Speed:
+                return ModifierBonusSpeedData.properties
         }
     }
 }

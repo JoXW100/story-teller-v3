@@ -1,6 +1,6 @@
 import { Tooltip } from '@mui/material'
-import { useContext, useMemo, useState } from 'react'
-import AbilityGroups from '../ability/groups'
+import { useContext, useState } from 'react'
+import AbilityGroups from '../creature/abilityGroups'
 import PageSelector, { type IPageSelectorData } from '../pageSelector'
 import AttributesBox from '../creature/attributesBox'
 import ProficienciesPage from '../creature/proficienciesPage'
@@ -8,17 +8,18 @@ import HealthBox from './healthBox'
 import CharacterBackgroundPage from './backgroundPage'
 import CharacterSpellPage from './spellPage'
 import CharacterChoicePage from './choicePage'
+import ClassSpellGroups from './classSpellGroups'
+import CharacterInventoryPage from './inventoryPage'
 import { Context } from 'components/contexts/file'
+import VariableContext from 'components/contexts/variable'
 import Elements from 'components/elements'
 import LocalizedText from 'components/localizedText'
 import Icon from 'components/icon'
-import { asBooleanString } from 'utils'
 import { useCharacterFacade } from 'utils/hooks/documents'
 import { OptionalAttribute } from 'structure/dnd'
 import { RollMethodType, RollType } from 'structure/dice'
 import type CharacterDocument from 'structure/database/files/character'
 import styles from '../styles.module.scss'
-import ClassSpellGroups from './classSpellGroups'
 
 const Pages = {
     'actions': { key: 'render-page-actions' },
@@ -31,10 +32,13 @@ const Pages = {
 const CharacterDocumentRenderer: React.FC = () => {
     const [context, dispatch] = useContext(Context)
     const [page, setPage] = useState<keyof typeof Pages>('actions')
-    const { facade, abilities, spells } = useCharacterFacade(context.file as CharacterDocument)
-    const stats = useMemo(() => facade.getStats(), [facade])
+    const { facade, abilities, spells, variables, items } = useCharacterFacade(context.file as CharacterDocument)
 
-    return <>
+    const handleSetExpandedAbilityCharges = (charges: Partial<Record<string, number>>): void => {
+        dispatch.setStorage('abilitiesExpendedCharges', charges)
+    }
+
+    return <VariableContext variables={variables}>
         <Elements.align direction='h' weight='1' width='100%'>
             <Elements.block weight='1' width='100%'>
                 <div className={styles.namePlate}>
@@ -96,21 +100,25 @@ const CharacterDocumentRenderer: React.FC = () => {
                 <Elements.space/>
                 <PageSelector pages={Pages} selected={page} setSelected={setPage}/>
                 <Elements.line width='2px'/>
-                <div className={styles.pageItem} data={asBooleanString(page === 'actions')}>
-                    <AbilityGroups
-                        abilities={abilities}
-                        stats={stats}
-                        expendedCharges={{}}
-                        setExpendedCharges={undefined}/>
-                </div>
-                <div className={styles.pageItem} data={asBooleanString(page === 'spells')}>
-                    <CharacterSpellPage facade={facade} spells={spells} stats={stats} setStorage={dispatch.setStorage}/>
-                </div>
-                <div className={styles.pageItem} data={asBooleanString(page === 'description')}>
-                    <CharacterBackgroundPage facade={facade}/>
-                </div>
-                <div className={styles.pageItem} data={asBooleanString(page === 'choices')}>
-                    <CharacterChoicePage facade={facade}/>
+                <div>
+                    { page === 'actions' &&
+                        <AbilityGroups
+                            abilities={abilities}
+                            facade={facade}
+                            expendedCharges={facade.storage.abilitiesExpendedCharges}
+                            setExpendedCharges={handleSetExpandedAbilityCharges}/>
+                    }{ page === 'spells' &&
+                        <CharacterSpellPage
+                            facade={facade}
+                            spells={spells}
+                            setStorage={dispatch.setStorage}/>
+                    }{ page === 'inventory' &&
+                        <CharacterInventoryPage facade={facade} items={items}/>
+                    }{ page === 'description' &&
+                        <CharacterBackgroundPage facade={facade}/>
+                    }{ page === 'choices' &&
+                        <CharacterChoicePage facade={facade}/>
+                    }
                 </div>
             </Elements.block>
         </Elements.align>
@@ -120,11 +128,10 @@ const CharacterDocumentRenderer: React.FC = () => {
                 <ClassSpellGroups
                     facade={facade}
                     spells={spells}
-                    stats={stats}
                     setStorage={dispatch.setStorage}/>
             </>
         }
-    </>
+    </VariableContext>
 }
 
 export default CharacterDocumentRenderer

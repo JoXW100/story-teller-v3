@@ -24,7 +24,11 @@ class CharacterData extends CreatureData implements ICharacterData {
         this.weight = data.weight ?? CharacterData.properties.weight.value
         // Race
         this.race = (data.race as ObjectId | null | undefined) ?? CharacterData.properties.race.value
-        this.raceName = data.raceName ?? CharacterData.properties.raceName.value
+        if (this.race === null) {
+            this.raceName = data.raceName ?? CharacterData.properties.raceName.value
+        } else {
+            this.raceName = CharacterData.properties.raceName.value
+        }
         // Classes
         this.classes = CharacterData.properties.classes.value
         if (data.classes !== undefined) {

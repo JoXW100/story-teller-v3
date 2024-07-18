@@ -21,5 +21,4 @@ export interface DispatchActionNoData<T extends string> {
 export interface ISetFieldData<T extends string = string> {
     field: T
     value: any
-    deps: string[]
 }

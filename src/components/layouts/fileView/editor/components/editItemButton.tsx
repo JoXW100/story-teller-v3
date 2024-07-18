@@ -4,15 +4,14 @@ import EditIcon from '@mui/icons-material/EditSharp'
 import LocalizedText from 'components/localizedText'
 import { Context, type IEditorPageData } from 'components/contexts/file'
 
-const EditItemButtonComponent: React.FC<IEditorPageData> = ({ pageKey, root, name, deps }) => {
+const EditItemButtonComponent: React.FC<IEditorPageData> = ({ pageKey, root, name }) => {
     const [, dispatch] = useContext(Context)
 
-    const handleClick: React.MouseEventHandler<HTMLButtonElement> = () => {
+    const handleClick = (): void => {
         dispatch.pushEditorPage({
             pageKey: pageKey,
             root: root,
-            name: name,
-            deps: deps
+            name: name
         })
     }
 

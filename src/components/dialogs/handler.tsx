@@ -116,13 +116,13 @@ const DialogHandler: React.FC = () => {
                         }
                     }} />
                 case 'notice':
-                    return <NoticeDialog key={key} {...dialog.params} callback={() => {
+                    return <NoticeDialog key={key} {...dialog.params} callback={(type, ...args) => {
                         setDialogs(dialogs => {
                             const { [key]: _, ...rest } = dialogs
                             return rest
                         })
                         if (DialogPromise.isNoticePromise(dialog)) {
-                            dialog.promise.invoke('onClose')
+                            dialog.promise.invoke(type, ...args)
                         }
                     }} />
                 default:

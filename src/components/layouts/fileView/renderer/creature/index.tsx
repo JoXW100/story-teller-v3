@@ -1,17 +1,16 @@
 import { useContext, useMemo, useState } from 'react'
-import AbilityGroups from '../ability/groups'
-import AttributesBox from './attributesBox'
-import SpellGroups from '../spell/groups'
-import ProficienciesPage from './proficienciesPage'
+import AbilityGroups from './abilityGroups'
 import PageSelector, { type IPageSelectorData } from '../pageSelector'
+import SpellGroups from '../spell/groups'
+import AttributesBox from './attributesBox'
+import ProficienciesPage from './proficienciesPage'
 import { Context } from 'components/contexts/file'
 import Elements from 'components/elements'
-import { asBooleanString } from 'utils'
+import VariableContext from 'components/contexts/variable'
 import { useCreatureFacade } from 'utils/hooks/documents'
 import { OptionalAttribute, type SpellLevel } from 'structure/dnd'
 import { RollMethodType, RollType } from 'structure/dice'
 import type CreatureDocument from 'structure/database/files/creature'
-import styles from '../styles.module.scss'
 
 const Pages = {
     'actions': { key: 'render-page-actions' },
@@ -21,14 +20,18 @@ const Pages = {
 const CreatureDocumentRenderer: React.FC = () => {
     const [context, dispatch] = useContext(Context)
     const [page, setPage] = useState<keyof typeof Pages>('actions')
-    const { facade, abilities, spells } = useCreatureFacade(context.file as CreatureDocument)
+    const { facade, abilities, spells, variables } = useCreatureFacade(context.file as CreatureDocument)
     const stats = useMemo(() => facade.getStats(), [facade])
+
+    const handleSetExpandedAbilityCharges = (charges: Partial<Record<string, number>>): void => {
+        dispatch.setStorage('abilitiesExpendedCharges', charges)
+    }
 
     const handleSetExpandedSpellSlots = (spellSlots: Partial<Record<SpellLevel, number>>): void => {
         dispatch.setStorage('spellsExpendedSlots', spellSlots)
     }
 
-    return <>
+    return <VariableContext variables={variables}>
         <Elements.align direction='h' weight='1' width='100%'>
             <Elements.block weight='1' width='100%'>
                 <Elements.h1 underline={false}>{facade.name}</Elements.h1>
@@ -91,15 +94,17 @@ const CreatureDocumentRenderer: React.FC = () => {
             <Elements.block weight='1' width='100%'>
                 <PageSelector pages={Pages} selected={page} setSelected={setPage}/>
                 <Elements.line width='2px'/>
-                <div className={styles.pageItem} data={asBooleanString(page === 'actions')}>
-                    <AbilityGroups
-                        abilities={abilities}
-                        stats={stats}
-                        expendedCharges={{}}
-                        setExpendedCharges={undefined}/>
-                </div>
-                <div className={styles.pageItem} data={asBooleanString(page === 'proficiencies')}>
-                    <ProficienciesPage facade={facade}/>
+                <div>
+                    { page === 'actions' &&
+                        <AbilityGroups
+                            abilities={abilities}
+                            facade={facade}
+                            expendedCharges={facade.storage.abilitiesExpendedCharges}
+                            setExpendedCharges={handleSetExpandedAbilityCharges}/>
+                    }
+                    { page === 'proficiencies' &&
+                        <ProficienciesPage facade={facade}/>
+                    }
                 </div>
             </Elements.block>
         </Elements.align>
@@ -147,7 +152,7 @@ const CreatureDocumentRenderer: React.FC = () => {
                     setExpendedSlots={handleSetExpandedSpellSlots}/>
             </>
         }
-    </>
+    </VariableContext>
 }
 
 export default CreatureDocumentRenderer

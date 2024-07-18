@@ -1,5 +1,5 @@
-import ModifierDataBase from '../data'
 import { ModifierType } from '../common'
+import ModifierDataBase from '../data'
 import type { DataPropertyMap } from 'types/database'
 import type { IModifierBonusDataBase } from 'types/database/files/modifier'
 
@@ -12,6 +12,8 @@ export enum ModifierBonusType {
     Intelligence = 'int',
     Wisdom = 'wis',
     Charisma = 'cha',
+    Attacks = 'attacks',
+    Speed = 'speed',
 }
 
 export abstract class ModifierBonusDataBase extends ModifierDataBase implements IModifierBonusDataBase {

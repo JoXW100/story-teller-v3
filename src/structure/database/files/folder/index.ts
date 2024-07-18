@@ -13,6 +13,10 @@ class FolderFile extends DatabaseFile<FileType.Folder, IFolderStorage, IFolderDa
         return this.name
     }
 
+    public override getDescription(): string {
+        return ''
+    }
+
     public override getTokenizedDescription(elements: ElementDefinitions): IToken {
         return new EmptyToken(elements)
     }

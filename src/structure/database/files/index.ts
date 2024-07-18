@@ -81,6 +81,7 @@ abstract class DatabaseFile<T extends DocumentFileType = DocumentFileType, S ext
     }
 
     public abstract getTitle(): string
+    public abstract getDescription(): string
     public abstract getTokenizedDescription(elements: ElementDefinitions): IToken
     public abstract getDataFactory(): IDatabaseFactory<I, D>
 }

@@ -32,7 +32,7 @@ const SpellGroups: React.FC<SpellGroupsProps> = ({ spells, spellSlots, expendedS
 
     return (
         <>
-            { keysOf(spellSlots).map((level) => (
+            { keysOf(spellSlots).map(level => (
                 <React.Fragment key={level}>
                     <Elements.row>
                         <Elements.b>

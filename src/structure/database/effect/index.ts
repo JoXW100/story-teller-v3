@@ -1,5 +1,5 @@
 import type Condition from '../condition'
-import ConditionFactory from '../condition/factory'
+import ConditionFactory, { simplifyCondition } from '../condition/factory'
 import { isString } from 'utils'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
@@ -24,7 +24,7 @@ abstract class EffectBase implements IEffectBase {
         condition: {
             get value() { return ConditionFactory.create() },
             validate: ConditionFactory.validate,
-            simplify: ConditionFactory.simplify
+            simplify: simplifyCondition
         }
     }
 }

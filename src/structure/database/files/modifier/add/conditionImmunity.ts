@@ -1,13 +1,14 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createDefaultChoiceData, createSingleChoiceData, simplifySingleChoiceData, validateChoiceData } from '../common'
+import { createDefaultChoiceData, createSingleChoiceData, simplifySingleChoiceData, validateChoiceData } from '../../../choice'
 import { asEnum, isEnum, isNumber, isString } from 'utils'
 import { ConditionBinding } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { SingleChoiceData, IModifierAddConditionImmunityData, IEditorChoiceData } from 'types/database/files/modifier'
+import type { IModifierAddConditionImmunityData } from 'types/database/files/modifier'
 import type { ISourceBinding } from 'types/database/files/creature'
+import type { SingleChoiceData } from 'types/database/choice'
 
 class ModifierAddConditionImmunityData extends ModifierAddDataBase implements IModifierAddConditionImmunityData {
     public override readonly subtype = ModifierAddType.ConditionImmunity
@@ -38,21 +39,24 @@ class ModifierAddConditionImmunityData extends ModifierAddDataBase implements IM
         }
     }
 
-    public override getEditorChoiceData(): IEditorChoiceData | null {
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
         if (this.binding.isChoice) {
-            return { type: 'enum', value: this.binding.value, enum: 'conditionBinding' }
+            modifier.addChoice({
+                source: this,
+                type: 'enum',
+                value: this.binding.value,
+                enum: 'conditionBinding'
+            }, key)
         }
-        return null
-    }
-
-    public override apply(data: Modifier, self: ModifierDocument): void {
-        data.conditionImmunities.subscribe({
+        modifier.conditionImmunities.subscribe({
+            key: key,
             target: self,
+            data: this,
             apply: function (value, choices): Partial<Record<ConditionBinding, readonly ISourceBinding[]>> {
-                const modifier = self.data as ModifierAddConditionImmunityData
+                const modifier = this.data as ModifierAddConditionImmunityData
                 let choice: ConditionBinding | null
                 if (modifier.binding.isChoice) {
-                    const index: unknown = choices[self.id]
+                    const index: unknown = choices[key]
                     if (!isNumber(index)) {
                         return value
                     }

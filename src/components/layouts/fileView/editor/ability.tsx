@@ -6,10 +6,10 @@ import LocalizedText from 'components/localizedText'
 import TextComponent from './components/text'
 import NumberComponent from './components/number'
 import EnumComponent from './components/enum'
-import LinkListComponent from './components/linkList'
 import CalcComponent from './components/calc'
 import BooleanComponent from './components/boolean'
 import EditItemRecordComponent from './components/editItemRecord'
+import LinkListComponent from './components/linkList'
 import { ElementDictionary } from 'components/elements'
 import { DocumentType } from 'structure/database'
 import AbilityDocument from 'structure/database/files/ability'
@@ -18,6 +18,7 @@ import { AbilityType } from 'structure/database/files/ability/common'
 import EffectFactory from 'structure/database/effect/factory'
 import styles from './style.module.scss'
 
+const AllowedTypes = [DocumentType.Modifier] as const
 const AbilityDocumentEditor: React.FC = () => {
     const [context, dispatch] = useContext(Context)
     const defaultEffectValue = useMemo(() => EffectFactory.create(), [])
@@ -37,80 +38,77 @@ const AbilityDocumentEditor: React.FC = () => {
             </GroupComponent>
             { context.file.data.type === AbilityType.Attack &&
                 <GroupComponent header={<LocalizedText id='editor-header-details'/>} open>
-                    <EnumComponent field='target' type='target' labelId='editor-target' deps={['type']}/>
-                    <NumberComponent field='range' labelId='editor-range' deps={['type']}/>
+                    <EnumComponent field='target' type='target' labelId='editor-target'/>
+                    <NumberComponent field='range' labelId='editor-range' />
                     <EditItemRecordComponent
                         field='effects'
                         labelId='editor-effects'
                         defaultValue={defaultEffectValue}
-                        page='effect'
-                        deps={['type']}/>
+                        page='effect'/>
                 </GroupComponent>
             }
             { (context.file.data.type === AbilityType.MeleeAttack || context.file.data.type === AbilityType.MeleeWeapon) &&
                 <GroupComponent header={<LocalizedText id='editor-header-details'/>} open>
-                    <NumberComponent field='reach' labelId='editor-reach' deps={['type']}/>
+                    <NumberComponent field='reach' labelId='editor-reach' />
                     <EditItemRecordComponent
                         field='effects'
                         labelId='editor-effects'
                         defaultValue={defaultEffectValue}
-                        page='effect'
-                        deps={['type']}/>
+                        page='effect'/>
                 </GroupComponent>
             }
             { (context.file.data.type === AbilityType.RangedAttack || context.file.data.type === AbilityType.RangedWeapon) &&
                 <GroupComponent header={<LocalizedText id='editor-header-details'/>} open>
-                    <NumberComponent field='range' labelId='editor-range' deps={['type']}/>
-                    <NumberComponent field='rangeLong' labelId='editor-rangeLong' deps={['type']}/>
+                    <NumberComponent field='range' labelId='editor-range' />
+                    <NumberComponent field='rangeLong' labelId='editor-rangeLong' />
                     <EditItemRecordComponent
                         field='effects'
                         labelId='editor-effects'
                         defaultValue={defaultEffectValue}
-                        page='effect'
-                        deps={['type']}/>
+                        page='effect'/>
                 </GroupComponent>
             }
             { context.file.data.type === AbilityType.ThrownWeapon &&
                 <GroupComponent header={<LocalizedText id='editor-header-details'/>} open>
-                    <NumberComponent field='reach' labelId='editor-reach' deps={['type']}/>
-                    <NumberComponent field='range' labelId='editor-range' deps={['type']}/>
-                    <NumberComponent field='rangeLong' labelId='editor-rangeLong' deps={['type']}/>
+                    <NumberComponent field='reach' labelId='editor-reach' />
+                    <NumberComponent field='range' labelId='editor-range' />
+                    <NumberComponent field='rangeLong' labelId='editor-rangeLong' />
                     <EditItemRecordComponent
                         field='effects'
                         labelId='editor-effects'
                         defaultValue={defaultEffectValue}
-                        page='effect'
-                        deps={['type']}/>
+                        page='effect'/>
                 </GroupComponent>
             }
-            { context.file.data.type !== AbilityType.Feature &&
+            { (context.file.data.type === AbilityType.Attack || context.file.data.type === AbilityType.MeleeAttack || context.file.data.type === AbilityType.RangedAttack || context.file.data.type === AbilityType.MeleeWeapon || context.file.data.type === AbilityType.RangedWeapon || context.file.data.type === AbilityType.ThrownWeapon) &&
                 <GroupComponent header={<LocalizedText id='editor-header-condition'/>} open>
-                    <EnumComponent field='condition.type' type='effectConditionType' labelId='editor-condition-type' deps={['type']}/>
+                    <EnumComponent field='condition.type' type='effectConditionType' labelId='editor-condition-type' />
                     { context.file.data.condition.type === EffectConditionType.Hit &&
                         <>
-                            <EnumComponent field='condition.scaling' type='scaling' labelId='editor-condition-scaling' deps={['type', 'condition.type']}/>
-                            <BooleanComponent field='condition.proficiency' labelId='editor-condition-proficiency' deps={['type', 'condition.type']}/>
-                            <CalcComponent field='condition.modifier' labelId='editor-condition-modifier' deps={['type', 'condition.type']}/>
+                            <EnumComponent field='condition.scaling' type='scaling' labelId='editor-condition-scaling' />
+                            <BooleanComponent field='condition.proficiency' labelId='editor-condition-proficiency' />
+                            <CalcComponent field='condition.modifier' labelId='editor-condition-modifier' />
                         </>
                     }
                     { context.file.data.condition.type === EffectConditionType.Save &&
                         <>
-                            <EnumComponent field='condition.attribute' type='attr' labelId='editor-condition-attribute' deps={['type', 'condition.type']}/>
-                            <EnumComponent field='condition.scaling' type='scaling' labelId='editor-condition-scaling' deps={['type', 'condition.type']}/>
-                            <BooleanComponent field='condition.proficiency' labelId='editor-condition-proficiency' deps={['type', 'condition.type']}/>
-                            <CalcComponent field='condition.modifier' labelId='editor-condition-modifier' deps={['type', 'condition.type']}/>
+                            <EnumComponent field='condition.attribute' type='attr' labelId='editor-condition-attribute' />
+                            <EnumComponent field='condition.scaling' type='scaling' labelId='editor-condition-scaling' />
+                            <BooleanComponent field='condition.proficiency' labelId='editor-condition-proficiency' />
+                            <CalcComponent field='condition.modifier' labelId='editor-condition-modifier' />
                         </>
                     }
                 </GroupComponent>
             }
             <GroupComponent header={<LocalizedText id='editor-header-charges'/>} open>
-                <NumberComponent field='charges' labelId='editor-charges'/>
-                { context.file.data.charges > 0 &&
-                    <EnumComponent field='chargesReset' type='restType' labelId='editor-chargesReset'/>
-                }
+                <EditItemRecordComponent
+                    field='charges'
+                    defaultValue={{}}
+                    labelId='editor-charges'
+                    page='charges'/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-modifiers'/>} open>
-                <LinkListComponent field='modifiers' allowedTypes={[DocumentType.Modifier]} labelId='editor-modifiers'/>
+                <LinkListComponent field='modifiers' labelId='editor-modifiers' allowedTypes={AllowedTypes} fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-description'/>} open fill>
                 <TextEditor

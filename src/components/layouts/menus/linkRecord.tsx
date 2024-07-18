@@ -8,22 +8,23 @@ import type DatabaseFile from 'structure/database/files'
 import type { DocumentTypeMap } from 'structure/database/files/factory'
 import type { EnumValue, ObjectId } from 'types'
 import DropdownMenu from '../dropdownMenu'
+import { Tooltip } from '@mui/material'
 
-interface ILinkRecordMenuTextProps {
+export interface ILinkRecordMenuTextProps {
     type: 'text'
     value: Record<ObjectId, string>
     defaultValue: string
     onChange?: (selection: Record<ObjectId, string>) => void
 }
 
-interface ILinkRecordMenuNumberProps {
+export interface ILinkRecordMenuNumberProps {
     type: 'number'
     value: Record<ObjectId, number>
     defaultValue: number
     onChange?: (selection: Record<ObjectId, number>) => void
 }
 
-interface ILinkRecordMenuEnumProps {
+export interface ILinkRecordMenuEnumProps {
     type: 'enum'
     defaultValue: EnumValue
     options: Record<EnumValue, React.ReactNode>
@@ -31,13 +32,26 @@ interface ILinkRecordMenuEnumProps {
     onChange?: (selection: Record<ObjectId, EnumValue>) => void
 }
 
+export interface ILinkRecordMenuButtonProps {
+    type: 'button'
+    defaultValue: object
+    buttonTooltips?: string
+    buttonContent?: React.ReactNode
+    value: Record<ObjectId, object>
+    onChange?: (selection: Record<ObjectId, EnumValue>) => void
+    onClick?: (key: ObjectId, file: DocumentTypeMap[DocumentType] | null) => void
+}
+
+type LinkRecordMenuPropsType = ILinkRecordMenuTextProps |
+ILinkRecordMenuNumberProps | ILinkRecordMenuEnumProps | ILinkRecordMenuButtonProps
+
 type LinkRecordMenuProps = React.PropsWithRef<{
     className?: string
     itemClassName?: string
     editClassName?: string
     allowedTypes: readonly DocumentType[]
     placeholder?: string
-} & (ILinkRecordMenuTextProps | ILinkRecordMenuNumberProps | ILinkRecordMenuEnumProps)>
+} & LinkRecordMenuPropsType>
 
 type RecordMenuComponentProps = React.PropsWithRef<{
     itemClassName?: string
@@ -46,15 +60,14 @@ type RecordMenuComponentProps = React.PropsWithRef<{
     files: Array<DocumentTypeMap[DocumentType] | null>
     allowedTypes: readonly DocumentType[]
     placeholder?: string
-} & (ILinkRecordMenuTextProps | ILinkRecordMenuNumberProps | ILinkRecordMenuEnumProps)>
+} & LinkRecordMenuPropsType>
 
 function LinkRecordMenu(props: LinkRecordMenuProps): React.ReactNode {
-    const { className, value, defaultValue, onChange } = props
-    const ids = useMemo(() => keysOf(value), [value])
+    const ids = useMemo(() => keysOf(props.value), [props.value])
     const [files] = useFilesOfType(ids, props.allowedTypes)
 
     const handleChange = (newValues: Array<string | null>): void => {
-        if (onChange === undefined) {
+        if (props.onChange === undefined) {
             return
         }
 
@@ -63,10 +76,10 @@ function LinkRecordMenu(props: LinkRecordMenuProps): React.ReactNode {
             if (!isObjectId(key)) {
                 continue
             }
-            transferred[key] = props.value[key] ?? defaultValue
+            transferred[key] = props.value[key] ?? props.defaultValue
         }
 
-        onChange(transferred)
+        props.onChange(transferred)
     }
 
     const handleValidate = (value: string | null): boolean => {
@@ -75,7 +88,7 @@ function LinkRecordMenu(props: LinkRecordMenuProps): React.ReactNode {
 
     return (
         <ListTemplateMenu<string | null, string | null, RecordMenuComponentProps>
-            className={className}
+            className={props.className}
             defaultValue=''
             values={ids}
             addLast
@@ -123,6 +136,13 @@ function ItemComponent({ index, params }: ListTemplateComponentProps<string | nu
             { params.type === 'enum' &&
                 <DropdownMenu value={String(value)} values={params.options} onChange={handleValueChanged}/>
             }
+            { params.type === 'button' &&
+                <Tooltip title={params.buttonTooltips}>
+                    <button onClick={() => params.onClick?.(id, file)}>
+                        { params.buttonContent }
+                    </button>
+                </Tooltip>
+            }
         </div>
     )
 }
@@ -131,10 +151,19 @@ function EditComponent({ value, onUpdate, params }: ListTemplateComponentProps<s
     const handleFileChanged = (file: DatabaseFile | null): void => {
         if (file !== null) {
             onUpdate('')
-            if (params.type === 'text') {
-                params.onChange?.({ ...params.value, [file.id]: params.defaultValue })
-            } else {
-                params.onChange?.({ ...params.value, [file.id]: params.defaultValue })
+            switch (params.type) {
+                case 'text':
+                    params.onChange?.({ ...params.value, [file.id]: params.defaultValue })
+                    break
+                case 'number':
+                    params.onChange?.({ ...params.value, [file.id]: params.defaultValue })
+                    break
+                case 'enum':
+                    params.onChange?.({ ...params.value, [file.id]: params.defaultValue })
+                    break
+                case 'button':
+                    params.onChange?.({ ...params.value, [file.id]: params.defaultValue })
+                    break
             }
         }
     }

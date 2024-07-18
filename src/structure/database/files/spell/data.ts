@@ -55,14 +55,6 @@ abstract class SpellDataBase implements ISpellDataBase {
         this.materials = data.materials ?? SpellDataBase.properties.materials.value
     }
 
-    public createContexts(elements: ElementDefinitions): [TokenContext] {
-        const descriptionContext = {
-            title: new EmptyToken(elements, this.name),
-            name: new EmptyToken(elements, this.name)
-        }
-        return [descriptionContext]
-    }
-
     public get levelValue(): number {
         return getSpellLevelValue(this.level)
     }
@@ -181,6 +173,14 @@ abstract class SpellDataBase implements ISpellDataBase {
             value: '',
             validate: isString
         }
+    }
+
+    public createContexts(elements: ElementDefinitions): [TokenContext] {
+        const descriptionContext: TokenContext = {
+            title: new EmptyToken(elements, this.name),
+            name: new EmptyToken(elements, this.name)
+        }
+        return [descriptionContext]
     }
 }
 

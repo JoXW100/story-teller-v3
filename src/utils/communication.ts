@@ -2,11 +2,13 @@ import Logger from './logger'
 import DatabaseStory from 'structure/database/story'
 import { isEnum, isObjectId, keysOf } from 'utils'
 import { type DocumentFileType, DocumentType } from 'structure/database'
+import type SubclassDocument from 'structure/database/files/subclass'
+import type DatabaseFile from 'structure/database/files'
 import FileStructure from 'structure/database/fileStructure'
 import DocumentFactory, { type DocumentTypeMap } from 'structure/database/files/factory'
+import type AbilityDocument from 'structure/database/files/ability'
 import type { ObjectId } from 'types'
 import type { IDatabaseStory, IDatabaseStoryData, DBResponse, IFileStructure, IDatabaseFile, ServerRequestType } from 'types/database'
-import type DatabaseFile from 'structure/database/files'
 
 type FetchMethod = 'GET' | 'PUT' | 'DELETE'
 type FetchParams = Record<string, unknown>
@@ -215,8 +217,9 @@ abstract class Communication {
         return response
     }
 
-    public static async getSubscribedFilesOfTypes<T extends readonly DocumentType[]>(allowedTypes: T): Promise<DBResponse<Array<DocumentTypeMap[T[number]]>>> {
+    public static async getSubscribedFilesOfTypes<T extends readonly DocumentType[]>(storyId: ObjectId, allowedTypes: T): Promise<DBResponse<Array<DocumentTypeMap[T[number]]>>> {
         const response = await this.databaseFetch<IDatabaseFile[]>('getSubscribedFiles', 'GET', {
+            storyId: storyId,
             allowedTypes: allowedTypes
         })
         if (response.success) {
@@ -228,6 +231,82 @@ abstract class Communication {
                     success: true,
                     result: response.result.map(value => {
                         const instance = DocumentFactory.createOfTypes(value, allowedTypes)
+                        if (instance === null) {
+                            throw new Error('Validated file creation resulted in null value')
+                        }
+                        this.cache[value.id] = instance
+                        return instance
+                    })
+                }
+            }
+        }
+        return response
+    }
+
+    public static async getSubclasses(storyId: ObjectId, classId: ObjectId): Promise<DBResponse<SubclassDocument[]>> {
+        const response = await this.databaseFetch<IDatabaseFile[]>('getSubclasses', 'GET', {
+            storyId: storyId,
+            classId: classId
+        })
+        if (response.success) {
+            if (!response.result.every(value => DocumentFactory.validate(value))) {
+                Logger.error('Communication.getSubclasses', response.result)
+                return { success: false, result: 'Failed to get file, type missmatch' }
+            } else {
+                return {
+                    success: true,
+                    result: response.result.map(value => {
+                        const instance = DocumentFactory.createOfTypes(value, [DocumentType.Subclass])
+                        if (instance === null) {
+                            throw new Error('Validated file creation resulted in null value')
+                        }
+                        this.cache[value.id] = instance
+                        return instance
+                    })
+                }
+            }
+        }
+        return response
+    }
+
+    public static async getFeats(storyId: ObjectId): Promise<DBResponse<AbilityDocument[]>> {
+        const response = await this.databaseFetch<IDatabaseFile[]>('getFeats', 'GET', {
+            storyId: storyId
+        })
+        if (response.success) {
+            if (!response.result.every(value => DocumentFactory.validate(value))) {
+                Logger.error('Communication.getFeats', response.result)
+                return { success: false, result: 'Failed to get file, type missmatch' }
+            } else {
+                return {
+                    success: true,
+                    result: response.result.map(value => {
+                        const instance = DocumentFactory.createOfTypes(value, [DocumentType.Ability])
+                        if (instance === null) {
+                            throw new Error('Validated file creation resulted in null value')
+                        }
+                        this.cache[value.id] = instance
+                        return instance
+                    })
+                }
+            }
+        }
+        return response
+    }
+
+    public static async getFightingStyles(storyId: ObjectId): Promise<DBResponse<AbilityDocument[]>> {
+        const response = await this.databaseFetch<IDatabaseFile[]>('getFightingStyles', 'GET', {
+            storyId: storyId
+        })
+        if (response.success) {
+            if (!response.result.every(value => DocumentFactory.validate(value))) {
+                Logger.error('Communication.getFightingStyles', response.result)
+                return { success: false, result: 'Failed to get file, type missmatch' }
+            } else {
+                return {
+                    success: true,
+                    result: response.result.map(value => {
+                        const instance = DocumentFactory.createOfTypes(value, [DocumentType.Ability])
                         if (instance === null) {
                             throw new Error('Validated file creation resulted in null value')
                         }

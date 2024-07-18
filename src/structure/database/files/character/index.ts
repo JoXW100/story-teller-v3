@@ -4,13 +4,17 @@ import type CharacterData from './data'
 import type { DocumentType } from 'structure/database'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 import StoryScript from 'structure/language/storyscript'
+import type { IToken } from 'types/language'
 import type { IDatabaseFactory } from 'types/database'
 import type { ICharacterData, ICharacterStorage } from 'types/database/files/character'
-import type { IToken } from 'types/language'
 
 class CharacterDocument extends DatabaseFile<DocumentType.Character, ICharacterStorage, ICharacterData, CharacterData> {
     public override getTitle(): string {
         return this.data.name
+    }
+
+    public override getDescription(): string {
+        return this.data.description
     }
 
     public override getTokenizedDescription(elements: ElementDefinitions): IToken {

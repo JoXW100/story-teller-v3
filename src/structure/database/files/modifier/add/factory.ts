@@ -12,15 +12,19 @@ import { simplifyObjectProperties, validateObjectProperties, hasObjectProperties
 import type { Simplify } from 'types'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
 import type { IModifierAddAbilityData, IModifierAddData } from 'types/database/files/modifier'
+import ModifierAddFeatData from './linked'
 
 export type ModifierAddData = ModifierAddAbilityData | ModifierAddSpellData |
 ModifierAddAdvantageData | ModifierAddDisadvantageData |
 ModifierAddResistanceData | ModifierAddVulnerabilityData |
-ModifierAddDamageImmunityData | ModifierAddConditionImmunityData
+ModifierAddDamageImmunityData | ModifierAddConditionImmunityData |
+ModifierAddFeatData
 
 const ModifierAddDataFactory = {
     create: function (data: Simplify<IModifierAddData> = {}): ModifierAddData {
         switch (data.subtype) {
+            case ModifierAddType.Linked:
+                return new ModifierAddFeatData(data)
             case ModifierAddType.Spell:
                 return new ModifierAddSpellData(data)
             case ModifierAddType.Advantage:
@@ -54,6 +58,8 @@ const ModifierAddDataFactory = {
             ? data.subtype
             : ModifierAddType.Ability
         switch (type) {
+            case ModifierAddType.Linked:
+                return ModifierAddFeatData.properties
             case ModifierAddType.Spell:
                 return ModifierAddSpellData.properties
             case ModifierAddType.Advantage:

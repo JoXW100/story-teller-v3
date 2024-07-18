@@ -1,8 +1,10 @@
 import React, { useContext } from 'react'
+import EditIcon from '@mui/icons-material/EditSharp'
+import type { EditorPageKeyType } from '..'
 import GroupItemComponent from './groupItem'
-import { Context, getRelativeFieldObject } from 'components/contexts/file'
-import LinkRecordMenu from 'components/layouts/menus/linkRecord'
-import { isEnum, isNumber, isObjectId, isRecord, isString } from 'utils'
+import { Context } from 'components/contexts/file'
+import LinkRecordMenu, { type ILinkRecordMenuButtonProps } from 'components/layouts/menus/linkRecord'
+import { asBooleanString, isEnum, isNumber, isObjectId, isRecord, isString, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
 import { useLocalizedText } from 'utils/hooks/localizedText'
 import type { LanguageKey } from 'data'
@@ -13,20 +15,23 @@ import styles from '../style.module.scss'
 
 type LinkRecordComponentParams = React.PropsWithChildren<{
     field: string
-    type: 'text' | 'number' | 'enum'
-    allowedTypes: DocumentType[]
-    defaultValue: string | number
+    type: 'text' | 'number' | 'enum' | 'edit'
+    editPage?: EditorPageKeyType
     enumType?: OptionTypeKey
+    allowedTypes: readonly DocumentType[]
+    defaultValue: string | number | object
+    root?: string
     labelId: LanguageKey
     labelArgs?: any[]
     placeholderId?: LanguageKey
     placeholderArgs?: any[]
-    deps?: string[]
+    fill?: boolean
 }>
 
-const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type, enumType, allowedTypes, defaultValue, labelId, labelArgs, placeholderId, placeholderArgs, deps = [] }) => {
+const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type, editPage, enumType, allowedTypes, defaultValue, labelId, labelArgs, placeholderId, placeholderArgs, fill = false }) => {
     const [context, dispatch] = useContext(Context)
     const placeholder = useLocalizedText(placeholderId, placeholderArgs)
+    const buttonTooltips = useLocalizedText('common-edit')
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.LinkRecordComponent', 'Data of incorrect type', context.file.data)
         return null
@@ -52,25 +57,44 @@ const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type,
         }
     }
 
+    if (type === 'edit') {
+        if (editPage === undefined) {
+            Logger.throw('Editor.LinkRecordComponent', 'No edit page specified', field)
+            return null
+        }
+    }
+
     const value = relative.relative[relative.key]
     if (!isRecord(value, (key, val) => isObjectId(key) && (
         (type === 'text' && isString(val)) ||
         (type === 'number' && isNumber(val)) ||
-        (type === 'enum' && isEnum(val, option!.enum))))) {
+        (type === 'enum' && isEnum(val, option!.enum)) ||
+        (type === 'edit' && isRecord(val))
+    ))) {
         Logger.throw('Editor.LinkRecordComponent', 'Relative field not of expected type', field, value)
         return null
     }
 
     const handleChange = (values: Record<ObjectId, unknown>): void => {
-        dispatch.setData(field, values, deps)
+        dispatch.setData(field, values)
+    }
+
+    const handleClick: ILinkRecordMenuButtonProps['onClick'] = (id, file): void => {
+        if (file !== null) {
+            dispatch.pushEditorPage({
+                pageKey: editPage!,
+                root: `${field}.${id}`,
+                name: file.getTitle()
+            })
+        }
     }
 
     return (
-        <GroupItemComponent className={styles.editList} labelId={labelId} labelArgs={labelArgs}>
+        <GroupItemComponent className={styles.editList} data={asBooleanString(fill)} labelId={labelId} labelArgs={labelArgs}>
             { type === 'text' &&
                 <LinkRecordMenu
                     itemClassName={styles.editSelectionItem}
-                    editClassName={styles.editListItem}
+                    editClassName={styles.editRecordItem}
                     type={type}
                     value={value as Record<ObjectId, string>}
                     defaultValue={String(defaultValue)}
@@ -81,7 +105,7 @@ const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type,
             { type === 'number' &&
                 <LinkRecordMenu
                     itemClassName={styles.editSelectionItem}
-                    editClassName={styles.editListItem}
+                    editClassName={styles.editRecordItem}
                     type={type}
                     value={value as Record<ObjectId, number>}
                     defaultValue={Number(defaultValue)}
@@ -92,12 +116,26 @@ const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type,
             { type === 'enum' &&
                 <LinkRecordMenu
                     itemClassName={styles.editSelectionItem}
-                    editClassName={styles.editListItem}
+                    editClassName={styles.editRecordItem}
                     type={type}
                     value={value as Record<ObjectId, string>}
                     options={option!.options}
                     defaultValue={option!.default}
                     onChange={handleChange}
+                    placeholder={placeholder}
+                    allowedTypes={allowedTypes}/>
+            }
+            { type === 'edit' &&
+                <LinkRecordMenu
+                    type="button"
+                    itemClassName={styles.editRecordItem}
+                    editClassName={styles.editRecordItem}
+                    buttonContent={<EditIcon className='small-icon'/>}
+                    value={value as Record<ObjectId, object>}
+                    defaultValue={defaultValue as object}
+                    onChange={handleChange}
+                    onClick={handleClick}
+                    buttonTooltips={buttonTooltips}
                     placeholder={placeholder}
                     allowedTypes={allowedTypes}/>
             }

@@ -4,13 +4,14 @@ import ZoomOutIcon from '@mui/icons-material/ZoomOutSharp'
 import { Tooltip } from '@mui/material'
 import TextDocumentRenderer from './text'
 import CreatureDocumentRenderer from './creature'
+import CreatureLinkRenderer from './creature/link'
 import CharacterDocumentRenderer from './character'
 import AbilityDocumentRenderer from './ability'
+import { AbilityLinkRenderer } from './ability/link'
 import SpellDocumentRender from './spell'
 import RaceDocumentRenderer from './race'
+import ItemDocumentRenderer from './item'
 import MapDocumentRenderer from './map'
-import { AbilityLinkRenderer } from './ability/link'
-import CreatureLinkRenderer from './creature/link'
 import DefaultRenderer from './default'
 import { isKeyOf } from 'utils'
 import { Context } from 'components/contexts/file'
@@ -25,7 +26,9 @@ export const DocumentRendererMap = {
     [DocumentType.Ability]: { document: AbilityDocumentRenderer, link: AbilityLinkRenderer as React.FC<{ id: ObjectId, data: IAbilityData }> },
     [DocumentType.Character]: { document: CharacterDocumentRenderer, link: CreatureLinkRenderer },
     [DocumentType.Class]: { document: DefaultRenderer, link: DefaultRenderer },
+    [DocumentType.Subclass]: { document: DefaultRenderer, link: DefaultRenderer },
     [DocumentType.Creature]: { document: CreatureDocumentRenderer, link: CreatureLinkRenderer },
+    [DocumentType.Item]: { document: ItemDocumentRenderer, link: CreatureLinkRenderer },
     [DocumentType.Map]: { document: MapDocumentRenderer, link: DefaultRenderer },
     [DocumentType.Modifier]: { document: DefaultRenderer, link: DefaultRenderer },
     [DocumentType.Race]: { document: RaceDocumentRenderer, link: DefaultRenderer },

@@ -1,8 +1,0 @@
-{
-    "key": "0.mod2",
-    "label": "Test",
-    "type": "ability",
-    "subtype": "attackBonus",
-    "condition": { "eq": [1, 1] },
-    "value": 2
-}

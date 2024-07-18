@@ -6,39 +6,42 @@ import CollapsibleGroup from 'components/layouts/collapsibleGroup'
 import LocalizedText from 'components/localizedText'
 import Elements from 'components/elements'
 import LinkInput from 'components/layouts/linkInput'
-import { keysOf } from 'utils'
-import { getMaxSpellLevel, getPreviousClassLevels, getSpellLevelValue } from 'utils/calculations'
+import { isKeyOf, isObjectId, keysOf } from 'utils'
+import { getSpellLevelValue } from 'utils/calculations'
 import { useLocalizedText } from 'utils/hooks/localizedText'
 import { DocumentFileType } from 'structure/database'
 import type DatabaseFile from 'structure/database/files'
 import type CharacterFacade from 'structure/database/files/character/facade'
-import { LevelModifyType } from 'structure/database/files/class/levelData'
 import SpellDocument from 'structure/database/files/spell'
 import type { SpellData } from 'structure/database/files/spell/factory'
 import { OptionalAttribute, SpellLevel, SpellPreparationType } from 'structure/dnd'
 import type { ObjectId } from 'types'
-import type { ICreatureStats } from 'types/editor'
 import styles from '../styles.module.scss'
 
 type CharacterSpellPageProps = React.PropsWithRef<{
     facade: CharacterFacade
     spells: Record<ObjectId, SpellData>
-    stats: ICreatureStats
     setStorage: FileContextDispatch['setStorage']
 }>
 
 const allowedTypes = [DocumentFileType.Spell]
 
-const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells, stats, setStorage }) => {
+const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells, setStorage }) => {
     const [spellInput, setSpellInput] = useState<string>('')
     const [selectedPage, setSelectedPage] = useState<ObjectId | null>(null)
-    const selectedClass = useMemo(() =>
-        selectedPage !== null && selectedPage in facade.classesData && facade.classesData[selectedPage].levels[facade.classes[selectedPage]].spellAttribute !== OptionalAttribute.None
-            ? selectedPage
-            : keysOf(facade.classes).find((key) =>
-                key in facade.classesData && facade.classesData[key].levels[facade.classes[key]].spellAttribute !== OptionalAttribute.None
-            ) ?? null
-    , [facade.classes, facade.classesData, selectedPage])
+    const pages = useMemo(() => {
+        const pages: Record<ObjectId, IPageSelectorData> = {}
+        for (const classId of keysOf(facade.classes)) {
+            if (facade.getClassSpellAttribute(classId) !== OptionalAttribute.None) {
+                pages[classId] = { key: 'empty', args: [facade.classesData[classId].name] }
+            }
+        }
+        return pages
+    }, [facade])
+    const selectedClass = useMemo<ObjectId | null>(() => isObjectId(selectedPage) && isKeyOf(selectedPage, pages)
+        ? selectedPage
+        : keysOf(pages)[0] ?? null
+    , [selectedPage, pages])
     const [knownCantrips, knownSpells, preparedSpells, numKnownCantrips, numKnownSpells, numPreparedSpells] = useMemo(() => {
         const knownCantrips: Record<ObjectId, SpellData> = {}
         const knownSpells: Record<ObjectId, SpellData> = {}
@@ -46,7 +49,7 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
         let numKnownCantrips: number = 0
         let numKnownSpells: number = 0
         let numPreparedSpells: number = 0
-        if (selectedClass !== null && selectedClass in facade.classesData) {
+        if (selectedClass !== null) {
             const classPreparations = facade.storage.spellPreparations[selectedClass] ?? {}
             for (const key of keysOf(classPreparations)) {
                 const preparation = classPreparations[key]
@@ -77,51 +80,13 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
             }
         }
         return [knownCantrips, knownSpells, preparedSpells, numKnownCantrips, numKnownSpells, numPreparedSpells]
-    }, [facade.classesData, facade.storage.spellPreparations, selectedClass, spells])
+    }, [facade.storage.spellPreparations, selectedClass, spells])
     const [learnedSlots, preparationSlots, spellSlots, maxSpellLevels] = useMemo(() => {
-        let spellSlots: Partial<Record<SpellLevel, number>> = {}
-        let learnedSlots: number = 0
-        let preparationSlots: number = 0
-        let maxSpellLevels: SpellLevel = SpellLevel.Cantrip
-        if (selectedClass !== null && selectedClass in facade.classesData) {
-            const classLevel = facade.classes[selectedClass]
-            const classData = facade.classesData[selectedClass]
-            learnedSlots = facade.getAttributeModifier(classData.learnedSlotsScaling)
-            preparationSlots = facade.getAttributeModifier(classData.preparationSlotsScaling)
-            for (const level of getPreviousClassLevels(classLevel)) {
-                const levelData = classData.levels[level]
-                switch (levelData.type) {
-                    case LevelModifyType.Add:
-                        learnedSlots += levelData.learnedSlots
-                        preparationSlots += levelData.preparationSlots
-                        for (const spellLevel of keysOf(levelData.spellSlots)) {
-                            spellSlots[spellLevel] = (spellSlots[spellLevel] ?? 0) + (levelData.spellSlots[spellLevel] ?? 0)
-                        }
-                        break
-                    case LevelModifyType.Replace:
-                        learnedSlots = levelData.learnedSlots
-                        preparationSlots = levelData.preparationSlots
-                        spellSlots = { ...levelData.spellSlots }
-                        break
-                }
-            }
-            maxSpellLevels = getMaxSpellLevel(...keysOf(spellSlots))
+        if (selectedClass === null) {
+            return [0, 0, {}, SpellLevel.Cantrip]
         }
-        return [learnedSlots, preparationSlots, spellSlots, maxSpellLevels]
+        return facade.getClassSpellSlotInfo(selectedClass)
     }, [facade, selectedClass])
-    const pages = useMemo(() => {
-        const pages: Record<ObjectId, IPageSelectorData> = {}
-        for (const classId of keysOf(facade.classes)) {
-            if (classId in facade.classesData) {
-                const classLevel = facade.classes[classId]
-                const classData = facade.classesData[classId]
-                if (classData.levels[classLevel].spellAttribute !== OptionalAttribute.None) {
-                    pages[classId] = { key: 'empty', args: [classData.name] }
-                }
-            }
-        }
-        return pages
-    }, [facade.classes, facade.classesData])
     const addSpellPlaceholder = useLocalizedText('render-spellPage-addSpell-placeholder')
 
     const handleRemoveSpell = (spellId: ObjectId): void => {

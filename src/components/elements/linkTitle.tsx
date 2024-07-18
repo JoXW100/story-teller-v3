@@ -1,13 +1,16 @@
+import { useContext } from 'react'
 import Link from 'next/link'
+import { Context } from 'components/contexts/story'
 import LocalizedText from 'components/localizedText'
+import { useFile } from 'utils/hooks/files'
 import Navigation from 'utils/navigation'
 import LinkTitleElement, { type LinkTitleElementParams } from 'structure/elements/linkTitle'
 import styles from './styles.module.scss'
-import { useFile } from 'utils/hooks/files'
 
 const LinkTitleComponent: React.FC<LinkTitleElementParams> = ({ fileId, newTab }) => {
+    const [context] = useContext(Context)
     const [file] = useFile(fileId)
-    const href = Navigation.homeURL()
+    const href = Navigation.filePath(fileId, context.story.id)
     const rel = newTab ? 'noopener noreferrer' : undefined
     const target = newTab ? '_blank' : undefined
 

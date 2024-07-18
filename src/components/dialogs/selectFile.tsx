@@ -19,7 +19,7 @@ interface ISelectFileDialogState {
     error: string | null
 }
 
-const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, allowedTypes, callback }) => {
+const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, allowedTypes, storyId, callback }) => {
     const [state, setState] = useState<ISelectFileDialogState>({
         selected: null,
         files: [],
@@ -44,7 +44,7 @@ const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, allowedTypes
                 return state
             }
 
-            Communication.getSubscribedFilesOfTypes(allowedTypes).then((response) => {
+            Communication.getSubscribedFilesOfTypes(storyId, allowedTypes).then((response) => {
                 if (response.success) {
                     setState((state) => ({ ...state, files: response.result, loading: false, error: null }))
                 } else {

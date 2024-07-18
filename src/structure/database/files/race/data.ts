@@ -38,16 +38,16 @@ class RaceData implements IRaceData {
 
         this.modifiers = RaceData.properties.modifiers.value
         if (Array.isArray(data.modifiers)) {
-            for (const id of data.modifiers) {
-                if (isObjectId(id)) {
-                    this.modifiers.push(id)
+            for (const modifier of data.modifiers) {
+                if (isObjectId(modifier)) {
+                    this.modifiers.push(modifier)
                 }
             }
         }
     }
 
     public createContexts(elements: ElementDefinitions): [TokenContext] {
-        const descriptionContext = {
+        const descriptionContext: TokenContext = {
             title: new EmptyToken(elements, this.name),
             name: new EmptyToken(elements, this.name)
         }

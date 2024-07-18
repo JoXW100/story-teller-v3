@@ -1,7 +1,7 @@
 import ClassLevelData from './levelData'
 import { isBoolean, isDefined, isEnum, isRecord, isString, keysOf } from 'utils'
 import { DieType } from 'structure/dice'
-import { ArmorType, Attribute, ClassLevel, OptionalAttribute, ProficiencyLevel, ProficiencyLevelBasic, ToolType, WeaponType } from 'structure/dnd'
+import { ArmorType, Attribute, ClassLevel, OptionalAttribute, ProficiencyLevel, ProficiencyLevelBasic, ToolType, WeaponTypeValue } from 'structure/dnd'
 import { simplifyObjectProperties, validateObjectProperties } from 'structure/database'
 import EmptyToken from 'structure/language/tokens/empty'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
@@ -13,23 +13,26 @@ import type { IClassData, IClassLevelData } from 'types/database/files/class'
 class ClassData implements IClassData {
     public readonly name: string
     public readonly description: string
+    public readonly hitDie: DieType
+    public readonly subclassLevel: ClassLevel
     public readonly levels: Record<ClassLevel, ClassLevelData>
     // Proficiencies
     public readonly proficienciesSave: Partial<Record<Attribute, ProficiencyLevel>>
     public readonly proficienciesTool: Partial<Record<ToolType, ProficiencyLevel>>
     public readonly proficienciesArmor: Partial<Record<ArmorType, ProficiencyLevelBasic>>
-    public readonly proficienciesWeapon: Partial<Record<WeaponType, ProficiencyLevelBasic>>
+    public readonly proficienciesWeapon: Partial<Record<WeaponTypeValue, ProficiencyLevelBasic>>
     // Spells
-    public readonly hitDie: DieType
     public readonly spellAttribute: OptionalAttribute
-    public readonly preparationSlotsScaling: OptionalAttribute
     public readonly preparationAll: boolean
+    public readonly preparationSlotsScaling: OptionalAttribute
     public readonly learnedAll: boolean
     public readonly learnedSlotsScaling: OptionalAttribute
 
     public constructor (data: Simplify<IClassData> = {}) {
         this.name = data.name ?? ClassData.properties.name.value
         this.description = data.description ?? ClassData.properties.description.value
+        this.hitDie = data.hitDie ?? ClassData.properties.hitDie.value
+        this.subclassLevel = data.subclassLevel ?? ClassData.properties.subclassLevel.value
         this.levels = ClassData.properties.levels.value
         if (data.levels !== undefined) {
             for (const level of keysOf(data.levels)) {
@@ -37,17 +40,52 @@ class ClassData implements IClassData {
             }
         }
         // Proficiencies
-        this.proficienciesSave = data.proficienciesSave ?? ClassData.properties.proficienciesSave.value
-        this.proficienciesTool = data.proficienciesTool ?? ClassData.properties.proficienciesTool.value
-        this.proficienciesArmor = data.proficienciesArmor ?? ClassData.properties.proficienciesArmor.value
-        this.proficienciesWeapon = data.proficienciesWeapon ?? ClassData.properties.proficienciesWeapon.value
+        this.proficienciesSave = ClassData.properties.proficienciesSave.value
+        if (data.proficienciesSave !== undefined) {
+            for (const type of keysOf(data.proficienciesSave)) {
+                if (isEnum(type, Attribute) && isEnum(data.proficienciesSave[type], ProficiencyLevel)) {
+                    this.proficienciesSave[type] = data.proficienciesSave[type]
+                }
+            }
+        }
+        this.proficienciesTool = ClassData.properties.proficienciesTool.value
+        if (data.proficienciesTool !== undefined) {
+            for (const type of keysOf(data.proficienciesTool)) {
+                if (isEnum(type, ToolType) && isEnum(data.proficienciesTool[type], ProficiencyLevel)) {
+                    this.proficienciesTool[type] = data.proficienciesTool[type]
+                }
+            }
+        }
+        this.proficienciesArmor = ClassData.properties.proficienciesArmor.value
+        if (data.proficienciesArmor !== undefined) {
+            for (const type of keysOf(data.proficienciesArmor)) {
+                if (isEnum(type, ArmorType) && isEnum(data.proficienciesArmor[type], ProficiencyLevelBasic)) {
+                    this.proficienciesArmor[type] = data.proficienciesArmor[type]
+                }
+            }
+        }
+        this.proficienciesWeapon = ClassData.properties.proficienciesWeapon.value
+        if (data.proficienciesWeapon !== undefined) {
+            for (const type of keysOf(data.proficienciesWeapon)) {
+                if (isEnum(type, WeaponTypeValue) && isEnum(data.proficienciesWeapon[type], ProficiencyLevelBasic)) {
+                    this.proficienciesWeapon[type] = data.proficienciesWeapon[type]
+                }
+            }
+        }
         // Spells
-        this.hitDie = data.hitDie ?? ClassData.properties.hitDie.value
         this.spellAttribute = data.spellAttribute ?? ClassData.properties.spellAttribute.value
-        this.preparationSlotsScaling = data.preparationSlotsScaling ?? ClassData.properties.preparationSlotsScaling.value
         this.preparationAll = data.preparationAll ?? ClassData.properties.preparationAll.value
+        if (this.preparationAll) {
+            this.preparationSlotsScaling = ClassData.properties.preparationSlotsScaling.value
+        } else {
+            this.preparationSlotsScaling = data.preparationSlotsScaling ?? ClassData.properties.preparationSlotsScaling.value
+        }
         this.learnedAll = data.learnedAll ?? ClassData.properties.learnedAll.value
-        this.learnedSlotsScaling = data.learnedSlotsScaling ?? ClassData.properties.learnedSlotsScaling.value
+        if (this.learnedAll) {
+            this.learnedSlotsScaling = ClassData.properties.learnedSlotsScaling.value
+        } else {
+            this.learnedSlotsScaling = data.learnedSlotsScaling ?? ClassData.properties.learnedSlotsScaling.value
+        }
     }
 
     public static properties: DataPropertyMap<IClassData, ClassData> = {
@@ -58,6 +96,10 @@ class ClassData implements IClassData {
         description: {
             value: '',
             validate: isString
+        },
+        subclassLevel: {
+            value: ClassLevel.Level1,
+            validate: (value) => isEnum(value, ClassLevel)
         },
         levels: {
             get value() {
@@ -115,13 +157,14 @@ class ClassData implements IClassData {
         },
         proficienciesWeapon: {
             get value() { return {} },
-            validate: (value) => isRecord(value, (key, val) => isEnum(key, WeaponType) && isEnum(val, ProficiencyLevelBasic)),
+            validate: (value) => isRecord(value, (key, val) => isEnum(key, WeaponTypeValue) && isEnum(val, ProficiencyLevelBasic)),
             simplify: (value) => Object.values(value).some((value) => value !== ProficiencyLevelBasic.None) ? value : null
         },
         hitDie: {
             value: DieType.D8,
             validate: (value) => isEnum(value, DieType)
         },
+        // Spells
         spellAttribute: {
             value: OptionalAttribute.None,
             validate: (value) => isEnum(value, OptionalAttribute)
@@ -145,7 +188,7 @@ class ClassData implements IClassData {
     }
 
     public createContexts(elements: ElementDefinitions): [TokenContext] {
-        const descriptionContext = {
+        const descriptionContext: TokenContext = {
             title: new EmptyToken(elements, this.name),
             name: new EmptyToken(elements, this.name)
         }

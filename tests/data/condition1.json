@@ -1,6 +1,0 @@
-{ 
-    "and": [
-        { "eq": [{ "property": "x", "key": "z" }, true] },
-        { "eq": [{ "property": "y" }, "w"] }
-    ]
-}

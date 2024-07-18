@@ -1,0 +1,29 @@
+{
+    "name": "Choose Ability Score Improvement",
+    "type": "choice",
+    "num": 1,
+    "options": {
+        "Ability Score": {
+            "name": "Choose Ability Score",
+            "description": "",
+            "type": "group",
+            "modifiers": {
+                "score1": {
+                    "name": "Chose Ability Score",
+                    "type": "bonus",
+                    "subtype": "spell"
+                },
+                "score2": {
+                    "name": "Chose Ability Score",
+                    "type": "add",
+                    "subtype": "ability"
+                }
+            }
+        },
+        "Feat": {
+            "name": "Chose Feat",
+            "type": "add",
+            "subtype": "ability"
+        }
+    }
+}

@@ -17,6 +17,8 @@ import { open5eCreatureImporter, open5eSpellImporter } from 'utils/importers/ope
 import { DocumentType } from 'structure/database'
 import type { IOpen5eItemInfo, ICompendiumMenuItem } from 'types/open5eCompendium'
 import styles from './style.module.scss'
+import SpellDataFactory from 'structure/database/files/spell/factory'
+import CreatureDataFactory from 'structure/database/files/creature/factory'
 
 interface ImportContentState {
     menu: ICompendiumMenuItem
@@ -54,7 +56,7 @@ const splitCastingTime = (castingTime?: string): { num: number, type: string } =
     }
 }
 
-const CreateImportContent: React.FC<CreateContentProps> = ({ callback }) => {
+const CreateImportContent: React.FC<CreateContentProps> = ({ callback, close }) => {
     const ref = useRef<HTMLButtonElement>(null)
     const placeholder = useLocalizedText('dialog-createFile-fileNamePlaceholder')
     const [name, setName] = useState('')
@@ -97,7 +99,7 @@ const CreateImportContent: React.FC<CreateContentProps> = ({ callback }) => {
                         callback?.({
                             type: DocumentType.Creature,
                             name: name,
-                            data: res
+                            data: CreatureDataFactory.simplify(res)
                         })
                     }, (e: unknown) => {
                         Logger.throw('createImportContent.open5eCreatureImporter', e)
@@ -112,7 +114,7 @@ const CreateImportContent: React.FC<CreateContentProps> = ({ callback }) => {
                         callback?.({
                             type: DocumentType.Spell,
                             name: name,
-                            data: res
+                            data: SpellDataFactory.simplify(res)
                         })
                     }, (e: unknown) => {
                         Logger.throw('createImportContent.open5eSpellImporter', e)

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import styles from './style.module.scss'
+import { asBooleanString } from 'utils'
 
 type DividerProps = React.PropsWithRef<{
     className?: string
@@ -62,19 +63,21 @@ const Divider = ({ className, leftClassName, rightClassName, left, right, defaul
     const name = className !== undefined ? styles.main + ' ' + className : styles.main
     const sizeLeft = `clamp(${minLeft}, ${state.position * 100}%, 100% - ${minRight})`
     const sizeRight = `clamp(${minRight}, ${(1 - state.position) * 100}%, 100% - ${minLeft})`
+    const leftName = leftClassName !== undefined ? `${styles.side} ${leftClassName}` : styles.side
+    const rightName = rightClassName !== undefined ? `${styles.side} ${rightClassName}` : styles.side
 
     return (
-        <div className={name}>
-            { !collapsed && <div ref={ref} className={styles.divider} onMouseDown={dragStart} onTouchStart={dragStart} style={{ left: sizeLeft }}/> }
+        <div className={name} data={asBooleanString(collapsed)}>
+            <div ref={ref} className={styles.divider} onMouseDown={dragStart} onTouchStart={dragStart} style={{ left: sizeLeft }}/>
             { collapsed && collapsedLeft !== null
                 ? collapsedLeft
-                : <div className={leftClassName !== undefined ? `${styles.side} ${leftClassName}` : styles.side} style={{ left: 0, width: sizeLeft }}>
+                : <div className={leftName} style={{ left: 0, width: sizeLeft }}>
                     { left }
                 </div>
             }
             { collapsed && collapsedRight !== null
                 ? collapsedRight
-                : <div className={rightClassName !== undefined ? `${styles.side} ${rightClassName}` : styles.side} style={{ right: 0, width: sizeRight }}>
+                : <div className={rightName} style={{ right: 0, width: sizeRight }}>
                     { right }
                 </div>
             }

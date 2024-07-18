@@ -28,11 +28,13 @@ class ModifierBonusStrengthData extends ModifierBonusDataBase implements IModifi
         }
     }
 
-    public apply(data: Modifier, self: ModifierDocument): void {
-        data.str.subscribe({
+    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+        modifier.str.subscribe({
+            key: key,
             target: self,
+            data: this,
             apply: function (value): number {
-                return value + (self.data as ModifierBonusStrengthData).value
+                return value + (this.data as ModifierBonusStrengthData).value
             }
         })
     }
