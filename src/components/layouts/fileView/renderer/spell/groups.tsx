@@ -29,7 +29,7 @@ const SpellGroups: React.FC<SpellGroupsProps> = ({ spells, spellSlots, expendedS
             categories[spell.level] = [...categories[spell.level] ?? [], key]
         }
         return categories
-    }, [spells])
+    }, [spellSlots, spells])
 
     const option = getOptionType('spellLevel')
 

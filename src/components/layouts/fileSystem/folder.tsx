@@ -158,10 +158,8 @@ const Folder: React.FC<FolderProps> = ({ file, children }) => {
                 if (state.text === file.name) {
                     return state
                 }
-                dispatch.renameFile(file, state.text, (success) => {
-                    setState((state) => ({ ...state, text: success ? state.text : file.name, inEditMode: false }))
-                })
-                return state
+                dispatch.renameFile(file, state.text)
+                return { ...state, text: state.text, inEditMode: false }
             })
         }
     }, [dispatch, file, state.inEditMode])

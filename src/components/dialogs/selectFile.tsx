@@ -57,7 +57,7 @@ const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, allowedTypes
 
             return { ...state, files: [], loading: true, error: null }
         })
-    }, [allowedTypes])
+    }, [allowedTypes, storyId])
 
     useEffect(() => {
         loadContent()

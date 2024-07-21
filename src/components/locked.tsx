@@ -7,7 +7,7 @@ type LockedProps = React.PropsWithChildren<{
     textId: LanguageKey
 }>
 
-const Locked: React.FC<LockedProps> = ({ locked, textId, children }) => {
+const Locked: React.FC<LockedProps> = ({ locked, textId, children }): React.ReactNode => {
     if (locked) {
         return (
             <div>
@@ -15,9 +15,9 @@ const Locked: React.FC<LockedProps> = ({ locked, textId, children }) => {
                 <LockIcon/>
             </div>
         )
+    } else {
+        return children
     }
-
-    return children
 }
 
 export default Locked

@@ -4,7 +4,7 @@ type LoadingProps = React.PropsWithChildren<{
     loaded?: boolean
 }>
 
-const Loading: React.FC<LoadingProps> = ({ loaded = false, children }) => {
+const Loading: React.FC<LoadingProps> = ({ loaded = false, children }): React.ReactNode => {
     if (loaded) {
         return children
     } else {
