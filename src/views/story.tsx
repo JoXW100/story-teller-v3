@@ -38,7 +38,7 @@ const StoryView: React.FC<StoryViewProps> = ({ fileId }) => {
                 collapsed={!context.sidePanelExpanded}
                 minLeft='8em'
                 minRight='2em'
-                left={<FileSystem/>}
+                left={<FileSystem fileId={fileId}/>}
                 right={<FileView fileId={fileId}/>}
                 collapsedLeft={<FileSystemCollapsedMenu/>}
             />

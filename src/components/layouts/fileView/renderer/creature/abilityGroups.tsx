@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { AbilityLinkRenderer } from '../ability/link'
+import { AbilityToggleRenderer } from '../ability/toggle'
 import type { LanguageKey } from 'data'
 import LocalizedText from 'components/localizedText'
 import CollapsibleGroup from 'components/layouts/collapsibleGroup'
@@ -77,7 +77,7 @@ const AbilityGroups: React.FC<AbilityGroupsProps> = ({ abilities, facade, expend
         .map((type) => categories[type]!.content.length > 0 &&
             <CollapsibleGroup key={type} header={<LocalizedText id={categories[type]!.headerId} args={categories[type]!.headerArgs}/>}>
                 { categories[type]!.content.map((key) => key in abilities && (
-                    <AbilityLinkRenderer
+                    <AbilityToggleRenderer
                         id={key}
                         key={key}
                         data={abilities[key]}
@@ -86,7 +86,8 @@ const AbilityGroups: React.FC<AbilityGroupsProps> = ({ abilities, facade, expend
                         attackBonuses={attackBonuses}
                         damageBonuses={damageBonuses}
                         expendedCharges={isNaN(expendedCharges[key]) ? 0 : expendedCharges[key]}
-                        setExpendedCharges={(value) => { handleSetExpendedCharges(value, key) }}/>
+                        setExpendedCharges={(value) => { handleSetExpendedCharges(value, key) }}
+                        startCollapsed/>
                 ))}
             </CollapsibleGroup>
         )

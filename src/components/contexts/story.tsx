@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useReducer } from 'react'
 import type { IRollContext } from 'structure/dice'
 import Loading from 'components/loading'
+import { openDialog } from 'components/dialogs/handler'
 import Beyond20 from 'utils/beyond20'
 import Communication from 'utils/communication'
 import Logger from 'utils/logger'
@@ -91,6 +92,12 @@ const reducer: React.Reducer<StoryContextState, StoryContextAction> = (state, ac
             if (response.success) {
                 return { ...state, loading: false, error: null, story: response.result }
             } else {
+                openDialog('notice', {
+                    id: 'story.setStory',
+                    headerTextId: 'common-error',
+                    bodyTextId: 'story-dialog-setStory',
+                    bodyTextArgs: [response.result ?? 'Unknown Error']
+                })
                 return { ...state, loading: false, error: response.result, story: defaultContextState.story }
             }
         }

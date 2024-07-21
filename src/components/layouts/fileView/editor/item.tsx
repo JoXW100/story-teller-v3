@@ -6,7 +6,6 @@ import LocalizedText from 'components/localizedText'
 import TextComponent from './components/text'
 import NumberComponent from './components/number'
 import EnumComponent from './components/enum'
-import CalcComponent from './components/calc'
 import BooleanComponent from './components/boolean'
 import EditItemRecordComponent from './components/editItemRecord'
 import LinkListComponent from './components/linkList'
@@ -63,9 +62,12 @@ const ItemDocumentEditor: React.FC = () => {
                 <>
                     <GroupComponent header={<LocalizedText id='editor-header-effect'/>} open>
                         <EnumComponent field='damageType' type='damageType' labelId='editor-damageType'/>
-                        <EnumComponent field='damageScaling' type='scaling' labelId='editor-scaling'/>
-                        <BooleanComponent field='damageProficiency' labelId='editor-proficiency'/>
-                        <CalcComponent field='damageModifier' labelId='editor-modifier'/>
+                        <SelectionInputComponent
+                            field='damageScaling'
+                            type='number'
+                            optionsType='scaling'
+                            labelId='editor-scaling'
+                            fill/>
                         <EditItemRecordComponent
                             field='effects'
                             labelId='editor-effects'
@@ -86,17 +88,21 @@ const ItemDocumentEditor: React.FC = () => {
                                 <NumberComponent field='range' labelId='editor-range'/>
                             </>
                         }
-                        <EnumComponent field='hitScaling' type='scaling' labelId='editor-scaling'/>
-                        <BooleanComponent field='hitProficiency' labelId='editor-proficiency'/>
-                        <CalcComponent field='hitModifier' labelId='editor-modifier'/>
+                        <SelectionInputComponent
+                            field='hitScaling'
+                            type='number'
+                            optionsType='scaling'
+                            labelId='editor-scaling'
+                            fill/>
                     </GroupComponent>
                 </>
             }
             <GroupComponent header={<LocalizedText id='editor-header-charges'/>} open>
-                <NumberComponent field='charges' labelId='editor-charges'/>
-                { context.file.data.charges > 0 &&
-                    <EnumComponent field='chargesReset' type='restType' labelId='editor-chargesReset'/>
-                }
+                <EditItemRecordComponent
+                    field='charges'
+                    defaultValue={{}}
+                    labelId='editor-charges'
+                    page='charges'/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-modifiers'/>} open>
                 <LinkListComponent field='modifiers' labelId='editor-modifiers' allowedTypes={AllowedTypes} fill/>

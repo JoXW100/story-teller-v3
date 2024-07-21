@@ -2,6 +2,7 @@ import ModifierSetDataBase, { ModifierSetType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
 import { asEnum, isEnum, isNumber } from 'utils'
+import { getMaxProficiencyLevel } from 'utils/calculations'
 import { Skill, ProficiencyLevel } from 'structure/dnd'
 import { createDefaultChoiceData, createMultipleChoiceData, simplifyMultipleChoiceData, validateChoiceData } from 'structure/database/choice'
 import type { Simplify } from 'types'
@@ -61,14 +62,13 @@ class ModifierSetSkillProficiencyData extends ModifierSetDataBase implements IMo
                     }
 
                     for (const index of indices) {
-                        const proficiency = modifier.proficiency.value[index] ?? null
-                        if (proficiency !== null) {
-                            value = { ...value, [proficiency]: modifier.value }
-                        }
+                        const proficiency = modifier.proficiency.value[index]
+                        value = { ...value, [proficiency]: getMaxProficiencyLevel(modifier.value, value[proficiency]) }
                     }
                     return value
                 } else {
-                    return { ...value, [modifier.proficiency.value]: modifier.value }
+                    const proficiency = modifier.proficiency.value
+                    return { ...value, [proficiency]: getMaxProficiencyLevel(modifier.value, value[proficiency]) }
                 }
             }
         })

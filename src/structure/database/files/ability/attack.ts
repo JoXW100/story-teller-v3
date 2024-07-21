@@ -3,15 +3,14 @@ import AbilityDataBase from './data'
 import { isEnum, isNumber, isRecord, keysOf } from 'utils'
 import { TargetType } from 'structure/dnd'
 import EffectFactory, { simplifyEffectRecord, type Effect } from 'structure/database/effect/factory'
-import type { EffectCondition } from 'structure/database/effectCondition'
-import EffectConditionFactory from 'structure/database/effectCondition/factory'
+import EffectConditionFactory, { type EffectCondition } from 'structure/database/effectCondition/factory'
 import { getOptionType } from 'structure/optionData'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IAbilityAttackData } from 'types/database/files/ability'
 
 class AbilityAttackData extends AbilityDataBase implements IAbilityAttackData {
-    public readonly type: AbilityType.Attack
+    public readonly type = AbilityType.Attack
     public readonly condition: EffectCondition
     public readonly target: TargetType
     public readonly range: number
@@ -19,7 +18,6 @@ class AbilityAttackData extends AbilityDataBase implements IAbilityAttackData {
 
     public constructor(data: Simplify<IAbilityAttackData>) {
         super(data)
-        this.type = data.type ?? AbilityAttackData.properties.type.value
         this.condition = data.condition !== undefined
             ? EffectConditionFactory.create(data.condition)
             : AbilityAttackData.properties.condition.value
@@ -44,7 +42,7 @@ class AbilityAttackData extends AbilityDataBase implements IAbilityAttackData {
         ...AbilityDataBase.properties,
         type: {
             value: AbilityType.Attack,
-            validate: (value) => value === AbilityType.MeleeAttack || value === AbilityType.MeleeWeapon,
+            validate: (value) => value === this.properties.type.value,
             simplify: (value) => value
         },
         condition: {

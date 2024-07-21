@@ -4,21 +4,21 @@ import type Modifier from '../modifier'
 import { asNumber, isNumber } from 'utils'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { IModifierBonusAttacksData } from 'types/database/files/modifier'
+import type { IModifierBonusAttunementSlotsData } from 'types/database/files/modifier'
 
-class ModifierBonusAttacksData extends ModifierBonusDataBase implements IModifierBonusAttacksData {
-    public readonly subtype = ModifierBonusType.Attacks
+class ModifierBonusAttunementSlotsData extends ModifierBonusDataBase implements IModifierBonusAttunementSlotsData {
+    public readonly subtype = ModifierBonusType.AttunementSlot
     public readonly value: number
 
-    public constructor(data: Simplify<IModifierBonusAttacksData>) {
+    public constructor(data: Simplify<IModifierBonusAttunementSlotsData>) {
         super(data)
-        this.value = asNumber(data.value, ModifierBonusAttacksData.properties.value.value)
+        this.value = asNumber(data.value, ModifierBonusAttunementSlotsData.properties.value.value)
     }
 
-    public static properties: DataPropertyMap<IModifierBonusAttacksData, ModifierBonusAttacksData> = {
+    public static properties: DataPropertyMap<IModifierBonusAttunementSlotsData, ModifierBonusAttunementSlotsData> = {
         ...ModifierBonusDataBase.properties,
         subtype: {
-            value: ModifierBonusType.Attacks,
+            value: ModifierBonusType.AttunementSlot,
             validate: (value) => value === this.properties.subtype.value,
             simplify: (value) => value
         },
@@ -29,15 +29,15 @@ class ModifierBonusAttacksData extends ModifierBonusDataBase implements IModifie
     }
 
     public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
-        modifier.attacks.subscribe({
+        modifier.attunementSlots.subscribe({
             key: key,
             target: self,
             data: this,
             apply: function (value): number {
-                return value + (this.data as ModifierBonusAttacksData).value
+                return value + (this.data as ModifierBonusAttunementSlotsData).value
             }
         })
     }
 }
 
-export default ModifierBonusAttacksData
+export default ModifierBonusAttunementSlotsData

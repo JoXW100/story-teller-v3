@@ -3,8 +3,8 @@ import Communication from 'utils/communication'
 import Logger from 'utils/logger'
 import { getSpellLevelFromValue } from 'utils/calculations'
 import { DieType } from 'structure/dice'
-import { AutoCalcValue, CalcMode } from 'structure/database'
-import { AreaType, Attribute, CastingTime, DamageType, Duration, MagicSchool, ScalingType, SpellLevel, TargetType } from 'structure/dnd'
+import { CalcMode } from 'structure/database'
+import { AreaType, Attribute, CastingTime, DamageType, Duration, MagicSchool, ScalingType, Skill, SpellLevel, TargetType } from 'structure/dnd'
 import { EffectConditionType } from 'structure/database/effectCondition'
 import CreatureData from 'structure/database/files/creature/data'
 import type { Editable } from 'types'
@@ -287,9 +287,11 @@ function createCondition(res: Open5eSpell): IEffectCondition {
         case EffectConditionType.None:
             return { type: condition }
         case EffectConditionType.Hit:
-            return { type: condition, scaling: ScalingType.SpellModifier, proficiency: true, modifier: { ...AutoCalcValue } }
+            return { type: condition, scaling: { [ScalingType.SpellModifier]: 1, [ScalingType.Proficiency]: 1 } }
         case EffectConditionType.Save:
-            return { type: condition, attribute: saveAttr ?? Attribute.STR, scaling: ScalingType.SpellModifier, proficiency: true, modifier: { ...AutoCalcValue } }
+            return { type: condition, attribute: saveAttr ?? Attribute.STR, scaling: { [ScalingType.SpellModifier]: 1, [ScalingType.Proficiency]: 1 } }
+        case EffectConditionType.Check:
+            return { type: condition, skill: Skill.Acrobatics, scaling: { [ScalingType.SpellModifier]: 1, [ScalingType.Proficiency]: 1 } }
     }
 }
 
@@ -347,17 +349,14 @@ function createEffects(res: Open5eSpell): Record<string, IEffect> {
             condition: {},
             category: EffectCategory.Uncategorized,
             damageType: damageType,
-            scaling: ScalingType.None,
-            proficiency: false,
+            scaling: {},
             die: effectDie,
-            dieCount: effectDieNum,
-            modifier: { ...AutoCalcValue }
+            dieCount: effectDieNum
         } satisfies IDamageEffect
     }
     if (effects.main.type === EffectType.Damage && isString(res.higher_level) && res.higher_level.length > 0) {
         const increaseMatch = higherLevelIncreaseMatchExpr.exec(res.higher_level)
         if (increaseMatch !== null) {
-            console.log('createEffects.higherLevelIncreaseMatchExpr', increaseMatch)
             const type = increaseMatch[1]
             if (type !== 'damage') {
                 Logger.warn('Imported spell with unexpected "higher_level" field: ', res.higher_level, increaseMatch)

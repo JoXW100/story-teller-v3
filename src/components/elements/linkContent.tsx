@@ -12,7 +12,6 @@ import styles from './styles.module.scss'
 const AllowedTypes = keysOf(DocumentRendererMap)
 const LinkContentComponent: React.FC<LinkContentElementParams> = ({ fileId, border, newTab }) => {
     const [file, loading] = useFileOfType(fileId, AllowedTypes)
-    const href = Navigation.homeURL()
     const rel = newTab ? 'noopener noreferrer' : undefined
     const target = newTab ? '_blank' : undefined
 
@@ -26,7 +25,7 @@ const LinkContentComponent: React.FC<LinkContentElementParams> = ({ fileId, bord
 
     return (
         <Loading loaded={!loading}>
-            <Link href={href} className={styles.linkContent} target={target} rel={rel} passHref>
+            <Link href={Navigation.fileURL(file.id, file.storyId)} className={styles.linkContent} target={target} rel={rel} passHref>
                 <div data={String(border)}>
                     <Renderer id={file.id} data={file.data}/>
                 </div>

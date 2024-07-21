@@ -1,22 +1,27 @@
-import { type EffectCondition, EffectConditionType } from '.'
-import NoneEffectCondition from './none'
-import HitEffectCondition from './hit'
-import SaveEffectCondition from './save'
+import { EffectConditionType } from '.'
+import EffectConditionNone from './none'
+import EffectConditionHit from './hit'
+import EffectConditionSave from './save'
+import EffectConditionCheck from './check'
 import { hasObjectProperties, simplifyObjectProperties, validateObjectProperties } from 'structure/database'
 import { isEnum, isRecord } from 'utils'
 import type { Simplify } from 'types'
 import type { IEffectCondition } from 'types/database/effectCondition'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
 
+export type EffectCondition = EffectConditionNone | EffectConditionHit | EffectConditionSave | EffectConditionCheck
+
 const EffectConditionFactory: IDatabaseFactory<IEffectCondition, EffectCondition> = {
     create: function (data: Simplify<IEffectCondition> = {}): EffectCondition {
         switch (data.type) {
             case EffectConditionType.Hit:
-                return new HitEffectCondition(data)
+                return new EffectConditionHit(data)
             case EffectConditionType.Save:
-                return new SaveEffectCondition(data)
+                return new EffectConditionSave(data)
+            case EffectConditionType.Check:
+                return new EffectConditionCheck(data)
             default:
-                return new NoneEffectCondition(data as Record<string, unknown>)
+                return new EffectConditionNone(data as Record<string, unknown>)
         }
     },
     is: function (data: unknown): data is IEffectCondition {
@@ -34,11 +39,13 @@ const EffectConditionFactory: IDatabaseFactory<IEffectCondition, EffectCondition
             : EffectConditionType.None
         switch (type) {
             case EffectConditionType.Hit:
-                return HitEffectCondition.properties
+                return EffectConditionHit.properties
             case EffectConditionType.Save:
-                return SaveEffectCondition.properties
+                return EffectConditionSave.properties
+            case EffectConditionType.Check:
+                return EffectConditionCheck.properties
             case EffectConditionType.None:
-                return NoneEffectCondition.properties
+                return EffectConditionNone.properties
         }
     }
 }

@@ -2,6 +2,7 @@ import type ModifierDocument from '.'
 import type Modifier from './modifier'
 import ModifierDataBase from './data'
 import { ModifierType } from './common'
+import ModifierDataFactory, { type ModifierData, simplifyModifierDataRecord } from './factory'
 import { isRecord, isString, keysOf } from 'utils'
 import Condition, { ConditionType } from 'structure/database/condition'
 import ConditionFactory, { simplifyCondition } from 'structure/database/condition/factory'
@@ -9,7 +10,6 @@ import { hasObjectProperties, validateObjectProperties, simplifyObjectProperties
 import type { Simplify } from 'types'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
 import type { IModifierGroupData } from 'types/database/files/modifier'
-import ModifierDataFactory, { type ModifierData, simplifyModifierDataRecord } from './factory'
 
 export const ModifierGroupDataFactory: IDatabaseFactory<IModifierGroupData, ModifierGroupData> = {
     create: function (data: Simplify<IModifierGroupData> = {}): ModifierGroupData {

@@ -4,7 +4,7 @@ import type { ICreatureStats } from 'types/editor'
 
 export interface IConditionProperties extends ICreatureStats {
     spellLevel: number
-    classLevel: number
+    attunedItems: number
 }
 
 export type ConditionValue = string | number | boolean | null | ConditionExplicit

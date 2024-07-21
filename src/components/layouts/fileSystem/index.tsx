@@ -1,9 +1,14 @@
 import FileSystemContext from 'components/layouts/fileSystem/context'
 import FileSystemMenu from './menu'
+import type { ObjectId } from 'types'
 
-const FileSystem: React.FC = () => {
+type FileSystemProps = React.PropsWithRef<{
+    fileId: ObjectId | null
+}>
+
+const FileSystem: React.FC<FileSystemProps> = ({ fileId = null }) => {
     return (
-        <FileSystemContext>
+        <FileSystemContext fileId={fileId}>
             <FileSystemMenu/>
         </FileSystemContext>
     )

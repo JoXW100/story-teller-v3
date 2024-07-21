@@ -29,6 +29,7 @@ export interface IDatabaseStory {
 
 export interface IDatabaseFile<T extends DocumentFileType = DocumentFileType, S extends object = any, D extends object = any> {
     readonly id: ObjectId
+    readonly storyId: ObjectId
     readonly type: T
     readonly name: string
     readonly isOwner: boolean
@@ -62,4 +63,4 @@ export type ServerRequestType = 'isConnected' | 'getStory' | 'getAllStories' |
 'getLastUpdatedStory' | 'getFile' | 'getFiles' | 'getFileStructure' |
 'getSubscribedFiles' | 'addStory' | 'updateStory' | 'addFile' | 'copyFile' |
 'updateFile' | 'moveFile' | 'deleteStory' | 'deleteFile' | 'getSubclasses' |
-'getFeats' | 'getFightingStyles'
+'getAbilitiesOfCategory'

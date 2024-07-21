@@ -1,9 +1,9 @@
 import ItemDataBase from '../data'
-import { isBoolean, isCalcValue, isEnum, isNumber, isRecord, isString, keysOf } from 'utils'
+import { asNumber, isEnum, isNumber, isRecord, isString, keysOf } from 'utils'
 import { DamageType, ItemType, ScalingType, type WeaponType } from 'structure/dnd'
 import { DieType } from 'structure/dice'
 import { getOptionType } from 'structure/optionData'
-import { AutoCalcValue, createCalcValue, type ICalcValue, simplifyCalcValue } from 'structure/database'
+import { simplifyNumberRecord } from 'structure/database'
 import EffectFactory, { type Effect, simplifyEffectRecord } from 'structure/database/effect/factory'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
@@ -15,15 +15,11 @@ abstract class ItemWeaponDataBase extends ItemDataBase implements IItemWeaponDat
     public readonly notes: string
     // Damage
     public readonly damageType: DamageType
-    public readonly damageScaling: ScalingType
-    public readonly damageProficiency: boolean
+    public readonly damageScaling: Partial<Record<ScalingType, number>>
     public readonly damageDie: DieType
     public readonly damageDieCount: number
-    public readonly damageModifier: ICalcValue
     // Hit
-    public readonly hitScaling: ScalingType
-    public readonly hitProficiency: boolean
-    public readonly hitModifier: ICalcValue
+    public readonly hitScaling: Partial<Record<ScalingType, number>>
     // Other
     public readonly effects: Record<string, Effect>
 
@@ -31,15 +27,25 @@ abstract class ItemWeaponDataBase extends ItemDataBase implements IItemWeaponDat
         super(data)
         this.notes = data.notes ?? ItemWeaponDataBase.properties.notes.value
         this.damageType = data.damageType ?? ItemWeaponDataBase.properties.damageType.value
-        this.damageScaling = data.damageScaling ?? ItemWeaponDataBase.properties.damageScaling.value
-        this.damageProficiency = data.damageProficiency ?? ItemWeaponDataBase.properties.damageProficiency.value
+        this.damageScaling = ItemWeaponDataBase.properties.damageScaling.value
+        if (data.damageScaling !== undefined) {
+            for (const type of keysOf(data.damageScaling)) {
+                if (isEnum(type, ScalingType)) {
+                    this.damageScaling[type] = asNumber(data.damageScaling[type], 0)
+                }
+            }
+        }
         this.damageDie = data.damageDie ?? ItemWeaponDataBase.properties.damageDie.value
         this.damageDieCount = data.damageDieCount ?? ItemWeaponDataBase.properties.damageDieCount.value
-        this.damageModifier = createCalcValue(data.damageModifier, ItemWeaponDataBase.properties.damageModifier.value)
         // Hit
-        this.hitScaling = data.hitScaling ?? ItemWeaponDataBase.properties.hitScaling.value
-        this.hitProficiency = data.hitProficiency ?? ItemWeaponDataBase.properties.hitProficiency.value
-        this.hitModifier = createCalcValue(data.hitModifier, ItemWeaponDataBase.properties.hitModifier.value)
+        this.hitScaling = ItemWeaponDataBase.properties.hitScaling.value
+        if (data.hitScaling !== undefined) {
+            for (const type of keysOf(data.hitScaling)) {
+                if (isEnum(type, ScalingType)) {
+                    this.hitScaling[type] = asNumber(data.hitScaling[type], 0)
+                }
+            }
+        }
         // Other
         this.effects = ItemWeaponDataBase.properties.effects.value
         if (data.effects !== undefined) {
@@ -51,6 +57,10 @@ abstract class ItemWeaponDataBase extends ItemDataBase implements IItemWeaponDat
 
     public override get categoryText(): string {
         return getOptionType('weaponType').options[this.subtype]
+    }
+
+    public override get equippable(): boolean {
+        return true
     }
 
     public static properties: Omit<DataPropertyMap<IItemWeaponDataBase, ItemWeaponDataBase>, 'subtype'> = {
@@ -70,12 +80,9 @@ abstract class ItemWeaponDataBase extends ItemDataBase implements IItemWeaponDat
             validate: (value) => isEnum(value, DamageType)
         },
         damageScaling: {
-            value: ScalingType.Finesse,
-            validate: (value) => isEnum(value, ScalingType)
-        },
-        damageProficiency: {
-            value: false,
-            validate: isBoolean
+            get value() { return {} },
+            validate: (value) => isRecord(value, (key, val) => isEnum(key, ScalingType) && isNumber(val)),
+            simplify: simplifyNumberRecord
         },
         damageDie: {
             value: DieType.D6,
@@ -85,24 +92,11 @@ abstract class ItemWeaponDataBase extends ItemDataBase implements IItemWeaponDat
             value: 1,
             validate: isNumber
         },
-        damageModifier: {
-            get value() { return { ...AutoCalcValue } },
-            validate: isCalcValue,
-            simplify: simplifyCalcValue
-        },
         // Hit
         hitScaling: {
-            value: ScalingType.Finesse,
-            validate: (value) => isEnum(value, ScalingType)
-        },
-        hitProficiency: {
-            value: true,
-            validate: isBoolean
-        },
-        hitModifier: {
-            get value() { return { ...AutoCalcValue } },
-            validate: isCalcValue,
-            simplify: simplifyCalcValue
+            get value() { return {} },
+            validate: (value) => isRecord(value, (key, val) => isEnum(key, ScalingType) && isNumber(val)),
+            simplify: simplifyNumberRecord
         },
         // Other
         effects: {

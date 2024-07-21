@@ -1,6 +1,7 @@
-import type { LinkedCategoryType } from 'structure/database/files/modifier/add/linked'
+import type { DocumentType } from 'structure/database'
 import type { ModifierData } from 'structure/database/files/modifier/factory'
 import type { OptionTypeKey } from 'structure/optionData'
+import type { ObjectId } from 'types'
 
 export interface ISingleChoiceData<V = unknown> {
     readonly isChoice: true
@@ -32,14 +33,20 @@ export interface IEditorEnumChoiceData extends IEditorChoiceDataBase {
 }
 
 export interface IEditorValueChoiceData extends IEditorChoiceDataBase {
-    readonly type: 'value' | 'id'
+    readonly type: 'value'
     readonly value: unknown[]
 }
 
-export interface IEditorExternalChoiceData extends IEditorChoiceDataBase {
+export interface IEditorDocumentChoiceData extends IEditorChoiceDataBase {
+    readonly type: 'ability' | 'spell'
+    readonly allowedTypes: readonly DocumentType[]
+    readonly value: Array<ObjectId | null>
+}
+
+export interface IEditorLinkedChoiceData extends IEditorChoiceDataBase {
     readonly type: 'linked'
-    readonly category: LinkedCategoryType
+    readonly category: string
 }
 
 export type IEditorChoiceData = IEditorEnumChoiceData | IEditorValueChoiceData |
-IEditorExternalChoiceData
+IEditorDocumentChoiceData | IEditorLinkedChoiceData

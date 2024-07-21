@@ -3,6 +3,7 @@ import type ModifierDocument from '..'
 import type Modifier from '../modifier'
 import { createMultipleChoiceData, createDefaultChoiceData, validateChoiceData, simplifyMultipleChoiceData } from '../../../choice'
 import { asEnum, isEnum, isNumber } from 'utils'
+import { getMaxProficiencyLevel } from 'utils/calculations'
 import { Attribute, ProficiencyLevel } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
@@ -61,14 +62,13 @@ class ModifierSetSaveProficiencyData extends ModifierSetDataBase implements IMod
                     }
 
                     for (const index of indices) {
-                        const proficiency = modifier.proficiency.value[index] ?? null
-                        if (proficiency !== null) {
-                            value = { ...value, [proficiency]: modifier.value }
-                        }
+                        const proficiency = modifier.proficiency.value[index]
+                        value = { ...value, [proficiency]: getMaxProficiencyLevel(modifier.value, value[proficiency]) }
                     }
                     return value
                 } else {
-                    return { ...value, [modifier.proficiency.value]: modifier.value }
+                    const proficiency = modifier.proficiency.value
+                    return { ...value, [proficiency]: getMaxProficiencyLevel(modifier.value, value[proficiency]) }
                 }
             }
         })

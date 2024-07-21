@@ -6,6 +6,10 @@ import type { IItemWondrousItemData } from 'types/database/files/item'
 class ItemWondrousItemData extends ItemDataBase implements IItemWondrousItemData {
     public override readonly type = ItemType.WondrousItem
 
+    public override get equippable(): boolean {
+        return true
+    }
+
     public static properties: DataPropertyMap<IItemWondrousItemData, ItemWondrousItemData> = {
         ...ItemDataBase.properties,
         type: {

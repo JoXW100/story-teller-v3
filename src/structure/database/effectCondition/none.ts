@@ -1,17 +1,17 @@
 import EffectConditionBase, { EffectConditionType } from '.'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { INoneEffectCondition } from 'types/database/effectCondition'
+import type { IEffectConditionNone } from 'types/database/effectCondition'
 
-class NoneEffectCondition extends EffectConditionBase implements INoneEffectCondition {
+class EffectConditionNone extends EffectConditionBase implements IEffectConditionNone {
     public readonly type: EffectConditionType.None
 
-    public constructor(data: Simplify<INoneEffectCondition>) {
+    public constructor(data: Simplify<IEffectConditionNone>) {
         super()
-        this.type = data.type ?? NoneEffectCondition.properties.type.value
+        this.type = data.type ?? EffectConditionNone.properties.type.value
     }
 
-    public static properties: DataPropertyMap<INoneEffectCondition, NoneEffectCondition> = {
+    public static properties: DataPropertyMap<IEffectConditionNone, EffectConditionNone> = {
         ...EffectConditionBase.properties,
         type: {
             value: EffectConditionType.None,
@@ -20,4 +20,4 @@ class NoneEffectCondition extends EffectConditionBase implements INoneEffectCond
     }
 }
 
-export default NoneEffectCondition
+export default EffectConditionNone

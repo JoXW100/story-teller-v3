@@ -1,39 +1,43 @@
 import EffectBase from '.'
 import { EffectCategory, EffectType } from './common'
-import { isBoolean, isCalcValue, isEnum, isNumber } from 'utils'
-import { getScalingValue } from 'utils/calculations'
+import { asNumber, isEnum, isNumber, isRecord, keysOf } from 'utils'
+import { resolveScaling } from 'utils/calculations'
 import { DamageType, ScalingType } from 'structure/dnd'
 import { DieType } from 'structure/dice'
-import { AutoCalcValue, CalcMode, createCalcValue, simplifyCalcValue, type ICalcValue } from 'structure/database'
+import { simplifyNumberRecord } from 'structure/database'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IDamageEffect } from 'types/database/effect'
-import type { IBonusGroup, ICreatureStats } from 'types/editor'
+import type { IBonusGroup } from 'types/editor'
+import type { IConditionProperties } from 'types/database/condition'
 
 class DamageEffect extends EffectBase implements IDamageEffect {
     public readonly type: EffectType.Damage
     public readonly category: EffectCategory
     public readonly damageType: DamageType
-    public readonly scaling: ScalingType
-    public readonly proficiency: boolean
+    public readonly scaling: Partial<Record<ScalingType, number>>
     public readonly die: DieType
     public readonly dieCount: number
-    public readonly modifier: ICalcValue
 
     public constructor(data: Simplify<IDamageEffect>) {
         super(data)
         this.type = data.type ?? DamageEffect.properties.type.value
         this.category = data.category ?? DamageEffect.properties.category.value
         this.damageType = data.damageType ?? DamageEffect.properties.damageType.value
-        this.scaling = data.scaling ?? DamageEffect.properties.scaling.value
-        this.proficiency = data.proficiency ?? DamageEffect.properties.proficiency.value
+        this.scaling = DamageEffect.properties.scaling.value
+        if (data.scaling !== undefined) {
+            for (const type of keysOf(data.scaling)) {
+                if (isEnum(type, ScalingType)) {
+                    this.scaling[type] = asNumber(data.scaling[type], 0)
+                }
+            }
+        }
         this.die = data.die ?? DamageEffect.properties.die.value
         this.dieCount = data.dieCount ?? DamageEffect.properties.dieCount.value
-        this.modifier = createCalcValue(data.modifier, DamageEffect.properties.modifier.value)
     }
 
-    public getModifierValue(stats: ICreatureStats, bonuses: IBonusGroup): number {
-        let mod = this.modifier.value ?? 0
+    public getModifierValue(stats: Partial<IConditionProperties>, bonuses: IBonusGroup): number {
+        let mod: number = 0
         switch (this.category) {
             case EffectCategory.AttackDamage:
                 mod += bonuses.bonus
@@ -59,18 +63,10 @@ class DamageEffect extends EffectBase implements IDamageEffect {
                 mod += bonuses.thrownBonus
                 break
         }
-        const prof = this.proficiency ? stats.proficiency : 0
-        switch (this.modifier.mode) {
-            case CalcMode.Modify:
-                return getScalingValue(this.scaling, stats) + mod + prof
-            case CalcMode.Override:
-                return mod + prof
-            case CalcMode.Auto:
-                return getScalingValue(this.scaling, stats) + prof
-        }
+        return resolveScaling(this.scaling, stats) + mod
     }
 
-    public getDiceRollText(stats: ICreatureStats, bonuses: IBonusGroup): string {
+    public getDiceRollText(stats: Partial<IConditionProperties>, bonuses: IBonusGroup): string {
         const mod = this.getModifierValue(stats, bonuses)
         return this.die === DieType.None || this.die === DieType.DX
             ? `d0${mod >= 0 ? '+' : '-'}${Math.abs(mod)}`
@@ -93,12 +89,9 @@ class DamageEffect extends EffectBase implements IDamageEffect {
             validate: (value) => isEnum(value, DamageType)
         },
         scaling: {
-            value: ScalingType.None,
-            validate: (value) => isEnum(value, ScalingType)
-        },
-        proficiency: {
-            value: false,
-            validate: isBoolean
+            get value() { return {} },
+            validate: (value) => isRecord(value, (key, val) => isEnum(key, ScalingType) && isNumber(val)),
+            simplify: simplifyNumberRecord
         },
         die: {
             value: DieType.D20,
@@ -107,11 +100,6 @@ class DamageEffect extends EffectBase implements IDamageEffect {
         dieCount: {
             value: 1,
             validate: isNumber
-        },
-        modifier: {
-            get value() { return { ...AutoCalcValue } },
-            validate: isCalcValue,
-            simplify: simplifyCalcValue
         }
     }
 }

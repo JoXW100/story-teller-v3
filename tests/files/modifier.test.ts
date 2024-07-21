@@ -11,11 +11,4 @@ describe('Test Create Modifier', () => {
             expect(result).toBeInstanceOf(ModifierDataBase)
         }
     })
-    test('simplify choice modifier with sub-choices', () => {
-        const data: unknown = ModifierExample1
-        if (expectTypeToBe(data, ModifierDataFactory.is)) {
-            const result = ModifierDataFactory.simplify(data)
-            console.log(result)
-        }
-    })
 })

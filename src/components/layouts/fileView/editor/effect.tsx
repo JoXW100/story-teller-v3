@@ -5,15 +5,14 @@ import LocalizedText from 'components/localizedText'
 import TextComponent from './components/text'
 import EnumComponent from './components/enum'
 import NavigationComponent from './components/navigation'
-import BooleanComponent from './components/boolean'
 import NumberComponent from './components/number'
-import CalcComponent from './components/calc'
 import ConditionComponent from './components/condition'
-import { getRelativeFieldObject } from 'utils'
+import { createField, getRelativeFieldObject } from 'utils'
 import { EffectType } from 'structure/database/effect/common'
 import { isInstanceOfEffect } from 'structure/database/effect/factory'
 import { DieType } from 'structure/dice'
 import styles from './style.module.scss'
+import SelectionInputComponent from './components/selectionInput'
 
 const EffectEditor: React.FC = () => {
     const [context] = useContext(Context)
@@ -36,37 +35,50 @@ const EffectEditor: React.FC = () => {
                     <TextComponent
                         field={`${field}.text`}
                         labelId='editor-text'/>
-                }
-                { data.type === EffectType.Damage &&
+                }{ data.type === EffectType.Damage &&
                     <>
                         <EnumComponent
-                            field={`${field}.category`}
+                            field={createField(field, 'category')}
                             type='effectCategory'
                             labelId='editor-category'/>
                         <EnumComponent
-                            field={`${field}.damageType`}
+                            field={createField(field, 'damageType')}
                             type='damageType'
                             labelId='editor-damageType'/>
+                        <SelectionInputComponent
+                            field={createField(field, 'scaling')}
+                            type='number'
+                            optionsType='scaling'
+                            labelId='editor-scaling'
+                            fill/>
                         <EnumComponent
-                            field={`${field}.scaling`}
-                            type='scaling'
-                            labelId='editor-scaling'/>
-                        <BooleanComponent
-                            field={`${field}.proficiency`}
-                            labelId='editor-proficiency'/>
-                        <EnumComponent
-                            field={`${field}.die`}
+                            field={createField(field, 'die')}
                             type='die'
                             labelId='editor-die'/>
                         { data.die !== DieType.None &&
                             <NumberComponent
-                                field={`${field}.dieCount`}
+                                field={createField(field, 'dieCount')}
                                 labelId='editor-dieCount'/>
                         }
-                        <CalcComponent
-                            field={`${field}.modifier`}
-                            labelId='editor-modifier'/>
 
+                    </>
+                }{ data.type === EffectType.Die &&
+                    <>
+                        <SelectionInputComponent
+                            field={createField(field, 'scaling')}
+                            type='number'
+                            optionsType='scaling'
+                            labelId='editor-scaling'
+                            fill/>
+                        <EnumComponent
+                            field={createField(field, 'die')}
+                            type='die'
+                            labelId='editor-die'/>
+                        { data.die !== DieType.None &&
+                            <NumberComponent
+                                field={createField(field, 'dieCount')}
+                                labelId='editor-dieCount'/>
+                        }
                     </>
                 }
             </GroupComponent>

@@ -19,7 +19,7 @@ type ClassSpellGroupsProps = React.PropsWithRef<{
 }>
 
 const ClassSpellGroups: React.FC<ClassSpellGroupsProps> = ({ facade, spells, setStorage }) => {
-    const [selectedPage, setSelectedPage] = useState<ObjectId | 'none' | null>(facade.spellAttribute === OptionalAttribute.None ? null : 'none')
+    const [selectedPage, setSelectedPage] = useState<ObjectId | 'none'>('none')
     const pages = useMemo(() => {
         const pages: Record<ObjectId | 'none', IPageSelectorData> = {} as any
         if (facade.spellAttribute !== OptionalAttribute.None) {

@@ -16,6 +16,7 @@ interface ListMenuPropsBase<T> {
     values: T[]
     allowedTypes: readonly DocumentType[]
     placeholder?: string
+    disabled?: boolean
     onChange: (selection: T[]) => void
     validateInput?: (value: T, values: T[]) => boolean
 }
@@ -38,6 +39,7 @@ type LinkListMenuComponent = React.PropsWithRef<{
     allowedTypes: readonly DocumentType[]
     placeholder?: string
     allowText: boolean
+    disabled: boolean
     onChange: (selection: Array<string | ObjectId>) => void
     parseText: (value: string) => DatabaseFile | null
 }>
@@ -63,6 +65,9 @@ const LinkListMenu: React.FC<LinkListMenuProps> = (props) => {
     }
 
     const handleValidate = (value: string | ObjectId, values: Array<string | ObjectId>): boolean => {
+        if (props.disabled === true) {
+            return false
+        }
         if (props.allowText) {
             return props.validateInput?.(value, values) ?? true
         } else {
@@ -86,7 +91,7 @@ const LinkListMenu: React.FC<LinkListMenuProps> = (props) => {
             validateInput={handleValidate}
             Component={Component}
             EditComponent={EditComponent}
-            params={{ files, itemClassName: props.itemClassName, editClassName: props.editClassName, allowedTypes: props.allowedTypes, allowText: true, placeholder: props.placeholder, onChange: handleChange, parseText: props.parseText ?? toNull }}/>
+            params={{ files, itemClassName: props.itemClassName, editClassName: props.editClassName, allowedTypes: props.allowedTypes, allowText: true, placeholder: props.placeholder, disabled: props.disabled === true, onChange: handleChange, parseText: props.parseText ?? toNull }}/>
     )
 }
 
@@ -121,7 +126,8 @@ const EditComponent: React.FC<ListTemplateComponentProps<string, string, LinkLis
             placeholder={params.placeholder}
             onChange={onUpdate}
             onFileChanged={handleFileChanged}
-            parseText={params.parseText}/>
+            parseText={params.parseText}
+            disabled={params.disabled}/>
     )
 }
 

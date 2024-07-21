@@ -1,6 +1,7 @@
 import { isKeyOf, keysOf } from 'utils'
 import Logger from 'utils/logger'
 import { OptionalAttribute } from 'structure/dnd'
+import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IBonusGroup, ICreatureStats } from 'types/editor'
 
@@ -64,8 +65,22 @@ export function simplifyCalcValue(data: ICalcValue): Partial<ICalcValue> | null 
     }
 }
 
+export function simplifyNumberRecord(value: Record<any, number>, defaultNumber: number = 0): Simplify<typeof value> | null {
+    const result: Simplify<Record<any, number>> = {}
+    let flag = false
+    for (const key of keysOf(value)) {
+        const number = value[key]
+        if (number !== defaultNumber) {
+            result[key] = number
+            flag = true
+        }
+    }
+    return flag ? result : null
+}
+
 export const EmptyCreatureStats: ICreatureStats = {
     level: 0,
+    classLevel: 0,
     casterLevel: 0,
     str: 10,
     dex: 10,
@@ -76,9 +91,16 @@ export const EmptyCreatureStats: ICreatureStats = {
     spellAttribute: OptionalAttribute.None,
     proficiency: 2,
     critRange: 20,
+    critDieCount: 0,
     multiAttack: 1,
     armorLevel: 0,
-    shieldLevel: 0
+    shieldLevel: 0,
+    walkSpeed: 0,
+    burrowSpeed: 0,
+    climbSpeed: 0,
+    flySpeed: 0,
+    hoverSpeed: 0,
+    swimSpeed: 0
 }
 
 export const EmptyBonusGroup: IBonusGroup = {

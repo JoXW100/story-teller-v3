@@ -41,7 +41,7 @@ const ContextMenu: React.FC = () => {
     const contextHandler = useCallback((ev: ContextMenuEvent) => {
         const detail = ev.detail
         const { depth, height } = getDepthHeight({
-            text: '',
+            text: 'empty',
             icon: null,
             content: detail.content
         } satisfies ContextRowData)

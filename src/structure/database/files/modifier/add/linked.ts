@@ -1,25 +1,20 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { asEnum, asNumber, isEnum, isNumber, isObjectId } from 'utils'
+import { asNumber, isNumber, isObjectId, isString } from 'utils'
 import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IModifierAddLinkedData } from 'types/database/files/modifier'
 import { ModifierSourceType } from '../modifier'
 
-export enum LinkedCategoryType {
-    Feat = 'feat',
-    FightingStyle = 'fightingStyle'
-}
-
 class ModifierAddLinkedData extends ModifierAddDataBase implements IModifierAddLinkedData {
     public override readonly subtype = ModifierAddType.Linked
-    public readonly category: LinkedCategoryType
+    public readonly category: string
     public readonly numChoices: number
 
     public constructor(data: Simplify<IModifierAddLinkedData>) {
         super(data)
-        this.category = asEnum(data.category, LinkedCategoryType) ?? ModifierAddLinkedData.properties.category.value
+        this.category = data.category ?? ModifierAddLinkedData.properties.category.value
         this.numChoices = asNumber(data.numChoices, ModifierAddLinkedData.properties.numChoices.value)
     }
 
@@ -31,8 +26,8 @@ class ModifierAddLinkedData extends ModifierAddDataBase implements IModifierAddL
             simplify: (value) => value
         },
         category: {
-            value: LinkedCategoryType.Feat,
-            validate: (value) => isEnum(value, LinkedCategoryType)
+            value: '',
+            validate: isString
         },
         numChoices: {
             value: 1,

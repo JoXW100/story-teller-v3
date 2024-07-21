@@ -7,19 +7,20 @@ import { RollMethodType, RollType } from 'structure/dice'
 import { EffectType } from 'structure/database/effect/common'
 import { getOptionType } from 'structure/optionData'
 import type { Effect } from 'structure/database/effect/factory'
-import type { IBonusGroup, ICreatureStats } from 'types/editor'
+import type { IBonusGroup } from 'types/editor'
+import type { IConditionProperties } from 'types/database/condition'
 import styles from './styles.module.scss'
 
 type EffectRendererProps = React.PropsWithRef<{
     data: Effect
-    stats: ICreatureStats
+    properties: IConditionProperties
     bonuses: IBonusGroup
     desc: string
     tooltipsId: LanguageKey
     tooltipsArgs?: any[]
 }>
 
-const EffectRenderer: React.FC<EffectRendererProps> = ({ data, stats, bonuses, desc, tooltipsId, tooltipsArgs = [] }) => {
+const EffectRenderer: React.FC<EffectRendererProps> = ({ data, properties, bonuses, desc, tooltipsId, tooltipsArgs = [] }) => {
     const tooltips = useLocalizedText(tooltipsId, tooltipsArgs)
     switch (data.type) {
         case EffectType.Text:
@@ -34,11 +35,11 @@ const EffectRenderer: React.FC<EffectRendererProps> = ({ data, stats, bonuses, d
                 <div className={styles.iconRow}>
                     <Elements.b>{data.label} </Elements.b>
                     <Elements.roll
-                        dice={data.getDiceRollText(stats, bonuses)}
+                        dice={data.getDiceRollText(properties, bonuses)}
                         desc={desc}
                         details={null}
                         tooltips={tooltips}
-                        critRange={stats.critRange}
+                        critRange={properties.critRange}
                         mode={RollMethodType.Normal}
                         type={RollType.Damage}>
                         { isKeyOf(data.damageType, Icons) &&
@@ -54,11 +55,11 @@ const EffectRenderer: React.FC<EffectRendererProps> = ({ data, stats, bonuses, d
                 <div className={styles.iconRow}>
                     <Elements.b>{data.label} </Elements.b>
                     <Elements.roll
-                        dice={data.getDiceRollText(stats)}
+                        dice={data.getDiceRollText(properties)}
                         desc={desc}
                         details={null}
                         tooltips={tooltips}
-                        critRange={stats.critRange}
+                        critRange={properties.critRange}
                         mode={RollMethodType.Normal}
                         type={RollType.General}/>
                 </div>

@@ -4,9 +4,9 @@ import GroupComponent from './components/group'
 import LocalizedText from 'components/localizedText'
 import EnumComponent from './components/enum'
 import NavigationComponent from './components/navigation'
-import NumberComponent from './components/number'
 import ConditionComponent from './components/condition'
-import { getRelativeFieldObject } from 'utils'
+import SelectionInputComponent from './components/selectionInput'
+import { createField, getRelativeFieldObject } from 'utils'
 import ChargesData from 'structure/database/charges'
 import styles from './style.module.scss'
 
@@ -25,11 +25,16 @@ const ChargesEditor: React.FC = () => {
         <div className={styles.main}>
             <NavigationComponent/>
             <GroupComponent header={<LocalizedText id='editor-header-charges'/>} open>
-                <NumberComponent field={`${field}.charges`} labelId='editor-charges' />
-                <EnumComponent field={`${field}.chargesReset`} type='restType' labelId='editor-chargesReset' />
+                <EnumComponent field={createField(field, 'chargesReset')} type='restType' labelId='editor-chargesReset' />
+                <SelectionInputComponent
+                    field={createField(field, 'charges')}
+                    type='number'
+                    optionsType='scaling'
+                    labelId='editor-charges'
+                    fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-condition'/>} open>
-                <ConditionComponent field={`${field}.condition`} labelId='editor-header-condition' />
+                <ConditionComponent field={createField(field, 'condition')} labelId='editor-header-condition' />
             </GroupComponent>
         </div>
     )

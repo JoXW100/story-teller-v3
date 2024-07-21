@@ -13,7 +13,7 @@ import { RollMethodType, RollType } from 'structure/dice'
 import StoryScript from 'structure/language/storyscript'
 import type { ObjectId } from 'types'
 import type { IBonusGroup, ICreatureStats } from 'types/editor'
-import { type IConditionProperties } from 'types/database/condition'
+import type { IConditionProperties } from 'types/database/condition'
 import styles from '../styles.module.scss'
 
 type AbilityRendererProps = React.PropsWithRef<{
@@ -56,11 +56,45 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ id, data, open
 
     const properties: IConditionProperties = {
         ...stats,
+        attunedItems: 0,
         classLevel: classLevel,
         spellLevel: 0
     }
 
     switch (data.type) {
+        case AbilityType.Skill:
+            return <>
+                <Elements.align direction='h' weight='1' width='100%'>
+                    <Elements.block width='50%' weight={null}>
+                        <Elements.b>{data.name}</Elements.b>
+                        <Elements.newline/>
+                        {data.typeName}
+                        <Elements.newline/>
+                        <ChargesRenderer
+                            charges={data.evaluateNumCharges(properties)}
+                            expended={expendedCharges}
+                            setExpended={setExpendedCharges}/>
+                    </Elements.block>
+                    <Elements.line width='2px'/>
+                    <div>
+                        <AbilityRange data={data}/>
+                        { keysOf(data.effects).map((key) => data.effects[key].condition.evaluate(properties) &&
+                            <EffectRenderer
+                                key={key}
+                                data={data.effects[key]}
+                                properties={properties}
+                                bonuses={damageBonuses}
+                                desc={`${data.name} ${data.effects[key].label}`}
+                                tooltipsId='render-effect-rollTooltips'
+                                tooltipsArgs={[data.name, data.effects[key].label]}/>
+                        )}
+                    </div>
+                </Elements.align>
+                { open && isDefined(descriptionToken) && !descriptionToken.isEmpty && <>
+                    <Elements.line width='2px'/>
+                    { descriptionToken.build() }
+                </>}
+            </>
         case AbilityType.Attack:
         case AbilityType.MeleeAttack:
         case AbilityType.MeleeWeapon:
@@ -86,7 +120,7 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ id, data, open
                             <div>
                                 <Elements.b>HIT/DC </Elements.b>
                                 <Elements.roll
-                                    dice={String(data.condition.getModifierValue(stats) + getBonus(data.type, attackBonuses))}
+                                    dice={String(data.condition.getModifierValue(properties) + getBonus(data.type, attackBonuses))}
                                     desc={`${data.name} Attack`}
                                     details={null}
                                     tooltips={`Roll ${data.name} Attack`}
@@ -98,15 +132,23 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ id, data, open
                             <div>
                                 <Elements.b>HIT/DC </Elements.b>
                                 <Elements.save
-                                    value={data.condition.getModifierValue(stats)}
-                                    type={data.condition.type}
+                                    value={data.condition.getModifierValue(properties)}
+                                    type={data.condition.attribute}
+                                    tooltips={null}/>
+                            </div>
+                        }{ data.condition.type === EffectConditionType.Check &&
+                            <div>
+                                <Elements.b>HIT/DC </Elements.b>
+                                <Elements.check
+                                    value={data.condition.getModifierValue(properties)}
+                                    type={data.condition.skill}
                                     tooltips={null}/>
                             </div>
                         }{ keysOf(data.effects).map((key) => data.effects[key].condition.evaluate(properties) &&
                             <EffectRenderer
                                 key={key}
                                 data={data.effects[key]}
-                                stats={stats}
+                                properties={properties}
                                 bonuses={damageBonuses}
                                 desc={`${data.name} ${data.effects[key].label}`}
                                 tooltipsId='render-effect-rollTooltips'
@@ -120,18 +162,18 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ id, data, open
                 </>}
             </>
         case AbilityType.Feature:
-        case AbilityType.Feat:
-        case AbilityType.FightingStyle:
+        case AbilityType.Custom:
+        default:
             return <>
                 <Elements.align direction='hc' width='100%' weight='1'>
-                    <Elements.h3 underline={false}>{ data.name }</Elements.h3>
+                    <Elements.b>{data.name}</Elements.b>
                     <Elements.fill/>
                     <ChargesRenderer
                         charges={data.evaluateNumCharges(properties)}
                         expended={expendedCharges}
                         setExpended={setExpendedCharges}/>
                 </Elements.align>
-                { descriptionToken?.build() }
+                { open && descriptionToken?.build() }
             </>
     }
 }

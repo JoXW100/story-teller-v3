@@ -78,7 +78,7 @@ abstract class AbilityDataBase implements IAbilityDataBase {
         for (const key of keysOf(this.charges)) {
             const value = this.charges[key]
             if (value.condition.evaluate(data, choices)) {
-                return value.charges
+                return value.getCharges(data)
             }
         }
         return 0

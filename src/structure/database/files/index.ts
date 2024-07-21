@@ -2,10 +2,12 @@ import { DocumentFileType, FileType } from '..'
 import { DatabaseObject } from '../object'
 import { isBoolean, isEnum, isNumber, isObjectId, isRecord, isString } from 'utils'
 import type { DataPropertyMap, IDatabaseFactory, IDatabaseFile } from 'types/database'
+import type { ObjectId } from 'types'
 import type { IToken } from 'types/language'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 
 abstract class DatabaseFile<T extends DocumentFileType = DocumentFileType, S extends object = any, I extends object = any, D extends I = I> extends DatabaseObject implements IDatabaseFile<T, S, D> {
+    public readonly storyId: ObjectId
     public readonly type: T
     public readonly name: string
     public readonly dateCreated: number
@@ -16,6 +18,7 @@ abstract class DatabaseFile<T extends DocumentFileType = DocumentFileType, S ext
 
     public constructor(document: IDatabaseFile<T, S, D>) {
         super(document.id)
+        this.storyId = document.storyId
         this.type = document.type
         this.name = document.name
         this.data = document.data
@@ -27,6 +30,11 @@ abstract class DatabaseFile<T extends DocumentFileType = DocumentFileType, S ext
 
     public static properties: DataPropertyMap<IDatabaseFile, DatabaseFile> = {
         id: {
+            value: null as any,
+            validate: isObjectId,
+            simplify: (value) => value
+        },
+        storyId: {
             value: null as any,
             validate: isObjectId,
             simplify: (value) => value
@@ -63,8 +71,7 @@ abstract class DatabaseFile<T extends DocumentFileType = DocumentFileType, S ext
         },
         isOwner: {
             value: false,
-            validate: isBoolean,
-            simplify: (value) => value
+            validate: isBoolean
         }
     }
 

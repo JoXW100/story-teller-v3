@@ -16,7 +16,6 @@ import Elements from 'components/elements'
 import LocalizedText from 'components/localizedText'
 import Icon from 'components/icon'
 import { useCharacterFacade } from 'utils/hooks/documents'
-import { OptionalAttribute } from 'structure/dnd'
 import { RollMethodType, RollType } from 'structure/dice'
 import type CharacterDocument from 'structure/database/files/character'
 import styles from '../styles.module.scss'
@@ -122,7 +121,7 @@ const CharacterDocumentRenderer: React.FC = () => {
                 </div>
             </Elements.block>
         </Elements.align>
-        { (Object.keys(spells).length > 0 || facade.spellAttribute !== OptionalAttribute.None) &&
+        { Object.keys(spells).length > 0 &&
             <>
                 <Elements.line width='3px'/>
                 <ClassSpellGroups

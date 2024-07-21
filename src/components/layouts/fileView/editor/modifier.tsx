@@ -70,29 +70,24 @@ const ModifierDocumentEditor: React.FC = () => {
                         <EnumComponent field={createField(field, 'subtype')} type='modifierAddType' labelId='editor-subtype'/>
                         { data.subtype === ModifierAddType.Ability &&
                             <ChoiceComponent field={createField(field, 'value')} type='abilityObjectId' allowMultipleChoices fill/>
-                        }
-                        { data.subtype === ModifierAddType.Spell &&
+                        }{ data.subtype === ModifierAddType.Spell &&
                             <ChoiceComponent field={createField(field, 'value')} type='spellObjectId' allowMultipleChoices fill/>
-                        }
-                        { data.subtype === ModifierAddType.Linked &&
+                        }{ data.subtype === ModifierAddType.Linked &&
                             <>
-                                <EnumComponent field={createField(field, 'category')} type='linkedCategory' labelId='editor-category'/>
+                                <TextComponent field={createField(field, 'category')} labelId='editor-category'/>
                                 <NumberComponent field={createField(field, 'numChoices')} labelId='editor-numChoices'/>
                             </>
-                        }
-                        { (data.subtype === ModifierAddType.Advantage || data.subtype === ModifierAddType.Disadvantage) &&
+                        }{ (data.subtype === ModifierAddType.Advantage || data.subtype === ModifierAddType.Disadvantage) &&
                             <>
                                 <ChoiceComponent field={createField(field, 'binding')} type='advantageBinding' fill/>
                                 <TextComponent field={createField(field, 'notes')} labelId='editor-notes'/>
                             </>
-                        }
-                        { (data.subtype === ModifierAddType.Resistance || data.subtype === ModifierAddType.Vulnerability || data.subtype === ModifierAddType.DamageImmunity) &&
+                        }{ (data.subtype === ModifierAddType.Resistance || data.subtype === ModifierAddType.Vulnerability || data.subtype === ModifierAddType.DamageImmunity) &&
                             <>
                                 <ChoiceComponent field={createField(field, 'binding')} type='damageBinding' fill/>
                                 <TextComponent field={createField(field, 'notes')} labelId='editor-notes'/>
                             </>
-                        }
-                        { data.subtype === ModifierAddType.ConditionImmunity &&
+                        }{ data.subtype === ModifierAddType.ConditionImmunity &&
                             <>
                                 <ChoiceComponent field={createField(field, 'binding')} type='conditionBinding' fill/>
                                 <TextComponent field={createField(field, 'notes')} labelId='editor-notes'/>
@@ -104,13 +99,29 @@ const ModifierDocumentEditor: React.FC = () => {
                 }{ data.type === ModifierType.Bonus &&
                     <>
                         <EnumComponent field={createField(field, 'subtype')} type='modifierBonusType' labelId='editor-subtype' />
-                        { data.subtype === ModifierBonusType.Speed
-                            ? <SelectionInputComponent
+                        { (data.subtype === ModifierBonusType.AC || data.subtype === ModifierBonusType.SpellAttack || data.subtype === ModifierBonusType.SpellSave || data.subtype === ModifierBonusType.MultiAttack || data.subtype === ModifierBonusType.CritRange || data.subtype === ModifierBonusType.CritDieCount || data.subtype === ModifierBonusType.AttunementSlot) &&
+                            <NumberComponent field={createField(field, 'value')} labelId='editor-value' allowNegative/>
+                        }{ (data.subtype === ModifierBonusType.AbilityScore || data.subtype === ModifierBonusType.Save) &&
+                            <SelectionInputComponent
+                                field={createField(field, 'value')}
+                                type='number'
+                                optionsType='attr'
+                                labelId='editor-value'
+                                fill/>
+                        }{data.subtype === ModifierBonusType.Skill &&
+                            <SelectionInputComponent
+                                field={createField(field, 'value')}
+                                type='number'
+                                optionsType='skill'
+                                labelId='editor-value'
+                                fill/>
+                        }{ data.subtype === ModifierBonusType.Speed &&
+                            <SelectionInputComponent
                                 field={createField(field, 'value')}
                                 type='number'
                                 optionsType='movement'
-                                labelId='editor-value' />
-                            : <NumberComponent field={createField(field, 'value')} labelId='editor-value' allowNegative/>
+                                labelId='editor-value'
+                                fill/>
                         }
                     </>
                 }{ data.type === ModifierType.Set &&
@@ -120,10 +131,25 @@ const ModifierDocumentEditor: React.FC = () => {
                             <ChoiceComponent field={createField(field, 'value')} type='spellAttribute' fill/>
                         }{ data.subtype === ModifierSetType.Size &&
                             <ChoiceComponent field={createField(field, 'value')} type='size' fill/>
+                        }{ data.subtype === ModifierSetType.Speed &&
+                            <>
+                                <ChoiceComponent field={createField(field, 'speed')} type='movement' fill/>
+                                <SelectionInputComponent
+                                    field={createField(field, 'value')}
+                                    type='number'
+                                    optionsType='scaling'
+                                    labelId='editor-value'
+                                    fill/>
+                            </>
                         }{ data.subtype === ModifierSetType.Sense &&
                             <>
                                 <ChoiceComponent field={createField(field, 'sense')} type='sense' allowMultipleChoices fill/>
-                                <NumberComponent field={createField(field, 'value')} labelId='editor-value' />
+                                <SelectionInputComponent
+                                    field={createField(field, 'value')}
+                                    type='number'
+                                    optionsType='scaling'
+                                    labelId='editor-value'
+                                    fill/>
                             </>
                         }{ data.subtype === ModifierSetType.SaveProficiency &&
                             <>
@@ -160,13 +186,15 @@ const ModifierDocumentEditor: React.FC = () => {
                                 <SelectionInputComponent
                                     field={createField(field, 'values')}
                                     type='number'
-                                    optionsType='attr'
-                                    labelId='editor-attributeMultipliers' />
+                                    optionsType='scaling'
+                                    labelId='editor-attributeMultipliers'
+                                    fill/>
                                 <SelectionInputComponent
                                     field={createField(field, 'maxValues')}
                                     type='number'
-                                    optionsType='attr'
-                                    labelId='editor-maxAttributeValues' />
+                                    optionsType='scaling'
+                                    labelId='editor-maxAttributeValues'
+                                    fill/>
                                 <NumberComponent field={createField(field, 'bonus')} labelId='editor-bonus'/>
                             </>
                         }

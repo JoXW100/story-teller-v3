@@ -1,7 +1,7 @@
 export enum AbilityType {
     Feature = 'feature',
-    Feat = 'feat',
-    FightingStyle = 'fightingStyle',
+    Custom = 'custom',
+    Skill = 'skill',
     Attack = 'attack',
     MeleeAttack = 'meleeAttack',
     RangedAttack = 'rangedAttack',

@@ -269,38 +269,14 @@ abstract class Communication {
         return response
     }
 
-    public static async getFeats(storyId: ObjectId): Promise<DBResponse<AbilityDocument[]>> {
-        const response = await this.databaseFetch<IDatabaseFile[]>('getFeats', 'GET', {
-            storyId: storyId
+    public static async getAbilitiesOfCategory(storyId: ObjectId, category: string): Promise<DBResponse<AbilityDocument[]>> {
+        const response = await this.databaseFetch<IDatabaseFile[]>('getAbilitiesOfCategory', 'GET', {
+            storyId: storyId,
+            category: category
         })
         if (response.success) {
             if (!response.result.every(value => DocumentFactory.validate(value))) {
                 Logger.error('Communication.getFeats', response.result)
-                return { success: false, result: 'Failed to get file, type missmatch' }
-            } else {
-                return {
-                    success: true,
-                    result: response.result.map(value => {
-                        const instance = DocumentFactory.createOfTypes(value, [DocumentType.Ability])
-                        if (instance === null) {
-                            throw new Error('Validated file creation resulted in null value')
-                        }
-                        this.cache[value.id] = instance
-                        return instance
-                    })
-                }
-            }
-        }
-        return response
-    }
-
-    public static async getFightingStyles(storyId: ObjectId): Promise<DBResponse<AbilityDocument[]>> {
-        const response = await this.databaseFetch<IDatabaseFile[]>('getFightingStyles', 'GET', {
-            storyId: storyId
-        })
-        if (response.success) {
-            if (!response.result.every(value => DocumentFactory.validate(value))) {
-                Logger.error('Communication.getFightingStyles', response.result)
                 return { success: false, result: 'Failed to get file, type missmatch' }
             } else {
                 return {

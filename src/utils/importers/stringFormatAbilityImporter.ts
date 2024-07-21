@@ -1,8 +1,7 @@
 import Logger from 'utils/logger'
 import { asEnum, asNumber } from 'utils'
 import { EffectConditionType } from 'structure/database/effectCondition'
-import { ActionType, DamageType, RestType, ScalingType, TargetType } from 'structure/dnd'
-import { CalcMode } from 'structure/database'
+import { ActionType, DamageType, ScalingType, TargetType } from 'structure/dnd'
 import AbilityDataFactory, { type AbilityData } from 'structure/database/files/ability/factory'
 import { DieType } from 'structure/dice'
 import { EffectCategory, EffectType } from 'structure/database/effect/common'
@@ -92,22 +91,18 @@ function createEffect(damageType: DamageType, text: string, die: DieType, dieCou
                 label: 'Damage',
                 category: EffectCategory.Uncategorized,
                 damageType: damageType,
-                scaling: ScalingType.None,
-                proficiency: false,
+                scaling: { [ScalingType.Constant]: modifier },
                 die: die,
                 dieCount: dieCount,
-                modifier: { mode: CalcMode.Override, value: modifier },
                 condition: {}
             } satisfies IEffect
         case EffectType.Die:
             return {
                 type: type,
                 label: 'Roll',
-                scaling: ScalingType.None,
-                proficiency: false,
+                scaling: { [ScalingType.Constant]: modifier },
                 die: die,
                 dieCount: dieCount,
-                modifier: { mode: CalcMode.Override, value: modifier },
                 condition: {}
             } satisfies IEffect
         case EffectType.Text:
@@ -139,15 +134,12 @@ export function toAbility(text: string): AbilityData | null {
                 action: getAction(res[1], type),
                 condition: {
                     type: EffectConditionType.Hit,
-                    scaling: ScalingType.None,
-                    proficiency: false,
-                    modifier: { mode: CalcMode.Override, value: getRollMod(res[4]) }
+                    scaling: { [ScalingType.Constant]: getRollMod(res[4]) }
                 },
                 target: getTargetType(res[6]),
                 range: ranges.range,
                 notes: '',
-                charges: 0,
-                chargesReset: RestType.None,
+                charges: {},
                 effects: { main: createEffect(damageType, text, die, dieCount, modifier) },
                 modifiers: []
             }
@@ -161,14 +153,11 @@ export function toAbility(text: string): AbilityData | null {
                 action: getAction(res[1], type),
                 condition: {
                     type: EffectConditionType.Hit,
-                    scaling: ScalingType.None,
-                    proficiency: false,
-                    modifier: { mode: CalcMode.Override, value: getRollMod(res[4]) }
+                    scaling: { [ScalingType.Constant]: getRollMod(res[4]) }
                 },
                 reach: ranges.range,
                 notes: '',
-                charges: 0,
-                chargesReset: RestType.None,
+                charges: {},
                 effects: { main: createEffect(damageType, text, die, dieCount, modifier) },
                 modifiers: []
             }
@@ -182,15 +171,12 @@ export function toAbility(text: string): AbilityData | null {
                 action: getAction(res[1], type),
                 condition: {
                     type: EffectConditionType.Hit,
-                    scaling: ScalingType.None,
-                    proficiency: false,
-                    modifier: { mode: CalcMode.Override, value: getRollMod(res[4]) }
+                    scaling: { [ScalingType.Constant]: getRollMod(res[4]) }
                 },
                 range: ranges.range,
                 rangeLong: ranges.rangeLong,
                 notes: '',
-                charges: 0,
-                chargesReset: RestType.None,
+                charges: {},
                 effects: { main: createEffect(damageType, text, die, dieCount, modifier) },
                 modifiers: []
             } satisfies IAbilityData
@@ -203,8 +189,7 @@ export function toAbility(text: string): AbilityData | null {
                 type: AbilityType.Feature,
                 action: getAction(res[1], type),
                 notes: '',
-                charges: 0,
-                chargesReset: RestType.None,
+                charges: {},
                 modifiers: []
             } satisfies IAbilityData
             break

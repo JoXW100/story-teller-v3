@@ -4,21 +4,21 @@ import type Modifier from '../modifier'
 import { asNumber, isNumber } from 'utils'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { IModifierBonusConstitutionData } from 'types/database/files/modifier'
+import type { IModifierBonusSpellSaveData } from 'types/database/files/modifier'
 
-class ModifierBonusConstitutionData extends ModifierBonusDataBase implements IModifierBonusConstitutionData {
-    public readonly subtype = ModifierBonusType.Constitution
+class ModifierBonusSpellSaveData extends ModifierBonusDataBase implements IModifierBonusSpellSaveData {
+    public readonly subtype = ModifierBonusType.SpellSave
     public readonly value: number
 
-    public constructor(data: Simplify<IModifierBonusConstitutionData>) {
+    public constructor(data: Simplify<IModifierBonusSpellSaveData>) {
         super(data)
-        this.value = asNumber(data.value, ModifierBonusConstitutionData.properties.value.value)
+        this.value = asNumber(data.value, ModifierBonusSpellSaveData.properties.value.value)
     }
 
-    public static properties: DataPropertyMap<IModifierBonusConstitutionData, ModifierBonusConstitutionData> = {
+    public static properties: DataPropertyMap<IModifierBonusSpellSaveData, ModifierBonusSpellSaveData> = {
         ...ModifierBonusDataBase.properties,
         subtype: {
-            value: ModifierBonusType.Constitution,
+            value: ModifierBonusType.SpellSave,
             validate: (value) => value === this.properties.subtype.value,
             simplify: (value) => value
         },
@@ -29,15 +29,15 @@ class ModifierBonusConstitutionData extends ModifierBonusDataBase implements IMo
     }
 
     public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
-        modifier.con.subscribe({
+        modifier.spellSave.subscribe({
             key: key,
             target: self,
             data: this,
             apply: function (value): number {
-                return value + (this.data as ModifierBonusConstitutionData).value
+                return value + (this.data as ModifierBonusSpellSaveData).value
             }
         })
     }
 }
 
-export default ModifierBonusConstitutionData
+export default ModifierBonusSpellSaveData

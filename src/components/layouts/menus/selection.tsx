@@ -1,6 +1,7 @@
 import DropdownMenu from '../dropdownMenu'
 import ListTemplateMenu, { type ListTemplateComponentProps } from './template'
 import styles from './selection.module.scss'
+import { asNumber } from 'utils'
 
 interface INoneSelectionMenuProps {
     values: string[]
@@ -8,11 +9,18 @@ interface INoneSelectionMenuProps {
     onChange?: (selection: string[]) => void
 }
 
-interface ISelectionMenuProps<V, T extends string> {
-    values: Record<string, V>
-    defaultValue: V
-    type: T
-    onChange?: (selection: Record<string, V>) => void
+interface IStringSelectionMenuProps {
+    values: Record<string, string>
+    defaultValue: string
+    type: 'string'
+    onChange?: (selection: Record<string, string>) => void
+}
+
+interface INumberSelectionMenuProps {
+    values: Record<string, number>
+    defaultValue: number
+    type: 'number'
+    onChange?: (selection: Record<string, number>) => void
 }
 
 interface IEnumSelectionMenuProps<V> {
@@ -30,7 +38,7 @@ type SelectionMenuProps = React.PropsWithRef<{
     dropdownItemClassName?: string
     options: Record<string, React.ReactNode>
     addLast?: boolean
-} & (ISelectionMenuProps<string, 'string'> | IEnumSelectionMenuProps<string> | ISelectionMenuProps<number, 'number'> | INoneSelectionMenuProps)>
+} & (IStringSelectionMenuProps | IEnumSelectionMenuProps<string> | INumberSelectionMenuProps | INoneSelectionMenuProps)>
 
 const SelectionMenu: React.FC<SelectionMenuProps> = (params) => {
     const style = params.className !== undefined ? `${styles.list} ${params.className}` : styles.list
@@ -94,9 +102,7 @@ const EditComponent: React.FC<ListTemplateComponentProps<string, string, Selecti
 const Component: React.FC<ListTemplateComponentProps<string, string, SelectionMenuProps>> = ({ value, params }) => {
     const handleChange = (input: string): void => {
         if (params.type === 'number') {
-            let res = parseInt(input)
-            res = isNaN(res) ? 0 : res
-            params.onChange?.({ ...params.values, [value]: res })
+            params.onChange?.({ ...params.values, [value]: asNumber(input, 0) })
         } else if (params.type !== 'none') {
             params.onChange?.({ ...params.values, [value]: input })
         }

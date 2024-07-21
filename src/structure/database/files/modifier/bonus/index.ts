@@ -5,15 +5,16 @@ import type { IModifierBonusDataBase } from 'types/database/files/modifier'
 
 export enum ModifierBonusType {
     AC = 'ac',
-    AllAbilityScores = 'allAttr',
-    Strength = 'str',
-    Dexterity = 'dex',
-    Constitution = 'con',
-    Intelligence = 'int',
-    Wisdom = 'wis',
-    Charisma = 'cha',
-    Attacks = 'attacks',
+    AbilityScore = 'abilityScore',
+    Save = 'save',
+    Skill = 'skill',
     Speed = 'speed',
+    SpellAttack = 'spellAttack',
+    SpellSave = 'spellSave',
+    CritRange = 'critRange',
+    CritDieCount = 'critDieCount',
+    MultiAttack = 'multiAttack',
+    AttunementSlot = 'attunementSlot'
 }
 
 export abstract class ModifierBonusDataBase extends ModifierDataBase implements IModifierBonusDataBase {

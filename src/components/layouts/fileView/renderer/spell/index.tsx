@@ -82,7 +82,7 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCr
 
     const properties: IConditionProperties = {
         ...stats,
-        classLevel: 0,
+        attunedItems: 0,
         spellLevel: getSpellLevelValue(upcastLevel)
     }
 
@@ -174,7 +174,7 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCr
                         <Elements.b>HIT/DC </Elements.b>
                         { data.condition.type === EffectConditionType.Hit &&
                             <Elements.roll
-                                dice={String(data.condition.getModifierValue(stats) + getBonus(data.target, attackBonuses))}
+                                dice={String(data.condition.getModifierValue(properties) + getBonus(data.target, attackBonuses))}
                                 desc={`${data.name} Attack`}
                                 details={null}
                                 tooltips={`Roll ${data.name} Attack`}
@@ -183,8 +183,13 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCr
                                 type={RollType.Attack}/>
                         }{ data.condition.type === EffectConditionType.Save &&
                             <Elements.save
-                                value={data.condition.getModifierValue(stats)}
+                                value={data.condition.getModifierValue(properties)}
                                 type={data.condition.attribute}
+                                tooltips={null}/>
+                        }{ data.condition.type === EffectConditionType.Check &&
+                            <Elements.check
+                                value={data.condition.getModifierValue(properties)}
+                                type={data.condition.skill}
                                 tooltips={null}/>
                         }{ data.condition.type === EffectConditionType.None && '-' }
                     </div>
@@ -193,7 +198,7 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCr
                     <EffectRenderer
                         key={key}
                         data={data.effects[key]}
-                        stats={stats}
+                        properties={properties}
                         bonuses={damageBonuses}
                         desc={`${data.name} ${data.effects[key].label}`}
                         tooltipsId='render-effect-rollTooltips'

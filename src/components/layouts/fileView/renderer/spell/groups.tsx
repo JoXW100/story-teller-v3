@@ -21,6 +21,9 @@ type SpellGroupsProps = React.PropsWithRef<{
 const SpellGroups: React.FC<SpellGroupsProps> = ({ spells, spellSlots, expendedSlots, stats = EmptyCreatureStats, setExpendedSlots }) => {
     const categories = useMemo(() => {
         const categories: Partial<Record<SpellLevel, Array<keyof typeof spells>>> = {}
+        for (const key of keysOf(spellSlots)) {
+            categories[key] = []
+        }
         for (const key of keysOf(spells)) {
             const spell = spells[key]
             categories[spell.level] = [...categories[spell.level] ?? [], key]
@@ -32,7 +35,7 @@ const SpellGroups: React.FC<SpellGroupsProps> = ({ spells, spellSlots, expendedS
 
     return (
         <>
-            { keysOf(spellSlots).map(level => (
+            { keysOf(categories).map(level => (
                 <React.Fragment key={level}>
                     <Elements.row>
                         <Elements.b>
@@ -47,7 +50,7 @@ const SpellGroups: React.FC<SpellGroupsProps> = ({ spells, spellSlots, expendedS
                     </Elements.row>
                     <Elements.space/>
                     { categories[level]?.map((id) =>
-                        <SpellToggleRenderer key={id} id={id} data={spells[id]} stats={stats}/>
+                        <SpellToggleRenderer key={id} id={id} data={spells[id]} stats={stats} startCollapsed/>
                     )}
                     <Elements.space/>
                 </React.Fragment>

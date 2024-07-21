@@ -271,7 +271,7 @@ class FileCollection {
             }
 
             Logger.log('file.update', fileId, result.modifiedCount)
-            return success(result.matchedCount > 0)
+            return success(result.acknowledged)
         } catch (error: unknown) {
             Logger.error('file.update', error)
             if (error instanceof Error) {
@@ -369,6 +369,7 @@ class FileCollection {
                     $project: {
                         _id: 0,
                         id: '$_id',
+                        storyId: '$_storyId',
                         type: '$type',
                         name: '$name',
                         isOwner: { $eq: ['$_userId', userId] },
@@ -423,6 +424,7 @@ class FileCollection {
                     $project: {
                         _id: 0,
                         id: '$_id',
+                        storyId: '$_storyId',
                         type: '$type',
                         name: '$name',
                         isOwner: { $eq: ['$_userId', userId] },
@@ -472,6 +474,7 @@ class FileCollection {
                     $project: {
                         _id: 0,
                         id: '$_id',
+                        storyId: '$_storyId',
                         type: '$type',
                         name: '$name',
                         isOwner: { $eq: ['$_userId', userId] },
@@ -517,6 +520,7 @@ class FileCollection {
                     $project: {
                         _id: 0,
                         id: '$_id',
+                        storyId: '$_storyId',
                         type: '$type',
                         name: '$name',
                         isOwner: { $eq: ['$_userId', userId] },
@@ -541,12 +545,13 @@ class FileCollection {
     }
 
     /**
-     * Gets subscribed feats
+     * Gets subscribed custom abilities of a specific category
      * @param userId The Auth0 sub of the user
-     * @param storyId The story to fetch feats for
-     * @returns The subscribed feat documents, or an error message
+     * @param storyId The story to fetch abilities for
+     * @param category The category of abilities
+     * @returns The subscribed ability documents, or an error message
      */
-    async getFeats(userId: string, storyId: ObjectId): Promise<DBResponse<IDatabaseFile[]>> {
+    async getAbilitiesOfCategory(userId: string, storyId: ObjectId, category: string): Promise<DBResponse<IDatabaseFile[]>> {
         try {
             const result = await this.collection.aggregate<IDatabaseFile>([
                 {
@@ -554,13 +559,15 @@ class FileCollection {
                         _userId: userId,
                         _storyId: storyId,
                         type: DocumentFileType.Ability,
-                        'data.type': AbilityType.Feat
+                        'data.type': AbilityType.Custom,
+                        'data.category': category
                     } satisfies KeysOfTwo<IDatabaseFile, object>
                 },
                 {
                     $project: {
                         _id: 0,
                         id: '$_id',
+                        storyId: '$_storyId',
                         type: '$type',
                         name: '$name',
                         isOwner: { $eq: ['$_userId', userId] },
@@ -576,50 +583,6 @@ class FileCollection {
             return success(result)
         } catch (error) {
             Logger.error('file.getFeats', error)
-            if (error instanceof Error) {
-                return failure(error.message)
-            } else {
-                return failure(String(error))
-            }
-        }
-    }
-
-    /**
-     * Gets subscribed fighting styles
-     * @param userId The Auth0 sub of the user
-     * @param storyId The story to fetch fighting styles for
-     * @returns The subscribed fighting style documents, or an error message
-     */
-    async getFightingStyles(userId: string, storyId: ObjectId): Promise<DBResponse<IDatabaseFile[]>> {
-        try {
-            const result = await this.collection.aggregate<IDatabaseFile>([
-                {
-                    $match: {
-                        _userId: userId,
-                        _storyId: storyId,
-                        type: DocumentFileType.Ability,
-                        'data.type': AbilityType.FightingStyle
-                    } satisfies KeysOfTwo<IDatabaseFile, object>
-                },
-                {
-                    $project: {
-                        _id: 0,
-                        id: '$_id',
-                        type: '$type',
-                        name: '$name',
-                        isOwner: { $eq: ['$_userId', userId] },
-                        dateCreated: '$dateCreated',
-                        dateUpdated: '$dateUpdated',
-                        data: { $ifNull: ['$data', {}] },
-                        storage: { $ifNull: ['$storage', {}] }
-                    } satisfies KeysOfTwo<IDatabaseFile, object>
-                }
-            ]).toArray()
-
-            Logger.log('file.getFightingStyles', result.map(x => x.name).join(', '))
-            return success(result)
-        } catch (error) {
-            Logger.error('file.getFightingStyles', error)
             if (error instanceof Error) {
                 return failure(error.message)
             } else {

@@ -4,21 +4,21 @@ import type Modifier from '../modifier'
 import { asNumber, isNumber } from 'utils'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { IModifierBonusDexterityData } from 'types/database/files/modifier'
+import type { IModifierBonusSpellAttackData } from 'types/database/files/modifier'
 
-class ModifierBonusDexterityData extends ModifierBonusDataBase implements IModifierBonusDexterityData {
-    public readonly subtype = ModifierBonusType.Dexterity
+class ModifierBonusSpellAttackData extends ModifierBonusDataBase implements IModifierBonusSpellAttackData {
+    public readonly subtype = ModifierBonusType.SpellAttack
     public readonly value: number
 
-    public constructor(data: Simplify<IModifierBonusDexterityData>) {
+    public constructor(data: Simplify<IModifierBonusSpellAttackData>) {
         super(data)
-        this.value = asNumber(data.value, ModifierBonusDexterityData.properties.value.value)
+        this.value = asNumber(data.value, ModifierBonusSpellAttackData.properties.value.value)
     }
 
-    public static properties: DataPropertyMap<IModifierBonusDexterityData, ModifierBonusDexterityData> = {
+    public static properties: DataPropertyMap<IModifierBonusSpellAttackData, ModifierBonusSpellAttackData> = {
         ...ModifierBonusDataBase.properties,
         subtype: {
-            value: ModifierBonusType.Dexterity,
+            value: ModifierBonusType.SpellAttack,
             validate: (value) => value === this.properties.subtype.value,
             simplify: (value) => value
         },
@@ -29,15 +29,15 @@ class ModifierBonusDexterityData extends ModifierBonusDataBase implements IModif
     }
 
     public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
-        modifier.dex.subscribe({
+        modifier.spellAttack.subscribe({
             key: key,
             target: self,
             data: this,
             apply: function (value): number {
-                return value + (this.data as ModifierBonusDexterityData).value
+                return value + (this.data as ModifierBonusSpellAttackData).value
             }
         })
     }
 }
 
-export default ModifierBonusDexterityData
+export default ModifierBonusSpellAttackData

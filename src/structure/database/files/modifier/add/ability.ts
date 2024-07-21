@@ -1,13 +1,14 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
+import { ModifierSourceType } from '../modifier'
 import { createDefaultChoiceData, createMultipleChoiceData, simplifyMultipleChoiceData, validateChoiceData } from '../../../choice'
-import { asObjectId, isNumber, isObjectIdOrNull } from 'utils'
+import { asObjectId, isNumber, isObjectId, isObjectIdOrNull } from 'utils'
+import { DocumentType } from 'structure/database'
 import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IModifierAddAbilityData } from 'types/database/files/modifier'
 import type { MultipleChoiceData } from 'types/database/choice'
-import { ModifierSourceType } from '../modifier'
 
 class ModifierAddAbilityData extends ModifierAddDataBase implements IModifierAddAbilityData {
     public override readonly subtype = ModifierAddType.Ability
@@ -36,7 +37,8 @@ class ModifierAddAbilityData extends ModifierAddDataBase implements IModifierAdd
         if (this.value.isChoice) {
             modifier.addChoice({
                 source: this,
-                type: 'id',
+                type: 'ability',
+                allowedTypes: [DocumentType.Ability],
                 value: this.value.value,
                 numChoices: this.value.numChoices
             }, key)
@@ -62,18 +64,22 @@ class ModifierAddAbilityData extends ModifierAddDataBase implements IModifierAdd
                         return value
                     }
 
-                    for (let i = 0; i < modifier.value.numChoices; i++) {
-                        const index = choice[i]
-                        if (!isNumber(index)) {
-                            continue
+                    if (modifier.value.value.length > 0) {
+                        for (let i = 0; i < modifier.value.numChoices; i++) {
+                            const index = choice[i]
+                            if (isNumber(index)) {
+                                const id = asObjectId(modifier.value.value[index])
+                                if (isObjectId(id)) {
+                                    existing.add(id)
+                                }
+                            }
                         }
-
-                        const id = modifier.value.value[index] ?? null
-                        if (id === null) {
-                            continue
+                    } else {
+                        for (const id of choice) {
+                            if (isObjectId(id)) {
+                                existing.add(id)
+                            }
                         }
-
-                        existing.add(id)
                     }
 
                     return Array.from(existing)

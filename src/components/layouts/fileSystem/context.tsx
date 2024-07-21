@@ -9,7 +9,8 @@ import type FileStructure from 'structure/database/fileStructure'
 import type { ObjectId } from 'types'
 import type { InputType } from 'types/dialog'
 import type { DBResponse, IFileStructure } from 'types/database'
-import type { ContextProvider, DispatchAction, DispatchActionNoData, DispatchActionWithDispatch } from 'types/context'
+import type { ContextProvider, DispatchAction, DispatchActionWithDispatch } from 'types/context'
+import { isString } from 'utils'
 
 export type FileFilter = Record<DocumentType, boolean> & {
     search: string
@@ -19,6 +20,7 @@ export type FileFilter = Record<DocumentType, boolean> & {
 interface FileSystemContextState {
     loading: boolean
     showFilterMenu: boolean
+    selected: ObjectId | null
     root: FileStructure
     filter: FileFilter
 }
@@ -30,20 +32,24 @@ interface FileSystemDispatch {
     openFilterMenu: () => void
     closeFilterMenu: () => void
     moveFile: (file: IFileStructure, target?: IFileStructure | null) => void
-    renameFile: (file: IFileStructure, newName: string, callback?: (success: boolean) => void) => void
-    setFileOpen: (file: IFileStructure, open: boolean, callback?: (success: boolean) => void) => void
+    renameFile: (file: IFileStructure, newName: string) => void
+    setFileOpen: (file: IFileStructure, open: boolean) => void
     copyFile: (file: IFileStructure, holderId?: ObjectId | null, newName?: string) => void
 }
 
 type FileSystemContextAction =
-    DispatchActionNoData<'init'> |
+    DispatchAction<'init', ObjectId | null> |
     DispatchActionWithDispatch<'load', ObjectId, FileSystemContextAction> |
+    DispatchAction<'updateName', IFileStructure> |
+    DispatchAction<'updateOpen', IFileStructure> |
     DispatchAction<'setFiles', DBResponse<FileStructure>> |
     DispatchAction<'setFilter', FileFilter> |
     DispatchAction<'setShowFilterMenu', boolean>
 
 type FileSystemContextProvider = ContextProvider<FileSystemContextState, FileSystemDispatch>
-type FileSystemContextProps = React.PropsWithChildren
+type FileSystemContextProps = React.PropsWithChildren<{
+    fileId: ObjectId | null
+}>
 
 function createDefaultFileFilter(): FileFilter {
     const documentToggles: Partial<Record<DocumentType, boolean>> = {}
@@ -74,6 +80,7 @@ function createNextName(name: string): string {
 const defaultContextState = {
     loading: false,
     showFilterMenu: false,
+    selected: null,
     root: null as any,
     filter: createDefaultFileFilter()
 } satisfies FileSystemContextState
@@ -98,7 +105,7 @@ export const Context = React.createContext<FileSystemContextProvider>([
 const reducer: React.Reducer<FileSystemContextState, FileSystemContextAction> = (state, action) => {
     switch (action.type) {
         case 'init':
-            return state
+            return { ...state, selected: action.data }
         case 'load': {
             if (state.loading) {
                 return state
@@ -116,6 +123,12 @@ const reducer: React.Reducer<FileSystemContextState, FileSystemContextAction> = 
             if (response.success) {
                 return { ...state, loading: false, root: response.result }
             } else {
+                openDialog('notice', {
+                    id: 'fileSystem.load',
+                    headerTextId: 'common-error',
+                    bodyTextId: 'fileSystem-dialog-load',
+                    bodyTextArgs: [response.result ?? 'Unknown Error']
+                })
                 return { ...state, loading: false, root: null as any }
             }
         }
@@ -125,18 +138,54 @@ const reducer: React.Reducer<FileSystemContextState, FileSystemContextAction> = 
         case 'setShowFilterMenu': {
             return { ...state, showFilterMenu: action.data }
         }
+        case 'updateName': {
+            Communication.updateFile(action.data.id, action.data.type, {
+                'name': action.data.name
+            }).then((response) => {
+                if (!response.success || !response.result) {
+                    Logger.error('FileSystem.updateName', response.result)
+                    openDialog('notice', {
+                        id: 'fileSystem.updateName',
+                        headerTextId: 'common-error',
+                        bodyTextId: 'fileSystem-dialog-update',
+                        bodyTextArgs: [action.data.name, isString(response.result) ? response.result : 'Unknown Error']
+                    })
+                }
+            }, (error: unknown) => {
+                Logger.throw('FileSystem.updateName', error)
+            })
+            return { ...state, root: state.root.updateContained(action.data) }
+        }
+        case 'updateOpen': {
+            Communication.updateFile(action.data.id, action.data.type, {
+                'data.open': action.data.open
+            }).then((response) => {
+                if (!response.success || !response.result) {
+                    Logger.error('FileSystem.updateOpen', response.result)
+                    openDialog('notice', {
+                        id: 'fileSystem.updateOpen',
+                        headerTextId: 'common-error',
+                        bodyTextId: 'fileSystem-dialog-update',
+                        bodyTextArgs: [action.data.name, isString(response.result) ? response.result : 'Unknown Error']
+                    })
+                }
+            }, (error: unknown) => {
+                Logger.throw('FileSystem.updateOpen', error)
+            })
+            return { ...state, root: state.root.updateContained(action.data) }
+        }
         default:
             return state
     }
 }
 
-const FileSystemContext: React.FC<FileSystemContextProps> = ({ children }) => {
+const FileSystemContext: React.FC<FileSystemContextProps> = ({ children, fileId }) => {
     const [context] = useContext(StoryContext)
     const [state, dispatch] = useReducer(reducer, defaultContextState)
 
     useEffect(() => {
-        dispatch({ type: 'init' })
-    }, [])
+        dispatch({ type: 'init', data: fileId })
+    }, [fileId])
 
     useEffect(() => {
         dispatch({ type: 'load', data: context.story.id, dispatch: dispatch })
@@ -152,9 +201,21 @@ const FileSystemContext: React.FC<FileSystemContextProps> = ({ children }) => {
                             dispatch({ type: 'load', data: context.story.id, dispatch: dispatch })
                         } else {
                             Logger.error('FileSystem.addFile', response.result)
+                            openDialog('notice', {
+                                id: 'fileSystem.addFile',
+                                headerTextId: 'common-error',
+                                bodyTextId: 'fileSystem-dialog-addFile',
+                                bodyTextArgs: [data.name, response.result ?? 'Unknown Error']
+                            })
                         }
                     }, (error: unknown) => {
                         Logger.throw('FileSystem.addFile', error)
+                        openDialog('notice', {
+                            id: 'fileSystem.addFile',
+                            headerTextId: 'common-error',
+                            bodyTextId: 'fileSystem-dialog-addFile',
+                            bodyTextArgs: [data.name, String(error)]
+                        })
                     })
             })
         },
@@ -170,9 +231,21 @@ const FileSystemContext: React.FC<FileSystemContextProps> = ({ children }) => {
                         dispatch({ type: 'load', data: context.story.id, dispatch: dispatch })
                     } else {
                         Logger.error('FileSystem.deleteFile', response.result)
+                        openDialog('notice', {
+                            id: 'fileSystem.addFile',
+                            headerTextId: 'common-error',
+                            bodyTextId: 'fileSystem-dialog-addFile',
+                            bodyTextArgs: [file.name, isString(response.result) ? response.result : 'Unknown Error']
+                        })
                     }
                 }, (error: unknown) => {
                     Logger.throw('FileSystem.deleteFile', error)
+                    openDialog('notice', {
+                        id: 'fileSystem.addFile',
+                        headerTextId: 'common-error',
+                        bodyTextId: 'fileSystem-dialog-addFile',
+                        bodyTextArgs: [file.name, String(error)]
+                    })
                 })
             })
         },
@@ -188,20 +261,25 @@ const FileSystemContext: React.FC<FileSystemContextProps> = ({ children }) => {
                     dispatch({ type: 'load', data: context.story.id, dispatch: dispatch })
                 } else {
                     Logger.error('FileSystem.moveFile', response.result)
+                    openDialog('notice', {
+                        id: 'fileSystem.moveFile',
+                        headerTextId: 'common-error',
+                        bodyTextId: 'fileSystem-dialog-moveFile',
+                        bodyTextArgs: [file.name, isString(response.result) ? response.result : 'Unknown Error']
+                    })
                 }
             }, (error: unknown) => {
                 Logger.throw('FileSystem.moveFile', error)
+                openDialog('notice', {
+                    id: 'fileSystem.moveFile',
+                    headerTextId: 'common-error',
+                    bodyTextId: 'fileSystem-dialog-moveFile',
+                    bodyTextArgs: [file.name, String(error)]
+                })
             })
         },
-        renameFile(file, newName, callback) {
-            Communication.updateFile(file.id, file.type, { 'name': newName }).then((response) => {
-                if (!response.success || !response.result) {
-                    Logger.error('FileSystem.renameFile', response.result)
-                }
-                callback?.(response.success)
-            }, (error: unknown) => {
-                Logger.throw('FileSystem.renameFile', error)
-            })
+        renameFile(file, newName) {
+            dispatch({ type: 'updateName', data: { ...file, name: newName } })
         },
         copyFile(file, holderId, name) {
             if (name === undefined) {
@@ -212,22 +290,29 @@ const FileSystemContext: React.FC<FileSystemContextProps> = ({ children }) => {
                     dispatch({ type: 'load', data: context.story.id, dispatch: dispatch })
                 } else {
                     Logger.error('FileSystem.copyFile', response.result)
+                    openDialog('notice', {
+                        id: 'fileSystem.copyFile',
+                        headerTextId: 'common-error',
+                        bodyTextId: 'fileSystem-dialog-copyFile',
+                        bodyTextArgs: [file.name, isString(response.result) ? response.result : 'Unknown Error']
+                    })
                 }
             }, (error: unknown) => {
                 Logger.throw('FileSystem.copyFile', error)
+                openDialog('notice', {
+                    id: 'fileSystem.copyFile',
+                    headerTextId: 'common-error',
+                    bodyTextId: 'fileSystem-dialog-copyFile',
+                    bodyTextArgs: [file.name, String(error)]
+                })
             })
         },
-        setFileOpen(file, open, callback) {
-            Communication.updateFile(file.id, FileType.Folder, {
-                'data.open': open
-            }).then((response) => {
-                if (!response.success || !response.result) {
-                    Logger.error('FileSystem.setFileOpen', response.result)
-                }
-                callback?.(response.success)
-            }, (error: unknown) => {
-                Logger.throw('FileSystem.setFileOpen', error)
-            })
+        setFileOpen(file, open) {
+            if (file.type === FileType.Folder) {
+                dispatch({ type: 'updateOpen', data: { ...file, open: open } })
+            } else {
+                Logger.throw('fileSystem.setFileOpen', 'Invalid file type', file.type)
+            }
         }
     }), [context.story.id, state.root])
 

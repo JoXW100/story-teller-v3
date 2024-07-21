@@ -2,6 +2,7 @@ import type { OptionalAttribute } from 'structure/dnd'
 
 export interface ICreatureStats {
     level: number
+    classLevel: number
     casterLevel: number
     str: number
     dex: number
@@ -12,9 +13,16 @@ export interface ICreatureStats {
     spellAttribute: OptionalAttribute
     proficiency: number
     critRange: number
+    critDieCount: number
     multiAttack: number
     armorLevel: number // 0 = None, 1 = Light, 2 = Medium, 3 = Heavy
     shieldLevel: number
+    walkSpeed: number
+    burrowSpeed: number
+    climbSpeed: number
+    flySpeed: number
+    hoverSpeed: number
+    swimSpeed: number
 }
 
 export interface IBonusGroup {

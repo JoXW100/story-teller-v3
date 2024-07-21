@@ -158,7 +158,11 @@ export enum ActionType {
 }
 
 export enum ScalingType {
-    None = 'none',
+    Constant = 'constant',
+    Proficiency = 'proficiency',
+    Level = 'level',
+    ClassLevel = 'classLevel',
+    SpellLevel = 'spellLevel',
     Finesse = 'finesse',
     SpellModifier = 'spellMod',
     STR = 'str',
@@ -166,7 +170,13 @@ export enum ScalingType {
     CON = 'con',
     INT = 'int',
     WIS = 'wis',
-    CHA = 'cha'
+    CHA = 'cha',
+    WalkSpeed = 'walkSpeed',
+    BurrowSpeed = 'burrowSpeed',
+    ClimbSpeed = 'climbSpeed',
+    FlySpeed = 'flySpeed',
+    HoverSpeed = 'hoverSpeed',
+    SwimSpeed = 'swimSpeed',
 }
 
 export enum Duration {
@@ -385,10 +395,12 @@ export enum ToolType {
 }
 
 export enum Language {
+    All = 'All',
     Abyssal = 'abyssal',
     Celestial = 'celestial',
     Common = 'common',
     Draconic = 'draconic',
+    Druidic = 'druidic',
     DeepSpeech = 'deepSpeech',
     Dwarvish = 'dwarvish',
     Elvish = 'elvish',
@@ -517,7 +529,11 @@ export enum DamageBinding {
 
 export enum ConditionBinding {
     Generic = 'generic',
-    Charmed = 'charmed'
+    Charmed = 'charmed',
+    Sleep = 'sleep',
+    Frightened = 'frightened',
+    Diseased = 'diseased',
+    Poisoned = 'poisoned',
 }
 
 export enum SpellPreparationType {

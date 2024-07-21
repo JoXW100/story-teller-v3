@@ -1,32 +1,29 @@
 import { AbilityType } from './common'
 import AbilityDataBase from './data'
 import { isNumber, isRecord } from 'utils'
-import type { EffectCondition } from 'structure/database/effectCondition'
 import EffectFactory, { simplifyEffectRecord, type Effect } from 'structure/database/effect/factory'
-import EffectConditionFactory from 'structure/database/effectCondition/factory'
+import EffectConditionFactory, { type EffectCondition } from 'structure/database/effectCondition/factory'
 import { getOptionType } from 'structure/optionData'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { IAbilityThrownAttackData } from 'types/database/files/ability'
+import type { IAbilityRangedAttackData } from 'types/database/files/ability'
 
-class AbilityThrownAttackData extends AbilityDataBase implements IAbilityThrownAttackData {
-    public readonly type: AbilityType.ThrownWeapon
+class AbilityRangedAttackData extends AbilityDataBase implements IAbilityRangedAttackData {
+    public readonly type: AbilityType.RangedAttack | AbilityType.RangedWeapon
     public readonly condition: EffectCondition
-    public readonly reach: number
     public readonly range: number
     public readonly rangeLong: number
     public readonly effects: Record<string, Effect>
 
-    public constructor(data: Simplify<IAbilityThrownAttackData>) {
+    public constructor(data: Simplify<IAbilityRangedAttackData>) {
         super(data)
-        this.type = data.type ?? AbilityThrownAttackData.properties.type.value
+        this.type = data.type ?? AbilityRangedAttackData.properties.type.value
         this.condition = data.condition !== undefined
             ? EffectConditionFactory.create(data.condition)
-            : AbilityThrownAttackData.properties.condition.value
-        this.reach = data.reach ?? AbilityThrownAttackData.properties.reach.value
-        this.range = data.range ?? AbilityThrownAttackData.properties.range.value
-        this.rangeLong = data.rangeLong ?? AbilityThrownAttackData.properties.rangeLong.value
-        this.effects = AbilityThrownAttackData.properties.effects.value
+            : AbilityRangedAttackData.properties.condition.value
+        this.range = data.range ?? AbilityRangedAttackData.properties.range.value
+        this.rangeLong = data.rangeLong ?? AbilityRangedAttackData.properties.rangeLong.value
+        this.effects = AbilityRangedAttackData.properties.effects.value
         if (isRecord(data.effects)) {
             for (const key of Object.keys(data.effects)) {
                 const effect = data.effects[key]
@@ -41,21 +38,17 @@ class AbilityThrownAttackData extends AbilityDataBase implements IAbilityThrownA
         return getOptionType('abilityType').options[this.type]
     }
 
-    public static override properties: DataPropertyMap<IAbilityThrownAttackData, AbilityThrownAttackData> = {
+    public static override properties: DataPropertyMap<IAbilityRangedAttackData, AbilityRangedAttackData> = {
         ...AbilityDataBase.properties,
         type: {
-            value: AbilityType.ThrownWeapon,
-            validate: (value) => value === AbilityType.ThrownWeapon,
+            value: AbilityType.RangedAttack,
+            validate: (value) => value === AbilityType.RangedAttack || value === AbilityType.RangedWeapon,
             simplify: (value) => value
         },
         condition: {
             get value() { return EffectConditionFactory.create({}) },
             validate: EffectConditionFactory.validate,
             simplify: EffectConditionFactory.simplify
-        },
-        reach: {
-            value: 0,
-            validate: isNumber
         },
         range: {
             value: 0,
@@ -73,4 +66,4 @@ class AbilityThrownAttackData extends AbilityDataBase implements IAbilityThrownA
     }
 }
 
-export default AbilityThrownAttackData
+export default AbilityRangedAttackData

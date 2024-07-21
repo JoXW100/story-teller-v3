@@ -1,5 +1,5 @@
 import CreatureData from '../creature/data'
-import { asEnum, isEnum, isObjectId, isObjectIdOrNull, isRecord, isString, keysOf } from 'utils'
+import { asEnum, isEnum, isNumber, isObjectId, isObjectIdOrNull, isRecord, isString, keysOf } from 'utils'
 import { ClassLevel } from 'structure/dnd'
 import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
@@ -15,6 +15,8 @@ class CharacterData extends CreatureData implements ICharacterData {
     public readonly raceName: string
     // Classes
     public readonly classes: Record<ObjectId, ClassLevel>
+    // Other
+    public readonly attunementSlots: number
 
     public constructor(data: Simplify<ICharacterData>) {
         super(data)
@@ -36,6 +38,8 @@ class CharacterData extends CreatureData implements ICharacterData {
                 this.classes[key] = asEnum(data.classes[key], ClassLevel) ?? ClassLevel.Level1
             }
         }
+        // Other
+        this.attunementSlots = data.attunementSlots ?? CharacterData.properties.attunementSlots.value
     }
 
     public static properties: DataPropertyMap<ICharacterData, CharacterData> = {
@@ -70,6 +74,11 @@ class CharacterData extends CreatureData implements ICharacterData {
             get value() { return {} },
             validate: (value) => isRecord(value, (key, val) => isObjectId(key) && isEnum(val, ClassLevel)),
             simplify: (value) => Object.keys(value).length > 0 ? value : null
+        },
+        // Other
+        attunementSlots: {
+            value: 3,
+            validate: isNumber
         }
     }
 }

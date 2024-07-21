@@ -1,4 +1,4 @@
-import { type ICalcValue, AutoCalcValue, createCalcValue, simplifyCalcValue } from 'structure/database'
+import { type ICalcValue, AutoCalcValue, createCalcValue, simplifyCalcValue, simplifyNumberRecord } from 'structure/database'
 import { Alignment, CreatureType, SizeType, MovementType, Sense, OptionalAttribute, AdvantageBinding, ConditionBinding, DamageBinding, SpellLevel, Attribute, ProficiencyLevel, Skill, ToolType, Language, ArmorType, WeaponTypeValue, ProficiencyLevelBasic } from 'structure/dnd'
 import { DieType } from 'structure/dice'
 import EmptyToken from 'structure/language/tokens/empty'
@@ -12,19 +12,6 @@ import type { TokenContext } from 'types/language'
 
 export function isSourceBinding(value: unknown): value is ISourceBinding {
     return isRecord(value) && isObjectIdOrNull(value.source) && isString(value.description)
-}
-
-export function simplifyNumberRecord(value: Record<any, number>, defaultNumber: number = 0): Simplify<typeof value> | null {
-    const result: Simplify<Record<any, number>> = {}
-    let flag = false
-    for (const key of keysOf(value)) {
-        const number = value[key]
-        if (number !== defaultNumber) {
-            result[key] = number
-            flag = true
-        }
-    }
-    return flag ? result : null
 }
 
 class CreatureData implements ICreatureData {

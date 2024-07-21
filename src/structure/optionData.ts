@@ -15,7 +15,6 @@ import { ModifierAbilityType } from './database/files/modifier/ability'
 import { ModifierSetType } from './database/files/modifier/set'
 import { LevelModifyType } from './database/files/class/levelData'
 import { ModifierVariableType, OperationType } from './database/files/modifier/variable'
-import { LinkedCategoryType } from './database/files/modifier/add/linked'
 
 export interface IOptionType<T extends Enum = Enum> {
     enum: T
@@ -165,8 +164,8 @@ const OptionTypes = {
         default: AbilityType.Feature,
         options: {
             [AbilityType.Feature]: 'Feature',
-            [AbilityType.Feat]: 'Feat',
-            [AbilityType.FightingStyle]: 'Fighting Style',
+            [AbilityType.Custom]: 'Custom',
+            [AbilityType.Skill]: 'Skill',
             [AbilityType.Attack]: 'Attack',
             [AbilityType.MeleeAttack]: 'Melee Attack',
             [AbilityType.MeleeWeapon]: 'Melee Weapon',
@@ -227,7 +226,8 @@ const OptionTypes = {
         options: {
             [EffectConditionType.None]: 'None',
             [EffectConditionType.Hit]: 'Hit',
-            [EffectConditionType.Save]: 'Save'
+            [EffectConditionType.Save]: 'Save',
+            [EffectConditionType.Check]: 'Check'
         }
     } satisfies IOptionType<typeof EffectConditionType>,
     effectScaling: {
@@ -254,17 +254,27 @@ const OptionTypes = {
     } satisfies IOptionType<typeof EffectCategory>,
     scaling: {
         enum: ScalingType,
-        default: ScalingType.None,
+        default: ScalingType.Constant,
         options: {
-            [ScalingType.None]: 'None',
-            [ScalingType.Finesse]: 'Finesse',
+            [ScalingType.Constant]: 'Constant',
+            [ScalingType.Proficiency]: 'Proficiency',
+            [ScalingType.Level]: 'Level',
+            [ScalingType.ClassLevel]: 'Class Level',
+            [ScalingType.SpellLevel]: 'Spell Level',
             [ScalingType.SpellModifier]: 'Spell Modifier',
+            [ScalingType.Finesse]: 'Finesse',
             [ScalingType.STR]: 'STR',
             [ScalingType.DEX]: 'DEX',
             [ScalingType.CON]: 'CON',
             [ScalingType.INT]: 'INT',
             [ScalingType.WIS]: 'WIS',
-            [ScalingType.CHA]: 'CHA'
+            [ScalingType.CHA]: 'CHA',
+            [ScalingType.WalkSpeed]: 'Walk Speed',
+            [ScalingType.BurrowSpeed]: 'Burrow Speed',
+            [ScalingType.ClimbSpeed]: 'Climb Speed',
+            [ScalingType.FlySpeed]: 'Fly Speed',
+            [ScalingType.HoverSpeed]: 'Hover Speed',
+            [ScalingType.SwimSpeed]: 'Swim Speed'
         }
     } satisfies IOptionType<typeof ScalingType>,
     scalingModifier: {
@@ -324,15 +334,16 @@ const OptionTypes = {
         default: ModifierBonusType.AC,
         options: {
             [ModifierBonusType.AC]: 'AC',
-            [ModifierBonusType.AllAbilityScores]: 'All Ability Scores',
-            [ModifierBonusType.Strength]: 'Strength',
-            [ModifierBonusType.Dexterity]: 'Dexterity',
-            [ModifierBonusType.Constitution]: 'Constitution',
-            [ModifierBonusType.Intelligence]: 'Intelligence',
-            [ModifierBonusType.Wisdom]: 'Wisdom',
-            [ModifierBonusType.Charisma]: 'Charisma',
+            [ModifierBonusType.AbilityScore]: 'Ability Score',
+            [ModifierBonusType.Save]: 'Save',
+            [ModifierBonusType.Skill]: 'Skill',
             [ModifierBonusType.Speed]: 'Speed',
-            [ModifierBonusType.Attacks]: 'Attacks'
+            [ModifierBonusType.SpellAttack]: 'Spell Attack',
+            [ModifierBonusType.SpellSave]: 'Spell Save',
+            [ModifierBonusType.MultiAttack]: 'Attacks',
+            [ModifierBonusType.AttunementSlot]: 'Attunement Slots',
+            [ModifierBonusType.CritRange]: 'Critical Range',
+            [ModifierBonusType.CritDieCount]: 'Critical Die Count'
         }
     } satisfies IOptionType<typeof ModifierBonusType>,
     modifierSetType: {
@@ -637,10 +648,12 @@ const OptionTypes = {
         enum: Language,
         default: Language.Common,
         options: {
+            [Language.All]: 'All',
             [Language.Abyssal]: 'Abyssal',
             [Language.Celestial]: 'Celestial',
             [Language.Common]: 'Common',
             [Language.Draconic]: 'Draconic',
+            [Language.Druidic]: 'Druidic',
             [Language.DeepSpeech]: 'Deep Speech',
             [Language.Dwarvish]: 'Dwarvish',
             [Language.Elvish]: 'Elvish',
@@ -841,7 +854,11 @@ const OptionTypes = {
         default: ConditionBinding.Generic,
         options: {
             [ConditionBinding.Generic]: 'Generic',
-            [ConditionBinding.Charmed]: 'Charmed'
+            [ConditionBinding.Charmed]: 'Charmed',
+            [ConditionBinding.Sleep]: 'Sleep',
+            [ConditionBinding.Frightened]: 'Frightened',
+            [ConditionBinding.Diseased]: 'Diseased',
+            [ConditionBinding.Poisoned]: 'Poisoned'
         }
     } satisfies IOptionType<typeof ConditionBinding>,
     viewMode: {
@@ -901,15 +918,7 @@ const OptionTypes = {
             [LevelModifyType.Add]: 'Add',
             [LevelModifyType.Replace]: 'Replace'
         }
-    } satisfies IOptionType<typeof LevelModifyType>,
-    linkedCategory: {
-        enum: LinkedCategoryType,
-        default: LinkedCategoryType.Feat,
-        options: {
-            [LinkedCategoryType.Feat]: 'Feat',
-            [LinkedCategoryType.FightingStyle]: 'Fighting Style'
-        }
-    } satisfies IOptionType<typeof LinkedCategoryType>
+    } satisfies IOptionType<typeof LevelModifyType>
 } satisfies Record<string, IOptionType>
 
 export type OptionTypeKey = keyof typeof OptionTypes

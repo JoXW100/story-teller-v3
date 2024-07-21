@@ -24,8 +24,7 @@ export function simplifyEffectRecord(value: Record<string, IEffect>): Record<str
 }
 
 export function isInstanceOfEffect(value: unknown): value is Effect {
-    return value instanceof TextEffect ||
-        value instanceof DamageEffect
+    return value instanceof TextEffect || value instanceof DamageEffect || value instanceof DieEffect
 }
 
 const EffectFactory: IDatabaseFactory<IEffect, Effect> = {

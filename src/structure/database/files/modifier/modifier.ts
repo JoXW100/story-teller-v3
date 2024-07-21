@@ -1,7 +1,8 @@
 import type ModifierDocument from '.'
 import { keysOf } from 'utils'
 import Condition, { ConditionType } from 'structure/database/condition'
-import type { AdvantageBinding, ConditionBinding, Language, MovementType, OptionalAttribute, ProficiencyLevelBasic, DamageBinding, Sense, SizeType, ProficiencyLevel, ToolType, Skill, Attribute, ArmorType, WeaponTypeValue } from 'structure/dnd'
+import { Skill, Attribute } from 'structure/dnd'
+import type { AdvantageBinding, ConditionBinding, Language, MovementType, OptionalAttribute, ProficiencyLevelBasic, DamageBinding, Sense, SizeType, ProficiencyLevel, ToolType, ArmorType, WeaponTypeValue } from 'structure/dnd'
 import type { ObjectId } from 'types'
 import type { IEditorChoiceData } from 'types/database/choice'
 import type { IConditionProperties } from 'types/database/condition'
@@ -77,13 +78,48 @@ class Modifier {
     public readonly abilityThrownWeaponDamageBonus = new ModifierEvent<number>(this.properties)
     public readonly abilityChargesBonus = new ModifierEvent<number>(this.properties)
     public readonly ac = new ModifierEvent<number>(this.properties)
-    public readonly str = new ModifierEvent<number>(this.properties)
-    public readonly dex = new ModifierEvent<number>(this.properties)
-    public readonly con = new ModifierEvent<number>(this.properties)
-    public readonly int = new ModifierEvent<number>(this.properties)
-    public readonly wis = new ModifierEvent<number>(this.properties)
-    public readonly cha = new ModifierEvent<number>(this.properties)
-    public readonly attacks = new ModifierEvent<number>(this.properties)
+    public readonly abilityScores: Record<Attribute, ModifierEvent<number>> = {
+        [Attribute.STR]: new ModifierEvent<number>(this.properties),
+        [Attribute.DEX]: new ModifierEvent<number>(this.properties),
+        [Attribute.CON]: new ModifierEvent<number>(this.properties),
+        [Attribute.INT]: new ModifierEvent<number>(this.properties),
+        [Attribute.WIS]: new ModifierEvent<number>(this.properties),
+        [Attribute.CHA]: new ModifierEvent<number>(this.properties)
+    }
+
+    public readonly saves: Record<Attribute, ModifierEvent<number>> = {
+        [Attribute.STR]: new ModifierEvent<number>(this.properties),
+        [Attribute.DEX]: new ModifierEvent<number>(this.properties),
+        [Attribute.CON]: new ModifierEvent<number>(this.properties),
+        [Attribute.INT]: new ModifierEvent<number>(this.properties),
+        [Attribute.WIS]: new ModifierEvent<number>(this.properties),
+        [Attribute.CHA]: new ModifierEvent<number>(this.properties)
+    }
+
+    public readonly skills: Record<Skill, ModifierEvent<number>> = {
+        [Skill.Acrobatics]: new ModifierEvent<number>(this.properties),
+        [Skill.AnimalHandling]: new ModifierEvent<number>(this.properties),
+        [Skill.Arcana]: new ModifierEvent<number>(this.properties),
+        [Skill.Athletics]: new ModifierEvent<number>(this.properties),
+        [Skill.Deception]: new ModifierEvent<number>(this.properties),
+        [Skill.History]: new ModifierEvent<number>(this.properties),
+        [Skill.Insight]: new ModifierEvent<number>(this.properties),
+        [Skill.Intimidation]: new ModifierEvent<number>(this.properties),
+        [Skill.Investigation]: new ModifierEvent<number>(this.properties),
+        [Skill.Medicine]: new ModifierEvent<number>(this.properties),
+        [Skill.Nature]: new ModifierEvent<number>(this.properties),
+        [Skill.Perception]: new ModifierEvent<number>(this.properties),
+        [Skill.Performance]: new ModifierEvent<number>(this.properties),
+        [Skill.Persuasion]: new ModifierEvent<number>(this.properties),
+        [Skill.Religion]: new ModifierEvent<number>(this.properties),
+        [Skill.SleightOfHand]: new ModifierEvent<number>(this.properties),
+        [Skill.Stealth]: new ModifierEvent<number>(this.properties),
+        [Skill.Survival]: new ModifierEvent<number>(this.properties)
+    }
+
+    public readonly multiAttack = new ModifierEvent<number>(this.properties)
+    public readonly spellAttack = new ModifierEvent<number>(this.properties)
+    public readonly spellSave = new ModifierEvent<number>(this.properties)
     public readonly abilities = new ModifierEvent<Array<string | ObjectId>>(this.properties)
     public readonly modifiers = new ModifierEvent<Record<string, ObjectId>>(this.properties)
     public readonly spells = new ModifierEvent<ObjectId[]>(this.properties)
@@ -103,6 +139,9 @@ class Modifier {
     public readonly proficienciesLanguage = new ModifierEvent<Partial<Record<Language, ProficiencyLevelBasic>>>(this.properties)
     public readonly proficienciesArmor = new ModifierEvent<Partial<Record<ArmorType, ProficiencyLevelBasic>>>(this.properties)
     public readonly proficienciesWeapon = new ModifierEvent<Partial<Record<WeaponTypeValue, ProficiencyLevelBasic>>>(this.properties)
+    public readonly critRange = new ModifierEvent<number>(this.properties)
+    public readonly critDieCount = new ModifierEvent<number>(this.properties)
+    public readonly attunementSlots = new ModifierEvent<number>(this.properties)
 
     public getAllEvents(): Record<keyof Modifier, ModifierEvent<unknown>> {
         const events: Record<keyof Modifier, ModifierEvent<unknown>> = {} as any

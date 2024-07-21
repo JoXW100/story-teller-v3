@@ -33,6 +33,10 @@ class ItemArmorData extends ItemDataBase implements IItemArmorData {
         return getOptionType('armor').options[this.subtype]
     }
 
+    public override get equippable(): boolean {
+        return true
+    }
+
     public static properties: DataPropertyMap<IItemArmorData, ItemArmorData> = {
         ...ItemDataBase.properties,
         type: {

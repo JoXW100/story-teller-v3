@@ -1,6 +1,9 @@
 import React, { useEffect, useMemo, useReducer } from 'react'
+import Head from 'next/head'
 import Loading from 'components/loading'
+import { openDialog } from 'components/dialogs/handler'
 import Communication from 'utils/communication'
+import { getRelativeFieldObject, isString } from 'utils'
 import Logger from 'utils/logger'
 import RequestBuffer from 'utils/buffer'
 import type { EditorPageKeyType } from 'components/layouts/fileView/editor'
@@ -10,8 +13,6 @@ import type { ObjectId } from 'types'
 import type { IToken } from 'types/language'
 import type { ContextProvider, DispatchAction, DispatchActionNoData, DispatchActionWithDispatch, ISetFieldData } from 'types/context'
 import type { DBResponse } from 'types/database'
-import { getRelativeFieldObject } from 'utils'
-import Head from 'next/head'
 
 export interface IEditorPageData {
     pageKey: EditorPageKeyType
@@ -100,6 +101,12 @@ const reducer: React.Reducer<FileContextState, FileContextAction> = (state, acti
             if (response.success) {
                 return { ...state, loading: false, file: response.result }
             } else {
+                openDialog('notice', {
+                    id: 'file.setFile',
+                    headerTextId: 'common-error',
+                    bodyTextId: 'file-dialog-setFile',
+                    bodyTextArgs: [response.result ?? 'Unknown Error']
+                })
                 return { ...state, loading: false, file: defaultContextState.file }
             }
         }
@@ -111,6 +118,12 @@ const reducer: React.Reducer<FileContextState, FileContextAction> = (state, acti
             const match = getRelativeFieldObject(action.data.field, data)
             if (match === null) {
                 Logger.throw('FileContext.setData', 'Failed to get relative object', data, action.data)
+                openDialog('notice', {
+                    id: 'file.field',
+                    headerTextId: 'common-error',
+                    bodyTextId: 'file-dialog-field',
+                    bodyTextArgs: [action.data.field]
+                })
                 return { ...state }
             }
 
@@ -121,10 +134,22 @@ const reducer: React.Reducer<FileContextState, FileContextAction> = (state, acti
             state.buffer.add(() => {
                 Communication.updateFile(state.file.id, state.file.type, result).then((response) => {
                     if (!response.success || !response.result) {
-                        Logger.warn('FileContext.setData', 'Failed to update file data')
+                        Logger.error('FileContext.setData', 'Failed to update file data')
+                        openDialog('notice', {
+                            id: 'file.setData',
+                            headerTextId: 'common-error',
+                            bodyTextId: 'file-dialog-setData',
+                            bodyTextArgs: [action.data.field, isString(response.result) ? response.result : 'Unknown Error']
+                        })
                     }
                 }, (error: unknown) => {
                     Logger.throw('FileContext.setData', 'Database failed set file data', error)
+                    openDialog('notice', {
+                        id: 'file.setData',
+                        headerTextId: 'common-error',
+                        bodyTextId: 'file-dialog-setData',
+                        bodyTextArgs: [action.data.field, String(error)]
+                    })
                 })
             }, 'update.data')
             return { ...state, file: file }
@@ -134,6 +159,12 @@ const reducer: React.Reducer<FileContextState, FileContextAction> = (state, acti
             const match = getRelativeFieldObject(action.data.field, storage)
             if (match === null) {
                 Logger.throw('FileContext.setStorage', 'Failed to get relative object', storage, action.data)
+                openDialog('notice', {
+                    id: 'file.field',
+                    headerTextId: 'common-error',
+                    bodyTextId: 'file-dialog-field',
+                    bodyTextArgs: [action.data.field]
+                })
                 return { ...state }
             }
 
@@ -145,9 +176,21 @@ const reducer: React.Reducer<FileContextState, FileContextAction> = (state, acti
                 Communication.updateFile(state.file.id, state.file.type, result).then((response) => {
                     if (!response.success || !response.result) {
                         Logger.warn('FileContext.setStorage', 'Failed to update file storage')
+                        openDialog('notice', {
+                            id: 'file.setStorage',
+                            headerTextId: 'common-error',
+                            bodyTextId: 'file-dialog-setStorage',
+                            bodyTextArgs: [action.data.field, isString(response.result) ? response.result : 'Unknown Error']
+                        })
                     }
                 }, (error: unknown) => {
                     Logger.throw('FileContext.setStorage', 'Database failed set file storage', error)
+                    openDialog('notice', {
+                        id: 'file.setStorage',
+                        headerTextId: 'common-error',
+                        bodyTextId: 'file-dialog-setStorage',
+                        bodyTextArgs: [action.data.field, String(error)]
+                    })
                 })
             }, 'update.storage')
             return { ...state, file: file }

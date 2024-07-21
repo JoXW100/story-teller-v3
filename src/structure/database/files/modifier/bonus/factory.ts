@@ -1,47 +1,51 @@
 import { ModifierBonusType } from '.'
 import ModifierBonusACData from './ac'
+import ModifierBonusMultiAttackData from './multiAttack'
+import ModifierBonusSpeedData from './speed'
+import ModifierBonusAttunementSlotsData from './attunementSlots'
+import ModifierBonusAbilityScoreData from './abilityScore'
+import ModifierBonusSaveData from './save'
+import ModifierBonusSkillData from './skill'
+import ModifierBonusSpellAttackData from './spellAttack'
+import ModifierBonusSpellSaveData from './spellSave'
+import ModifierBonusCritRangeData from './critRange'
+import ModifierBonusCritDieCountData from './critDieCount'
 import { isEnum, isRecord } from 'utils'
 import { hasObjectProperties, simplifyObjectProperties, validateObjectProperties } from 'structure/database'
 import type { Simplify } from 'types'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
 import type { IModifierBonusACData, IModifierBonusData } from 'types/database/files/modifier'
-import ModifierBonusStrengthData from './strength'
-import ModifierBonusDexterityData from './dexterity'
-import ModifierBonusConstitutionData from './constitution'
-import ModifierBonusIntelligenceData from './intelligence'
-import ModifierBonusWisdomData from './wisdom'
-import ModifierBonusCharismaData from './charisma'
-import ModifierBonusAllAbilityScoresData from './allAbilityScores'
-import ModifierBonusAttacksData from './attacks'
-import ModifierBonusSpeedData from './speed'
 
-export type ModifierBonusData = ModifierBonusACData | ModifierBonusStrengthData |
-ModifierBonusDexterityData | ModifierBonusConstitutionData |
-ModifierBonusIntelligenceData | ModifierBonusWisdomData |
-ModifierBonusCharismaData | ModifierBonusAllAbilityScoresData |
-ModifierBonusAttacksData | ModifierBonusSpeedData
+export type ModifierBonusData = ModifierBonusACData |
+ModifierBonusAbilityScoreData | ModifierBonusSaveData | ModifierBonusSkillData |
+ModifierBonusSpellAttackData | ModifierBonusSpellSaveData |
+ModifierBonusMultiAttackData | ModifierBonusSpeedData |
+ModifierBonusAttunementSlotsData | ModifierBonusCritRangeData |
+ModifierBonusCritDieCountData
 
 const ModifierBonusDataFactory: IDatabaseFactory<IModifierBonusData, ModifierBonusData> = {
     create: function (data: Simplify<IModifierBonusData> = {}): ModifierBonusData {
         switch (data.subtype) {
-            case ModifierBonusType.AllAbilityScores:
-                return new ModifierBonusAllAbilityScoresData(data)
-            case ModifierBonusType.Strength:
-                return new ModifierBonusStrengthData(data)
-            case ModifierBonusType.Dexterity:
-                return new ModifierBonusDexterityData(data)
-            case ModifierBonusType.Constitution:
-                return new ModifierBonusConstitutionData(data)
-            case ModifierBonusType.Intelligence:
-                return new ModifierBonusIntelligenceData(data)
-            case ModifierBonusType.Wisdom:
-                return new ModifierBonusWisdomData(data)
-            case ModifierBonusType.Charisma:
-                return new ModifierBonusCharismaData(data)
-            case ModifierBonusType.Attacks:
-                return new ModifierBonusAttacksData(data)
+            case ModifierBonusType.AbilityScore:
+                return new ModifierBonusAbilityScoreData(data)
+            case ModifierBonusType.Save:
+                return new ModifierBonusSaveData(data)
+            case ModifierBonusType.Skill:
+                return new ModifierBonusSkillData(data)
             case ModifierBonusType.Speed:
                 return new ModifierBonusSpeedData(data)
+            case ModifierBonusType.SpellAttack:
+                return new ModifierBonusSpellAttackData(data)
+            case ModifierBonusType.CritRange:
+                return new ModifierBonusCritRangeData(data)
+            case ModifierBonusType.CritDieCount:
+                return new ModifierBonusCritDieCountData(data)
+            case ModifierBonusType.SpellSave:
+                return new ModifierBonusSpellSaveData(data)
+            case ModifierBonusType.MultiAttack:
+                return new ModifierBonusMultiAttackData(data)
+            case ModifierBonusType.AttunementSlot:
+                return new ModifierBonusAttunementSlotsData(data)
             case ModifierBonusType.AC:
             default:
                 return new ModifierBonusACData(data as Simplify<IModifierBonusACData>)
@@ -61,26 +65,28 @@ const ModifierBonusDataFactory: IDatabaseFactory<IModifierBonusData, ModifierBon
             ? data.subtype
             : ModifierBonusType.AC
         switch (type) {
-            case ModifierBonusType.AllAbilityScores:
-                return ModifierBonusAllAbilityScoresData.properties
-            case ModifierBonusType.Strength:
-                return ModifierBonusStrengthData.properties
-            case ModifierBonusType.Dexterity:
-                return ModifierBonusDexterityData.properties
-            case ModifierBonusType.Constitution:
-                return ModifierBonusConstitutionData.properties
-            case ModifierBonusType.Intelligence:
-                return ModifierBonusIntelligenceData.properties
-            case ModifierBonusType.Wisdom:
-                return ModifierBonusWisdomData.properties
-            case ModifierBonusType.Charisma:
-                return ModifierBonusCharismaData.properties
             case ModifierBonusType.AC:
                 return ModifierBonusACData.properties
-            case ModifierBonusType.Attacks:
-                return ModifierBonusAttacksData.properties
+            case ModifierBonusType.AbilityScore:
+                return ModifierBonusAbilityScoreData.properties
+            case ModifierBonusType.Save:
+                return ModifierBonusSaveData.properties
+            case ModifierBonusType.Skill:
+                return ModifierBonusSkillData.properties
             case ModifierBonusType.Speed:
                 return ModifierBonusSpeedData.properties
+            case ModifierBonusType.CritRange:
+                return ModifierBonusCritRangeData.properties
+            case ModifierBonusType.CritDieCount:
+                return ModifierBonusCritDieCountData.properties
+            case ModifierBonusType.SpellAttack:
+                return ModifierBonusSpellAttackData.properties
+            case ModifierBonusType.SpellSave:
+                return ModifierBonusSpellSaveData.properties
+            case ModifierBonusType.MultiAttack:
+                return ModifierBonusMultiAttackData.properties
+            case ModifierBonusType.AttunementSlot:
+                return ModifierBonusAttunementSlotsData.properties
         }
     }
 }

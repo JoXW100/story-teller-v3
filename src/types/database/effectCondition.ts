@@ -1,27 +1,29 @@
-import type { ICalcValue } from 'structure/database'
-import type { Attribute, ScalingType } from 'structure/dnd'
+import type { Attribute, ScalingType, Skill } from 'structure/dnd'
 import type { EffectConditionType } from 'structure/database/effectCondition'
 
 export interface IEffectConditionBase {
 }
 
-export interface INoneEffectCondition {
+export interface IEffectConditionNone {
     type: EffectConditionType.None
 }
 
-export interface IHitEffectCondition {
+export interface IEffectConditionHit {
     type: EffectConditionType.Hit
-    scaling: ScalingType
-    proficiency: boolean
-    modifier: ICalcValue
+    scaling: Partial<Record<ScalingType, number>>
 }
 
-export interface ISaveEffectCondition {
+export interface IEffectConditionSave {
     type: EffectConditionType.Save
     attribute: Attribute
-    scaling: ScalingType
-    proficiency: boolean
-    modifier: ICalcValue
+    scaling: Partial<Record<ScalingType, number>>
 }
 
-export type IEffectCondition = INoneEffectCondition | IHitEffectCondition | ISaveEffectCondition
+export interface IEffectConditionCheck {
+    type: EffectConditionType.Check
+    skill: Skill
+    scaling: Partial<Record<ScalingType, number>>
+}
+
+export type IEffectCondition = IEffectConditionNone | IEffectConditionHit |
+IEffectConditionSave | IEffectConditionCheck

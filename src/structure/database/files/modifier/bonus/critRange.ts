@@ -4,21 +4,21 @@ import type Modifier from '../modifier'
 import { asNumber, isNumber } from 'utils'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { IModifierBonusWisdomData } from 'types/database/files/modifier'
+import type { IModifierBonusCritRangeData } from 'types/database/files/modifier'
 
-class ModifierBonusWisdomData extends ModifierBonusDataBase implements IModifierBonusWisdomData {
-    public readonly subtype = ModifierBonusType.Wisdom
+class ModifierBonusCritRangeData extends ModifierBonusDataBase implements IModifierBonusCritRangeData {
+    public readonly subtype = ModifierBonusType.CritRange
     public readonly value: number
 
-    public constructor(data: Simplify<IModifierBonusWisdomData>) {
+    public constructor(data: Simplify<IModifierBonusCritRangeData>) {
         super(data)
-        this.value = asNumber(data.value, ModifierBonusWisdomData.properties.value.value)
+        this.value = asNumber(data.value, ModifierBonusCritRangeData.properties.value.value)
     }
 
-    public static properties: DataPropertyMap<IModifierBonusWisdomData, ModifierBonusWisdomData> = {
+    public static properties: DataPropertyMap<IModifierBonusCritRangeData, ModifierBonusCritRangeData> = {
         ...ModifierBonusDataBase.properties,
         subtype: {
-            value: ModifierBonusType.Wisdom,
+            value: ModifierBonusType.CritRange,
             validate: (value) => value === this.properties.subtype.value,
             simplify: (value) => value
         },
@@ -29,15 +29,15 @@ class ModifierBonusWisdomData extends ModifierBonusDataBase implements IModifier
     }
 
     public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
-        modifier.wis.subscribe({
+        modifier.critRange.subscribe({
             key: key,
             target: self,
             data: this,
             apply: function (value): number {
-                return value + (this.data as ModifierBonusWisdomData).value
+                return value - (this.data as ModifierBonusCritRangeData).value
             }
         })
     }
 }
 
-export default ModifierBonusWisdomData
+export default ModifierBonusCritRangeData

@@ -5,7 +5,7 @@ import type Modifier from '../modifier/modifier'
 import { keysOf } from 'utils'
 import { getProficiencyLevelValue } from 'utils/calculations'
 import { getOptionType } from 'structure/optionData'
-import { type Alignment, type ArmorType, Attribute, type CreatureType, type Language, type MovementType, OptionalAttribute, ProficiencyLevel, type Sense, type SizeType, type ToolType, type WeaponTypeValue, Skill, type AdvantageBinding, ProficiencyLevelBasic, type DamageBinding, type ConditionBinding, type SpellLevel } from 'structure/dnd'
+import { type Alignment, type ArmorType, Attribute, type CreatureType, type Language, MovementType, OptionalAttribute, ProficiencyLevel, type Sense, type SizeType, type ToolType, type WeaponTypeValue, Skill, type AdvantageBinding, ProficiencyLevelBasic, type DamageBinding, type ConditionBinding, type SpellLevel } from 'structure/dnd'
 import { CalcMode, type ICalcValue } from 'structure/database'
 import { type DieType } from 'structure/dice'
 import { Die } from 'structure/dice/die'
@@ -171,8 +171,20 @@ class CreatureFacade implements ICreatureData {
         return `${fraction} (${this.xp} XP)`
     }
 
-    public get speed(): Partial<Record<MovementType, number>> {
-        return this.data.speed
+    public get speed(): Record<MovementType, number> {
+        const result = {
+            [MovementType.Walk]: 0,
+            [MovementType.Burrow]: 0,
+            [MovementType.Climb]: 0,
+            [MovementType.Fly]: 0,
+            [MovementType.Hover]: 0,
+            [MovementType.Swim]: 0
+        }
+        const speed = this.modifier.speed.call({ ...this.data.speed }, this.properties, this.storage.choices)
+        for (const type of keysOf(speed)) {
+            result[type] = speed[type]!
+        }
+        return result
     }
 
     public get speedAsText(): string {
@@ -208,27 +220,27 @@ class CreatureFacade implements ICreatureData {
     }
 
     public get str(): number {
-        return this.modifier.str.call(this.data.str, this.properties, this.storage.choices)
+        return this.modifier.abilityScores.str.call(this.data.str, this.properties, this.storage.choices)
     }
 
     public get dex(): number {
-        return this.modifier.dex.call(this.data.dex, this.properties, this.storage.choices)
+        return this.modifier.abilityScores.dex.call(this.data.dex, this.properties, this.storage.choices)
     }
 
     public get con(): number {
-        return this.modifier.con.call(this.data.con, this.properties, this.storage.choices)
+        return this.modifier.abilityScores.con.call(this.data.con, this.properties, this.storage.choices)
     }
 
     public get int(): number {
-        return this.modifier.int.call(this.data.int, this.properties, this.storage.choices)
+        return this.modifier.abilityScores.int.call(this.data.int, this.properties, this.storage.choices)
     }
 
     public get wis(): number {
-        return this.modifier.wis.call(this.data.wis, this.properties, this.storage.choices)
+        return this.modifier.abilityScores.wis.call(this.data.wis, this.properties, this.storage.choices)
     }
 
     public get cha(): number {
-        return this.modifier.cha.call(this.data.cha, this.properties, this.storage.choices)
+        return this.modifier.abilityScores.cha.call(this.data.cha, this.properties, this.storage.choices)
     }
 
     public get passivePerception(): ICalcValue {
@@ -403,7 +415,7 @@ class CreatureFacade implements ICreatureData {
     }
 
     public get multiAttack(): number {
-        return this.modifier.attacks.call(1, this.properties, this.storage.choices)
+        return this.modifier.multiAttack.call(1, this.properties, this.storage.choices)
     }
 
     public get armorLevelValue(): number {
@@ -419,7 +431,15 @@ class CreatureFacade implements ICreatureData {
     }
 
     public get critRange(): number {
-        return 20
+        return this.modifier.critRange.call(20, this.properties, this.storage.choices)
+    }
+
+    public get critDieCount(): number {
+        return this.modifier.critDieCount.call(2, this.properties, this.storage.choices)
+    }
+
+    public get attunedItems(): number {
+        return 0
     }
 
     public getArmorClassBaseValue(): number {
@@ -463,11 +483,15 @@ class CreatureFacade implements ICreatureData {
         return Math.ceil((value - 11) / 2.0)
     }
 
-    public getSaveModifier (attribute: Attribute | OptionalAttribute): number {
+    public getSaveModifier(attribute: OptionalAttribute): number {
         const mod = attribute in this.proficienciesSave
             ? this.proficiencyValue
             : 0
-        return this.getAttributeModifier(attribute) + mod
+        const result = this.getAttributeModifier(attribute) + mod
+        if (attribute === OptionalAttribute.None) {
+            return result
+        }
+        return this.modifier.saves[attribute].call(this.getAttributeModifier(attribute) + mod, this.properties, this.storage.choices)
     }
 
     public getSkillAttribute(skill: Skill): Attribute {
@@ -499,11 +523,13 @@ class CreatureFacade implements ICreatureData {
     }
 
     public getSkillModifier(skill: Skill): number {
-        return this.getAttributeModifier(this.getSkillAttribute(skill)) +
+        const result = this.getAttributeModifier(this.getSkillAttribute(skill)) +
             Math.ceil(this.proficiencyValue * getProficiencyLevelValue(this.proficienciesSkill[skill]))
+        return this.modifier.skills[skill].call(result, this.properties, this.storage.choices)
     }
 
     public getStats(): ICreatureStats {
+        const speed = this.speed
         return {
             str: this.str,
             dex: this.dex,
@@ -514,11 +540,19 @@ class CreatureFacade implements ICreatureData {
             spellAttribute: this.spellAttribute,
             proficiency: this.proficiencyValue,
             level: this.level,
+            classLevel: this.level,
             casterLevel: this.casterLevelValue,
             multiAttack: this.multiAttack,
             critRange: this.critRange,
+            critDieCount: this.critDieCount,
             armorLevel: this.armorLevelValue,
-            shieldLevel: this.shieldLevelValue
+            shieldLevel: this.shieldLevelValue,
+            walkSpeed: speed[MovementType.Walk],
+            burrowSpeed: speed[MovementType.Burrow],
+            climbSpeed: speed[MovementType.Climb],
+            flySpeed: speed[MovementType.Fly],
+            hoverSpeed: speed[MovementType.Hover],
+            swimSpeed: speed[MovementType.Swim]
         }
     }
 
@@ -547,8 +581,8 @@ class CreatureFacade implements ICreatureData {
     public createProperties(): IConditionProperties {
         return {
             ...this.getStats(),
-            classLevel: 0,
-            spellLevel: 0
+            spellLevel: 0,
+            attunedItems: this.attunedItems
         }
     }
 

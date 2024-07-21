@@ -23,24 +23,32 @@ type ConditionComponentParams = React.PropsWithoutRef<{
     deps?: string[]
 }>
 
-const PropertyMap = {
-    level: <LocalizedText id='editor-properties-level'/>,
-    casterLevel: <LocalizedText id='editor-properties-casterLevel'/>,
-    classLevel: <LocalizedText id='editor-properties-classLevel'/>,
-    armorLevel: <LocalizedText id='editor-properties-armorLevel'/>,
-    shieldLevel: <LocalizedText id='editor-properties-shieldLevel'/>,
-    str: <LocalizedText id='editor-properties-str'/>,
-    dex: <LocalizedText id='editor-properties-dex'/>,
-    con: <LocalizedText id='editor-properties-con'/>,
-    int: <LocalizedText id='editor-properties-int'/>,
-    wis: <LocalizedText id='editor-properties-wis'/>,
-    cha: <LocalizedText id='editor-properties-cha'/>,
-    spellAttribute: <LocalizedText id='editor-properties-spellAttribute'/>,
-    proficiency: <LocalizedText id='editor-properties-proficiency'/>,
-    critRange: <LocalizedText id='editor-properties-critRange'/>,
-    multiAttack: <LocalizedText id='editor-properties-multiAttack'/>,
-    spellLevel: <LocalizedText id='editor-properties-spellLevel'/>
-} satisfies Record<keyof IConditionProperties, React.ReactNode>
+const PropertyMap: Record<keyof IConditionProperties, React.ReactNode> = {
+    level: <LocalizedText id='editor-properties-level' />,
+    casterLevel: <LocalizedText id='editor-properties-casterLevel' />,
+    classLevel: <LocalizedText id='editor-properties-classLevel' />,
+    spellLevel: <LocalizedText id='editor-properties-spellLevel' />,
+    armorLevel: <LocalizedText id='editor-properties-armorLevel' />,
+    shieldLevel: <LocalizedText id='editor-properties-shieldLevel' />,
+    str: <LocalizedText id='editor-properties-str' />,
+    dex: <LocalizedText id='editor-properties-dex' />,
+    con: <LocalizedText id='editor-properties-con' />,
+    int: <LocalizedText id='editor-properties-int' />,
+    wis: <LocalizedText id='editor-properties-wis' />,
+    cha: <LocalizedText id='editor-properties-cha' />,
+    spellAttribute: <LocalizedText id='editor-properties-spellAttribute' />,
+    proficiency: <LocalizedText id='editor-properties-proficiency' />,
+    critRange: <LocalizedText id='editor-properties-critRange' />,
+    critDieCount: <LocalizedText id='editor-properties-critDieCount' />,
+    multiAttack: <LocalizedText id='editor-properties-multiAttack' />,
+    attunedItems: <LocalizedText id='editor-properties-attunedItems' />,
+    walkSpeed: <LocalizedText id='editor-properties-walkSpeed' />,
+    burrowSpeed: <LocalizedText id='editor-properties-burrowSpeed' />,
+    climbSpeed: <LocalizedText id='editor-properties-climbSpeed' />,
+    flySpeed: <LocalizedText id='editor-properties-flySpeed' />,
+    hoverSpeed: <LocalizedText id='editor-properties-hoverSpeed' />,
+    swimSpeed: <LocalizedText id='editor-properties-swimSpeed' />
+}
 
 type ConditionEditorValue = {
     type: ConditionValueType.Boolean
@@ -365,12 +373,15 @@ const ItemListValueEditComponent: React.FC<ItemListValueEditComponentParams> = (
                         'false': <LocalizedText id='common-false'/>
                     }}
                     onChange={(val) => { onUpdate({ type: value.type, value: Boolean(val) }) }}/>
-            }
-            { value.type === ConditionValueType.Constant &&
+            }{ value.type === ConditionValueType.Constant &&
                 <NumberInput value={value.value} onChange={(val) => { onUpdate({ type: value.type, value: val }) }}/>
-            }
-            { value.type === ConditionValueType.Property &&
-                <DropdownMenu value={value.value} values={PropertyMap} onChange={(val) => { onUpdate({ type: value.type, value: val }) }}/>
+            }{ value.type === ConditionValueType.Property &&
+                <DropdownMenu
+                    className={styles.dropdown}
+                    itemClassName={styles.dropdownItem}
+                    value={value.value}
+                    values={PropertyMap}
+                    onChange={(val) => { onUpdate({ type: value.type, value: val }) }}/>
             }
         </div>
     )

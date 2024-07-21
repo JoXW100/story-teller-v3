@@ -18,7 +18,17 @@ export interface IAbilityDataBase {
 }
 
 export interface IAbilityFeatureData extends IAbilityDataBase {
-    readonly type: AbilityType.Feature | AbilityType.Feat | AbilityType.FightingStyle
+    readonly type: AbilityType.Feature
+}
+
+export interface IAbilityCustomData extends IAbilityDataBase {
+    readonly type: AbilityType.Custom
+    readonly category: string
+}
+
+export interface IAbilitySkillData extends IAbilityDataBase {
+    readonly type: AbilityType.Skill
+    readonly effects: Record<string, IEffect>
 }
 
 export interface IAbilityAttackData extends IAbilityDataBase {
@@ -53,8 +63,9 @@ export interface IAbilityThrownAttackData extends IAbilityDataBase {
     readonly effects: Record<string, IEffect>
 }
 
-export type IAbilityData = IAbilityFeatureData | IAbilityAttackData |
-IAbilityMeleeAttackData | IAbilityRangedAttackData | IAbilityThrownAttackData
+export type IAbilityData = IAbilityFeatureData | IAbilityCustomData |
+IAbilityAttackData | IAbilityMeleeAttackData | IAbilityRangedAttackData |
+IAbilityThrownAttackData | IAbilitySkillData
 
 export interface IAbilityStorage {
 

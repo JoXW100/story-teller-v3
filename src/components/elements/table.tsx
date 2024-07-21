@@ -13,7 +13,7 @@ const TableComponent: React.FC<TableElementParams> = ({ th = [], tc = [], color,
             properties.maxWidth = width
         }
         if (color !== undefined && color !== null) {
-            style.background = color
+            properties.background = color
         }
         return properties
     }, [color, weight, width])

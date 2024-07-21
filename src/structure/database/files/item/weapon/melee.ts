@@ -1,5 +1,5 @@
 import { AbilityType } from '../../ability/common'
-import AbilityMeleeAttackData from '../../ability/meleeAttackData'
+import AbilityMeleeAttackData from '../../ability/meleeAttack'
 import ItemWeaponDataBase from '.'
 import { isEnum, isNumber } from 'utils'
 import { ActionType, MeleeWeaponType } from 'structure/dnd'
@@ -26,18 +26,11 @@ class ItemWeaponMeleeData extends ItemWeaponDataBase implements IItemWeaponMelee
             description: this.description,
             notes: this.notes,
             action: ActionType.Action,
-            charges: {
-                'main': {
-                    charges: this.charges,
-                    chargesReset: this.chargesReset
-                }
-            },
+            charges: this.charges,
             reach: this.reach,
             condition: {
                 type: EffectConditionType.Hit,
-                scaling: this.hitScaling,
-                proficiency: this.hitProficiency,
-                modifier: this.hitModifier
+                scaling: this.hitScaling
             },
             effects: {
                 main: {
@@ -46,10 +39,8 @@ class ItemWeaponMeleeData extends ItemWeaponDataBase implements IItemWeaponMelee
                     label: 'Damage',
                     damageType: this.damageType,
                     scaling: this.damageScaling,
-                    proficiency: this.damageProficiency,
                     die: this.damageDie,
-                    dieCount: this.damageDieCount,
-                    modifier: this.damageModifier
+                    dieCount: this.damageDieCount
                 },
                 ...this.effects
             }

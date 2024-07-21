@@ -8,7 +8,7 @@ import OpenIcon from '@mui/icons-material/OpenInBrowserSharp'
 import OpenInNewPageIcon from '@mui/icons-material/LaunchSharp'
 import DuplicateIcon from '@mui/icons-material/DifferenceSharp'
 import { Context as AppContext } from 'components/contexts/app'
-import { Context } from 'components/layouts/fileSystem/context'
+import { Context as FileSystemContext } from 'components/layouts/fileSystem/context'
 import { openContext } from '../contextMenu'
 import { asObjectId } from 'utils'
 import Navigation from 'utils/navigation'
@@ -48,36 +48,21 @@ export function getFileIcon(type: DocumentFileType): React.FC<IconParams> {
 
 const File: React.FC<FileProps> = ({ file }) => {
     const [app] = useContext(AppContext)
-    const [, dispatch] = useContext(Context)
+    const [context, dispatch] = useContext(FileSystemContext)
     const [state, setState] = useState({ inEditMode: false, text: file.name })
     const router = useRouter()
     const ref = useRef<HTMLInputElement | null>(null)
     const Icon = getFileIcon(file.type)
-    const isSelected = useMemo(() => {
-        return router.query?.fileId === file.id
-    }, [file.id, router.query])
+    const isSelected = useMemo(() => context.selected === file.id, [file.id, context.selected])
     const contextID = useMemo(() => `${file.id}-context-rename-item`, [file.id])
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e): void => {
         if (e.key === 'Enter') {
-            setState((state) => ({ ...state, inEditMode: false }))
+            dispatch.renameFile(file, state.text)
         } else if (e.key === 'Escape') {
             setState((state) => ({ ...state, text: file.name, inEditMode: false }))
         }
     }
-
-    const handleKey = useCallback((e: KeyboardEvent): void => {
-        if (e.code === 'F2' && isSelected) {
-            setState((state) => ({ ...state, inEditMode: !state.inEditMode }))
-        }
-    }, [isSelected])
-
-    const handleEvent = useCallback((e: MouseEvent): void => {
-        const target = e.target as HTMLInputElement
-        if (target !== ref.current && target?.id !== contextID) {
-            setState((state) => !state.inEditMode ? state : ({ ...state, inEditMode: false }))
-        }
-    }, [contextID])
 
     const handleDrag = (): void => {
         window.dragData = { file: file }
@@ -87,7 +72,7 @@ const File: React.FC<FileProps> = ({ file }) => {
         setState((state) => ({ ...state, text: e.target.value }))
     }
 
-    const handleClick = (): void => {
+    const handleClick: React.MouseEventHandler<HTMLDivElement> = (): void => {
         if (!isSelected && !state.inEditMode) {
             void router.push(Navigation.fileURL(file.id, asObjectId(router.query?.storyId)))
         }
@@ -132,21 +117,13 @@ const File: React.FC<FileProps> = ({ file }) => {
     }, [dispatch, file, router, contextID])
 
     useEffect(() => {
-        if (state.inEditMode) {
-            return
-        }
-        setState((state) => {
-            if (state.text === file.name) {
-                return state
+        const handleEvent = (e: MouseEvent): void => {
+            const target = e.target as HTMLInputElement
+            if (target !== ref.current && target?.id !== contextID) {
+                setState((state) => state.inEditMode ? ({ ...state, inEditMode: false }) : state)
             }
-            dispatch.renameFile(file, state.text, (success) => {
-                setState((state) => ({ ...state, text: success ? state.text : file.name, inEditMode: false }))
-            })
-            return state
-        })
-    }, [state.inEditMode, dispatch, file])
+        }
 
-    useEffect(() => {
         if (state.inEditMode) {
             ref.current?.select()
             window.addEventListener('click', handleEvent)
@@ -156,16 +133,26 @@ const File: React.FC<FileProps> = ({ file }) => {
                 window.removeEventListener('contextmenu', handleEvent)
             }
         }
-    }, [state.inEditMode, handleEvent])
+    }, [contextID, state.inEditMode])
 
     useEffect(() => {
+        const handleKey = (e: KeyboardEvent): void => {
+            if (e.code === 'F2') {
+                setState((state) => isSelected ? ({ ...state, inEditMode: true }) : state)
+            }
+        }
+
         if (isSelected) {
             window.addEventListener('keydown', handleKey, true)
             return () => {
-                window.addEventListener('keydown', handleKey, true)
+                window.removeEventListener('keydown', handleKey, true)
             }
         }
-    }, [isSelected, state.inEditMode, handleKey])
+    }, [isSelected])
+
+    useEffect(() => {
+        setState({ inEditMode: false, text: file.name })
+    }, [file.name])
 
     const className = isSelected
         ? `${styles.file} ${styles.selected}`
@@ -187,8 +174,7 @@ const File: React.FC<FileProps> = ({ file }) => {
                 disabled={!state.inEditMode}
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
-                value={state.text}
-            />
+                value={state.text}/>
         </div>
     )
 }

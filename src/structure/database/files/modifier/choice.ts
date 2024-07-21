@@ -10,6 +10,7 @@ import type { Simplify } from 'types'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
 import type { IModifierChoiceData } from 'types/database/files/modifier'
 import ModifierDataFactory, { simplifyModifierDataRecord } from './factory'
+import { ModifierAddType } from './add'
 
 export const ModifierChoiceDataFactory: IDatabaseFactory<IModifierChoiceData, ModifierChoiceData> = {
     create: function (data: Simplify<IModifierChoiceData> = {}): ModifierChoiceData {
@@ -56,11 +57,13 @@ class ModifierChoiceData extends ModifierDataBase implements IModifierChoiceData
         for (let i = 0; i < optionKeys.length; i++) {
             const optionName = optionKeys[i]
             const option = this.options[optionName]
+            if (option.type === ModifierType.Add && option.subtype === ModifierAddType.Ability && !option.value.isChoice && option.value.value === null) {
+                continue // Nothing to do here.
+            }
             const innerKey = `${key}.${optionName}`
             option.apply(modifier, self, innerKey)
             const conditions: Condition[] = [
                 this.condition,
-                option.condition,
                 new Condition({
                     type: ConditionType.None,
                     value: (parameters, choices) => {

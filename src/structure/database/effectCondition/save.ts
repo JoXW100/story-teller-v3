@@ -1,43 +1,37 @@
 import { Attribute, ScalingType } from 'structure/dnd'
 import EffectConditionBase, { EffectConditionType } from '.'
-import { AutoCalcValue, CalcMode, createCalcValue, simplifyCalcValue, type ICalcValue } from '..'
-import { isBoolean, isCalcValue, isEnum } from 'utils'
-import { getScalingValue } from 'utils/calculations'
+import { simplifyNumberRecord } from '..'
+import { asNumber, isEnum, isNumber, isRecord, keysOf } from 'utils'
+import { resolveScaling } from 'utils/calculations'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { ISaveEffectCondition } from 'types/database/effectCondition'
-import type { ICreatureStats } from 'types/editor'
+import type { IEffectConditionSave } from 'types/database/effectCondition'
+import type { IConditionProperties } from 'types/database/condition'
 
-export class SaveEffectCondition extends EffectConditionBase implements ISaveEffectCondition {
+export class EffectConditionSave extends EffectConditionBase implements IEffectConditionSave {
     public readonly type: EffectConditionType.Save
     public readonly attribute: Attribute
-    public readonly scaling: ScalingType
-    public readonly proficiency: boolean
-    public readonly modifier: ICalcValue
+    public readonly scaling: Partial<Record<ScalingType, number>>
 
-    public constructor(data: Simplify<ISaveEffectCondition>) {
+    public constructor(data: Simplify<IEffectConditionSave>) {
         super()
-        this.type = data.type ?? SaveEffectCondition.properties.type.value
-        this.attribute = data.attribute ?? SaveEffectCondition.properties.attribute.value
-        this.scaling = data.scaling ?? SaveEffectCondition.properties.scaling.value
-        this.proficiency = data.proficiency ?? SaveEffectCondition.properties.proficiency.value
-        this.modifier = createCalcValue(data.modifier, SaveEffectCondition.properties.modifier.value)
-    }
-
-    public getModifierValue(stats: ICreatureStats): number {
-        const mod = this.modifier.value ?? 0
-        const prof = this.proficiency ? stats.proficiency : 0
-        switch (this.modifier.mode) {
-            case CalcMode.Modify:
-                return getScalingValue(this.scaling, stats) + mod + prof + 8
-            case CalcMode.Override:
-                return mod + prof
-            case CalcMode.Auto:
-                return getScalingValue(this.scaling, stats) + prof + 8
+        this.type = data.type ?? EffectConditionSave.properties.type.value
+        this.attribute = data.attribute ?? EffectConditionSave.properties.attribute.value
+        this.scaling = EffectConditionSave.properties.scaling.value
+        if (data.scaling !== undefined) {
+            for (const type of keysOf(data.scaling)) {
+                if (isEnum(type, ScalingType)) {
+                    this.scaling[type] = asNumber(data.scaling[type], 0)
+                }
+            }
         }
     }
 
-    public static properties: DataPropertyMap<ISaveEffectCondition, SaveEffectCondition> = {
+    public getModifierValue(stats: Partial<IConditionProperties>): number {
+        return 8 + resolveScaling(this.scaling, stats)
+    }
+
+    public static properties: DataPropertyMap<IEffectConditionSave, EffectConditionSave> = {
         ...EffectConditionBase.properties,
         type: {
             value: EffectConditionType.Save,
@@ -49,19 +43,11 @@ export class SaveEffectCondition extends EffectConditionBase implements ISaveEff
             validate: (value) => isEnum(value, Attribute)
         },
         scaling: {
-            value: ScalingType.None,
-            validate: (value) => isEnum(value, ScalingType)
-        },
-        proficiency: {
-            value: false,
-            validate: (value) => isBoolean(value)
-        },
-        modifier: {
-            get value() { return { ...AutoCalcValue } },
-            validate: (value) => isCalcValue(value),
-            simplify: simplifyCalcValue
+            get value() { return {} },
+            validate: (value) => isRecord(value, (key, val) => isEnum(key, ScalingType) && isNumber(val)),
+            simplify: simplifyNumberRecord
         }
     }
 }
 
-export default SaveEffectCondition
+export default EffectConditionSave

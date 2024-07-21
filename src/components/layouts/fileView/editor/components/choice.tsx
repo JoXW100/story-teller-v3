@@ -12,7 +12,7 @@ import Checkbox from 'components/layouts/checkbox'
 import NumberInput from 'components/layouts/numericInput'
 import { getRelativeFieldObject, isRecord } from 'utils'
 import Logger from 'utils/logger'
-import { AdvantageBinding, ArmorType, Attribute, ConditionBinding, DamageBinding, Language, OptionalAttribute, Sense, SizeType, Skill, ToolType, WeaponTypeValue } from 'structure/dnd'
+import { AdvantageBinding, ArmorType, Attribute, ConditionBinding, DamageBinding, Language, MovementType, OptionalAttribute, Sense, SizeType, Skill, ToolType, WeaponTypeValue } from 'structure/dnd'
 import { DocumentType } from 'structure/database'
 import { isMultipleChoiceData, isSingleChoiceData } from 'structure/database/choice'
 import type { MultipleChoiceData, SingleChoiceData, IMultipleChoiceData } from 'types/database/choice'
@@ -29,6 +29,7 @@ export const DefaultChoiceValueMap = {
     'spellAttribute': OptionalAttribute.None,
     'sense': Sense.DarkVision,
     'size': SizeType.Medium,
+    'movement': MovementType.Walk,
     'attribute': Attribute.STR,
     'skill': Skill.Acrobatics,
     'tool': ToolType.AlchemistsSupplies,
@@ -144,6 +145,10 @@ const ChoiceComponent: React.FC<ChoiceComponentParams> = ({ field, type, allowMu
             { type === 'skill' && (value.isChoice
                 ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='skill' fill={fill}/>
                 : <EnumComponent field={`${field}.value`} labelId='editor-value' type='skill' />
+            )}
+            { type === 'movement' && (value.isChoice
+                ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='movement' fill={fill}/>
+                : <EnumComponent field={`${field}.value`} labelId='editor-speed' type='movement' />
             )}
             { type === 'tool' && (value.isChoice
                 ? <SelectionInputComponent field={`${field}.value`} labelId='editor-options' type='none' optionsType='tool' fill={fill}/>

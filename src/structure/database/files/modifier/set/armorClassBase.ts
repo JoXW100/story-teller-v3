@@ -2,24 +2,22 @@ import ModifierSetDataBase, { ModifierSetType } from '.'
 import type ModifierDocument from '..'
 import type Modifier from '../modifier'
 import { asNumber, isEnum, isNumber, isRecord, keysOf } from 'utils'
-import { Attribute } from 'structure/dnd'
+import { getScalingValue } from 'utils/calculations'
+import { ScalingType } from 'structure/dnd'
+import { simplifyNumberRecord } from 'structure/database'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IModifierSetArmorClassBaseData } from 'types/database/files/modifier'
-import { simplifyNumberRecord } from '../../creature/data'
-import { getAttributeModifier } from 'utils/calculations'
 
 class ModifierSetArmorClassBaseData extends ModifierSetDataBase implements IModifierSetArmorClassBaseData {
     public override readonly subtype = ModifierSetType.ArmorClassBase
-    public readonly values: Partial<Record<Attribute, number>>
-    public readonly maxValues: Partial<Record<Attribute, number>>
-    public readonly bonus: number
+    public readonly values: Partial<Record<ScalingType, number>>
+    public readonly maxValues: Partial<Record<ScalingType, number>>
 
     public constructor(data: Simplify<IModifierSetArmorClassBaseData>) {
         super(data)
         this.values = data.values ?? ModifierSetArmorClassBaseData.properties.values.value
         this.maxValues = data.maxValues ?? ModifierSetArmorClassBaseData.properties.maxValues.value
-        this.bonus = data.bonus ?? ModifierSetArmorClassBaseData.properties.bonus.value
     }
 
     public static properties: DataPropertyMap<IModifierSetArmorClassBaseData, ModifierSetArmorClassBaseData> = {
@@ -31,17 +29,13 @@ class ModifierSetArmorClassBaseData extends ModifierSetDataBase implements IModi
         },
         values: {
             get value() { return {} },
-            validate: (value) => isRecord(value, (key, val) => isEnum(key, Attribute) && isNumber(val)),
+            validate: (value) => isRecord(value, (key, val) => isEnum(key, ScalingType) && isNumber(val)),
             simplify: simplifyNumberRecord
         },
         maxValues: {
             get value() { return {} },
-            validate: (value) => isRecord(value, (key, val) => isEnum(key, Attribute) && isNumber(val)),
+            validate: (value) => isRecord(value, (key, val) => isEnum(key, ScalingType) && isNumber(val)),
             simplify: simplifyNumberRecord
-        },
-        bonus: {
-            value: 0,
-            validate: isNumber
         }
     }
 
@@ -52,10 +46,10 @@ class ModifierSetArmorClassBaseData extends ModifierSetDataBase implements IModi
             data: this,
             apply: function (_, _1, properties, variables): number {
                 const modifier = this.data as ModifierSetArmorClassBaseData
-                const bonus = asNumber(variables['ac.bonus'], 0) + modifier.bonus
+                const bonus = asNumber(variables['ac.bonus'], 0)
                 let sum = 10
                 for (const attr of keysOf(modifier.values)) {
-                    const value = getAttributeModifier(properties, attr) * modifier.values[attr]!
+                    const value = getScalingValue(attr, properties) * modifier.values[attr]!
                     sum += attr in modifier.maxValues ? Math.min(value, modifier.maxValues[attr]!) : value
                 }
                 return sum + bonus

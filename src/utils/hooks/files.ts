@@ -3,7 +3,6 @@ import { Context } from 'components/contexts/story'
 import { isObjectId } from 'utils'
 import Logger from 'utils/logger'
 import Communication from 'utils/communication'
-import { LinkedCategoryType } from 'structure/database/files/modifier/add/linked'
 import type DatabaseFile from 'structure/database/files'
 import type SubclassDocument from 'structure/database/files/subclass'
 import type AbilityDocument from 'structure/database/files/ability'
@@ -99,59 +98,17 @@ export function useSubclasses(classId: ObjectId | null): FilesState<SubclassDocu
     return state
 }
 
-export function useFeats(): FilesState<AbilityDocument> {
+export function useAbilitiesOfCategory(category: string): FilesState<AbilityDocument> {
     const [context] = useContext(Context)
     const [state, setState] = useState<FilesState<AbilityDocument>>([[], true])
     useEffect(() => {
-        Communication.getFeats(context.story.id)
+        Communication.getAbilitiesOfCategory(context.story.id, category)
             .then((res) => {
                 setState([res.success ? res.result : [], false])
             }, (e: unknown) => {
-                Logger.throw('useFeats', e)
+                Logger.throw('useAbilitiesOfCategory', e)
                 setState([[], false])
             })
-    }, [context.story.id])
-    return state
-}
-
-export function useFightingStyles(): FilesState<AbilityDocument> {
-    const [context] = useContext(Context)
-    const [state, setState] = useState<FilesState<AbilityDocument>>([[], true])
-    useEffect(() => {
-        Communication.getFightingStyles(context.story.id)
-            .then((res) => {
-                setState([res.success ? res.result : [], false])
-            }, (e: unknown) => {
-                Logger.throw('useFightingStyles', e)
-                setState([[], false])
-            })
-    }, [context.story.id])
-    return state
-}
-
-export function useLinked(type: LinkedCategoryType): FilesState<AbilityDocument> {
-    const [context] = useContext(Context)
-    const [state, setState] = useState<FilesState<AbilityDocument>>([[], true])
-    useEffect(() => {
-        switch (type) {
-            case LinkedCategoryType.Feat:
-                Communication.getFeats(context.story.id)
-                    .then((res) => {
-                        setState([res.success ? res.result : [], false])
-                    }, (e: unknown) => {
-                        Logger.throw('useLinked', e)
-                        setState([[], false])
-                    })
-                break
-            case LinkedCategoryType.FightingStyle:
-                Communication.getFightingStyles(context.story.id)
-                    .then((res) => {
-                        setState([res.success ? res.result : [], false])
-                    }, (e: unknown) => {
-                        Logger.throw('useLinked', e)
-                        setState([[], false])
-                    })
-        }
-    }, [type, context.story.id])
+    }, [category, context.story.id])
     return state
 }

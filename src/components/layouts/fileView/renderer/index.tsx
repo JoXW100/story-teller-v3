@@ -7,7 +7,7 @@ import CreatureDocumentRenderer from './creature'
 import CreatureLinkRenderer from './creature/link'
 import CharacterDocumentRenderer from './character'
 import AbilityDocumentRenderer from './ability'
-import { AbilityLinkRenderer } from './ability/link'
+import AbilityLinkRenderer from './ability/link'
 import SpellDocumentRender from './spell'
 import RaceDocumentRenderer from './race'
 import ItemDocumentRenderer from './item'
@@ -19,11 +19,10 @@ import LocalizedText from 'components/localizedText'
 import Loading from 'components/loading'
 import { DocumentType } from 'structure/database'
 import type { ObjectId } from 'types'
-import type { IAbilityData } from 'types/database/files/ability'
 import styles from './styles.module.scss'
 
 export const DocumentRendererMap = {
-    [DocumentType.Ability]: { document: AbilityDocumentRenderer, link: AbilityLinkRenderer as React.FC<{ id: ObjectId, data: IAbilityData }> },
+    [DocumentType.Ability]: { document: AbilityDocumentRenderer, link: AbilityLinkRenderer },
     [DocumentType.Character]: { document: CharacterDocumentRenderer, link: CreatureLinkRenderer },
     [DocumentType.Class]: { document: DefaultRenderer, link: DefaultRenderer },
     [DocumentType.Subclass]: { document: DefaultRenderer, link: DefaultRenderer },

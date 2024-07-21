@@ -5,8 +5,7 @@ import type { ModifierAddType } from 'structure/database/files/modifier/add'
 import type { ModifierBonusType } from 'structure/database/files/modifier/bonus'
 import type { ModifierSetType } from 'structure/database/files/modifier/set'
 import type { ModifierVariableType, OperationType } from 'structure/database/files/modifier/variable'
-import type { LinkedCategoryType } from 'structure/database/files/modifier/add/linked'
-import type { AdvantageBinding, ConditionBinding, Language, OptionalAttribute, ProficiencyLevelBasic, DamageBinding, Sense, SizeType, Attribute, Skill, ToolType, ProficiencyLevel, ArmorType, WeaponTypeValue, MovementType } from 'structure/dnd'
+import type { AdvantageBinding, ConditionBinding, Language, OptionalAttribute, ProficiencyLevelBasic, DamageBinding, Sense, SizeType, Attribute, Skill, ToolType, ProficiencyLevel, ArmorType, WeaponTypeValue, MovementType, ScalingType } from 'structure/dnd'
 import type { ICondition } from 'types/database/condition'
 import type { ObjectId } from 'types'
 
@@ -83,7 +82,7 @@ export interface IModifierAddAbilityData extends IModifierAddDataBase {
 
 export interface IModifierAddLinkedData extends IModifierAddDataBase {
     readonly subtype: ModifierAddType.Linked
-    readonly category: LinkedCategoryType
+    readonly category: string
     readonly numChoices: number
 }
 
@@ -149,44 +148,19 @@ export interface IModifierBonusACData extends IModifierBonusDataBase {
     readonly value: number
 }
 
-export interface IModifierBonusStrengthData extends IModifierBonusDataBase {
-    readonly subtype: ModifierBonusType.Strength
-    readonly value: number
+export interface IModifierBonusAbilityScoreData extends IModifierBonusDataBase {
+    readonly subtype: ModifierBonusType.AbilityScore
+    readonly value: Partial<Record<Attribute, number>>
 }
 
-export interface IModifierBonusDexterityData extends IModifierBonusDataBase {
-    readonly subtype: ModifierBonusType.Dexterity
-    readonly value: number
+export interface IModifierBonusSaveData extends IModifierBonusDataBase {
+    readonly subtype: ModifierBonusType.Save
+    readonly value: Partial<Record<Attribute, number>>
 }
 
-export interface IModifierBonusConstitutionData extends IModifierBonusDataBase {
-    readonly subtype: ModifierBonusType.Constitution
-    readonly value: number
-}
-
-export interface IModifierBonusIntelligenceData extends IModifierBonusDataBase {
-    readonly subtype: ModifierBonusType.Intelligence
-    readonly value: number
-}
-
-export interface IModifierBonusWisdomData extends IModifierBonusDataBase {
-    readonly subtype: ModifierBonusType.Wisdom
-    readonly value: number
-}
-
-export interface IModifierBonusCharismaData extends IModifierBonusDataBase {
-    readonly subtype: ModifierBonusType.Charisma
-    readonly value: number
-}
-
-export interface IModifierBonusAllAttributesData extends IModifierBonusDataBase {
-    readonly subtype: ModifierBonusType.AllAbilityScores
-    readonly value: number
-}
-
-export interface IModifierBonusAttacksData extends IModifierBonusDataBase {
-    readonly subtype: ModifierBonusType.Attacks
-    readonly value: number
+export interface IModifierBonusSkillData extends IModifierBonusDataBase {
+    readonly subtype: ModifierBonusType.Skill
+    readonly value: Partial<Record<Skill, number>>
 }
 
 export interface IModifierBonusSpeedData extends IModifierBonusDataBase {
@@ -194,12 +168,42 @@ export interface IModifierBonusSpeedData extends IModifierBonusDataBase {
     readonly value: Partial<Record<MovementType, number>>
 }
 
+export interface IModifierBonusSpellAttackData extends IModifierBonusDataBase {
+    readonly subtype: ModifierBonusType.SpellAttack
+    readonly value: number
+}
+
+export interface IModifierBonusSpellSaveData extends IModifierBonusDataBase {
+    readonly subtype: ModifierBonusType.SpellSave
+    readonly value: number
+}
+
+export interface IModifierBonusMultiAttackData extends IModifierBonusDataBase {
+    readonly subtype: ModifierBonusType.MultiAttack
+    readonly value: number
+}
+
+export interface IModifierBonusCritRangeData extends IModifierBonusDataBase {
+    readonly subtype: ModifierBonusType.CritRange
+    readonly value: number
+}
+
+export interface IModifierBonusCritDieCountData extends IModifierBonusDataBase {
+    readonly subtype: ModifierBonusType.CritDieCount
+    readonly value: number
+}
+
+export interface IModifierBonusAttunementSlotsData extends IModifierBonusDataBase {
+    readonly subtype: ModifierBonusType.AttunementSlot
+    readonly value: number
+}
+
 export type IModifierBonusData = IModifierBonusACData |
-IModifierBonusStrengthData | IModifierBonusDexterityData |
-IModifierBonusConstitutionData | IModifierBonusIntelligenceData |
-IModifierBonusWisdomData | IModifierBonusCharismaData |
-IModifierBonusAllAttributesData | IModifierBonusAttacksData |
-IModifierBonusSpeedData
+IModifierBonusAbilityScoreData | IModifierBonusSaveData |
+IModifierBonusSkillData | IModifierBonusSpellAttackData |
+IModifierBonusSpellSaveData | IModifierBonusMultiAttackData |
+IModifierBonusSpeedData | IModifierBonusAttunementSlotsData |
+IModifierBonusCritRangeData | IModifierBonusCritDieCountData
 
 export interface IModifierChoiceData extends IModifierDataBase {
     readonly type: ModifierType.Choice
@@ -219,9 +223,8 @@ export interface IModifierSetSpellAttributeData extends IModifierSetDataBase {
 
 export interface IModifierSetArmorClassBaseData extends IModifierSetDataBase {
     readonly subtype: ModifierSetType.ArmorClassBase
-    readonly values: Partial<Record<Attribute, number>>
-    readonly maxValues: Partial<Record<Attribute, number>>
-    readonly bonus: number
+    readonly values: Partial<Record<ScalingType, number>>
+    readonly maxValues: Partial<Record<ScalingType, number>>
 }
 
 export interface IModifierSetSizeData extends IModifierSetDataBase {
@@ -232,13 +235,13 @@ export interface IModifierSetSizeData extends IModifierSetDataBase {
 export interface IModifierSetSenseData extends IModifierSetDataBase {
     readonly subtype: ModifierSetType.Sense
     readonly sense: SingleChoiceData<Sense>
-    readonly value: number
+    readonly value: Partial<Record<ScalingType, number>>
 }
 
 export interface IModifierSetSpeedData extends IModifierSetDataBase {
     readonly subtype: ModifierSetType.Speed
     readonly speed: SingleChoiceData<MovementType>
-    readonly value: number
+    readonly value: Partial<Record<ScalingType, number>>
 }
 
 export interface IModifierSetSaveProficiencyData extends IModifierSetDataBase {

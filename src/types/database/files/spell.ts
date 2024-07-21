@@ -1,7 +1,7 @@
 import type { IArea } from '../area'
 import type { CastingTime, Duration, MagicSchool, SpellLevel, TargetType } from 'structure/dnd'
 import type { IEffect } from 'types/database/effect'
-import type { IEffectCondition, INoneEffectCondition } from 'types/database/effectCondition'
+import type { IEffectCondition, IEffectConditionNone } from 'types/database/effectCondition'
 
 export interface ISpellDataBase {
     readonly name: string
@@ -29,7 +29,7 @@ export interface ISpellDataBase {
 
 export interface ISpellNoneData extends ISpellDataBase {
     readonly target: TargetType.None
-    readonly condition: INoneEffectCondition
+    readonly condition: IEffectConditionNone
     readonly effects: Record<string, IEffect>
 }
 

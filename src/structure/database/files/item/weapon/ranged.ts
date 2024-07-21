@@ -1,5 +1,5 @@
 import { AbilityType } from '../../ability/common'
-import AbilityRangedAttackData from '../../ability/rangedAttackData'
+import AbilityRangedAttackData from '../../ability/rangedAttack'
 import ItemWeaponDataBase from '.'
 import { isEnum, isNumber } from 'utils'
 import { ActionType, RangedWeaponType } from 'structure/dnd'
@@ -28,19 +28,12 @@ class ItemWeaponRangedData extends ItemWeaponDataBase implements IItemWeaponRang
             description: this.description,
             notes: this.notes,
             action: ActionType.Action,
-            charges: {
-                'main': {
-                    charges: this.charges,
-                    chargesReset: this.chargesReset
-                }
-            },
+            charges: this.charges,
             range: this.range,
             rangeLong: this.rangeLong,
             condition: {
                 type: EffectConditionType.Hit,
-                scaling: this.hitScaling,
-                proficiency: this.hitProficiency,
-                modifier: this.hitModifier
+                scaling: this.hitScaling
             },
             effects: {
                 main: {
@@ -49,10 +42,8 @@ class ItemWeaponRangedData extends ItemWeaponDataBase implements IItemWeaponRang
                     label: 'Damage',
                     damageType: this.damageType,
                     scaling: this.damageScaling,
-                    proficiency: this.damageProficiency,
                     die: this.damageDie,
-                    dieCount: this.damageDieCount,
-                    modifier: this.damageModifier
+                    dieCount: this.damageDieCount
                 },
                 ...this.effects
             }

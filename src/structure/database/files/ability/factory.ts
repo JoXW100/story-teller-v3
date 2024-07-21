@@ -1,20 +1,26 @@
-import AbilityMeleeAttackData from './meleeAttackData'
-import AbilityRangedAttackData from './rangedAttackData'
-import AbilityThrownAttackData from './thrownAttackData'
-import AbilityFeatureData from './featureData'
-import AbilityAttackData from './attackData'
+import AbilityMeleeAttackData from './meleeAttack'
+import AbilityRangedAttackData from './rangedAttack'
+import AbilityThrownAttackData from './thrownAttack'
+import AbilityFeatureData from './feature'
+import AbilityAttackData from './attack'
 import { AbilityType } from './common'
 import { hasObjectProperties, simplifyObjectProperties, validateObjectProperties } from 'structure/database'
 import { isEnum, isRecord } from 'utils'
 import type { Simplify } from 'types'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
 import type { IAbilityData, IAbilityFeatureData } from 'types/database/files/ability'
+import AbilityCustomData from './custom'
+import AbilitySkillData from './skill'
 
-export type AbilityData = AbilityFeatureData | AbilityAttackData | AbilityMeleeAttackData | AbilityRangedAttackData | AbilityThrownAttackData
+export type AbilityData = AbilityFeatureData | AbilityCustomData |
+AbilityAttackData | AbilityMeleeAttackData | AbilityRangedAttackData |
+AbilityThrownAttackData | AbilitySkillData
 
 const AbilityDataFactory: IDatabaseFactory<IAbilityData, AbilityData> = {
     create: function (data: Simplify<IAbilityData> = {}): AbilityData {
         switch (data.type) {
+            case AbilityType.Skill:
+                return new AbilitySkillData(data)
             case AbilityType.Attack:
                 return new AbilityAttackData(data)
             case AbilityType.MeleeAttack:
@@ -25,9 +31,9 @@ const AbilityDataFactory: IDatabaseFactory<IAbilityData, AbilityData> = {
                 return new AbilityRangedAttackData(data)
             case AbilityType.ThrownWeapon:
                 return new AbilityThrownAttackData(data)
+            case AbilityType.Custom:
+                return new AbilityCustomData(data)
             case AbilityType.Feature:
-            case AbilityType.Feat:
-            case AbilityType.FightingStyle:
             default:
                 return new AbilityFeatureData(data as IAbilityFeatureData)
         }
@@ -48,6 +54,8 @@ const AbilityDataFactory: IDatabaseFactory<IAbilityData, AbilityData> = {
         switch (type) {
             case AbilityType.Attack:
                 return AbilityAttackData.properties
+            case AbilityType.Skill:
+                return AbilitySkillData.properties
             case AbilityType.MeleeAttack:
             case AbilityType.MeleeWeapon:
                 return AbilityMeleeAttackData.properties
@@ -57,9 +65,9 @@ const AbilityDataFactory: IDatabaseFactory<IAbilityData, AbilityData> = {
             case AbilityType.ThrownWeapon:
                 return AbilityThrownAttackData.properties
             case AbilityType.Feature:
-            case AbilityType.Feat:
-            case AbilityType.FightingStyle:
                 return AbilityFeatureData.properties
+            case AbilityType.Custom:
+                return AbilityCustomData.properties
         }
     }
 }

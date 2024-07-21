@@ -1,13 +1,18 @@
 import { AdvantageBinding, Attribute, type OptionalAttribute, ProficiencyLevel, ScalingType, Skill, SpellLevel, type ClassLevel } from 'structure/dnd'
+import type { IConditionProperties } from 'types/database/condition'
 import type { ICreatureStats } from 'types/editor'
-import { asEnum, asNumber } from 'utils'
+import { asEnum, asNumber, keysOf } from 'utils'
 
 export function getAttributeModifier(stats: Partial<ICreatureStats>, attr: Attribute): number {
     return Math.ceil((asNumber(stats[attr], 10) - 11) / 2.0)
 }
 
-export function getScalingValue(scaling: ScalingType | OptionalAttribute, stats: ICreatureStats): number {
+export function getScalingValue(scaling: ScalingType | OptionalAttribute, stats: Partial<IConditionProperties>): number {
     switch (scaling) {
+        case ScalingType.Constant:
+            return 1
+        case ScalingType.Proficiency:
+            return stats.proficiency ?? 2
         case ScalingType.Finesse:
             return Math.max(getScalingValue(ScalingType.DEX, stats), getScalingValue(ScalingType.STR, stats))
         case ScalingType.SpellModifier: {
@@ -17,13 +22,36 @@ export function getScalingValue(scaling: ScalingType | OptionalAttribute, stats:
                 return 0
             }
         }
-        case ScalingType.None:
-            return 0
-        default: {
+        case ScalingType.STR:
+        case ScalingType.DEX:
+        case ScalingType.CON:
+        case ScalingType.INT:
+        case ScalingType.WIS:
+        case ScalingType.CHA: {
             const attribute = asEnum(scaling, Attribute)
             return (attribute != null) ? getAttributeModifier(stats, attribute) : 0
         }
+        case ScalingType.Level:
+        case ScalingType.ClassLevel:
+        case ScalingType.SpellLevel:
+        case ScalingType.WalkSpeed:
+        case ScalingType.BurrowSpeed:
+        case ScalingType.ClimbSpeed:
+        case ScalingType.FlySpeed:
+        case ScalingType.HoverSpeed:
+        case ScalingType.SwimSpeed:
+            return stats[scaling] ?? 0
+        default:
+            return 0
     }
+}
+
+export function resolveScaling(scaling: Partial<Record<ScalingType, number>>, stats: Partial<IConditionProperties>): number {
+    let sum: number = 0
+    for (const type of keysOf(scaling)) {
+        sum += getScalingValue(type, stats) * scaling[type]!
+    }
+    return Math.floor(sum)
 }
 
 export function getSpellLevelValue(level: SpellLevel): number {

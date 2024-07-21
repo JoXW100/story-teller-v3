@@ -12,7 +12,7 @@ import { ModifierSourceType } from '../modifier/modifier'
 import ItemArmorData from '../item/armor'
 import { isKeyOf, keysOf } from 'utils'
 import { getMaxProficiencyLevel, getMaxSpellLevel, getPreviousClassLevels } from 'utils/calculations'
-import { type ClassLevel, type CreatureType, type Language, type MovementType, type Sense, type SizeType, ArmorType, SpellLevel, type Attribute, type ProficiencyLevel, type ToolType, type WeaponTypeValue, OptionalAttribute, AdvantageBinding, ProficiencyLevelBasic } from 'structure/dnd'
+import { type ClassLevel, type CreatureType, type Language, type Sense, type SizeType, ArmorType, MovementType, SpellLevel, type Attribute, type ProficiencyLevel, type ToolType, type WeaponTypeValue, OptionalAttribute, AdvantageBinding, ProficiencyLevelBasic } from 'structure/dnd'
 import type { ObjectId } from 'types'
 import type { ICharacterData } from 'types/database/files/character'
 import type { IConditionProperties } from 'types/database/condition'
@@ -94,12 +94,23 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
         }
     }
 
-    public override get speed(): Partial<Record<MovementType, number>> {
-        if (this.raceData === null) {
-            return this.modifier.speed.call(this.data.speed, this.properties, this.storage.choices)
-        } else {
-            return this.modifier.speed.call({ ...this.raceData.speed, ...this.data.speed }, this.properties, this.storage.choices)
+    public get speed(): Record<MovementType, number> {
+        const result = {
+            [MovementType.Walk]: 0,
+            [MovementType.Burrow]: 0,
+            [MovementType.Climb]: 0,
+            [MovementType.Fly]: 0,
+            [MovementType.Hover]: 0,
+            [MovementType.Swim]: 0
         }
+        const speed = this.modifier.speed.call(this.raceData === null
+            ? { ...this.data.speed }
+            : { ...this.raceData.speed, ...this.data.speed }
+        , this.properties, this.storage.choices)
+        for (const type of keysOf(speed)) {
+            result[type] = speed[type]!
+        }
+        return result
     }
 
     public override get senses(): Partial<Record<Sense, number>> {
@@ -259,6 +270,14 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
             }
         }
         return this.modifier.abilities.call(abilities, this.properties, this.storage.choices)
+    }
+
+    public get attunementSlots(): number {
+        return this.modifier.attunementSlots.call(this.data.attunementSlots, this.properties, this.storage.choices)
+    }
+
+    public override get attunedItems(): number {
+        return this.storage.attunement.length
     }
 
     public getClassSpellAttribute(classId: ObjectId): OptionalAttribute {

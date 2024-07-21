@@ -6,8 +6,6 @@ import LocalizedText from 'components/localizedText'
 import TextComponent from './components/text'
 import NumberComponent from './components/number'
 import EnumComponent from './components/enum'
-import CalcComponent from './components/calc'
-import BooleanComponent from './components/boolean'
 import EditItemRecordComponent from './components/editItemRecord'
 import LinkListComponent from './components/linkList'
 import { ElementDictionary } from 'components/elements'
@@ -17,6 +15,7 @@ import { EffectConditionType } from 'structure/database/effectCondition'
 import { AbilityType } from 'structure/database/files/ability/common'
 import EffectFactory from 'structure/database/effect/factory'
 import styles from './style.module.scss'
+import SelectionInputComponent from './components/selectionInput'
 
 const AllowedTypes = [DocumentType.Modifier] as const
 const AbilityDocumentEditor: React.FC = () => {
@@ -34,6 +33,9 @@ const AbilityDocumentEditor: React.FC = () => {
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
                 <TextComponent field='name' labelId='editor-name'/>
                 <EnumComponent field='type' type='abilityType' labelId='editor-type' />
+                { context.file.data.type === AbilityType.Custom &&
+                    <TextComponent field='category' labelId='editor-category'/>
+                }
                 <EnumComponent field='action' type='action' labelId='editor-action' />
             </GroupComponent>
             { context.file.data.type === AbilityType.Attack &&
@@ -80,22 +82,44 @@ const AbilityDocumentEditor: React.FC = () => {
                         page='effect'/>
                 </GroupComponent>
             }
+            { context.file.data.type === AbilityType.Skill &&
+                <GroupComponent header={<LocalizedText id='editor-header-effect'/>} open>
+                    <EditItemRecordComponent
+                        field='effects'
+                        labelId='editor-effects'
+                        defaultValue={defaultEffectValue}
+                        page='effect'/>
+                </GroupComponent>
+            }
             { (context.file.data.type === AbilityType.Attack || context.file.data.type === AbilityType.MeleeAttack || context.file.data.type === AbilityType.RangedAttack || context.file.data.type === AbilityType.MeleeWeapon || context.file.data.type === AbilityType.RangedWeapon || context.file.data.type === AbilityType.ThrownWeapon) &&
                 <GroupComponent header={<LocalizedText id='editor-header-condition'/>} open>
-                    <EnumComponent field='condition.type' type='effectConditionType' labelId='editor-condition-type' />
+                    <EnumComponent field='condition.type' type='effectConditionType' labelId='editor-condition-type'/>
                     { context.file.data.condition.type === EffectConditionType.Hit &&
+                        <SelectionInputComponent
+                            field='condition.scaling'
+                            type='number'
+                            optionsType='scaling'
+                            labelId='editor-condition-scaling'
+                            fill/>
+                    }{ context.file.data.condition.type === EffectConditionType.Save &&
                         <>
-                            <EnumComponent field='condition.scaling' type='scaling' labelId='editor-condition-scaling' />
-                            <BooleanComponent field='condition.proficiency' labelId='editor-condition-proficiency' />
-                            <CalcComponent field='condition.modifier' labelId='editor-condition-modifier' />
+                            <EnumComponent field='condition.attribute' type='attr' labelId='editor-condition-attribute'/>
+                            <SelectionInputComponent
+                                field='condition.scaling'
+                                type='number'
+                                optionsType='scaling'
+                                labelId='editor-condition-scaling'
+                                fill/>
                         </>
-                    }
-                    { context.file.data.condition.type === EffectConditionType.Save &&
+                    }{ context.file.data.condition.type === EffectConditionType.Check &&
                         <>
-                            <EnumComponent field='condition.attribute' type='attr' labelId='editor-condition-attribute' />
-                            <EnumComponent field='condition.scaling' type='scaling' labelId='editor-condition-scaling' />
-                            <BooleanComponent field='condition.proficiency' labelId='editor-condition-proficiency' />
-                            <CalcComponent field='condition.modifier' labelId='editor-condition-modifier' />
+                            <EnumComponent field='condition.skill' type='skill' labelId='editor-condition-skill'/>
+                            <SelectionInputComponent
+                                field='condition.scaling'
+                                type='number'
+                                optionsType='scaling'
+                                labelId='editor-condition-scaling'
+                                fill/>
                         </>
                     }
                 </GroupComponent>

@@ -1,19 +1,22 @@
-import { useContext, useMemo } from 'react'
+import { useContext, useMemo, useState } from 'react'
 import { Tooltip } from '@mui/material'
 import { Context } from 'components/contexts/file'
 import ClearIcon from '@mui/icons-material/CloseSharp'
 import DropdownMenu from 'components/layouts/dropdownMenu'
 import ListMenu from 'components/layouts/menus/list'
+import LinkListMenu from 'components/layouts/menus/link'
 import LocalizedText from 'components/localizedText'
+import LinkInput from 'components/layouts/linkInput'
 import { ElementDictionary } from 'components/elements'
 import { asNumber, isEnum, isKeyOf, isNumber, isObjectId, keysOf } from 'utils'
-import { useFile, useLinked, useSubclasses } from 'utils/hooks/files'
+import { useAbilitiesOfCategory, useSubclasses, useFilesOfType } from 'utils/hooks/files'
 import { getOptionType } from 'structure/optionData'
 import type CharacterFacade from 'structure/database/files/character/facade'
 import StoryScript from 'structure/language/storyscript'
 import type ClassData from 'structure/database/files/class/data'
+import type DatabaseFile from 'structure/database/files'
 import type { ObjectId } from 'types'
-import type { IEditorChoiceData, IEditorEnumChoiceData, IEditorExternalChoiceData, IEditorValueChoiceData } from 'types/database/choice'
+import type { IEditorChoiceData, IEditorDocumentChoiceData, IEditorEnumChoiceData, IEditorLinkedChoiceData, IEditorValueChoiceData } from 'types/database/choice'
 import styles from '../styles.module.scss'
 
 type ChoicePageProps = React.PropsWithRef<{
@@ -38,10 +41,16 @@ type ModifierChoiceValueItemProps = React.PropsWithRef<{
     data: IEditorValueChoiceData
 }>
 
+type ModifierChoiceDocumentItemProps = React.PropsWithRef<{
+    facade: CharacterFacade
+    choiceKey: string
+    data: IEditorDocumentChoiceData
+}>
+
 type ModifierChoiceExternalItemProps = React.PropsWithRef<{
     facade: CharacterFacade
     choiceKey: string
-    data: IEditorExternalChoiceData
+    data: IEditorLinkedChoiceData
 }>
 
 type SubclassChoiceItemProps = React.PropsWithRef<{
@@ -49,19 +58,6 @@ type SubclassChoiceItemProps = React.PropsWithRef<{
     id: ObjectId
     data: ClassData // Data of the class to find the subclass of
 }>
-
-type ModifierLinkItemProps = React.PropsWithRef<{
-    fileId: ObjectId
-}>
-
-const ModifierLinkItem: React.FC<ModifierLinkItemProps> = ({ fileId }) => {
-    const [file] = useFile(fileId)
-    return (
-        <span className={styles.modifierLinkItem}>
-            {file?.getTitle()}
-        </span>
-    )
-}
 
 function getValueArray(value: unknown, validate: (value: unknown) => boolean): unknown[] {
     return Array.isArray(value) && value.every(validate) ? value.map(String) : []
@@ -128,11 +124,7 @@ const ModifierChoiceValueItem: React.FC<ModifierChoiceValueItemProps> = ({ facad
 
         for (let i = 0; i < data.value.length; i++) {
             const value = data.value[i]
-            if (data.type === 'id' && isObjectId(value)) {
-                options[String(i)] = <ModifierLinkItem fileId={value}/>
-            } else {
-                options[String(i)] = String(value)
-            }
+            options[String(i)] = String(value)
         }
         return options
     }, [data])
@@ -168,9 +160,94 @@ const ModifierChoiceValueItem: React.FC<ModifierChoiceValueItemProps> = ({ facad
             onChange={handleChange}/>
 }
 
+const ModifierSelectDocumentItem: React.FC<ModifierChoiceDocumentItemProps> = ({ facade, choiceKey, data }) => {
+    const [, dispatch] = useContext(Context)
+    const value = getValueArray(facade.storage.choices[choiceKey], isObjectId) as ObjectId[]
+    const [text, setText] = useState(String(value[0] ?? ''))
+
+    const handleChange = (value: ObjectId[]): void => {
+        dispatch.setStorage('choices', { ...facade.storage.choices, [choiceKey]: value })
+    }
+
+    const handleFileChange = (file: DatabaseFile | null): void => {
+        const id = file?.id ?? null
+        if (value[0] !== id) {
+            dispatch.setStorage('choices', { ...facade.storage.choices, [choiceKey]: [id] })
+        }
+    }
+
+    return isNumber(data.numChoices) && data.numChoices > 1
+        ? <LinkListMenu
+            itemClassName={styles.modifierChoiceItem}
+            values={value}
+            allowedTypes={data.allowedTypes}
+            onChange={handleChange}
+            disabled={value.length >= data.numChoices}
+            allowText={false}/>
+        : <LinkInput
+            value={text}
+            allowedTypes={data.allowedTypes}
+            className={styles.modifierChoiceItem}
+            onChange={setText}
+            onFileChanged={handleFileChange}
+            allowText={false}/>
+}
+
+const ModifierOptionsDocumentItem: React.FC<ModifierChoiceDocumentItemProps> = ({ facade, choiceKey, data }) => {
+    const [, dispatch] = useContext(Context)
+    const [files] = useFilesOfType(data.value, data.allowedTypes)
+    const options = useMemo<Record<string, React.ReactNode>>(() => {
+        const options: Record<string, React.ReactNode> = {}
+        if (data === null) {
+            return options
+        }
+
+        for (let i = 0; i < data.value.length; i++) {
+            options[String(i)] = files[i]?.getTitle() ?? 'MISSING'
+        }
+        return options
+    }, [data, files])
+    const value = getValueArray(facade.storage.choices[choiceKey], (value) => isKeyOf(value, options)) as Array<keyof typeof options>
+
+    const handleChange = (value: unknown): void => {
+        if (Array.isArray(value)) {
+            const indices = value.map<number>(asNumber)
+            if (!indices.some(isNaN)) {
+                dispatch.setStorage('choices', { ...facade.storage.choices, [choiceKey]: indices })
+            }
+        } else {
+            const index = Number(value)
+            if (!isNaN(index)) {
+                dispatch.setStorage('choices', { ...facade.storage.choices, [choiceKey]: isNumber(data.numChoices) ? [index] : index })
+            }
+        }
+    }
+
+    return isNumber(data.numChoices) && data.numChoices > 1
+        ? <ListMenu
+            type='enum'
+            itemClassName={styles.modifierChoiceItem}
+            values={value}
+            defaultValue={keysOf(options).find(x => !value.includes(x)) ?? 0}
+            options={options}
+            onChange={handleChange}
+            disabled={value.length >= data.numChoices}/>
+        : <DropdownMenu
+            value={value[0]}
+            values={options}
+            className={styles.modifierChoiceItem}
+            onChange={handleChange}/>
+}
+
+const ModifierChoiceDocumentItem: React.FC<ModifierChoiceDocumentItemProps> = ({ facade, choiceKey, data }) => {
+    return data.value.length > 0
+        ? <ModifierOptionsDocumentItem facade={facade} choiceKey={choiceKey} data={data}/>
+        : <ModifierSelectDocumentItem facade={facade} choiceKey={choiceKey} data={data}/>
+}
+
 const ModifierChoiceLinkedItem: React.FC<ModifierChoiceExternalItemProps> = ({ facade, choiceKey, data }) => {
     const [, dispatch] = useContext(Context)
-    const [external] = useLinked(data.category)
+    const [external] = useAbilitiesOfCategory(data.category)
     const options = useMemo<Record<ObjectId, React.ReactNode>>(() => {
         const options: Record<ObjectId, React.ReactNode> = {}
         if (data === null) {
@@ -215,47 +292,6 @@ const ModifierChoiceLinkedItem: React.FC<ModifierChoiceExternalItemProps> = ({ f
             onChange={handleChange}/>
 }
 
-const ModifierChoiceItem: React.FC<ModifierChoiceItemProps> = ({ facade, choiceKey, data }) => {
-    const [, dispatch] = useContext(Context)
-    const tooltips = useMemo(() => {
-        const [description] = data.source.createContexts(ElementDictionary)
-        return StoryScript.tokenize(ElementDictionary, data.source.description, description).root.build() as JSX.Element
-    }, [data.source])
-
-    const handleClear = (): void => {
-        const { [choiceKey]: _, ...other } = facade.storage.choices
-        dispatch.setStorage('choices', other)
-    }
-
-    let content = null
-    switch (data.type) {
-        case 'enum':
-            content = <ModifierChoiceEnumItem facade={facade} choiceKey={choiceKey} data={data}/>
-            break
-        case 'value':
-        case 'id':
-            content = <ModifierChoiceValueItem facade={facade} choiceKey={choiceKey} data={data}/>
-            break
-        case 'linked':
-            content = <ModifierChoiceLinkedItem facade={facade} choiceKey={choiceKey} data={data}/>
-            break
-    }
-
-    return (
-        <div className={styles.modifierChoice}>
-            <Tooltip title={tooltips}>
-                <b>{data.source.name}</b>
-            </Tooltip>
-            { content }
-            <Tooltip title={<LocalizedText id='common-clear'/>}>
-                <button className='center-flex fill-height' onClick={handleClear}>
-                    <ClearIcon className='small-icon'/>
-                </button>
-            </Tooltip>
-        </div>
-    )
-}
-
 const SubclassChoiceItem: React.FC<SubclassChoiceItemProps> = ({ facade, id, data }) => {
     const [, dispatch] = useContext(Context)
     const [subclasses] = useSubclasses(id)
@@ -297,6 +333,50 @@ const SubclassChoiceItem: React.FC<SubclassChoiceItemProps> = ({ facade, id, dat
                 values={options}
                 className={styles.modifierChoiceItem}
                 onChange={handleChange}/>
+            <Tooltip title={<LocalizedText id='common-clear'/>}>
+                <button className='center-flex fill-height' onClick={handleClear}>
+                    <ClearIcon className='small-icon'/>
+                </button>
+            </Tooltip>
+        </div>
+    )
+}
+
+const ModifierChoiceItem: React.FC<ModifierChoiceItemProps> = ({ facade, choiceKey, data }) => {
+    const [, dispatch] = useContext(Context)
+    const tooltips = useMemo(() => {
+        const [description] = data.source.createContexts(ElementDictionary)
+        return StoryScript.tokenize(ElementDictionary, data.source.description, description).root.build() as JSX.Element
+    }, [data.source])
+
+    const handleClear = (): void => {
+        const { [choiceKey]: _, ...other } = facade.storage.choices
+        dispatch.setStorage('choices', other)
+    }
+
+    let content = null
+    switch (data.type) {
+        case 'enum':
+            content = <ModifierChoiceEnumItem facade={facade} choiceKey={choiceKey} data={data}/>
+            break
+        case 'spell':
+        case 'ability':
+            content = <ModifierChoiceDocumentItem facade={facade} choiceKey={choiceKey} data={data}/>
+            break
+        case 'value':
+            content = <ModifierChoiceValueItem facade={facade} choiceKey={choiceKey} data={data}/>
+            break
+        case 'linked':
+            content = <ModifierChoiceLinkedItem facade={facade} choiceKey={choiceKey} data={data}/>
+            break
+    }
+
+    return (
+        <div className={styles.modifierChoice}>
+            <Tooltip title={tooltips}>
+                <b>{data.source.name}</b>
+            </Tooltip>
+            { content }
             <Tooltip title={<LocalizedText id='common-clear'/>}>
                 <button className='center-flex fill-height' onClick={handleClear}>
                     <ClearIcon className='small-icon'/>

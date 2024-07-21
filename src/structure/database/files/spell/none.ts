@@ -1,4 +1,4 @@
-import NoneEffectCondition from 'structure/database/effectCondition/none'
+import EffectConditionNone from 'structure/database/effectCondition/none'
 import SpellDataBase from './data'
 import { isRecord } from 'utils'
 import { TargetType } from 'structure/dnd'
@@ -10,14 +10,14 @@ import type { ISpellNoneData } from 'types/database/files/spell'
 
 class SpellNoneData extends SpellDataBase implements ISpellNoneData {
     public readonly target: TargetType.None
-    public readonly condition: NoneEffectCondition
+    public readonly condition: EffectConditionNone
     public readonly effects: Record<string, Effect>
 
     public constructor(data: Simplify<ISpellNoneData>) {
         super(data)
         this.target = data.target ?? SpellNoneData.properties.target.value
         this.condition = data.condition !== undefined
-            ? new NoneEffectCondition(data.condition)
+            ? new EffectConditionNone(data.condition)
             : SpellNoneData.properties.condition.value
         this.effects = SpellNoneData.properties.effects.value
         if (data.effects !== undefined) {
@@ -41,7 +41,7 @@ class SpellNoneData extends SpellDataBase implements ISpellNoneData {
             simplify: (value) => value
         },
         condition: {
-            get value() { return new NoneEffectCondition({}) },
+            get value() { return new EffectConditionNone({}) },
             validate: ConditionFactory.validate,
             simplify: () => null
         },

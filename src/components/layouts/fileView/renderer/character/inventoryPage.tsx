@@ -10,7 +10,6 @@ import CollapsibleGroup from 'components/layouts/collapsibleGroup'
 import DropdownMenu from 'components/layouts/dropdownMenu'
 import LinkInput from 'components/layouts/linkInput'
 import { asBooleanString, isObjectId, keysOf } from 'utils'
-import { ItemType } from 'structure/dnd'
 import { DocumentType } from 'structure/database'
 import type DatabaseFile from 'structure/database/files'
 import type CharacterFacade from 'structure/database/files/character/facade'
@@ -23,8 +22,6 @@ type CharacterInventoryPageProps = React.PropsWithRef<{
     facade: CharacterFacade
     items: Record<ObjectId, ItemData>
 }>
-
-const equippable = new Set([ItemType.Armor, ItemType.Weapon, ItemType.WondrousItem])
 
 const AllowedTypes = [DocumentType.Item] as const
 const CharacterInventoryPage: React.FC<CharacterInventoryPageProps> = ({ facade, items }) => {
@@ -83,7 +80,7 @@ const CharacterInventoryPage: React.FC<CharacterInventoryPageProps> = ({ facade,
 
     const handleAttunementChanged = (index: number, value: string): void => {
         const result: ObjectId[] = []
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < facade.attunementSlots; i++) {
             const id = facade.storage.attunement[i]
             if (i === index) {
                 if (isObjectId(value)) {
@@ -119,8 +116,7 @@ const CharacterInventoryPage: React.FC<CharacterInventoryPageProps> = ({ facade,
                 </div>
                 { keysOf(items).sort(handleSort).map((key) => {
                     const item = items[key]
-                    const isEquippable = equippable.has(item.type)
-                    const isEquipped = isEquippable && facade.storage.inventory[key]?.equipped
+                    const isEquipped = item.equippable && facade.storage.inventory[key]?.equipped
                     const isAttuned = facade.storage.attunement.includes(key)
                     const quantity = facade.storage.inventory[key].quantity ?? 1
                     return (
@@ -135,8 +131,8 @@ const CharacterInventoryPage: React.FC<CharacterInventoryPageProps> = ({ facade,
                                     <button
                                         className='icon center-flex'
                                         onClick={() => { handleEquip(key, !isEquipped) }}
-                                        disabled={!isEquippable || isAttuned}>
-                                        {isEquipped ? <UnequipIcon className='small-icon'/> : isEquippable && <EquipIcon className='small-icon'/>}
+                                        disabled={!item.equippable || isAttuned}>
+                                        {isEquipped ? <UnequipIcon className='small-icon'/> : item.equippable && <EquipIcon className='small-icon'/>}
                                     </button>
                                 </span>
                             </Tooltip>
@@ -162,7 +158,7 @@ const CharacterInventoryPage: React.FC<CharacterInventoryPageProps> = ({ facade,
                 })}
             </CollapsibleGroup>
             <CollapsibleGroup header={<LocalizedText id='render-inventory-attunement'/>}>
-                {[0, 1, 2].map((index) => (
+                {Array.from({ length: facade.attunementSlots }).map((_, index) => (
                     <DropdownMenu
                         key={index}
                         className={styles.inventoryAttunementDropdown}

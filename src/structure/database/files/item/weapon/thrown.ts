@@ -1,5 +1,5 @@
 import { AbilityType } from '../../ability/common'
-import AbilityThrownAttackData from '../../ability/thrownAttackData'
+import AbilityThrownAttackData from '../../ability/thrownAttack'
 import ItemWeaponDataBase from '.'
 import { isEnum, isNumber } from 'utils'
 import { ActionType, ThrownWeaponType } from 'structure/dnd'
@@ -28,19 +28,12 @@ class ItemWeaponThrownData extends ItemWeaponDataBase implements IItemWeaponThro
             description: this.description,
             notes: this.notes,
             action: ActionType.Action,
-            charges: {
-                'main': {
-                    charges: this.charges,
-                    chargesReset: this.chargesReset
-                }
-            },
+            charges: this.charges,
             reach: this.reach,
             range: this.range,
             condition: {
                 type: EffectConditionType.Hit,
-                scaling: this.hitScaling,
-                proficiency: this.hitProficiency,
-                modifier: this.hitModifier
+                scaling: this.hitScaling
             },
             effects: {
                 main: {
@@ -49,10 +42,8 @@ class ItemWeaponThrownData extends ItemWeaponDataBase implements IItemWeaponThro
                     label: 'Damage',
                     damageType: this.damageType,
                     scaling: this.damageScaling,
-                    proficiency: this.damageProficiency,
                     die: this.damageDie,
-                    dieCount: this.damageDieCount,
-                    modifier: this.damageModifier
+                    dieCount: this.damageDieCount
                 },
                 thrown: {
                     type: EffectType.Damage,
@@ -60,10 +51,8 @@ class ItemWeaponThrownData extends ItemWeaponDataBase implements IItemWeaponThro
                     label: 'Thrown',
                     damageType: this.damageType,
                     scaling: this.damageScaling,
-                    proficiency: this.damageProficiency,
                     die: this.damageDie,
-                    dieCount: this.damageDieCount,
-                    modifier: this.damageModifier
+                    dieCount: this.damageDieCount
                 },
                 ...this.effects
             }

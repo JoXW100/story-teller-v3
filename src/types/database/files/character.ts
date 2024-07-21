@@ -13,6 +13,8 @@ export interface ICharacterData extends ICreatureData {
     readonly raceName: string
     // Class
     readonly classes: Record<ObjectId, ClassLevel>
+    // Other
+    readonly attunementSlots: number
 }
 
 export interface IInventoryItemData {
