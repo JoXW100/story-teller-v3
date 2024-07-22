@@ -17,6 +17,9 @@ export interface ISpellDataBase {
     readonly duration: Duration
     readonly durationCustom: string
     readonly durationValue: number
+    // Target
+    readonly target: TargetType
+    readonly condition: IEffectCondition
     // Properties
     readonly allowUpcast: boolean
     readonly ritual: boolean
@@ -25,48 +28,39 @@ export interface ISpellDataBase {
     readonly componentSomatic: boolean
     readonly componentMaterial: boolean
     readonly materials: string
+    // Effects
+    readonly effects: Record<string, IEffect>
 }
 
 export interface ISpellNoneData extends ISpellDataBase {
     readonly target: TargetType.None
     readonly condition: IEffectConditionNone
-    readonly effects: Record<string, IEffect>
 }
 
 export interface ISpellTouchData extends ISpellDataBase {
     readonly target: TargetType.Touch
-    readonly condition: IEffectCondition
-    readonly effects: Record<string, IEffect>
 }
 
 export interface ISpellSelfData extends ISpellDataBase {
     readonly target: TargetType.Self
     readonly area: IArea
-    readonly condition: IEffectCondition
-    readonly effects: Record<string, IEffect>
 }
 
 export interface ISpellSingleData extends ISpellDataBase {
     readonly target: TargetType.Single
     readonly range: number
-    readonly condition: IEffectCondition
-    readonly effects: Record<string, IEffect>
 }
 
 export interface ISpellMultipleData extends ISpellDataBase {
     readonly target: TargetType.Multiple
     readonly range: number
     readonly count: number
-    readonly condition: IEffectCondition
-    readonly effects: Record<string, IEffect>
 }
 
 export interface ISpellAreaData extends ISpellDataBase {
     readonly target: TargetType.Point | TargetType.Area
     readonly range: number
     readonly area: IArea
-    readonly condition: IEffectCondition
-    readonly effects: Record<string, IEffect>
 }
 
 export type ISpellData = ISpellNoneData | ISpellTouchData | ISpellSelfData |

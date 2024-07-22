@@ -5,6 +5,7 @@ import Logger from 'utils/logger'
 import Communication from 'utils/communication'
 import type DatabaseFile from 'structure/database/files'
 import type SubclassDocument from 'structure/database/files/subclass'
+import type SubraceDocument from 'structure/database/files/subrace'
 import type AbilityDocument from 'structure/database/files/ability'
 import type { DocumentType } from 'structure/database'
 import type { DocumentTypeMap } from 'structure/database/files/factory'
@@ -95,6 +96,25 @@ export function useSubclasses(classId: ObjectId | null): FilesState<SubclassDocu
             setState([[], false])
         }
     }, [context.story.id, classId])
+    return state
+}
+
+export function useSubraces(raceId: ObjectId | null): FilesState<SubraceDocument> {
+    const [context] = useContext(Context)
+    const [state, setState] = useState<FilesState<SubraceDocument>>([[], true])
+    useEffect(() => {
+        if (isObjectId(raceId)) {
+            Communication.getSubraces(context.story.id, raceId)
+                .then((res) => {
+                    setState([res.success ? res.result : [], false])
+                }, (e: unknown) => {
+                    Logger.throw('useSubclasses', e)
+                    setState([[], false])
+                })
+        } else {
+            setState([[], false])
+        }
+    }, [context.story.id, raceId])
     return state
 }
 

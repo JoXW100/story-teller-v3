@@ -1,29 +1,33 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
-import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createSingleChoiceData, createDefaultChoiceData, validateChoiceData, simplifySingleChoiceData } from '../../../choice'
-import { asEnum, asNumber, isEnum, isNumber, isRecord, keysOf } from 'utils'
+import { asNumber, isEnum, isNumber, isRecord, keysOf } from 'utils'
 import { resolveScaling } from 'utils/calculations'
 import { ScalingType, Sense } from 'structure/dnd'
 import { simplifyNumberRecord } from 'structure/database'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { SingleChoiceData } from 'types/database/choice'
 import type { IModifierSetSenseData } from 'types/database/files/modifier'
 
 class ModifierSetSenseData extends ModifierSetDataBase implements IModifierSetSenseData {
     public override readonly subtype = ModifierSetType.Sense
-    public readonly sense: SingleChoiceData<Sense>
-    public readonly value: Partial<Record<ScalingType, number>>
+    public readonly senses: Partial<Record<Sense, number>>
+    public readonly scaling: Partial<Record<ScalingType, number>>
 
     public constructor(data: Simplify<IModifierSetSenseData>) {
         super(data)
-        this.sense = createSingleChoiceData<Sense>(data.sense, (value) => asEnum(value, Sense) ?? Sense.DarkVision)
-        this.value = ModifierSetSenseData.properties.value.value
-        if (data.value !== undefined) {
-            for (const type of keysOf(data.value)) {
+        this.senses = ModifierSetSenseData.properties.senses.value
+        if (data.senses !== undefined) {
+            for (const type of keysOf(data.senses)) {
+                if (isEnum(type, Sense)) {
+                    this.senses[type] = asNumber(data.senses[type], 0)
+                }
+            }
+        }
+        this.scaling = ModifierSetSenseData.properties.scaling.value
+        if (data.scaling !== undefined) {
+            for (const type of keysOf(data.scaling)) {
                 if (isEnum(type, ScalingType)) {
-                    this.value[type] = asNumber(data.value[type], 0)
+                    this.scaling[type] = asNumber(data.scaling[type], 0)
                 }
             }
         }
@@ -36,49 +40,30 @@ class ModifierSetSenseData extends ModifierSetDataBase implements IModifierSetSe
             validate: (value) => value === this.properties.subtype.value,
             simplify: (value) => value
         },
-        sense: {
-            get value() { return createDefaultChoiceData(Sense.DarkVision) },
-            validate: (value) => validateChoiceData(value, (value) => isEnum(value, Sense)),
-            simplify: (value) => simplifySingleChoiceData(value, Sense.DarkVision)
+        senses: {
+            get value() { return {} },
+            validate: (value) => isRecord(value, (key, val) => isEnum(key, Sense) && isNumber(val)),
+            simplify: simplifyNumberRecord
         },
-        value: {
+        scaling: {
             get value() { return {} },
             validate: (value) => isRecord(value, (key, val) => isEnum(key, ScalingType) && isNumber(val)),
             simplify: simplifyNumberRecord
         }
     }
 
-    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
-        if (this.sense.isChoice) {
-            modifier.addChoice({
-                source: this,
-                type: 'enum',
-                value: this.sense.value,
-                enum: 'sense'
-            }, key)
-        }
-        modifier.senses.subscribe({
-            key: key,
-            target: self,
-            data: this,
-            apply: function (value, choices, properties): Partial<Record<Sense, number>> {
-                const modifier = this.data as ModifierSetSenseData
-                if (modifier.sense.isChoice) {
-                    const index: unknown = choices[key]
-                    if (!isNumber(index)) {
-                        return value
-                    }
-
-                    const sense = modifier.sense.value[index] ?? null
-                    if (sense !== null) {
-                        return { ...value, [sense]: resolveScaling(modifier.value, properties) }
-                    }
-                } else {
-                    return { ...value, [modifier.sense.value]: resolveScaling(modifier.value, properties) }
+    public override apply(modifier: Modifier, key: string): void {
+        for (const sense of keysOf(this.senses)) {
+            modifier.senses[sense].subscribe({
+                key: key,
+                data: this,
+                apply: function (_, _1, properties, variables): number {
+                    const modifier = this.data as ModifierSetSenseData
+                    const value = resolveScaling(modifier.scaling, properties) * (modifier.senses[sense] ?? 0)
+                    return value + asNumber(variables[`senses.${sense}.bonus`], 0)
                 }
-                return value
-            }
-        })
+            })
+        }
     }
 }
 

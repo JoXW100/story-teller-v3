@@ -5,7 +5,7 @@ import { openDialog } from 'components/dialogs/handler'
 import Logger from 'utils/logger'
 import Communication from 'utils/communication'
 import { DocumentType, FileType } from 'structure/database'
-import type FileStructure from 'structure/database/fileStructure'
+import FileStructure from 'structure/database/fileStructure'
 import type { ObjectId } from 'types'
 import type { InputType } from 'types/dialog'
 import type { DBResponse, IFileStructure } from 'types/database'
@@ -154,7 +154,7 @@ const reducer: React.Reducer<FileSystemContextState, FileSystemContextAction> = 
             }, (error: unknown) => {
                 Logger.throw('FileSystem.updateName', error)
             })
-            return { ...state, root: state.root.updateContained(action.data) }
+            return { ...state, root: new FileStructure(state.root.updateContained(action.data)) }
         }
         case 'updateOpen': {
             Communication.updateFile(action.data.id, action.data.type, {
@@ -172,7 +172,7 @@ const reducer: React.Reducer<FileSystemContextState, FileSystemContextAction> = 
             }, (error: unknown) => {
                 Logger.throw('FileSystem.updateOpen', error)
             })
-            return { ...state, root: state.root.updateContained(action.data) }
+            return { ...state, root: new FileStructure(state.root.updateContained(action.data)) }
         }
         default:
             return state

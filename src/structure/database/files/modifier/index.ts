@@ -27,7 +27,7 @@ class ModifierDocument extends DatabaseFile<DocumentType.Modifier, IModifierStor
     }
 
     public apply(modifier: Modifier, key: string): void {
-        this.data.apply(modifier, this, key)
+        this.data.apply(modifier, key)
     }
 }
 

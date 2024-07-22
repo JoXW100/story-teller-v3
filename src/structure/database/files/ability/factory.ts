@@ -2,7 +2,7 @@ import AbilityMeleeAttackData from './meleeAttack'
 import AbilityRangedAttackData from './rangedAttack'
 import AbilityThrownAttackData from './thrownAttack'
 import AbilityFeatureData from './feature'
-import AbilityAttackData from './attack'
+import AbilityAttackDataFactory, { type AbilityAttackData } from './attack/factory'
 import { AbilityType } from './common'
 import { hasObjectProperties, simplifyObjectProperties, validateObjectProperties } from 'structure/database'
 import { isEnum, isRecord } from 'utils'
@@ -22,7 +22,7 @@ const AbilityDataFactory: IDatabaseFactory<IAbilityData, AbilityData> = {
             case AbilityType.Skill:
                 return new AbilitySkillData(data)
             case AbilityType.Attack:
-                return new AbilityAttackData(data)
+                return AbilityAttackDataFactory.create(data)
             case AbilityType.MeleeAttack:
             case AbilityType.MeleeWeapon:
                 return new AbilityMeleeAttackData(data)
@@ -53,7 +53,7 @@ const AbilityDataFactory: IDatabaseFactory<IAbilityData, AbilityData> = {
             : AbilityType.Feature
         switch (type) {
             case AbilityType.Attack:
-                return AbilityAttackData.properties
+                return AbilityAttackDataFactory.properties(data)
             case AbilityType.Skill:
                 return AbilitySkillData.properties
             case AbilityType.MeleeAttack:

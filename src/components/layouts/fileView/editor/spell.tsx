@@ -9,11 +9,11 @@ import EnumComponent from './components/enum'
 import BooleanComponent from './components/boolean'
 import EditItemRecordComponent from './components/editItemRecord'
 import { ElementDictionary } from 'components/elements'
+import SelectionInputComponent from './components/selectionInput'
 import { AreaType, CastingTime, Duration, SpellLevel, TargetType } from 'structure/dnd'
 import SpellDocument from 'structure/database/files/spell'
 import { EffectConditionType } from 'structure/database/effectCondition'
 import styles from './style.module.scss'
-import SelectionInputComponent from './components/selectionInput'
 
 const SpellDocumentEditor: React.FC = () => {
     const [context, dispatch] = useContext(Context)
@@ -48,8 +48,7 @@ const SpellDocumentEditor: React.FC = () => {
                 <EnumComponent field='target' type='target' labelId='editor-target'/>
                 { (context.file.data.target === TargetType.Single || context.file.data.target === TargetType.Multiple || context.file.data.target === TargetType.Point || context.file.data.target === TargetType.Area) &&
                     <NumberComponent field='range' labelId='editor-range'/>
-                }
-                { context.file.data.target === TargetType.Multiple &&
+                }{ context.file.data.target === TargetType.Multiple &&
                     <NumberComponent field='count' labelId='editor-count'/>
                 }
                 <TextComponent field='notes' labelId='editor-notes'/>
@@ -78,8 +77,7 @@ const SpellDocumentEditor: React.FC = () => {
                         <NumberComponent field='area.height' labelId='editor-area-height'/>
                     }
                 </GroupComponent>
-            }
-            { context.file.data.target !== TargetType.None &&
+            }{ context.file.data.target !== TargetType.None &&
                 <GroupComponent header={<LocalizedText id='editor-header-condition'/>} open>
                     <EnumComponent field='condition.type' type='effectConditionType' labelId='editor-condition-type'/>
                     { context.file.data.condition.type === EffectConditionType.Hit &&

@@ -1,5 +1,5 @@
-import type ModifierDocument from '.'
-import type { ModifierData } from './factory'
+import ModifierDataFactory, { type ModifierData, simplifyModifierDataRecord } from './factory'
+import { ModifierAddType } from './add'
 import { ModifierType } from './common'
 import ModifierDataBase from './data'
 import type Modifier from './modifier'
@@ -9,8 +9,6 @@ import Condition, { ConditionType } from 'structure/database/condition'
 import type { Simplify } from 'types'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
 import type { IModifierChoiceData } from 'types/database/files/modifier'
-import ModifierDataFactory, { simplifyModifierDataRecord } from './factory'
-import { ModifierAddType } from './add'
 
 export const ModifierChoiceDataFactory: IDatabaseFactory<IModifierChoiceData, ModifierChoiceData> = {
     create: function (data: Simplify<IModifierChoiceData> = {}): ModifierChoiceData {
@@ -46,7 +44,7 @@ class ModifierChoiceData extends ModifierDataBase implements IModifierChoiceData
         }
     }
 
-    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+    public override apply(modifier: Modifier, key: string): void {
         const optionKeys = keysOf(this.options)
         modifier.addChoice({
             source: this,
@@ -61,7 +59,7 @@ class ModifierChoiceData extends ModifierDataBase implements IModifierChoiceData
                 continue // Nothing to do here.
             }
             const innerKey = `${key}.${optionName}`
-            option.apply(modifier, self, innerKey)
+            option.apply(modifier, innerKey)
             const conditions: Condition[] = [
                 this.condition,
                 new Condition({

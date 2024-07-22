@@ -1,29 +1,33 @@
-import ModifierSetDataBase, { ModifierSetType } from '.'
-import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { createSingleChoiceData, createDefaultChoiceData, validateChoiceData, simplifySingleChoiceData } from '../../../choice'
-import { asEnum, asNumber, isEnum, isNumber, isRecord, keysOf } from 'utils'
+import ModifierSetDataBase, { ModifierSetType } from '.'
+import { asNumber, isEnum, isNumber, isRecord, keysOf } from 'utils'
 import { resolveScaling } from 'utils/calculations'
 import { MovementType, ScalingType } from 'structure/dnd'
 import { simplifyNumberRecord } from 'structure/database'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { SingleChoiceData } from 'types/database/choice'
 import type { IModifierSetSpeedData } from 'types/database/files/modifier'
 
 class ModifierSetSpeedData extends ModifierSetDataBase implements IModifierSetSpeedData {
     public override readonly subtype = ModifierSetType.Speed
-    public readonly speed: SingleChoiceData<MovementType>
-    public readonly value: Partial<Record<ScalingType, number>>
+    public readonly types: Partial<Record<MovementType, number>>
+    public readonly scaling: Partial<Record<ScalingType, number>>
 
     public constructor(data: Simplify<IModifierSetSpeedData>) {
         super(data)
-        this.speed = createSingleChoiceData<MovementType>(data.speed, (value) => asEnum(value, MovementType) ?? MovementType.Walk)
-        this.value = ModifierSetSpeedData.properties.value.value
-        if (data.value !== undefined) {
-            for (const type of keysOf(data.value)) {
+        this.types = ModifierSetSpeedData.properties.types.value
+        if (data.types !== undefined) {
+            for (const type of keysOf(data.types)) {
+                if (isEnum(type, MovementType)) {
+                    this.types[type] = asNumber(data.types[type], 0)
+                }
+            }
+        }
+        this.scaling = ModifierSetSpeedData.properties.scaling.value
+        if (data.scaling !== undefined) {
+            for (const type of keysOf(data.scaling)) {
                 if (isEnum(type, ScalingType)) {
-                    this.value[type] = asNumber(data.value[type], 0)
+                    this.scaling[type] = asNumber(data.scaling[type], 0)
                 }
             }
         }
@@ -36,50 +40,30 @@ class ModifierSetSpeedData extends ModifierSetDataBase implements IModifierSetSp
             validate: (value) => value === this.properties.subtype.value,
             simplify: (value) => value
         },
-        speed: {
-            get value() { return createDefaultChoiceData(MovementType.Walk) },
-            validate: (value) => validateChoiceData(value, (value) => isEnum(value, MovementType)),
-            simplify: (value) => simplifySingleChoiceData(value, MovementType.Walk)
+        types: {
+            get value() { return {} },
+            validate: (value) => isRecord(value, (key, val) => isEnum(key, MovementType) && isNumber(val)),
+            simplify: simplifyNumberRecord
         },
-        value: {
+        scaling: {
             get value() { return {} },
             validate: (value) => isRecord(value, (key, val) => isEnum(key, ScalingType) && isNumber(val)),
             simplify: simplifyNumberRecord
         }
     }
 
-    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
-        if (this.speed.isChoice) {
-            modifier.addChoice({
-                source: this,
-                type: 'enum',
-                value: this.speed.value,
-                enum: 'movement'
-            }, key)
-        }
-        modifier.speed.subscribe({
-            key: key,
-            target: self,
-            data: this,
-            apply: function (value, choices, properties, variables): Partial<Record<MovementType, number>> {
-                const modifier = this.data as ModifierSetSpeedData
-                if (modifier.speed.isChoice) {
-                    const index: unknown = choices[key]
-                    if (!isNumber(index)) {
-                        return value
-                    }
-
-                    const type = modifier.speed.value[index] ?? null
-                    if (type !== null) {
-                        return { ...value, [type]: resolveScaling(modifier.value, properties) + asNumber(variables[`speed.${type}.bonus`], 0) }
-                    }
-                } else {
-                    const type = modifier.speed.value
-                    return { ...value, [type]: resolveScaling(modifier.value, properties) + asNumber(variables[`speed.${type}.bonus`], 0) }
+    public override apply(modifier: Modifier, key: string): void {
+        for (const type of keysOf(this.types)) {
+            modifier.speeds[type].subscribe({
+                key: key,
+                data: this,
+                apply: function (_, _1, properties, variables): number {
+                    const modifier = this.data as ModifierSetSpeedData
+                    const value = resolveScaling(modifier.scaling, properties) * (modifier.types[type] ?? 0)
+                    return value + asNumber(variables[`speeds.${type}.bonus`], 0)
                 }
-                return value
-            }
-        })
+            })
+        }
     }
 }
 

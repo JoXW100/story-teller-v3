@@ -1,11 +1,10 @@
 import type CreatureData from './data'
 import type CreatureStorage from './storage'
-import type { IModifierSourceData, ModifierSourceType } from '../modifier/modifier'
 import type Modifier from '../modifier/modifier'
-import { keysOf } from 'utils'
+import { asNumber, keysOf } from 'utils'
 import { getProficiencyLevelValue } from 'utils/calculations'
 import { getOptionType } from 'structure/optionData'
-import { type Alignment, type ArmorType, Attribute, type CreatureType, type Language, MovementType, OptionalAttribute, ProficiencyLevel, type Sense, type SizeType, type ToolType, type WeaponTypeValue, Skill, type AdvantageBinding, ProficiencyLevelBasic, type DamageBinding, type ConditionBinding, type SpellLevel } from 'structure/dnd'
+import { type Alignment, type ArmorType, Attribute, type CreatureType, type Language, MovementType, OptionalAttribute, ProficiencyLevel, Sense, type SizeType, type ToolType, type WeaponTypeValue, Skill, type AdvantageBinding, ProficiencyLevelBasic, type DamageBinding, type ConditionBinding, type SpellLevel } from 'structure/dnd'
 import { CalcMode, type ICalcValue } from 'structure/database'
 import { type DieType } from 'structure/dice'
 import { Die } from 'structure/dice/die'
@@ -107,9 +106,9 @@ class CreatureFacade implements ICreatureData {
             case CalcMode.Override:
                 return this.health.value ?? 0
             case CalcMode.Auto:
-                return Math.floor(Die.average(this.hitDie) * this.level) + this.getAttributeModifier(Attribute.CON) * this.level
+                return Math.floor(Die.average(this.hitDie) * this.level) + this.modifier.health.call(this.getAttributeModifier(Attribute.CON) * this.level, this.properties, this.storage.choices)
             case CalcMode.Modify:
-                return Math.floor(Die.average(this.hitDie) * this.level) + this.getAttributeModifier(Attribute.CON) * this.level + (this.health.value ?? 0)
+                return Math.floor(Die.average(this.hitDie) * this.level) + this.modifier.health.call(this.getAttributeModifier(Attribute.CON) * this.level + (this.health.value ?? 0), this.properties, this.storage.choices)
         }
     }
 
@@ -118,9 +117,9 @@ class CreatureFacade implements ICreatureData {
             case CalcMode.Override:
                 return String(this.health.value ?? 0)
             case CalcMode.Auto:
-                return `${this.level}${this.hitDie}+${this.getAttributeModifier(Attribute.CON) * this.level}`
+                return `${this.level}${this.hitDie}+${this.modifier.health.call(this.getAttributeModifier(Attribute.CON) * this.level, this.properties, this.storage.choices)}`
             case CalcMode.Modify:
-                return `${this.level}${this.hitDie}+${this.getAttributeModifier(Attribute.CON) * this.level + (this.health.value ?? 0)}`
+                return `${this.level}${this.hitDie}+${this.modifier.health.call(this.getAttributeModifier(Attribute.CON) * this.level + (this.health.value ?? 0), this.properties, this.storage.choices)}`
         }
     }
 
@@ -171,18 +170,13 @@ class CreatureFacade implements ICreatureData {
         return `${fraction} (${this.xp} XP)`
     }
 
-    public get speed(): Record<MovementType, number> {
-        const result = {
-            [MovementType.Walk]: 0,
-            [MovementType.Burrow]: 0,
-            [MovementType.Climb]: 0,
-            [MovementType.Fly]: 0,
-            [MovementType.Hover]: 0,
-            [MovementType.Swim]: 0
-        }
-        const speed = this.modifier.speed.call({ ...this.data.speed }, this.properties, this.storage.choices)
-        for (const type of keysOf(speed)) {
-            result[type] = speed[type]!
+    public get speed(): Partial<Record<MovementType, number>> {
+        const result: Partial<Record<MovementType, number>> = {}
+        for (const type of Object.values(MovementType)) {
+            const value = this.modifier.speeds[type].call(asNumber(this.data.speed[type], 0), this.properties, this.storage.choices)
+            if (value > 0) {
+                result[type] = value
+            }
         }
         return result
     }
@@ -190,33 +184,24 @@ class CreatureFacade implements ICreatureData {
     public get speedAsText(): string {
         const options = getOptionType('movement').options
         const speed = this.speed
-        const types = keysOf(speed)
-        let text = ''
-        for (let i = 0; i < types.length; i++) {
-            text += `${options[types[i]]} ${speed[types[i]]}ft`
-            if (i < types.length - 1) {
-                text += ', '
-            }
-        }
-        return text
+        return keysOf(speed).map((type) => `${options[type]} ${speed[type]}ft`).join(', ')
     }
 
     public get senses(): Partial<Record<Sense, number>> {
-        return this.modifier.senses.call(this.data.senses, this.properties, this.storage.choices)
+        const result: Partial<Record<Sense, number>> = {}
+        for (const sense of Object.values(Sense)) {
+            const value = this.modifier.senses[sense].call(asNumber(this.data.senses[sense], 0), this.properties, this.storage.choices)
+            if (value > 0) {
+                result[sense] = value
+            }
+        }
+        return result
     }
 
     public get sensesAsText(): string {
         const options = getOptionType('sense').options
         const senses = this.senses
-        const types = keysOf(senses)
-        let text = ''
-        for (let i = 0; i < types.length; i++) {
-            text += `${options[types[i]]} ${senses[types[i]]}ft`
-            if (i < types.length - 1) {
-                text += ', '
-            }
-        }
-        return text
+        return keysOf(senses).map((type) => `${options[type]} ${senses[type]}ft`).join(', ')
     }
 
     public get str(): number {
@@ -411,7 +396,7 @@ class CreatureFacade implements ICreatureData {
     }
 
     public get abilities(): Array<ObjectId | string> {
-        return this.modifier.abilities.call([...this.data.abilities], this.properties, this.storage.choices)
+        return this.data.abilities
     }
 
     public get multiAttack(): number {
@@ -547,12 +532,12 @@ class CreatureFacade implements ICreatureData {
             critDieCount: this.critDieCount,
             armorLevel: this.armorLevelValue,
             shieldLevel: this.shieldLevelValue,
-            walkSpeed: speed[MovementType.Walk],
-            burrowSpeed: speed[MovementType.Burrow],
-            climbSpeed: speed[MovementType.Climb],
-            flySpeed: speed[MovementType.Fly],
-            hoverSpeed: speed[MovementType.Hover],
-            swimSpeed: speed[MovementType.Swim]
+            walkSpeed: speed[MovementType.Walk] ?? 0,
+            burrowSpeed: speed[MovementType.Burrow] ?? 0,
+            climbSpeed: speed[MovementType.Climb] ?? 0,
+            flySpeed: speed[MovementType.Fly] ?? 0,
+            hoverSpeed: speed[MovementType.Hover] ?? 0,
+            swimSpeed: speed[MovementType.Swim] ?? 0
         }
     }
 
@@ -588,18 +573,6 @@ class CreatureFacade implements ICreatureData {
 
     public getAbilityClassLevel(key: string): number {
         return this.level
-    }
-
-    public findSourceOfType(key: string, type: ModifierSourceType): IModifierSourceData | null {
-        while (key in this.modifier.properties.sources) {
-            const source = this.modifier.properties.sources[key]
-            if (source.type === type) {
-                return source
-            } else {
-                key = source.key
-            }
-        }
-        return null
     }
 }
 

@@ -1,4 +1,3 @@
-import type ModifierDocument from '..'
 import ModifierAbilityDataBase, { ModifierAbilityType } from '.'
 import type Modifier from '../modifier'
 import { asNumber, isNumber } from 'utils'
@@ -28,10 +27,9 @@ class ModifierAbilityAttackBonusData extends ModifierAbilityDataBase implements 
         }
     }
 
-    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+    public override apply(modifier: Modifier, key: string): void {
         modifier.abilityAttackBonus.subscribe({
             key: key,
-            target: self,
             data: this,
             apply: function (value): number {
                 return (this.data as ModifierAbilityAttackBonusData).value + value

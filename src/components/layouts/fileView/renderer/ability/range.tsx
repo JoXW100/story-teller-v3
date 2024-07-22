@@ -1,18 +1,27 @@
+import Elements from 'components/elements'
 import LocalizedText from 'components/localizedText'
+import { useLocalizedText } from 'utils/hooks/localizedText'
 import { AbilityType } from 'structure/database/files/ability/common'
 import type { AbilityData } from 'structure/database/files/ability/factory'
+import styles from '../styles.module.scss'
 
 type AbilityRangeProps = React.PropsWithRef<{
     data: AbilityData
 }>
 
 const AbilityRange: React.FC<AbilityRangeProps> = ({ data }) => {
+    const targetIconTooltips = useLocalizedText(data.type === AbilityType.Attack && data.targetIcon !== null ? `icon-${data.targetIcon}` : null) ?? null
     switch (data.type) {
         case AbilityType.Attack:
             return (
                 <div>
                     <LocalizedText id='render-range' className='font-bold'/>
-                    {`${data.range} ft`}
+                    {data.targetText}
+                    { data.targetIcon !== null &&
+                        <span className={styles.iconRow}>
+                            <Elements.icon icon={data.targetIcon} tooltips={targetIconTooltips}/>
+                        </span>
+                    }
                 </div>
             )
         case AbilityType.RangedAttack:
@@ -42,8 +51,7 @@ const AbilityRange: React.FC<AbilityRangeProps> = ({ data }) => {
                 </div>
             )
         case AbilityType.Feature:
-        case AbilityType.Feat:
-        case AbilityType.FightingStyle:
+        case AbilityType.Custom:
         default:
             return null
     }

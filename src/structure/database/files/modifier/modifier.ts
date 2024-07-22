@@ -1,8 +1,7 @@
 import type ModifierDocument from '.'
 import { keysOf } from 'utils'
 import Condition, { ConditionType } from 'structure/database/condition'
-import { Skill, Attribute } from 'structure/dnd'
-import type { AdvantageBinding, ConditionBinding, Language, MovementType, OptionalAttribute, ProficiencyLevelBasic, DamageBinding, Sense, SizeType, ProficiencyLevel, ToolType, ArmorType, WeaponTypeValue } from 'structure/dnd'
+import { Skill, Attribute, type AdvantageBinding, type ConditionBinding, type Language, MovementType, type OptionalAttribute, type ProficiencyLevelBasic, type DamageBinding, Sense, type SizeType, type ProficiencyLevel, type ToolType, type ArmorType, type WeaponTypeValue } from 'structure/dnd'
 import type { ObjectId } from 'types'
 import type { IEditorChoiceData } from 'types/database/choice'
 import type { IConditionProperties } from 'types/database/condition'
@@ -11,29 +10,29 @@ import type { ModifierData } from './factory'
 
 export interface IModifierEventHandler<T, D = ModifierData> {
     key: string
-    target: ModifierDocument
     data: D
     apply: (value: T, choices: Record<string, unknown>, properties: Partial<IConditionProperties>, variables: Record<string, unknown>) => T
 }
 
-export enum ModifierSourceType {
+export enum SourceType {
     Ability = 'abi',
     Class = 'cla',
-    SubClass = 'scl',
+    Subclass = 'scl',
     Race = 'rce',
+    Subrace = 'rce',
     Item = 'ite',
     Modifier = 'mod'
 }
 
-export interface IModifierSourceData {
-    type: ModifierSourceType
-    key: string
+export interface ISourceData {
+    type: SourceType
+    key: string | ObjectId
 }
 
 export interface IModifierProperties {
     readonly conditions: Record<string, Condition>
     readonly choices: Record<string, IEditorChoiceData>
-    readonly sources: Record<string, IModifierSourceData> // key from value
+    readonly sources: Record<string, ISourceData> // key from value
 }
 
 export class ModifierEvent<T> {
@@ -48,7 +47,7 @@ export class ModifierEvent<T> {
         const variables: Record<string, unknown> = {}
         for (const handler of Object.values(this.subscribers)) {
             const cond = this.properties.conditions[handler.key]
-            if (handler.target.data.checkCondition(properties) && (cond === undefined || cond.evaluate(properties, choices))) {
+            if (handler.data.checkCondition(properties) && (cond === undefined || cond.evaluate(properties, choices))) {
                 value = handler.apply(value, choices, properties, variables)
             }
         }
@@ -78,6 +77,8 @@ class Modifier {
     public readonly abilityThrownWeaponDamageBonus = new ModifierEvent<number>(this.properties)
     public readonly abilityChargesBonus = new ModifierEvent<number>(this.properties)
     public readonly ac = new ModifierEvent<number>(this.properties)
+    public readonly health = new ModifierEvent<number>(this.properties)
+
     public readonly abilityScores: Record<Attribute, ModifierEvent<number>> = {
         [Attribute.STR]: new ModifierEvent<number>(this.properties),
         [Attribute.DEX]: new ModifierEvent<number>(this.properties),
@@ -117,10 +118,26 @@ class Modifier {
         [Skill.Survival]: new ModifierEvent<number>(this.properties)
     }
 
+    public readonly senses: Record<Sense, ModifierEvent<number>> = {
+        [Sense.BlindSight]: new ModifierEvent<number>(this.properties),
+        [Sense.DarkVision]: new ModifierEvent<number>(this.properties),
+        [Sense.TremorSense]: new ModifierEvent<number>(this.properties),
+        [Sense.TrueSight]: new ModifierEvent<number>(this.properties)
+    }
+
+    public readonly speeds: Record<MovementType, ModifierEvent<number>> = {
+        [MovementType.Burrow]: new ModifierEvent<number>(this.properties),
+        [MovementType.Climb]: new ModifierEvent<number>(this.properties),
+        [MovementType.Fly]: new ModifierEvent<number>(this.properties),
+        [MovementType.Hover]: new ModifierEvent<number>(this.properties),
+        [MovementType.Swim]: new ModifierEvent<number>(this.properties),
+        [MovementType.Walk]: new ModifierEvent<number>(this.properties)
+    }
+
     public readonly multiAttack = new ModifierEvent<number>(this.properties)
     public readonly spellAttack = new ModifierEvent<number>(this.properties)
     public readonly spellSave = new ModifierEvent<number>(this.properties)
-    public readonly abilities = new ModifierEvent<Array<string | ObjectId>>(this.properties)
+    public readonly abilities = new ModifierEvent<Record<string, string | ObjectId>>(this.properties)
     public readonly modifiers = new ModifierEvent<Record<string, ObjectId>>(this.properties)
     public readonly spells = new ModifierEvent<ObjectId[]>(this.properties)
     public readonly advantages = new ModifierEvent<Partial<Record<AdvantageBinding, readonly ISourceBinding[]>>>(this.properties)
@@ -130,8 +147,6 @@ class Modifier {
     public readonly damageImmunities = new ModifierEvent<Partial<Record<DamageBinding, readonly ISourceBinding[]>>>(this.properties)
     public readonly conditionImmunities = new ModifierEvent<Partial<Record<ConditionBinding, readonly ISourceBinding[]>>>(this.properties)
     public readonly spellAttribute = new ModifierEvent<OptionalAttribute>(this.properties)
-    public readonly senses = new ModifierEvent<Partial<Record<Sense, number>>>(this.properties)
-    public readonly speed = new ModifierEvent<Partial<Record<MovementType, number>>>(this.properties)
     public readonly size = new ModifierEvent<SizeType>(this.properties)
     public readonly proficienciesSave = new ModifierEvent<Partial<Record<Attribute, ProficiencyLevel>>>(this.properties)
     public readonly proficienciesSkill = new ModifierEvent<Partial<Record<Skill, ProficiencyLevel>>>(this.properties)
@@ -166,10 +181,31 @@ class Modifier {
         this.properties.choices[key] = choice
     }
 
-    public addSource(key: string, type: ModifierSourceType, source: string): void {
+    public addSource(key: string, type: SourceType, source: string | ObjectId): void {
         if (!(key in this.properties.sources)) {
             this.properties.sources[key] = { type: type, key: source }
         }
+    }
+
+    public findSourceOfType(key: string, type: SourceType): ISourceData | null {
+        while (key in this.properties.sources) {
+            const source = this.properties.sources[key]
+            if (source.type === type) {
+                return source
+            } else {
+                key = source.key
+            }
+        }
+        return null
+    }
+
+    public findSource(key: string): ISourceData | null {
+        let source: ISourceData | null = null
+        while (key in this.properties.sources) {
+            source = this.properties.sources[key]
+            key = source.key
+        }
+        return source
     }
 
     public subscribe(modifier: ModifierDocument, key?: string): void {

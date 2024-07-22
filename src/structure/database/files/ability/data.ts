@@ -1,3 +1,4 @@
+import type { AbilityType } from './common'
 import { isEnum, isObjectId, isRecord, isString, keysOf } from 'utils'
 import { ActionType } from 'structure/dnd'
 import EmptyToken from 'structure/language/tokens/empty'
@@ -11,6 +12,7 @@ import type { IConditionProperties } from 'types/database/condition'
 import type { TokenContext } from 'types/language'
 
 abstract class AbilityDataBase implements IAbilityDataBase {
+    public abstract readonly type: AbilityType
     public readonly name: string
     public readonly description: string
     public readonly notes: string
@@ -18,7 +20,7 @@ abstract class AbilityDataBase implements IAbilityDataBase {
     // Charges
     public readonly charges: Record<string, ChargesData>
     // Modifiers
-    readonly modifiers: ObjectId[]
+    public readonly modifiers: ObjectId[]
 
     public constructor(data: Simplify<IAbilityDataBase>) {
         this.name = data.name ?? AbilityDataBase.properties.name.value
@@ -43,7 +45,7 @@ abstract class AbilityDataBase implements IAbilityDataBase {
         }
     }
 
-    public static properties: DataPropertyMap<IAbilityDataBase, AbilityDataBase> = {
+    public static properties: Omit<DataPropertyMap<IAbilityDataBase, AbilityDataBase>, 'type'> = {
         name: {
             value: '',
             validate: isString

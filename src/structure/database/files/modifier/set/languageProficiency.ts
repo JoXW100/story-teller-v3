@@ -1,5 +1,4 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
-import type ModifierDocument from '..'
 import type Modifier from '../modifier'
 import { createMultipleChoiceData, createDefaultChoiceData, validateChoiceData, simplifyMultipleChoiceData } from '../../../choice'
 import { asEnum, isEnum, isNumber } from 'utils'
@@ -38,7 +37,7 @@ class ModifierSetLanguageProficiencyData extends ModifierSetDataBase implements 
         }
     }
 
-    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+    public override apply(modifier: Modifier, key: string): void {
         if (this.proficiency.isChoice) {
             modifier.addChoice({
                 source: this,
@@ -50,7 +49,6 @@ class ModifierSetLanguageProficiencyData extends ModifierSetDataBase implements 
         }
         modifier.proficienciesLanguage.subscribe({
             key: key,
-            target: self,
             data: this,
             apply: function (value, choices): Partial<Record<Language, ProficiencyLevelBasic>> {
                 const modifier = this.data as ModifierSetLanguageProficiencyData

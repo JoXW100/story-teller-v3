@@ -1,22 +1,21 @@
 import { useContext } from 'react'
 import { Context } from 'components/contexts/file'
 import { ElementDictionary } from 'components/elements'
-import { ClassLevel } from 'structure/dnd'
-import SubclassDocument from 'structure/database/files/subclass'
 import TextEditor from 'components/textEditor'
 import GroupComponent from './components/group'
 import LocalizedText from 'components/localizedText'
 import TextComponent from './components/text'
 import EnumComponent from './components/enum'
 import BooleanComponent from './components/boolean'
-import { getOptionType } from 'structure/optionData'
 import GroupItemComponent from './components/groupItem'
-import EditItemButtonComponent from './components/editItemButton'
-import styles from './style.module.scss'
 import LinkComponent from './components/link'
+import EditItemButtonComponent from './components/editItemButton'
+import { ClassLevel } from 'structure/dnd'
+import { getOptionType } from 'structure/optionData'
 import { DocumentType } from 'structure/database'
+import SubclassDocument from 'structure/database/files/subclass'
+import styles from './style.module.scss'
 
-const AllowedTypes = [DocumentType.Class] as const
 const SubclassDocumentEditor: React.FC = () => {
     const [context, dispatch] = useContext(Context)
 
@@ -25,15 +24,14 @@ const SubclassDocumentEditor: React.FC = () => {
     }
 
     const data = context.file.data
-
-    const [descriptionContext] = data.createContexts(ElementDictionary)
     const option = getOptionType('classLevel')
+    const [descriptionContext] = data.createContexts(ElementDictionary)
 
     return (
         <div className={styles.main}>
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
                 <TextComponent field='name' labelId='editor-name'/>
-                <LinkComponent field='parentClass' labelId='editor-parentClass' allowedTypes={AllowedTypes}/>
+                <LinkComponent field='parentClass' labelId='editor-parentClass' allowedTypes={[DocumentType.Class]}/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-levels'/>} open>
                 { Object.values(ClassLevel).map((level) => (

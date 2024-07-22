@@ -1,5 +1,4 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
-import type ModifierDocument from '..'
 import type Modifier from '../modifier'
 import { asNumber, isEnum, isNumber, isRecord, keysOf } from 'utils'
 import { getScalingValue } from 'utils/calculations'
@@ -16,8 +15,22 @@ class ModifierSetArmorClassBaseData extends ModifierSetDataBase implements IModi
 
     public constructor(data: Simplify<IModifierSetArmorClassBaseData>) {
         super(data)
-        this.values = data.values ?? ModifierSetArmorClassBaseData.properties.values.value
-        this.maxValues = data.maxValues ?? ModifierSetArmorClassBaseData.properties.maxValues.value
+        this.values = ModifierSetArmorClassBaseData.properties.values.value
+        if (data.values !== undefined) {
+            for (const type of keysOf(data.values)) {
+                if (isEnum(type, ScalingType)) {
+                    this.values[type] = asNumber(data.values[type], 0)
+                }
+            }
+        }
+        this.maxValues = ModifierSetArmorClassBaseData.properties.maxValues.value
+        if (data.maxValues !== undefined) {
+            for (const type of keysOf(data.maxValues)) {
+                if (isEnum(type, ScalingType)) {
+                    this.maxValues[type] = asNumber(data.maxValues[type], 0)
+                }
+            }
+        }
     }
 
     public static properties: DataPropertyMap<IModifierSetArmorClassBaseData, ModifierSetArmorClassBaseData> = {
@@ -39,10 +52,9 @@ class ModifierSetArmorClassBaseData extends ModifierSetDataBase implements IModi
         }
     }
 
-    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+    public override apply(modifier: Modifier, key: string): void {
         modifier.ac.subscribe({
             key: key,
-            target: self,
             data: this,
             apply: function (_, _1, properties, variables): number {
                 const modifier = this.data as ModifierSetArmorClassBaseData

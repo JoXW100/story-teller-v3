@@ -545,6 +545,52 @@ class FileCollection {
     }
 
     /**
+     * Gets subscribed subraces to the given class
+     * @param userId The Auth0 sub of the user
+     * @param storyId The story to fetch subraces for
+     * @param raceId The id of the race to get subraces to
+     * @returns The subscribed subrace documents, or an error message
+     */
+    async getSubraces(userId: string, storyId: ObjectId, raceId: ObjectId): Promise<DBResponse<IDatabaseFile[]>> {
+        try {
+            const result = await this.collection.aggregate<IDatabaseFile>([
+                {
+                    $match: {
+                        _userId: userId,
+                        _storyId: storyId,
+                        type: DocumentFileType.Subrace,
+                        'data.parentClass': String(raceId)
+                    } satisfies KeysOfTwo<IDatabaseFile, object>
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        id: '$_id',
+                        storyId: '$_storyId',
+                        type: '$type',
+                        name: '$name',
+                        isOwner: { $eq: ['$_userId', userId] },
+                        dateCreated: '$dateCreated',
+                        dateUpdated: '$dateUpdated',
+                        data: { $ifNull: ['$data', {}] },
+                        storage: { $ifNull: ['$storage', {}] }
+                    } satisfies KeysOfTwo<IDatabaseFile, object>
+                }
+            ]).toArray()
+
+            Logger.log('file.getSubraces', String(raceId), result.map(x => x.name).join(', '))
+            return success(result)
+        } catch (error) {
+            Logger.error('file.getSubraces', error)
+            if (error instanceof Error) {
+                return failure(error.message)
+            } else {
+                return failure(String(error))
+            }
+        }
+    }
+
+    /**
      * Gets subscribed custom abilities of a specific category
      * @param userId The Auth0 sub of the user
      * @param storyId The story to fetch abilities for

@@ -1,5 +1,6 @@
 import { ModifierBonusType } from '.'
 import ModifierBonusACData from './ac'
+import ModifierBonusHealthData from './health'
 import ModifierBonusMultiAttackData from './multiAttack'
 import ModifierBonusSpeedData from './speed'
 import ModifierBonusAttunementSlotsData from './attunementSlots'
@@ -16,7 +17,7 @@ import type { Simplify } from 'types'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
 import type { IModifierBonusACData, IModifierBonusData } from 'types/database/files/modifier'
 
-export type ModifierBonusData = ModifierBonusACData |
+export type ModifierBonusData = ModifierBonusACData | ModifierBonusHealthData |
 ModifierBonusAbilityScoreData | ModifierBonusSaveData | ModifierBonusSkillData |
 ModifierBonusSpellAttackData | ModifierBonusSpellSaveData |
 ModifierBonusMultiAttackData | ModifierBonusSpeedData |
@@ -26,6 +27,8 @@ ModifierBonusCritDieCountData
 const ModifierBonusDataFactory: IDatabaseFactory<IModifierBonusData, ModifierBonusData> = {
     create: function (data: Simplify<IModifierBonusData> = {}): ModifierBonusData {
         switch (data.subtype) {
+            case ModifierBonusType.Health:
+                return new ModifierBonusHealthData(data)
             case ModifierBonusType.AbilityScore:
                 return new ModifierBonusAbilityScoreData(data)
             case ModifierBonusType.Save:
@@ -67,6 +70,8 @@ const ModifierBonusDataFactory: IDatabaseFactory<IModifierBonusData, ModifierBon
         switch (type) {
             case ModifierBonusType.AC:
                 return ModifierBonusACData.properties
+            case ModifierBonusType.Health:
+                return ModifierBonusHealthData.properties
             case ModifierBonusType.AbilityScore:
                 return ModifierBonusAbilityScoreData.properties
             case ModifierBonusType.Save:

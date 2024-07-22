@@ -1,11 +1,10 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
-import type ModifierDocument from '..'
 import type Modifier from '../modifier'
 import { asNumber, isNumber, isObjectId, isString } from 'utils'
 import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IModifierAddLinkedData } from 'types/database/files/modifier'
-import { ModifierSourceType } from '../modifier'
+import { SourceType } from '../modifier'
 
 class ModifierAddLinkedData extends ModifierAddDataBase implements IModifierAddLinkedData {
     public override readonly subtype = ModifierAddType.Linked
@@ -35,7 +34,7 @@ class ModifierAddLinkedData extends ModifierAddDataBase implements IModifierAddL
         }
     }
 
-    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+    public override apply(modifier: Modifier, key: string): void {
         modifier.addChoice({
             source: this,
             type: 'linked',
@@ -44,24 +43,22 @@ class ModifierAddLinkedData extends ModifierAddDataBase implements IModifierAddL
         }, key)
         modifier.abilities.subscribe({
             key: key,
-            target: self,
             data: this,
-            apply: function (value, choices): Array<ObjectId | string> {
+            apply: function (value, choices): Record<string, ObjectId | string> {
                 const linked = this.data as ModifierAddLinkedData
                 const choice: unknown = choices[key]
                 if (!Array.isArray(choice)) {
                     return value
                 }
 
-                const res = [...value]
+                const res = { ...value }
                 for (let i = 0; i < linked.numChoices; i++) {
                     const id = choice[i]
-                    if (!isObjectId(id)) {
-                        continue
+                    if (isObjectId(id)) {
+                        const addedKey = `${key}.${id}`
+                        res[addedKey] = id
+                        modifier.addSource(addedKey, SourceType.Modifier, key)
                     }
-
-                    res.push(id)
-                    modifier.addSource(id, ModifierSourceType.Modifier, key)
                 }
 
                 return res

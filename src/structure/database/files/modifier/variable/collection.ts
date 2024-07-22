@@ -1,4 +1,3 @@
-import type ModifierDocument from '..'
 import type Modifier from '../modifier'
 import { createMultipleChoiceData, createDefaultChoiceData, validateChoiceData, simplifyMultipleChoiceData } from '../../../choice'
 import ModifierVariableDataBase, { ModifierVariableType, OperationType } from '.'
@@ -31,7 +30,7 @@ class ModifierVariableCollectionData extends ModifierVariableDataBase implements
         }
     }
 
-    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+    public override apply(modifier: Modifier, key: string): void {
         if (this.value.isChoice) {
             modifier.addChoice({
                 source: this,

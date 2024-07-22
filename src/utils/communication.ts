@@ -3,6 +3,7 @@ import DatabaseStory from 'structure/database/story'
 import { isEnum, isObjectId, keysOf } from 'utils'
 import { type DocumentFileType, DocumentType } from 'structure/database'
 import type SubclassDocument from 'structure/database/files/subclass'
+import type SubraceDocument from 'structure/database/files/subrace'
 import type DatabaseFile from 'structure/database/files'
 import FileStructure from 'structure/database/fileStructure'
 import DocumentFactory, { type DocumentTypeMap } from 'structure/database/files/factory'
@@ -257,6 +258,32 @@ abstract class Communication {
                     success: true,
                     result: response.result.map(value => {
                         const instance = DocumentFactory.createOfTypes(value, [DocumentType.Subclass])
+                        if (instance === null) {
+                            throw new Error('Validated file creation resulted in null value')
+                        }
+                        this.cache[value.id] = instance
+                        return instance
+                    })
+                }
+            }
+        }
+        return response
+    }
+
+    public static async getSubraces(storyId: ObjectId, raceId: ObjectId): Promise<DBResponse<SubraceDocument[]>> {
+        const response = await this.databaseFetch<IDatabaseFile[]>('getSubraces', 'GET', {
+            storyId: storyId,
+            raceId: raceId
+        })
+        if (response.success) {
+            if (!response.result.every(value => DocumentFactory.validate(value))) {
+                Logger.error('Communication.getSubraces', response.result)
+                return { success: false, result: 'Failed to get file, type missmatch' }
+            } else {
+                return {
+                    success: true,
+                    result: response.result.map(value => {
+                        const instance = DocumentFactory.createOfTypes(value, [DocumentType.Subrace])
                         if (instance === null) {
                             throw new Error('Validated file creation resulted in null value')
                         }

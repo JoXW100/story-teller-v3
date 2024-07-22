@@ -1,7 +1,6 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
-import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { ModifierSourceType } from '../modifier'
+import { SourceType } from '../modifier'
 import { createMultipleChoiceData, createDefaultChoiceData, validateChoiceData, simplifyMultipleChoiceData } from '../../../choice'
 import { asObjectId, isNumber, isObjectId, isObjectIdOrNull } from 'utils'
 import { DocumentType } from 'structure/database'
@@ -33,7 +32,7 @@ class ModifierAddSpellData extends ModifierAddDataBase implements IModifierAddSp
         }
     }
 
-    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+    public override apply(modifier: Modifier, key: string): void {
         if (this.value.isChoice) {
             modifier.addChoice({
                 source: this,
@@ -44,16 +43,15 @@ class ModifierAddSpellData extends ModifierAddDataBase implements IModifierAddSp
             }, key)
             for (const id of this.value.value) {
                 if (id !== null) {
-                    modifier.addSource(id, ModifierSourceType.Modifier, key)
+                    modifier.addSource(id, SourceType.Modifier, key)
                 }
             }
         } else if (this.value.value !== null) {
-            modifier.addSource(this.value.value, ModifierSourceType.Modifier, key)
+            modifier.addSource(this.value.value, SourceType.Modifier, key)
         }
 
         modifier.spells.subscribe({
             key: key,
-            target: self,
             data: this,
             apply: function (value, choices): ObjectId[] {
                 const modifier = this.data as ModifierAddSpellData

@@ -153,7 +153,7 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCr
             </Elements.align>
             <Elements.align direction='v' width='100%' weight='1'>
                 <div className={styles.iconRow}>
-                    <Elements.b>Range/Area</Elements.b>
+                    <LocalizedText id='render-range-area' className='font-bold'/>
                     { data.targetIcon !== null &&
                         <Elements.icon icon={data.targetIcon} tooltips={targetIconTooltips}/>
                     }
@@ -161,7 +161,7 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCr
                 { data.targetText }
                 { data.notes.length > 0 &&
                     <>
-                        <Elements.b> Notes </Elements.b>
+                        <Elements.b>Notes </Elements.b>
                         <div className={styles.iconRow}>
                             { data.notes }
                         </div>

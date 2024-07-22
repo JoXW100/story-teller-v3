@@ -7,6 +7,7 @@ import ItemDocument from './item'
 import MapDocument from './map'
 import ModifierDocument from './modifier'
 import RaceDocument from './race'
+import SubraceDocument from './subrace'
 import SpellDocument from './spell'
 import TextDocument from './text'
 import FolderFile from './folder'
@@ -28,6 +29,7 @@ import FolderDataFactory from './folder/factory'
 import type ClassData from './class/data'
 import type TextData from './text/data'
 import type RaceData from './race/data'
+import type SubraceData from './subrace/data'
 import type MapData from './map/data'
 import type { ModifierData } from './modifier/factory'
 import type CharacterData from './character/data'
@@ -39,19 +41,21 @@ import { isEnum, isObjectId, isRecord } from 'utils'
 import { DocumentType, type DocumentFileType, FileType, validateObjectProperties, hasObjectProperties } from 'structure/database'
 import type { DataPropertyMap, IDatabaseFactory, IDatabaseFile } from 'types/database'
 import type { DocumentIDataMap, DocumentIStorageMap } from 'types/database/files/factory'
+import SubraceDataFactory from './subrace/factory'
 
 export interface DocumentDataMap {
     [DocumentType.Ability]: AbilityData
     [DocumentType.Creature]: CreatureData
     [DocumentType.Character]: CharacterData
     [DocumentType.Class]: ClassData
+    [DocumentType.Subclass]: SubclassData
     [DocumentType.Item]: ItemData
     [DocumentType.Map]: MapData
     [DocumentType.Modifier]: ModifierData
     [DocumentType.Race]: RaceData
+    [DocumentType.Subrace]: SubraceData
     [DocumentType.Spell]: SpellData
     [DocumentType.Text]: TextData
-    [DocumentType.Subclass]: SubclassData
     [FileType.Folder]: FolderData
 }
 
@@ -60,13 +64,14 @@ export interface DocumentStorageMap {
     [DocumentType.Creature]: CreatureStorage
     [DocumentType.Character]: CharacterStorage
     [DocumentType.Class]: DocumentIStorageMap[DocumentType.Class]
+    [DocumentType.Subclass]: DocumentIStorageMap[DocumentType.Subclass]
     [DocumentType.Item]: DocumentIStorageMap[DocumentType.Item]
     [DocumentType.Map]: MapStorage
     [DocumentType.Modifier]: DocumentIStorageMap[DocumentType.Modifier]
     [DocumentType.Race]: DocumentIStorageMap[DocumentType.Race]
+    [DocumentType.Subrace]: DocumentIStorageMap[DocumentType.Subrace]
     [DocumentType.Spell]: DocumentIStorageMap[DocumentType.Spell]
     [DocumentType.Text]: DocumentIStorageMap[DocumentType.Text]
-    [DocumentType.Subclass]: DocumentIStorageMap[DocumentType.Subclass]
     [FileType.Folder]: DocumentIStorageMap[FileType.Folder]
 }
 
@@ -80,6 +85,7 @@ export interface DocumentTypeMap {
     [DocumentType.Map]: MapDocument
     [DocumentType.Modifier]: ModifierDocument
     [DocumentType.Race]: RaceDocument
+    [DocumentType.Subrace]: SubraceDocument
     [DocumentType.Spell]: SpellDocument
     [DocumentType.Text]: TextDocument
     [FileType.Folder]: FolderFile
@@ -117,6 +123,8 @@ const DocumentFactory: IDocumentFactory = {
                 return new SubclassDocument({ ...data, type: data.type, data: SubclassDataFactory.create(data.data) })
             case DocumentType.Race:
                 return new RaceDocument({ ...data, type: data.type, data: RaceDataFactory.create(data.data) })
+            case DocumentType.Subrace:
+                return new SubraceDocument({ ...data, type: data.type, data: SubraceDataFactory.create(data.data) })
             case DocumentType.Item:
                 return new ItemDocument({ ...data, type: data.type, data: ItemDataFactory.create(data.data) })
             case DocumentType.Spell:
@@ -172,6 +180,8 @@ const DocumentFactory: IDocumentFactory = {
                 return SpellDataFactory
             case DocumentType.Race:
                 return RaceDataFactory
+            case DocumentType.Subrace:
+                return SubraceDataFactory
             case DocumentType.Map:
                 return MapDataFactory
             case DocumentType.Item:

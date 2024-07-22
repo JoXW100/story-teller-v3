@@ -9,6 +9,7 @@ import ItemDocumentEditor from './item'
 import MapDocumentEditor from './map'
 import ModifierDocumentEditor from './modifier'
 import RaceDocumentEditor from './race'
+import SubraceDocumentEditor from './subrace'
 import SpellDocumentEditor from './spell'
 import SubclassDocumentEditor from './subclass'
 import EffectEditor from './effect'
@@ -28,6 +29,7 @@ export const DocumentEditorMap = {
     [DocumentType.Map]: MapDocumentEditor,
     [DocumentType.Modifier]: ModifierDocumentEditor,
     [DocumentType.Race]: RaceDocumentEditor,
+    [DocumentType.Subrace]: SubraceDocumentEditor,
     [DocumentType.Spell]: SpellDocumentEditor,
     [DocumentType.Subclass]: SubclassDocumentEditor,
     [DocumentType.Text]: TextDocumentEditor,

@@ -31,6 +31,7 @@ export const DocumentRendererMap = {
     [DocumentType.Map]: { document: MapDocumentRenderer, link: DefaultRenderer },
     [DocumentType.Modifier]: { document: DefaultRenderer, link: DefaultRenderer },
     [DocumentType.Race]: { document: RaceDocumentRenderer, link: DefaultRenderer },
+    [DocumentType.Subrace]: { document: DefaultRenderer, link: DefaultRenderer },
     [DocumentType.Spell]: { document: SpellDocumentRender, link: DefaultRenderer },
     [DocumentType.Text]: { document: TextDocumentRenderer, link: DefaultRenderer }
 } satisfies Record<DocumentType, { document: React.FC, link: React.FC<{ id: ObjectId, data: any }> }>

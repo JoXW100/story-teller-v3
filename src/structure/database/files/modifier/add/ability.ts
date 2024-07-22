@@ -1,7 +1,6 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
-import type ModifierDocument from '..'
 import type Modifier from '../modifier'
-import { ModifierSourceType } from '../modifier'
+import { SourceType } from '../modifier'
 import { createDefaultChoiceData, createMultipleChoiceData, simplifyMultipleChoiceData, validateChoiceData } from '../../../choice'
 import { asObjectId, isNumber, isObjectId, isObjectIdOrNull } from 'utils'
 import { DocumentType } from 'structure/database'
@@ -33,7 +32,7 @@ class ModifierAddAbilityData extends ModifierAddDataBase implements IModifierAdd
         }
     }
 
-    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+    public override apply(modifier: Modifier, key: string): void {
         if (this.value.isChoice) {
             modifier.addChoice({
                 source: this,
@@ -44,47 +43,52 @@ class ModifierAddAbilityData extends ModifierAddDataBase implements IModifierAdd
             }, key)
             for (const id of this.value.value) {
                 if (id !== null) {
-                    modifier.addSource(id, ModifierSourceType.Modifier, key)
+                    modifier.addSource(id, SourceType.Modifier, key)
                 }
             }
         } else if (this.value.value !== null) {
-            modifier.addSource(this.value.value, ModifierSourceType.Modifier, key)
+            modifier.addSource(this.value.value, SourceType.Modifier, key)
         }
 
         modifier.abilities.subscribe({
             key: key,
-            target: self,
             data: this,
-            apply: function (value, choices): Array<ObjectId | string> {
-                const modifier = this.data as ModifierAddAbilityData
-                const existing = new Set(value)
-                if (modifier.value.isChoice) {
+            apply: function (value, choices): Record<string, ObjectId | string> {
+                const addModifier = this.data as ModifierAddAbilityData
+                if (addModifier.value.isChoice) {
                     const choice: unknown = choices[key]
                     if (!Array.isArray(choice)) {
                         return value
                     }
 
-                    if (modifier.value.value.length > 0) {
-                        for (let i = 0; i < modifier.value.numChoices; i++) {
+                    const added: Record<string, ObjectId | string> = {}
+                    if (addModifier.value.value.length > 0) {
+                        for (let i = 0; i < addModifier.value.numChoices; i++) {
                             const index = choice[i]
                             if (isNumber(index)) {
-                                const id = asObjectId(modifier.value.value[index])
+                                const id: unknown = addModifier.value.value[index]
                                 if (isObjectId(id)) {
-                                    existing.add(id)
+                                    const addedKey = `${key}.${id}`
+                                    modifier.addSource(addedKey, SourceType.Modifier, key)
+                                    added[addedKey] = id
                                 }
                             }
                         }
                     } else {
                         for (const id of choice) {
                             if (isObjectId(id)) {
-                                existing.add(id)
+                                const addedKey = `${key}.${id}`
+                                modifier.addSource(addedKey, SourceType.Modifier, key)
+                                added[addedKey] = id
                             }
                         }
                     }
 
-                    return Array.from(existing)
-                } else if (modifier.value.value !== null && !existing.has(modifier.value.value)) {
-                    return [...value, modifier.value.value]
+                    return { ...value, ...added }
+                } else if (addModifier.value.value !== null) {
+                    const addedKey = `${key}.${addModifier.value.value}`
+                    modifier.addSource(addedKey, SourceType.Modifier, key)
+                    return { ...value, [addedKey]: addModifier.value.value }
                 }
                 return value
             }

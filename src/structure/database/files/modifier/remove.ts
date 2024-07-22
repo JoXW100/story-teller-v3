@@ -1,13 +1,12 @@
-import type ModifierDocument from '.'
 import { ModifierType } from './common'
 import ModifierDataBase from './data'
 import type Modifier from './modifier'
 import { asObjectId, isObjectIdOrNull, isRecord } from 'utils'
 import { hasObjectProperties, simplifyObjectProperties, validateObjectProperties } from 'structure/database'
+import Condition, { ConditionType } from 'structure/database/condition'
 import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
 import type { IModifierRemoveData } from 'types/database/files/modifier'
-import Condition, { ConditionType } from 'structure/database/condition'
 
 export const ModifierRemoveDataFactory: IDatabaseFactory<IModifierRemoveData, ModifierRemoveData> = {
     create: function (data: Simplify<IModifierRemoveData> = {}): ModifierRemoveData {
@@ -36,10 +35,9 @@ class ModifierRemoveData extends ModifierDataBase implements IModifierRemoveData
         this.value = asObjectId(data.value) ?? ModifierRemoveData.properties.value.value
     }
 
-    public override apply(modifier: Modifier, self: ModifierDocument): void {
-        const data = self.data as ModifierRemoveData
-        if (data.value !== null) {
-            modifier.properties.conditions[data.value] = new Condition({ type: ConditionType.None, value: false })
+    public override apply(modifier: Modifier): void {
+        if (this.value !== null) {
+            modifier.properties.conditions[this.value] = new Condition({ type: ConditionType.None, value: false })
         }
     }
 

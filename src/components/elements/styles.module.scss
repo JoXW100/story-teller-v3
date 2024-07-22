@@ -218,10 +218,16 @@
 .icon {
     font:  inherit;
     display: inline-block;
-    height: 0.9em;
-    width: auto;
-    color: inherit;
-    fill: colorInGroup(second, decoration);
+    vertical-align: text-top;
+    height: 1em;
+    width: 1em;
+
+    & > svg {
+        fill: colorInGroup(second, decoration);
+        color: inherit;
+        max-width: 100%;
+        max-height: 100%;
+    }
 }
 
 .toggle {

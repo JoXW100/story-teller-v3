@@ -19,18 +19,18 @@ class FileStructure extends DatabaseObject implements IFileStructure {
         this.children = data.children.map((child) => new FileStructure(child))
     }
 
-    public updateContained(file: IFileStructure): FileStructure {
+    public updateContained(file: IFileStructure): IFileStructure {
         if (this.id === file.id) {
-            return new FileStructure(file)
+            return file
         } else {
-            return new FileStructure({
+            return {
                 id: this.id,
                 holderId: this.holderId,
                 type: this.type,
                 name: this.name,
                 open: this.open,
                 children: this.children.map((child) => child.updateContained(file))
-            })
+            }
         }
     }
 }

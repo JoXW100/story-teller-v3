@@ -1,5 +1,4 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
-import type ModifierDocument from '..'
 import type Modifier from '../modifier'
 import { createSingleChoiceData, createDefaultChoiceData, validateChoiceData, simplifySingleChoiceData } from '../../../choice'
 import { asEnum, isEnum, isNumber } from 'utils'
@@ -32,7 +31,7 @@ class ModifierSetSpellAttributeData extends ModifierSetDataBase implements IModi
         }
     }
 
-    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+    public override apply(modifier: Modifier, key: string): void {
         if (this.value.isChoice) {
             modifier.addChoice({
                 source: this,
@@ -43,7 +42,6 @@ class ModifierSetSpellAttributeData extends ModifierSetDataBase implements IModi
         }
         modifier.spellAttribute.subscribe({
             key: key,
-            target: self,
             data: this,
             apply: function (value, choices): OptionalAttribute {
                 const modifier = this.data as ModifierSetSpellAttributeData

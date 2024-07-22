@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import SpellGroups from '../spell/groups'
 import PageSelector, { type IPageSelectorData } from '../pageSelector'
 import type { FileContextDispatch } from 'components/contexts/file'
-import { asObjectId, isKeyOf, isObjectId, keysOf } from 'utils'
+import { asObjectId, isObjectId, keysOf } from 'utils'
 import { OptionalAttribute, type SpellLevel, SpellPreparationType } from 'structure/dnd'
 import Elements from 'components/elements'
 import type CharacterFacade from 'structure/database/files/character/facade'
@@ -19,10 +19,10 @@ type ClassSpellGroupsProps = React.PropsWithRef<{
 }>
 
 const ClassSpellGroups: React.FC<ClassSpellGroupsProps> = ({ facade, spells, setStorage }) => {
-    const [selectedPage, setSelectedPage] = useState<ObjectId | 'none'>('none')
+    const [selectedClass, setSelectedClass] = useState<ObjectId | null>(null)
     const pages = useMemo(() => {
         const pages: Record<ObjectId | 'none', IPageSelectorData> = {} as any
-        if (facade.spellAttribute !== OptionalAttribute.None) {
+        if (facade.spellAttribute !== OptionalAttribute.None || keysOf(facade.spells).length > 0) {
             pages.none = { key: 'render-spells' }
         }
         for (const classId of keysOf(facade.classes)) {
@@ -32,19 +32,9 @@ const ClassSpellGroups: React.FC<ClassSpellGroupsProps> = ({ facade, spells, set
         }
         return pages
     }, [facade])
-    const selectedClass = useMemo(() => isObjectId(selectedPage) && isKeyOf(selectedPage, pages)
-        ? selectedPage
-        : asObjectId(keysOf(pages).find((key) => key !== 'none'))
-    , [selectedPage, pages])
     const preparedSpells = useMemo(() => {
         const preparedSpells: Record<ObjectId, SpellData> = {}
-        if (selectedPage === 'none') {
-            for (const id of facade.spells) {
-                if (id in spells) {
-                    preparedSpells[id] = spells[id]
-                }
-            }
-        } else if (selectedClass !== null) {
+        if (selectedClass !== null) {
             const classPreparations = facade.storage.spellPreparations[selectedClass] ?? {}
             for (const key of keysOf(classPreparations)) {
                 const preparation = classPreparations[key]
@@ -60,46 +50,70 @@ const ClassSpellGroups: React.FC<ClassSpellGroupsProps> = ({ facade, spells, set
                         break
                 }
             }
+        } else {
+            for (const id of facade.spells) {
+                if (id in spells) {
+                    preparedSpells[id] = spells[id]
+                }
+            }
         }
         return preparedSpells
-    }, [facade.spells, facade.storage.spellPreparations, selectedClass, selectedPage, spells])
+    }, [facade.spells, facade.storage.spellPreparations, selectedClass, spells])
     const spellSlots = useMemo(() => {
-        if (selectedPage === 'none') {
-            return facade.spellSlots
-        } else if (selectedClass !== null) {
+        if (selectedClass !== null) {
             return facade.getClassSpellSlots(selectedClass)
+        } else {
+            return facade.spellSlots
         }
-        return {}
-    }, [facade, selectedClass, selectedPage])
+    }, [facade, selectedClass])
     const expendedSlots = useMemo(() => {
-        if (selectedPage === 'none') {
+        if (selectedClass !== null) {
+            return facade.storage.preparationsExpendedSlots[selectedClass] ?? {}
+        } else {
             return facade.storage.spellsExpendedSlots
         }
-        if (selectedClass === null) {
-            return {}
-        }
-        return facade.storage.preparationsExpendedSlots[selectedClass] ?? {}
-    }, [facade.storage.preparationsExpendedSlots, facade.storage.spellsExpendedSlots, selectedClass, selectedPage])
+    }, [facade.storage.preparationsExpendedSlots, facade.storage.spellsExpendedSlots, selectedClass])
     const modifiedStats = useMemo<ICreatureStats>(() => {
-        if (selectedPage !== 'none' && selectedClass !== null) {
+        if (selectedClass !== null) {
             return { ...facade.getStats(), casterLevel: Number(facade.classes[selectedClass]), spellAttribute: facade.getClassSpellAttribute(selectedClass) }
+        } else {
+            return facade.getStats()
         }
-        return facade.getStats()
-    }, [selectedPage, selectedClass, facade])
+    }, [selectedClass, facade])
+
+    useEffect(() => {
+        const classIds = keysOf(pages)
+        const classId = classIds.find(isObjectId)
+        setSelectedClass((selected) => {
+            if (selected !== null && classIds.includes(selected)) {
+                return selected
+            } else {
+                return classId ?? null
+            }
+        })
+    }, [facade.classes, pages])
 
     const handleSetExpendedSlots = (slots: Partial<Record<SpellLevel, number>>): void => {
-        if (selectedPage !== 'none' && selectedClass !== null) {
+        if (selectedClass !== null) {
             setStorage('preparationsExpendedSlots', { ...facade.storage, [selectedClass]: slots })
         } else {
             setStorage('spellsExpendedSlots', slots)
         }
     }
 
+    const handlePageChanged = (page: keyof typeof pages): void => {
+        setSelectedClass(asObjectId(page))
+    }
+
+    if (selectedClass === null && keysOf(preparedSpells).length < 1) {
+        return null
+    }
+
     return (
         <>
             { Object.keys(pages).length > 1 &&
                 <>
-                    <PageSelector pages={pages} selected={selectedPage ?? selectedClass} setSelected={setSelectedPage}/>
+                    <PageSelector pages={pages} selected={selectedClass ?? 'none'} setSelected={handlePageChanged}/>
                     <Elements.line width='2px'/>
                 </>
             }

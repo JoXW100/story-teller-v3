@@ -1,4 +1,3 @@
-import type ModifierDocument from '.'
 import type Modifier from './modifier'
 import ModifierDataBase from './data'
 import { ModifierType } from './common'
@@ -48,13 +47,13 @@ class ModifierGroupData extends ModifierDataBase implements IModifierGroupData {
         }
     }
 
-    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+    public override apply(modifier: Modifier, key: string): void {
         const modifierKeys = keysOf(this.modifiers)
         for (let i = 0; i < modifierKeys.length; i++) {
             const name = modifierKeys[i]
             const source = this.modifiers[name]
             const innerKey = `${key}.${name}`
-            source.apply(modifier, self, innerKey)
+            source.apply(modifier, innerKey)
             const conditions: Condition[] = [
                 this.condition,
                 new Condition({

@@ -1,6 +1,7 @@
 import type CharacterData from './data'
 import type CharacterStorage from './storage'
 import type RaceData from '../race/data'
+import type SubraceData from '../subrace/data'
 import type ClassData from '../class/data'
 import type SubclassData from '../subclass/data'
 import type Modifier from '../modifier/modifier'
@@ -8,11 +9,11 @@ import type { ItemData } from '../item/factory'
 import CreatureFacade from '../creature/facade'
 import { LevelModifyType } from '../class/levelData'
 import type ClassLevelData from '../class/levelData'
-import { ModifierSourceType } from '../modifier/modifier'
+import { SourceType } from '../modifier/modifier'
 import ItemArmorData from '../item/armor'
-import { isKeyOf, keysOf } from 'utils'
+import { asNumber, isKeyOf, keysOf } from 'utils'
 import { getMaxProficiencyLevel, getMaxSpellLevel, getPreviousClassLevels } from 'utils/calculations'
-import { type ClassLevel, type CreatureType, type Language, type Sense, type SizeType, ArmorType, MovementType, SpellLevel, type Attribute, type ProficiencyLevel, type ToolType, type WeaponTypeValue, OptionalAttribute, AdvantageBinding, ProficiencyLevelBasic } from 'structure/dnd'
+import { type ClassLevel, type CreatureType, type Language, type SizeType, ArmorType, MovementType, Sense, SpellLevel, type Attribute, type ProficiencyLevel, type ToolType, type WeaponTypeValue, OptionalAttribute, AdvantageBinding, ProficiencyLevelBasic } from 'structure/dnd'
 import type { ObjectId } from 'types'
 import type { ICharacterData } from 'types/database/files/character'
 import type { IConditionProperties } from 'types/database/condition'
@@ -22,15 +23,17 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
     public override readonly data: CharacterData
     public override readonly storage: CharacterStorage
     public readonly raceData: RaceData | null
+    public readonly subraceData: SubraceData | null
     public readonly classesData: Record<ObjectId, ClassData>
     public readonly subclassesData: Record<ObjectId, SubclassData>
     public readonly itemsData: Record<ObjectId, ItemData>
 
-    constructor(data: CharacterData, storage: CharacterStorage, modifier: Modifier, raceData: RaceData | null = null, classesData: Record<ObjectId, ClassData> = {}, subclassesData: Record<ObjectId, SubclassData> = {}, itemsData: Record<ObjectId, ItemData> = {}, properties: Partial<IConditionProperties> = {}) {
+    constructor(data: CharacterData, storage: CharacterStorage, modifier: Modifier, raceData: RaceData | null = null, subraceData: SubraceData | null = null, classesData: Record<ObjectId, ClassData> = {}, subclassesData: Record<ObjectId, SubclassData> = {}, itemsData: Record<ObjectId, ItemData> = {}, properties: Partial<IConditionProperties> = {}) {
         super(data, storage, modifier, properties)
         this.data = data
         this.storage = storage
         this.raceData = raceData
+        this.subraceData = subraceData
         this.classesData = classesData
         this.subclassesData = subclassesData
         this.itemsData = itemsData
@@ -94,31 +97,27 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
         }
     }
 
-    public get speed(): Record<MovementType, number> {
-        const result = {
-            [MovementType.Walk]: 0,
-            [MovementType.Burrow]: 0,
-            [MovementType.Climb]: 0,
-            [MovementType.Fly]: 0,
-            [MovementType.Hover]: 0,
-            [MovementType.Swim]: 0
-        }
-        const speed = this.modifier.speed.call(this.raceData === null
-            ? { ...this.data.speed }
-            : { ...this.raceData.speed, ...this.data.speed }
-        , this.properties, this.storage.choices)
-        for (const type of keysOf(speed)) {
-            result[type] = speed[type]!
+    public get speed(): Partial<Record<MovementType, number>> {
+        const result: Partial<Record<MovementType, number>> = {}
+        for (const type of Object.values(MovementType)) {
+            const value = this.modifier.speeds[type].call(asNumber(this.data.speed[type], 0) + asNumber(this.raceData?.speed[type], 0), this.properties, this.storage.choices)
+            console.log('speed', type, value, this.modifier.speeds[type])
+            if (value > 0) {
+                result[type] = value
+            }
         }
         return result
     }
 
     public override get senses(): Partial<Record<Sense, number>> {
-        if (this.raceData === null) {
-            return this.modifier.senses.call(this.data.senses, this.properties, this.storage.choices)
-        } else {
-            return this.modifier.senses.call({ ...this.raceData.senses, ...this.data.senses }, this.properties, this.storage.choices)
+        const result: Partial<Record<Sense, number>> = {}
+        for (const sense of Object.values(Sense)) {
+            const value = this.modifier.senses[sense].call(asNumber(this.data.senses[sense], 0) + asNumber(this.raceData?.senses[sense], 0), this.properties, this.storage.choices)
+            if (value > 0) {
+                result[sense] = value
+            }
         }
+        return result
     }
 
     public get gender(): string {
@@ -251,6 +250,11 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
                 abilities.push(ability)
             }
         }
+        if (this.subraceData !== null) {
+            for (const ability of this.subraceData.abilities) {
+                abilities.push(ability)
+            }
+        }
         for (const id of keysOf(this.data.classes)) {
             const classLevel = this.data.classes[id]
             const classData = this.classesData[id]
@@ -269,7 +273,7 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
                 }
             }
         }
-        return this.modifier.abilities.call(abilities, this.properties, this.storage.choices)
+        return abilities
     }
 
     public get attunementSlots(): number {
@@ -341,7 +345,7 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
     }
 
     public override getAbilityClassLevel(key: string): number {
-        const source = this.findSourceOfType(key, ModifierSourceType.Class)
+        const source = this.modifier.findSourceOfType(key, SourceType.Class)
         if (source !== null && isKeyOf(source.key, this.data.classes)) {
             return Number(this.data.classes[source.key])
         }

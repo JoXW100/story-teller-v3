@@ -18,7 +18,7 @@ export type Area = AreaNone | AreaLine | AreaCone | AreaSquare | AreaRectangle |
 AreaCube | AreaCuboid | AreaSphere | AreaCylinder
 
 const AreaFactory: IDatabaseFactory<IArea, Area> = {
-    create: function (data: Simplify<IArea>): Area {
+    create: function (data: Simplify<IArea> = {}): Area {
         switch (data.type) {
             case AreaType.Line:
                 return new AreaLine(data)

@@ -7,8 +7,8 @@ export const IconComponent: React.FC<IconElementParams> = ({ icon, tooltips }) =
     const IconComponent = Icons[icon]
     return (
         <Tooltip title={tooltips} disabled={tooltips === null}>
-            <span>
-                <IconComponent className={styles.icon}/>
+            <span className={styles.icon}>
+                <IconComponent/>
             </span>
         </Tooltip>
     )

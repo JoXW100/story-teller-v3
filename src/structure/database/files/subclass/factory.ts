@@ -18,7 +18,7 @@ const SubclassDataFactory: IDatabaseFactory<ISubclassData, SubclassData> = {
     simplify: function (data: ISubclassData): Simplify<ISubclassData> {
         return simplifyObjectProperties(data, this.properties(data))
     },
-    properties: function (data: unknown): DataPropertyMap<ISubclassData, SubclassData> {
+    properties: function (): DataPropertyMap<ISubclassData, SubclassData> {
         return SubclassData.properties
     }
 }

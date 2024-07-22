@@ -6,8 +6,8 @@ import EffectConditionCheck from './check'
 import { hasObjectProperties, simplifyObjectProperties, validateObjectProperties } from 'structure/database'
 import { isEnum, isRecord } from 'utils'
 import type { Simplify } from 'types'
-import type { IEffectCondition } from 'types/database/effectCondition'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
+import type { IEffectCondition } from 'types/database/effectCondition'
 
 export type EffectCondition = EffectConditionNone | EffectConditionHit | EffectConditionSave | EffectConditionCheck
 

@@ -1,5 +1,4 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
-import type ModifierDocument from '..'
 import type Modifier from '../modifier'
 import { createMultipleChoiceData, createDefaultChoiceData, validateChoiceData, simplifyMultipleChoiceData } from '../../../choice'
 import { asEnum, isEnum, isNumber } from 'utils'
@@ -38,7 +37,7 @@ class ModifierSetArmorProficiencyData extends ModifierSetDataBase implements IMo
         }
     }
 
-    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+    public override apply(modifier: Modifier, key: string): void {
         if (this.proficiency.isChoice) {
             modifier.addChoice({
                 source: this,
@@ -50,7 +49,6 @@ class ModifierSetArmorProficiencyData extends ModifierSetDataBase implements IMo
         }
         modifier.proficienciesArmor.subscribe({
             key: key,
-            target: self,
             data: this,
             apply: function (value, choices): Partial<Record<ArmorType, ProficiencyLevelBasic>> {
                 const modifier = this.data as ModifierSetArmorProficiencyData

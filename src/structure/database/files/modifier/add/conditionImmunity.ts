@@ -1,5 +1,4 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
-import type ModifierDocument from '..'
 import type Modifier from '../modifier'
 import { createDefaultChoiceData, createSingleChoiceData, simplifySingleChoiceData, validateChoiceData } from '../../../choice'
 import { asEnum, isEnum, isNumber, isString } from 'utils'
@@ -39,7 +38,7 @@ class ModifierAddConditionImmunityData extends ModifierAddDataBase implements IM
         }
     }
 
-    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+    public override apply(modifier: Modifier, key: string): void {
         if (this.binding.isChoice) {
             modifier.addChoice({
                 source: this,
@@ -50,20 +49,19 @@ class ModifierAddConditionImmunityData extends ModifierAddDataBase implements IM
         }
         modifier.conditionImmunities.subscribe({
             key: key,
-            target: self,
             data: this,
             apply: function (value, choices): Partial<Record<ConditionBinding, readonly ISourceBinding[]>> {
-                const modifier = this.data as ModifierAddConditionImmunityData
+                const self = this.data as ModifierAddConditionImmunityData
                 let choice: ConditionBinding | null
-                if (modifier.binding.isChoice) {
+                if (self.binding.isChoice) {
                     const index: unknown = choices[key]
                     if (!isNumber(index)) {
                         return value
                     }
 
-                    choice = asEnum(modifier.binding.value[index], ConditionBinding)
+                    choice = asEnum(self.binding.value[index], ConditionBinding)
                 } else {
-                    choice = modifier.binding.value
+                    choice = self.binding.value
                 }
 
                 if (choice === null) {
@@ -71,8 +69,8 @@ class ModifierAddConditionImmunityData extends ModifierAddDataBase implements IM
                 }
 
                 value[choice] = [...(value[choice] ?? []), {
-                    source: self.id,
-                    description: modifier.notes
+                    source: modifier.findSource(key),
+                    description: self.notes
                 } satisfies ISourceBinding]
                 return value
             }

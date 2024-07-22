@@ -2,6 +2,7 @@ import Elements from 'components/elements'
 import LocalizedText from 'components/localizedText'
 import type { AdvantageBinding } from 'structure/dnd'
 import type { ISourceBinding } from 'types/database/files/creature'
+import { isObjectId } from 'utils'
 
 type SourceTooltipsParams = React.PropsWithRef<{
     type: 'advantage' | 'disadvantage'
@@ -17,8 +18,10 @@ const SourceTooltips: React.FC<SourceTooltipsParams> = ({ type, binding, values 
             { bindings?.map((binding, index) => (
                 <div key={index}>
                     { binding.description }
-                    { binding.source !== null && <LocalizedText id='editor-sourceTooltips-source'/>}
-                    { binding.source !== null && <Elements.linkTitle fileId={binding.source} newTab={true}/>}
+                    { isObjectId(binding.source?.key) && <>
+                        <LocalizedText id='editor-sourceTooltips-source'/>
+                        <Elements.linkTitle fileId={binding.source.key} newTab={true}/>
+                    </>}
                 </div>
             ))}
         </span>

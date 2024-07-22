@@ -179,6 +179,7 @@ $sizeExtra: ($size + 1px) * 8 - 1px;
 }
 
 .dropdownItem {
+    @include fontNoLineBreak;
     height: $size !important;
 }
 

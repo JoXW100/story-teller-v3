@@ -1,5 +1,4 @@
 import ModifierSetDataBase, { ModifierSetType } from '.'
-import type ModifierDocument from '..'
 import type Modifier from '../modifier'
 import { asEnum, isEnum, isNumber } from 'utils'
 import { getMaxProficiencyLevel } from 'utils/calculations'
@@ -39,7 +38,7 @@ class ModifierSetSkillProficiencyData extends ModifierSetDataBase implements IMo
         }
     }
 
-    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+    public override apply(modifier: Modifier, key: string): void {
         if (this.proficiency.isChoice) {
             modifier.addChoice({
                 source: this,
@@ -51,7 +50,6 @@ class ModifierSetSkillProficiencyData extends ModifierSetDataBase implements IMo
         }
         modifier.proficienciesSkill.subscribe({
             key: key,
-            target: self,
             data: this,
             apply: function (value, choices): Partial<Record<Skill, ProficiencyLevel>> {
                 const modifier = this.data as ModifierSetSkillProficiencyData

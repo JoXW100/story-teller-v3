@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import PageSelector, { type IPageSelectorData } from '../pageSelector'
 import SpellList from './spellList'
 import type { FileContextDispatch } from 'components/contexts/file'
@@ -6,7 +6,7 @@ import CollapsibleGroup from 'components/layouts/collapsibleGroup'
 import LocalizedText from 'components/localizedText'
 import Elements from 'components/elements'
 import LinkInput from 'components/layouts/linkInput'
-import { isKeyOf, isObjectId, keysOf } from 'utils'
+import { isObjectId, keysOf } from 'utils'
 import { getSpellLevelValue } from 'utils/calculations'
 import { useLocalizedText } from 'utils/hooks/localizedText'
 import { DocumentFileType } from 'structure/database'
@@ -28,7 +28,7 @@ const allowedTypes = [DocumentFileType.Spell]
 
 const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells, setStorage }) => {
     const [spellInput, setSpellInput] = useState<string>('')
-    const [selectedPage, setSelectedPage] = useState<ObjectId | null>(null)
+    const [selectedClass, setSelectedClass] = useState<ObjectId | null>(null)
     const pages = useMemo(() => {
         const pages: Record<ObjectId, IPageSelectorData> = {}
         for (const classId of keysOf(facade.classes)) {
@@ -38,10 +38,6 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
         }
         return pages
     }, [facade])
-    const selectedClass = useMemo<ObjectId | null>(() => isObjectId(selectedPage) && isKeyOf(selectedPage, pages)
-        ? selectedPage
-        : keysOf(pages)[0] ?? null
-    , [selectedPage, pages])
     const [knownCantrips, knownSpells, preparedSpells, numKnownCantrips, numKnownSpells, numPreparedSpells] = useMemo(() => {
         const knownCantrips: Record<ObjectId, SpellData> = {}
         const knownSpells: Record<ObjectId, SpellData> = {}
@@ -88,6 +84,18 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
         return facade.getClassSpellSlotInfo(selectedClass)
     }, [facade, selectedClass])
     const addSpellPlaceholder = useLocalizedText('render-spellPage-addSpell-placeholder')
+
+    useEffect(() => {
+        const classIds = keysOf(pages)
+        const classId = classIds.find(isObjectId)
+        setSelectedClass((selected) => {
+            if (selected !== null && classIds.includes(selected)) {
+                return selected
+            } else {
+                return classId ?? null
+            }
+        })
+    }, [facade.classes, pages])
 
     const handleRemoveSpell = (spellId: ObjectId): void => {
         if (selectedClass !== null && selectedClass in facade.storage.spellPreparations) {
@@ -149,11 +157,11 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
         <>
             { Object.keys(pages).length > 1 &&
                 <>
-                    <PageSelector pages={pages} selected={selectedPage} setSelected={setSelectedPage}/>
+                    <PageSelector pages={pages} selected={selectedClass} setSelected={setSelectedClass}/>
                     <Elements.line width='2px'/>
                 </>
             }
-            { selectedClass !== null && selectedClass in facade.classesData &&
+            { selectedClass !== null &&
                 <>
                     <SpellList
                         header={<LocalizedText id='render-spellList-knownSpells' args={[numKnownSpells, learnedSlots]}/>}

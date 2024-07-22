@@ -12,6 +12,7 @@ export enum DocumentType {
     Class = 'cla',
     Subclass = 'scl',
     Race = 'rce',
+    Subrace = 'sre',
     Item = 'ite',
     Map = 'map',
     Modifier = 'mod',

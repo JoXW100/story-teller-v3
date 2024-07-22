@@ -1,9 +1,11 @@
 import type { IconType } from 'assets/icons'
-import { asEnum, isBoolean, isEnum, isNumber, isString } from 'utils'
+import { asEnum, isBoolean, isEnum, isNumber, isRecord, isString } from 'utils'
 import { getSpellLevelValue } from 'utils/calculations'
-import { CastingTime, Duration, MagicSchool, SpellLevel } from 'structure/dnd'
+import { CastingTime, Duration, MagicSchool, SpellLevel, type TargetType } from 'structure/dnd'
+import type { EffectCondition } from 'structure/database/effectCondition/factory'
 import { getOptionType } from 'structure/optionData'
 import EmptyToken from 'structure/language/tokens/empty'
+import EffectFactory, { type Effect, simplifyEffectRecord } from 'structure/database/effect/factory'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
@@ -23,6 +25,9 @@ abstract class SpellDataBase implements ISpellDataBase {
     public readonly duration: Duration
     public readonly durationCustom: string
     public readonly durationValue: number
+    // Target
+    abstract readonly target: TargetType
+    abstract readonly condition: EffectCondition
     // Properties
     public readonly allowUpcast: boolean
     public readonly ritual: boolean
@@ -31,6 +36,8 @@ abstract class SpellDataBase implements ISpellDataBase {
     public readonly componentSomatic: boolean
     public readonly componentMaterial: boolean
     public readonly materials: string
+    // Effects
+    public readonly effects: Record<string, Effect>
 
     public constructor(data: Simplify<ISpellDataBase>) {
         this.name = data.name ?? SpellDataBase.properties.name.value
@@ -40,19 +47,43 @@ abstract class SpellDataBase implements ISpellDataBase {
         this.school = asEnum(data.school, MagicSchool) ?? SpellDataBase.properties.school.value
         // Time
         this.time = data.time ?? SpellDataBase.properties.time.value
-        this.timeCustom = data.timeCustom ?? SpellDataBase.properties.timeCustom.value
-        this.timeValue = data.timeValue ?? SpellDataBase.properties.timeValue.value
+        this.timeCustom = SpellDataBase.properties.timeCustom.value
+        this.timeValue = SpellDataBase.properties.timeValue.value
+        if (this.time === CastingTime.Custom) {
+            this.timeCustom = data.timeCustom ?? this.timeCustom
+            this.timeValue = data.timeValue ?? this.timeValue
+        }
         this.duration = data.duration ?? SpellDataBase.properties.duration.value
-        this.durationCustom = data.durationCustom ?? SpellDataBase.properties.durationCustom.value
-        this.durationValue = data.durationValue ?? SpellDataBase.properties.durationValue.value
+        this.durationCustom = SpellDataBase.properties.durationCustom.value
+        this.durationValue = SpellDataBase.properties.durationValue.value
+        if (this.duration === Duration.Custom) {
+            this.timeCustom = data.timeCustom ?? this.timeCustom
+            this.timeValue = data.timeValue ?? this.timeValue
+        }
         // Properties
-        this.allowUpcast = data.allowUpcast ?? SpellDataBase.properties.allowUpcast.value
+        this.allowUpcast = SpellDataBase.properties.allowUpcast.value
+        if (this.level !== SpellLevel.Cantrip) {
+            this.allowUpcast = data.allowUpcast ?? this.allowUpcast
+        }
         this.ritual = data.ritual ?? SpellDataBase.properties.ritual.value
         this.concentration = data.concentration ?? SpellDataBase.properties.concentration.value
         this.componentVerbal = data.componentVerbal ?? SpellDataBase.properties.componentVerbal.value
         this.componentSomatic = data.componentSomatic ?? SpellDataBase.properties.componentSomatic.value
         this.componentMaterial = data.componentMaterial ?? SpellDataBase.properties.componentMaterial.value
-        this.materials = data.materials ?? SpellDataBase.properties.materials.value
+        this.materials = SpellDataBase.properties.materials.value
+        if (this.componentMaterial) {
+            this.materials = data.materials ?? this.materials
+        }
+        // Effects
+        this.effects = SpellDataBase.properties.effects.value
+        if (data.effects !== undefined) {
+            for (const key of Object.keys(data.effects)) {
+                const effect = data.effects[key]
+                if (effect !== undefined) {
+                    this.effects[key] = EffectFactory.create(effect)
+                }
+            }
+        }
     }
 
     public get levelValue(): number {
@@ -98,7 +129,7 @@ abstract class SpellDataBase implements ISpellDataBase {
     public abstract get targetText(): string
     public abstract get targetIcon(): IconType | null
 
-    public static properties: DataPropertyMap<ISpellDataBase, SpellDataBase> = {
+    public static properties: Omit<DataPropertyMap<ISpellDataBase, SpellDataBase>, 'target' | 'condition'> = {
         name: {
             value: '',
             validate: isString
@@ -172,6 +203,12 @@ abstract class SpellDataBase implements ISpellDataBase {
         materials: {
             value: '',
             validate: isString
+        },
+        // Effects
+        effects: {
+            get value() { return {} },
+            validate: (value) => isRecord(value, (key, value) => key.length > 0 && EffectFactory.validate(value)),
+            simplify: simplifyEffectRecord
         }
     }
 

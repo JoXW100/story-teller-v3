@@ -60,7 +60,6 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ id, data, open
         classLevel: classLevel,
         spellLevel: 0
     }
-
     switch (data.type) {
         case AbilityType.Skill:
             return <>

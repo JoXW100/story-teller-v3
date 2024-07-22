@@ -1,4 +1,3 @@
-import type ModifierDocument from '..'
 import type Modifier from '../modifier'
 import { createSingleChoiceData, createDefaultChoiceData, validateChoiceData, simplifySingleChoiceData } from '../../../choice'
 import ModifierVariableDataBase, { ModifierVariableType, OperationType } from '.'
@@ -31,7 +30,7 @@ class ModifierVariableNumberData extends ModifierVariableDataBase implements IMo
         }
     }
 
-    public override apply(modifier: Modifier, self: ModifierDocument, key: string): void {
+    public override apply(modifier: Modifier, key: string): void {
         if (this.value.isChoice) {
             modifier.addChoice({
                 source: this,

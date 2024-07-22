@@ -9,11 +9,12 @@ import LocalizedText from 'components/localizedText'
 import LinkInput from 'components/layouts/linkInput'
 import { ElementDictionary } from 'components/elements'
 import { asNumber, isEnum, isKeyOf, isNumber, isObjectId, keysOf } from 'utils'
-import { useAbilitiesOfCategory, useSubclasses, useFilesOfType } from 'utils/hooks/files'
+import { useAbilitiesOfCategory, useSubclasses, useFilesOfType, useSubraces } from 'utils/hooks/files'
 import { getOptionType } from 'structure/optionData'
 import type CharacterFacade from 'structure/database/files/character/facade'
 import StoryScript from 'structure/language/storyscript'
 import type ClassData from 'structure/database/files/class/data'
+import type RaceData from 'structure/database/files/race/data'
 import type DatabaseFile from 'structure/database/files'
 import type { ObjectId } from 'types'
 import type { IEditorChoiceData, IEditorDocumentChoiceData, IEditorEnumChoiceData, IEditorLinkedChoiceData, IEditorValueChoiceData } from 'types/database/choice'
@@ -55,8 +56,14 @@ type ModifierChoiceExternalItemProps = React.PropsWithRef<{
 
 type SubclassChoiceItemProps = React.PropsWithRef<{
     facade: CharacterFacade
-    id: ObjectId
+    id: ObjectId // Class id
     data: ClassData // Data of the class to find the subclass of
+}>
+
+type SubraceChoiceItemProps = React.PropsWithRef<{
+    facade: CharacterFacade
+    id: ObjectId // Race id
+    data: RaceData // Data of the race to find the subrace of
 }>
 
 function getValueArray(value: unknown, validate: (value: unknown) => boolean): unknown[] {
@@ -85,23 +92,37 @@ const ModifierChoiceEnumItem: React.FC<ModifierChoiceEnumItemProps> = ({ facade,
     const value = getValueArray(facade.storage.choices[choiceKey], (value) => isKeyOf(value, options)) as Array<keyof typeof options>
 
     const handleChange = (value: unknown): void => {
-        if (Array.isArray(value)) {
-            const indices = value.map<number>(asNumber)
-            if (!indices.some(isNaN)) {
-                dispatch.setStorage('choices', { ...facade.storage.choices, [choiceKey]: indices })
+        const choices: Record<string, unknown> = {}
+        let flag = false
+        for (const key of keysOf(facade.modifier.properties.choices)) {
+            if (key === choiceKey) {
+                if (Array.isArray(value)) {
+                    const indices = value.map<number>(asNumber)
+                    if (!indices.some(isNaN)) {
+                        flag = true
+                        choices[key] = indices
+                    }
+                } else {
+                    const index = Number(value)
+                    if (!isNaN(index)) {
+                        flag = true
+                        choices[key] = isNumber(data.numChoices) ? [index] : index
+                    }
+                }
+            } else if (key in facade.storage.choices) {
+                choices[key] = facade.storage.choices[key]
             }
-        } else {
-            const index = Number(value)
-            if (!isNaN(index)) {
-                dispatch.setStorage('choices', { ...facade.storage.choices, [choiceKey]: isNumber(data.numChoices) ? [index] : index })
-            }
+        }
+        if (flag) {
+            dispatch.setStorage('choices', choices)
         }
     }
 
     return isNumber(data.numChoices) && data.numChoices > 1
         ? <ListMenu
             type='enum'
-            itemClassName={styles.modifierChoiceItem}
+            className={styles.dropdown}
+            itemClassName={styles.dropdownItem}
             values={value}
             defaultValue={keysOf(options).find(x => !value.includes(x)) ?? 0}
             options={options}
@@ -110,7 +131,8 @@ const ModifierChoiceEnumItem: React.FC<ModifierChoiceEnumItemProps> = ({ facade,
         : <DropdownMenu
             value={value[0]}
             values={options}
-            className={styles.modifierChoiceItem}
+            className={styles.dropdown}
+            itemClassName={styles.dropdownItem}
             onChange={handleChange}/>
 }
 
@@ -131,23 +153,37 @@ const ModifierChoiceValueItem: React.FC<ModifierChoiceValueItemProps> = ({ facad
     const value = getValueArray(facade.storage.choices[choiceKey], (value) => isKeyOf(value, options)) as Array<keyof typeof options>
 
     const handleChange = (value: unknown): void => {
-        if (Array.isArray(value)) {
-            const indices = value.map<number>(asNumber)
-            if (!indices.some(isNaN)) {
-                dispatch.setStorage('choices', { ...facade.storage.choices, [choiceKey]: indices })
+        const choices: Record<string, unknown> = {}
+        let flag = false
+        for (const key of keysOf(facade.modifier.properties.choices)) {
+            if (key === choiceKey) {
+                if (Array.isArray(value)) {
+                    const indices = value.map<number>(asNumber)
+                    if (!indices.some(isNaN)) {
+                        flag = true
+                        choices[key] = indices
+                    }
+                } else {
+                    const index = Number(value)
+                    if (!isNaN(index)) {
+                        flag = true
+                        choices[key] = isNumber(data.numChoices) ? [index] : index
+                    }
+                }
+            } else if (key in facade.storage.choices) {
+                choices[key] = facade.storage.choices[key]
             }
-        } else {
-            const index = Number(value)
-            if (!isNaN(index)) {
-                dispatch.setStorage('choices', { ...facade.storage.choices, [choiceKey]: isNumber(data.numChoices) ? [index] : index })
-            }
+        }
+        if (flag) {
+            dispatch.setStorage('choices', choices)
         }
     }
 
     return isNumber(data.numChoices) && data.numChoices > 1
         ? <ListMenu
             type='enum'
-            itemClassName={styles.modifierChoiceItem}
+            className={styles.dropdown}
+            itemClassName={styles.dropdownItem}
             values={value}
             defaultValue={keysOf(options).find(x => !value.includes(x)) ?? 0}
             options={options}
@@ -156,7 +192,8 @@ const ModifierChoiceValueItem: React.FC<ModifierChoiceValueItemProps> = ({ facad
         : <DropdownMenu
             value={value[0]}
             values={options}
-            className={styles.modifierChoiceItem}
+            className={styles.dropdown}
+            itemClassName={styles.dropdownItem}
             onChange={handleChange}/>
 }
 
@@ -170,15 +207,28 @@ const ModifierSelectDocumentItem: React.FC<ModifierChoiceDocumentItemProps> = ({
     }
 
     const handleFileChange = (file: DatabaseFile | null): void => {
-        const id = file?.id ?? null
-        if (value[0] !== id) {
-            dispatch.setStorage('choices', { ...facade.storage.choices, [choiceKey]: [id] })
+        const choices: Record<string, unknown> = {}
+        let flag = false
+        for (const key of keysOf(facade.modifier.properties.choices)) {
+            if (key === choiceKey) {
+                const id = file?.id ?? null
+                if (value[0] !== id) {
+                    flag = true
+                    choices[key] = [id]
+                }
+            } else if (key in facade.storage.choices) {
+                choices[key] = facade.storage.choices[key]
+            }
+        }
+        if (flag) {
+            dispatch.setStorage('choices', choices)
         }
     }
 
     return isNumber(data.numChoices) && data.numChoices > 1
         ? <LinkListMenu
-            itemClassName={styles.modifierChoiceItem}
+            className={styles.dropdown}
+            itemClassName={styles.dropdownItem}
             values={value}
             allowedTypes={data.allowedTypes}
             onChange={handleChange}
@@ -210,23 +260,37 @@ const ModifierOptionsDocumentItem: React.FC<ModifierChoiceDocumentItemProps> = (
     const value = getValueArray(facade.storage.choices[choiceKey], (value) => isKeyOf(value, options)) as Array<keyof typeof options>
 
     const handleChange = (value: unknown): void => {
-        if (Array.isArray(value)) {
-            const indices = value.map<number>(asNumber)
-            if (!indices.some(isNaN)) {
-                dispatch.setStorage('choices', { ...facade.storage.choices, [choiceKey]: indices })
+        const choices: Record<string, unknown> = {}
+        let flag = false
+        for (const key of keysOf(facade.modifier.properties.choices)) {
+            if (key === choiceKey) {
+                if (Array.isArray(value)) {
+                    const indices = value.map<number>(asNumber)
+                    if (!indices.some(isNaN)) {
+                        flag = true
+                        choices[key] = indices
+                    }
+                } else {
+                    const index = Number(value)
+                    if (!isNaN(index)) {
+                        flag = true
+                        choices[key] = isNumber(data.numChoices) ? [index] : index
+                    }
+                }
+            } else if (key in facade.storage.choices) {
+                choices[key] = facade.storage.choices[key]
             }
-        } else {
-            const index = Number(value)
-            if (!isNaN(index)) {
-                dispatch.setStorage('choices', { ...facade.storage.choices, [choiceKey]: isNumber(data.numChoices) ? [index] : index })
-            }
+        }
+        if (flag) {
+            dispatch.setStorage('choices', choices)
         }
     }
 
     return isNumber(data.numChoices) && data.numChoices > 1
         ? <ListMenu
             type='enum'
-            itemClassName={styles.modifierChoiceItem}
+            className={styles.dropdown}
+            itemClassName={styles.dropdownItem}
             values={value}
             defaultValue={keysOf(options).find(x => !value.includes(x)) ?? 0}
             options={options}
@@ -236,6 +300,7 @@ const ModifierOptionsDocumentItem: React.FC<ModifierChoiceDocumentItemProps> = (
             value={value[0]}
             values={options}
             className={styles.modifierChoiceItem}
+            itemClassName={styles.dropdownItem}
             onChange={handleChange}/>
 }
 
@@ -265,21 +330,35 @@ const ModifierChoiceLinkedItem: React.FC<ModifierChoiceExternalItemProps> = ({ f
     const value = getValueArray(facade.storage.choices[choiceKey], (value) => isKeyOf(value, options)) as Array<keyof typeof options>
 
     const handleChange = (value: unknown): void => {
-        if (Array.isArray(value)) {
-            if (value.every((value): value is keyof typeof options => isKeyOf(value, options))) {
-                dispatch.setStorage('choices', { ...facade.storage.choices, [choiceKey]: value })
+        const choices: Record<string, unknown> = {}
+        let flag = false
+        for (const key of keysOf(facade.modifier.properties.choices)) {
+            if (key === choiceKey) {
+                if (Array.isArray(value)) {
+                    if (value.every((value): value is keyof typeof options => isKeyOf(value, options))) {
+                        flag = true
+                        choices[key] = value
+                    }
+                } else {
+                    if (isObjectId(value) && value in options) {
+                        flag = true
+                        choices[key] = isNumber(data.numChoices) ? [value] : value
+                    }
+                }
+            } else if (key in facade.storage.choices) {
+                choices[key] = facade.storage.choices[key]
             }
-        } else {
-            if (isObjectId(value) && value in options) {
-                dispatch.setStorage('choices', { ...facade.storage.choices, [choiceKey]: isNumber(data.numChoices) ? [value] : value })
-            }
+        }
+        if (flag) {
+            dispatch.setStorage('choices', choices)
         }
     }
 
     return isNumber(data.numChoices) && data.numChoices > 1
         ? <ListMenu
             type='enum'
-            itemClassName={styles.modifierChoiceItem}
+            className={styles.dropdown}
+            itemClassName={styles.dropdownItem}
             values={value}
             defaultValue={keysOf(options).find(x => !value.includes(x))!}
             options={options}
@@ -289,6 +368,7 @@ const ModifierChoiceLinkedItem: React.FC<ModifierChoiceExternalItemProps> = ({ f
             value={value[0]}
             values={options}
             className={styles.modifierChoiceItem}
+            itemClassName={styles.dropdownItem}
             onChange={handleChange}/>
 }
 
@@ -313,6 +393,19 @@ const SubclassChoiceItem: React.FC<SubclassChoiceItemProps> = ({ facade, id, dat
     const value = facade.storage.subclasses[id]
 
     const handleChange = (value: ObjectId): void => {
+        const choices: Record<string, unknown> = {}
+        let flag = false
+        for (const key of keysOf(facade.classes)) {
+            if (key === id) {
+                flag = true
+                choices[key] = value
+            } else if (key in facade.storage.subclasses) {
+                choices[key] = facade.storage.subclasses[key]
+            }
+        }
+        if (flag) {
+            dispatch.setStorage('subclasses', choices)
+        }
         if (value in options) {
             dispatch.setStorage('subclasses', { ...facade.storage.subclasses, [id]: value })
         }
@@ -323,6 +416,10 @@ const SubclassChoiceItem: React.FC<SubclassChoiceItemProps> = ({ facade, id, dat
         dispatch.setStorage('subclasses', other)
     }
 
+    if (subclasses.length < 1) {
+        return null
+    }
+
     return (
         <div className={styles.modifierChoice}>
             <Tooltip title={<LocalizedText id='render-subclass-choice-tooltips' args={[data.name]}/>}>
@@ -331,7 +428,61 @@ const SubclassChoiceItem: React.FC<SubclassChoiceItemProps> = ({ facade, id, dat
             <DropdownMenu<ObjectId>
                 value={value}
                 values={options}
-                className={styles.modifierChoiceItem}
+                className={styles.dropdown}
+                itemClassName={styles.dropdownItem}
+                onChange={handleChange}/>
+            <Tooltip title={<LocalizedText id='common-clear'/>}>
+                <button className='center-flex fill-height' onClick={handleClear}>
+                    <ClearIcon className='small-icon'/>
+                </button>
+            </Tooltip>
+        </div>
+    )
+}
+
+const SubraceChoiceItem: React.FC<SubraceChoiceItemProps> = ({ facade, id, data }) => {
+    const [, dispatch] = useContext(Context)
+    const [subraces] = useSubraces(id)
+    const options = useMemo<Record<ObjectId, React.ReactNode>>(() => {
+        const options: Record<ObjectId, React.ReactNode> = {}
+        if (data === null) {
+            return options
+        }
+
+        for (let i = 0; i < subraces.length; i++) {
+            const value = subraces[i]
+            if (value === null) {
+                continue
+            }
+            options[value.id] = value.getTitle()
+        }
+        return options
+    }, [data, subraces])
+
+    const handleChange = (value: ObjectId): void => {
+        if (value in options) {
+            dispatch.setStorage('subrace', value)
+        }
+    }
+
+    const handleClear = (): void => {
+        dispatch.setStorage('subrace', null)
+    }
+
+    if (subraces.length < 1) {
+        return null
+    }
+
+    return (
+        <div className={styles.modifierChoice}>
+            <Tooltip title={<LocalizedText id='render-subclass-choice-tooltips' args={[data.name]}/>}>
+                <b><LocalizedText id='render-subclass-choice' args={[data.name]}/></b>
+            </Tooltip>
+            <DropdownMenu<ObjectId>
+                value={facade.storage.subrace as any}
+                values={options}
+                className={styles.dropdown}
+                itemClassName={styles.dropdownItem}
                 onChange={handleChange}/>
             <Tooltip title={<LocalizedText id='common-clear'/>}>
                 <button className='center-flex fill-height' onClick={handleClear}>
@@ -389,6 +540,9 @@ const ModifierChoiceItem: React.FC<ModifierChoiceItemProps> = ({ facade, choiceK
 const CharacterChoicePage: React.FC<ChoicePageProps> = ({ facade }) => {
     const choices = facade.modifier.properties.choices
     return <>
+        { facade.race !== null && facade.raceData !== null &&
+            <SubraceChoiceItem facade={facade} id={facade.race} data={facade.raceData}/>
+        }
         { keysOf(facade.classes).map((key) => key in facade.classesData &&
             Number(facade.classesData[key].subclassLevel) <= Number(facade.classes[key]) &&
             <SubclassChoiceItem key={key} facade={facade} id={key} data={facade.classesData[key]}/>

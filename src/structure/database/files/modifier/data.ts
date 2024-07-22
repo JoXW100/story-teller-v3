@@ -1,4 +1,3 @@
-import type ModifierDocument from '.'
 import type { ModifierType } from './common'
 import type Modifier from './modifier'
 import { isString } from 'utils'
@@ -66,7 +65,7 @@ abstract class ModifierDataBase implements IModifierDataBase {
         return stringifiedObject
     }
 
-    public abstract apply(modifier: Modifier, self: ModifierDocument, key: string): void
+    public abstract apply(modifier: Modifier, key: string): void
 }
 
 export default ModifierDataBase
