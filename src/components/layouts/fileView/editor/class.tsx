@@ -49,38 +49,48 @@ const ClassDocumentEditor: React.FC = () => {
                     type='enum'
                     optionsType='attr'
                     editOptionsType='proficiencyLevel'
-                    labelId='editor-proficiencies-save' />
+                    labelId='editor-proficiencies-save'
+                    fill/>
                 <SelectionInputComponent
                     field='proficienciesTool'
                     type='enum'
                     optionsType='tool'
                     editOptionsType='proficiencyLevel'
-                    labelId='editor-proficiencies-tool' />
+                    labelId='editor-proficiencies-tool'
+                    fill/>
                 <SelectionInputComponent
                     field='proficienciesArmor'
                     type='enum'
                     optionsType='armor'
                     editOptionsType='proficiencyLevelBasic'
-                    labelId='editor-proficiencies-armor' />
+                    labelId='editor-proficiencies-armor'
+                    fill/>
                 <SelectionInputComponent
                     field='proficienciesWeapon'
                     type='enum'
                     optionsType='weaponTypeValue'
                     editOptionsType='proficiencyLevelBasic'
-                    labelId='editor-proficiencies-weapon' />
+                    labelId='editor-proficiencies-weapon'
+                    fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-spells'/>} open>
                 <EnumComponent field='spellAttribute' type='optionalAttr' labelId='editor-spellAttribute'/>
                 <GroupComponent header={<LocalizedText id='editor-header-preparedSpells'/>} open>
                     <BooleanComponent field='preparationAll' labelId='editor-preparationAll' />
                     { !data.preparationAll &&
-                        <EnumComponent field='preparationSlotsScaling' type='optionalAttr' labelId='editor-preparationSlotsScaling' />
+                        <EnumComponent
+                            field='preparationSlotsScaling'
+                            type='optionalAttr'
+                            labelId='editor-preparationSlotsScaling' />
                     }
                 </GroupComponent>
                 <GroupComponent header={<LocalizedText id='editor-header-learnedSpells'/>} open>
                     <BooleanComponent field='learnedAll' labelId='editor-learnedAll' />
                     { !data.learnedAll &&
-                        <EnumComponent field='learnedSlotsScaling' type='optionalAttr' labelId='editor-learnedSlotsScaling' />
+                        <EnumComponent
+                            field='learnedSlotsScaling'
+                            type='optionalAttr'
+                            labelId='editor-learnedSlotsScaling' />
                     }
                 </GroupComponent>
             </GroupComponent>

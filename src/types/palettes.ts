@@ -14,7 +14,6 @@ export interface Palette {
     'cla': string
     'cre': string
     'doc': string
-    'enc': string
     'spe': string
     'ite': string
     'rce': string

@@ -3,20 +3,22 @@ import Database, { failure, success } from '.'
 import { DocumentCollectionName, DocumentCollectionTestName } from './constants'
 import { isKeyOf, isRecord, keysOf } from 'utils'
 import Logger from 'utils/logger'
-import { DocumentFileType, FileType } from 'structure/database'
+import { DocumentFileType, FileType, FlagType } from 'structure/database'
 import DatabaseFile from 'structure/database/files'
 import DocumentFactory from 'structure/database/files/factory'
 import type { KeysOfTwo } from 'types'
 import type { DBResponse, IFileStructure, IDatabaseFile } from 'types/database'
 import { AbilityType } from 'structure/database/files/ability/common'
 
-interface IDBDocument {
+interface IDBFile {
+    _id: ObjectId
     _userId: string
     _storyId: ObjectId
     _holderId: ObjectId | null
     type: DocumentFileType
     name: string
-    data: unknown
+    data?: unknown
+    storage?: unknown
     dateCreated: number
     dateUpdated: number
 }
@@ -81,13 +83,13 @@ function validateUpdate(update: Record<string, unknown>, type: DocumentFileType)
 }
 
 class FileCollection {
-    public readonly collection: Collection<IDBDocument>
+    public readonly collection: Collection<IDBFile>
 
     constructor (database: Db, test: boolean) {
         const name = test
             ? DocumentCollectionTestName
             : DocumentCollectionName
-        this.collection = database.collection<IDBDocument>(name)
+        this.collection = database.collection<IDBFile>(name)
     }
 
     /**
@@ -131,7 +133,7 @@ class FileCollection {
             }
 
             const time = Date.now()
-            const request: IDBDocument = {
+            const request: Omit<IDBFile, '_id'> = {
                 _userId: userId,
                 _storyId: storyId,
                 _holderId: holderId,
@@ -142,7 +144,7 @@ class FileCollection {
                 dateUpdated: time
             }
 
-            const result = await this.collection.insertOne(request)
+            const result = await this.collection.insertOne(request as IDBFile)
 
             if (result.acknowledged) {
                 Logger.log('file.add', result.insertedId, name)
@@ -363,8 +365,9 @@ class FileCollection {
                         type: allowedTypes !== undefined && allowedTypes?.length > 0
                             ? { $in: allowedTypes }
                             : { $nin: [FileType.Root] }
-                    } satisfies KeysOfTwo<IDatabaseFile, object>
+                    }
                 },
+                ...this.getSubscribedFilter(userId),
                 {
                     $project: {
                         _id: 0,
@@ -377,7 +380,7 @@ class FileCollection {
                         dateUpdated: '$dateUpdated',
                         data: { $ifNull: ['$data', {}] },
                         storage: { $ifNull: ['$storage', {}] }
-                    } satisfies KeysOfTwo<IDatabaseFile, object>
+                    }
                 },
                 { $limit: 1 }
             ]).toArray()
@@ -420,6 +423,7 @@ class FileCollection {
                             : { $nin: [FileType.Root, FileType.Empty] }
                     } satisfies KeysOfTwo<IDatabaseFile, object>
                 },
+                ...this.getSubscribedFilter(userId),
                 {
                     $project: {
                         _id: 0,
@@ -437,7 +441,7 @@ class FileCollection {
             ]).toArray()
 
             if (result.length > 0) {
-                Logger.log('file.getMultiple', result.map(x => x.name).join(', '))
+                Logger.log('file.getMultiple', result.length)
                 return success(result)
             } else {
                 Logger.warn('file.getMultiple', null)
@@ -454,22 +458,25 @@ class FileCollection {
     }
 
     /**
-     * Gets subscribed documents from the database
+     * Gets all allowed documents from the database
      * @param userId The Auth0 sub of the user
      * @param allowedTypes The allowed typed of the files
-     * @returns The subscribed documents, or an error message
+     * @returns The allowed documents, or an error message
      */
-    async getSubscribedFiles(userId: string, allowedTypes?: DocumentFileType[]): Promise<DBResponse<IDatabaseFile[]>> {
+    async getAll(userId: string, sources: ObjectId[] = [], allowedTypes: DocumentFileType[] = []): Promise<DBResponse<IDatabaseFile[]>> {
         try {
             const result = await this.collection.aggregate<IDatabaseFile>([
                 {
                     $match: {
-                        _userId: userId,
-                        type: allowedTypes !== undefined && allowedTypes?.length > 0
+                        type: allowedTypes.length > 0
                             ? { $in: allowedTypes }
-                            : { $nin: [FileType.Root, FileType.Empty] }
+                            : { $nin: [FileType.Root, FileType.Empty] },
+                        _storyId: sources.length > 0
+                            ? { $in: sources }
+                            : undefined
                     } satisfies KeysOfTwo<IDatabaseFile, object>
                 },
+                ...this.getSubscribedFilter(userId),
                 {
                     $project: {
                         _id: 0,
@@ -486,10 +493,10 @@ class FileCollection {
                 }
             ]).toArray()
 
-            Logger.log('file.getSubscribedFiles', result.map(x => x.name).join(', '))
+            Logger.log('file.getAll', result.map(x => x.name).join(', '))
             return success(result)
         } catch (error) {
-            Logger.error('file.getSubscribedFiles', error)
+            Logger.error('file.getAll', error)
             if (error instanceof Error) {
                 return failure(error.message)
             } else {
@@ -499,23 +506,23 @@ class FileCollection {
     }
 
     /**
-     * Gets subscribed subclasses to the given class
+     * Gets subscribed sub-files to the given parent
      * @param userId The Auth0 sub of the user
-     * @param storyId The story to fetch subclasses for
-     * @param classId The id of the class to get subclasses to
-     * @returns The subscribed subclass documents, or an error message
+     * @param storyId The story to fetch sub-files for
+     * @param parentId The id of the parent file
+     * @param type The type sub-files files
+     * @returns The subscribed sub-files, or an error message
      */
-    async getSubclasses(userId: string, storyId: ObjectId, classId: ObjectId): Promise<DBResponse<IDatabaseFile[]>> {
+    async getSubFiles(userId: string, parentId: ObjectId, type: DocumentFileType): Promise<DBResponse<IDatabaseFile[]>> {
         try {
             const result = await this.collection.aggregate<IDatabaseFile>([
                 {
                     $match: {
-                        _userId: userId,
-                        _storyId: storyId,
-                        type: DocumentFileType.Subclass,
-                        'data.parentClass': String(classId)
+                        type: type,
+                        'data.parentClass': String(parentId)
                     } satisfies KeysOfTwo<IDatabaseFile, object>
                 },
+                ...this.getSubscribedFilter(userId),
                 {
                     $project: {
                         _id: 0,
@@ -532,53 +539,7 @@ class FileCollection {
                 }
             ]).toArray()
 
-            Logger.log('file.getSubclasses', String(classId), result.map(x => x.name).join(', '))
-            return success(result)
-        } catch (error) {
-            Logger.error('file.getSubclasses', error)
-            if (error instanceof Error) {
-                return failure(error.message)
-            } else {
-                return failure(String(error))
-            }
-        }
-    }
-
-    /**
-     * Gets subscribed subraces to the given class
-     * @param userId The Auth0 sub of the user
-     * @param storyId The story to fetch subraces for
-     * @param raceId The id of the race to get subraces to
-     * @returns The subscribed subrace documents, or an error message
-     */
-    async getSubraces(userId: string, storyId: ObjectId, raceId: ObjectId): Promise<DBResponse<IDatabaseFile[]>> {
-        try {
-            const result = await this.collection.aggregate<IDatabaseFile>([
-                {
-                    $match: {
-                        _userId: userId,
-                        _storyId: storyId,
-                        type: DocumentFileType.Subrace,
-                        'data.parentClass': String(raceId)
-                    } satisfies KeysOfTwo<IDatabaseFile, object>
-                },
-                {
-                    $project: {
-                        _id: 0,
-                        id: '$_id',
-                        storyId: '$_storyId',
-                        type: '$type',
-                        name: '$name',
-                        isOwner: { $eq: ['$_userId', userId] },
-                        dateCreated: '$dateCreated',
-                        dateUpdated: '$dateUpdated',
-                        data: { $ifNull: ['$data', {}] },
-                        storage: { $ifNull: ['$storage', {}] }
-                    } satisfies KeysOfTwo<IDatabaseFile, object>
-                }
-            ]).toArray()
-
-            Logger.log('file.getSubraces', String(raceId), result.map(x => x.name).join(', '))
+            Logger.log('file.getSubraces', String(parentId), result.map(x => x.name).join(', '))
             return success(result)
         } catch (error) {
             Logger.error('file.getSubraces', error)
@@ -597,18 +558,17 @@ class FileCollection {
      * @param category The category of abilities
      * @returns The subscribed ability documents, or an error message
      */
-    async getAbilitiesOfCategory(userId: string, storyId: ObjectId, category: string): Promise<DBResponse<IDatabaseFile[]>> {
+    async getAbilitiesOfCategory(userId: string, category: string): Promise<DBResponse<IDatabaseFile[]>> {
         try {
             const result = await this.collection.aggregate<IDatabaseFile>([
                 {
                     $match: {
-                        _userId: userId,
-                        _storyId: storyId,
                         type: DocumentFileType.Ability,
                         'data.type': AbilityType.Custom,
                         'data.category': category
                     } satisfies KeysOfTwo<IDatabaseFile, object>
                 },
+                ...this.getSubscribedFilter(userId),
                 {
                     $project: {
                         _id: 0,
@@ -625,10 +585,10 @@ class FileCollection {
                 }
             ]).toArray()
 
-            Logger.log('file.getFeats', result.map(x => x.name).join(', '))
+            Logger.log('file.getAbilitiesOfCategory', result.map(x => x.name).join(', '))
             return success(result)
         } catch (error) {
-            Logger.error('file.getFeats', error)
+            Logger.error('file.getAbilitiesOfCategory', error)
             if (error instanceof Error) {
                 return failure(error.message)
             } else {
@@ -648,7 +608,7 @@ class FileCollection {
             const filter = {
                 _userId: userId,
                 _id: fileId
-            } satisfies KeysOfTwo<IDBDocument, object>
+            } satisfies KeysOfTwo<IDBFile, object>
 
             const result = await this.collection.deleteOne(filter)
 
@@ -680,7 +640,7 @@ class FileCollection {
             const filter = {
                 _userId: userId,
                 _storyId: storyId
-            } satisfies KeysOfTwo<IDBDocument, object>
+            } satisfies KeysOfTwo<IDBFile, object>
 
             const result = await this.collection.deleteMany(filter)
 
@@ -731,7 +691,7 @@ class FileCollection {
      * @param storyId The id of the story
      * @returns The file structure of the given story
      */
-    async getStructure (userId: string, storyId: ObjectId): Promise<DBResponse<IFileStructure>> {
+    async getStructure(userId: string, storyId: ObjectId): Promise<DBResponse<IFileStructure>> {
         try {
             const result = (await this.collection.aggregate<IFileStructure>([
                 {
@@ -781,6 +741,31 @@ class FileCollection {
                 return failure(String(error))
             }
         }
+    }
+
+    private getSubscribedFilter(userId: string): object[] {
+        return [
+            {
+                $lookup: {
+                    from: Database.stories!.collection.collectionName,
+                    localField: '_storyId',
+                    foreignField: '_id',
+                    as: 'story'
+                }
+            },
+            { $addFields: { story: { $arrayElemAt: ['$story', 0] } } },
+            {
+                $addFields: {
+                    valid: {
+                        $or: [
+                            { $eq: ['$_userId', userId] },
+                            { $in: [FlagType.Public, '$story.flags'] }
+                        ]
+                    }
+                }
+            },
+            { $match: { valid: true } }
+        ]
     }
 }
 

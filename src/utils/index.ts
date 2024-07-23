@@ -1,5 +1,5 @@
 import type { BooleanString, Enum, ObjectId } from 'types'
-import { CalcMode, type ICalcValue } from 'structure/database'
+import { CalcMode, type CalcValue } from 'structure/database'
 
 /**
  * Excludes duplicate values from an array
@@ -96,6 +96,10 @@ export function isString(value: unknown): value is string {
     return typeof value === 'string'
 }
 
+export function isStringOrNull(value: unknown): value is string | null {
+    return value === null || typeof value === 'string'
+}
+
 export function isIntString(value: string): boolean {
     return /^[0-9]+$/.test(value)
 }
@@ -145,10 +149,10 @@ export function asObjectId(value: unknown): ObjectId | null {
  * @param value The value to verify
  * @returns True if the value is a calc value, otherwise, false
  */
-export function isCalcValue(value: unknown): value is ICalcValue {
+export function isCalcValue(value: unknown): value is CalcValue {
     return typeof value === 'object' && value !== null &&
         'mode' in value && isEnum(value.mode, CalcMode) &&
-        (('value' in value && isNumber(value.value)) || !('value' in value))
+        (!('value' in value) || isNumber(value.value))
 }
 
 export function isValidURL(value: string): boolean {

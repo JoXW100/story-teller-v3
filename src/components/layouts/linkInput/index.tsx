@@ -91,7 +91,12 @@ const LinkInput: React.FC<EditLinkInputComponentProps> = (props) => {
     }
 
     const handleSelect = (): void => {
-        openDialog('selectFile', { id: 'linkInput.selectFile', storyId: context.story.id, allowedTypes: props.allowedTypes }).onSelect((file) => {
+        openDialog('selectFile', {
+            id: 'linkInput.selectFile',
+            storyId: context.story.id,
+            allowedTypes: props.allowedTypes,
+            sources: [...context.story.sources, context.story.id]
+        }).onSelect((file) => {
             props.onChange?.(file.id)
         })
     }

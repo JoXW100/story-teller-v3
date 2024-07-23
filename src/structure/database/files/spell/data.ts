@@ -47,18 +47,20 @@ abstract class SpellDataBase implements ISpellDataBase {
         this.school = asEnum(data.school, MagicSchool) ?? SpellDataBase.properties.school.value
         // Time
         this.time = data.time ?? SpellDataBase.properties.time.value
-        this.timeCustom = SpellDataBase.properties.timeCustom.value
-        this.timeValue = SpellDataBase.properties.timeValue.value
         if (this.time === CastingTime.Custom) {
-            this.timeCustom = data.timeCustom ?? this.timeCustom
-            this.timeValue = data.timeValue ?? this.timeValue
+            this.timeCustom = data.timeCustom ?? SpellDataBase.properties.timeCustom.value
+            this.timeValue = SpellDataBase.properties.timeValue.value
+        } else {
+            this.timeCustom = SpellDataBase.properties.timeCustom.value
+            this.timeValue = data.timeValue ?? SpellDataBase.properties.timeValue.value
         }
         this.duration = data.duration ?? SpellDataBase.properties.duration.value
-        this.durationCustom = SpellDataBase.properties.durationCustom.value
-        this.durationValue = SpellDataBase.properties.durationValue.value
         if (this.duration === Duration.Custom) {
-            this.timeCustom = data.timeCustom ?? this.timeCustom
-            this.timeValue = data.timeValue ?? this.timeValue
+            this.durationCustom = data.durationCustom ?? SpellDataBase.properties.durationCustom.value
+            this.durationValue = SpellDataBase.properties.durationValue.value
+        } else {
+            this.durationCustom = SpellDataBase.properties.durationCustom.value
+            this.durationValue = data.durationValue ?? SpellDataBase.properties.durationValue.value
         }
         // Properties
         this.allowUpcast = SpellDataBase.properties.allowUpcast.value
@@ -70,9 +72,10 @@ abstract class SpellDataBase implements ISpellDataBase {
         this.componentVerbal = data.componentVerbal ?? SpellDataBase.properties.componentVerbal.value
         this.componentSomatic = data.componentSomatic ?? SpellDataBase.properties.componentSomatic.value
         this.componentMaterial = data.componentMaterial ?? SpellDataBase.properties.componentMaterial.value
-        this.materials = SpellDataBase.properties.materials.value
         if (this.componentMaterial) {
-            this.materials = data.materials ?? this.materials
+            this.materials = data.materials ?? SpellDataBase.properties.materials.value
+        } else {
+            this.materials = SpellDataBase.properties.materials.value
         }
         // Effects
         this.effects = SpellDataBase.properties.effects.value

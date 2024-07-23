@@ -9,13 +9,14 @@ import LocalizedText from 'components/localizedText'
 import LinkInput from 'components/layouts/linkInput'
 import { ElementDictionary } from 'components/elements'
 import { asNumber, isEnum, isKeyOf, isNumber, isObjectId, keysOf } from 'utils'
-import { useAbilitiesOfCategory, useSubclasses, useFilesOfType, useSubraces } from 'utils/hooks/files'
+import { useAbilitiesOfCategory, useFilesOfType, useSubFiles } from 'utils/hooks/files'
 import { getOptionType } from 'structure/optionData'
-import type CharacterFacade from 'structure/database/files/character/facade'
 import StoryScript from 'structure/language/storyscript'
-import type ClassData from 'structure/database/files/class/data'
-import type RaceData from 'structure/database/files/race/data'
+import { DocumentType } from 'structure/database'
 import type DatabaseFile from 'structure/database/files'
+import type RaceData from 'structure/database/files/race/data'
+import type ClassData from 'structure/database/files/class/data'
+import type CharacterFacade from 'structure/database/files/character/facade'
 import type { ObjectId } from 'types'
 import type { IEditorChoiceData, IEditorDocumentChoiceData, IEditorEnumChoiceData, IEditorLinkedChoiceData, IEditorValueChoiceData } from 'types/database/choice'
 import styles from '../styles.module.scss'
@@ -237,7 +238,7 @@ const ModifierSelectDocumentItem: React.FC<ModifierChoiceDocumentItemProps> = ({
         : <LinkInput
             value={text}
             allowedTypes={data.allowedTypes}
-            className={styles.modifierChoiceItem}
+            className={styles.dropdownItem}
             onChange={setText}
             onFileChanged={handleFileChange}
             allowText={false}/>
@@ -299,7 +300,7 @@ const ModifierOptionsDocumentItem: React.FC<ModifierChoiceDocumentItemProps> = (
         : <DropdownMenu
             value={value[0]}
             values={options}
-            className={styles.modifierChoiceItem}
+            className={styles.dropdownItem}
             itemClassName={styles.dropdownItem}
             onChange={handleChange}/>
 }
@@ -367,14 +368,14 @@ const ModifierChoiceLinkedItem: React.FC<ModifierChoiceExternalItemProps> = ({ f
         : <DropdownMenu
             value={value[0]}
             values={options}
-            className={styles.modifierChoiceItem}
+            className={styles.dropdown}
             itemClassName={styles.dropdownItem}
             onChange={handleChange}/>
 }
 
 const SubclassChoiceItem: React.FC<SubclassChoiceItemProps> = ({ facade, id, data }) => {
     const [, dispatch] = useContext(Context)
-    const [subclasses] = useSubclasses(id)
+    const [subclasses] = useSubFiles(id, DocumentType.Subclass)
     const options = useMemo<Record<ObjectId, React.ReactNode>>(() => {
         const options: Record<ObjectId, React.ReactNode> = {}
         if (data === null) {
@@ -442,7 +443,7 @@ const SubclassChoiceItem: React.FC<SubclassChoiceItemProps> = ({ facade, id, dat
 
 const SubraceChoiceItem: React.FC<SubraceChoiceItemProps> = ({ facade, id, data }) => {
     const [, dispatch] = useContext(Context)
-    const [subraces] = useSubraces(id)
+    const [subraces] = useSubFiles(id, DocumentType.Subrace)
     const options = useMemo<Record<ObjectId, React.ReactNode>>(() => {
         const options: Record<ObjectId, React.ReactNode> = {}
         if (data === null) {

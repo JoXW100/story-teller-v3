@@ -47,11 +47,11 @@ function getBonus(type: AbilityType, bonuses: IBonusGroup): number {
 export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ id, data, open = false, stats = EmptyCreatureStats, classLevel = 0, attackBonuses = EmptyBonusGroup, damageBonuses = EmptyBonusGroup, expendedCharges, setExpendedCharges }) => {
     const [context] = useContext(Context)
     const descriptionToken = useMemo(() => {
-        if (id === context.file.id) {
+        if (id === context.file.id && isDefined(context.tokens.description)) {
             return context.tokens.description
+        } else {
+            return StoryScript.tokenize(ElementDictionary, data.description, data.createContexts(ElementDictionary)[0]).root
         }
-        const [descriptionContext] = data.createContexts(ElementDictionary)
-        return StoryScript.tokenize(ElementDictionary, data.description, descriptionContext).root
     }, [context.file.id, context.tokens.description, data, id])
 
     const properties: IConditionProperties = {
@@ -60,6 +60,7 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ id, data, open
         classLevel: classLevel,
         spellLevel: 0
     }
+
     switch (data.type) {
         case AbilityType.Skill:
             return <>
@@ -89,7 +90,7 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ id, data, open
                         )}
                     </div>
                 </Elements.align>
-                { open && isDefined(descriptionToken) && !descriptionToken.isEmpty && <>
+                { open && !descriptionToken.isEmpty && <>
                     <Elements.line width='2px'/>
                     { descriptionToken.build() }
                 </>}
@@ -155,7 +156,7 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ id, data, open
                         )}
                     </div>
                 </Elements.align>
-                { open && isDefined(descriptionToken) && !descriptionToken.isEmpty && <>
+                { open && !descriptionToken.isEmpty && <>
                     <Elements.line width='2px'/>
                     { descriptionToken.build() }
                 </>}
@@ -172,7 +173,7 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ id, data, open
                         expended={expendedCharges}
                         setExpended={setExpendedCharges}/>
                 </Elements.align>
-                { open && descriptionToken?.build() }
+                { open && descriptionToken.build() }
             </>
     }
 }

@@ -34,6 +34,7 @@ export function getScalingValue(scaling: ScalingType | OptionalAttribute, stats:
         case ScalingType.Level:
         case ScalingType.ClassLevel:
         case ScalingType.SpellLevel:
+        case ScalingType.AttunedItems:
         case ScalingType.WalkSpeed:
         case ScalingType.BurrowSpeed:
         case ScalingType.ClimbSpeed:
@@ -46,12 +47,14 @@ export function getScalingValue(scaling: ScalingType | OptionalAttribute, stats:
     }
 }
 
-export function resolveScaling(scaling: Partial<Record<ScalingType, number>>, stats: Partial<IConditionProperties>): number {
+export function resolveScaling(scaling: Partial<Record<ScalingType, number>>, stats: Partial<IConditionProperties>, required: boolean = false): number {
     let sum: number = 0
+    let flag: boolean = required
     for (const type of keysOf(scaling)) {
+        flag = true
         sum += getScalingValue(type, stats) * scaling[type]!
     }
-    return Math.floor(sum)
+    return flag ? Math.floor(sum) : 1
 }
 
 export function getSpellLevelValue(level: SpellLevel): number {

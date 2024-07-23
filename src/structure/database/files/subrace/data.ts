@@ -22,8 +22,20 @@ class SubraceData implements ISubraceData {
         this.parentRace = asObjectId(data.parentRace) ?? SubraceData.properties.parentRace.value
         // Abilities
         this.abilities = SubraceData.properties.abilities.value
+        if (Array.isArray(data.abilities)) {
+            for (const id of data.abilities) {
+                this.abilities.push(id as string)
+            }
+        }
         // Modifiers
         this.modifiers = SubraceData.properties.modifiers.value
+        if (Array.isArray(data.modifiers)) {
+            for (const id of data.modifiers) {
+                if (isObjectId(id)) {
+                    this.modifiers.push(id)
+                }
+            }
+        }
     }
 
     public static properties: DataPropertyMap<ISubraceData, SubraceData> = {

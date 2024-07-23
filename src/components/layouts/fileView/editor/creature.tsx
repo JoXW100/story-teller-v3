@@ -100,8 +100,8 @@ const CreatureDocumentEditor: React.FC = () => {
                     labelId='editor-proficiencies-weapon' />
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-advantages'/>} open>
-                <BindingInputComponent field='advantages' labelId='editor-advantages'/>
-                <BindingInputComponent field='disadvantages' labelId='editor-disadvantages'/>
+                <BindingInputComponent field='advantages' labelId='editor-advantages' fill/>
+                <BindingInputComponent field='disadvantages' labelId='editor-disadvantages' fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-abilities'/>} open>
                 <LinkListComponent
@@ -109,7 +109,8 @@ const CreatureDocumentEditor: React.FC = () => {
                     allowedTypes={[DocumentType.Ability]}
                     labelId='editor-abilities'
                     placeholderId='editor-abilities-placeholder'
-                    allowText/>
+                    allowText
+                    fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-spells'/>} open>
                 <EnumComponent field='spellAttribute' type='optionalAttr' labelId='editor-spellAttribute'/>

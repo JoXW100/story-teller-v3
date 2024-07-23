@@ -171,6 +171,7 @@ export enum ScalingType {
     INT = 'int',
     WIS = 'wis',
     CHA = 'cha',
+    AttunedItems = 'attunedItems',
     WalkSpeed = 'walkSpeed',
     BurrowSpeed = 'burrowSpeed',
     ClimbSpeed = 'climbSpeed',

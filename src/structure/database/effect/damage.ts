@@ -63,7 +63,7 @@ class DamageEffect extends EffectBase implements IDamageEffect {
                 mod += bonuses.thrownBonus
                 break
         }
-        return resolveScaling(this.scaling, stats) + mod
+        return resolveScaling(this.scaling, stats, true) + mod
     }
 
     public getDiceRollText(stats: Partial<IConditionProperties>, bonuses: IBonusGroup): string {

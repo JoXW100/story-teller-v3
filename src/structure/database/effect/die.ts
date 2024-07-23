@@ -32,7 +32,7 @@ class DieEffect extends EffectBase implements IDieEffect {
     }
 
     public getModifierValue(stats: Partial<IConditionProperties>): number {
-        return resolveScaling(this.scaling, stats)
+        return resolveScaling(this.scaling, stats, true)
     }
 
     public getDiceRollText(stats: Partial<IConditionProperties>): string {

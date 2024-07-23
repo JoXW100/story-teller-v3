@@ -46,6 +46,7 @@ import RitualIcon from './ritual.svg'
 import SettingsIcon from '@mui/icons-material/SettingsSharp'
 import StoryIcon from '@mui/icons-material/ImportContactsSharp'
 import HomeIcon from '@mui/icons-material/HomeSharp'
+import EditIcon from '@mui/icons-material/EditSharp'
 import ErrorIcon from '@mui/icons-material/ErrorSharp'
 
 export type IconParams = React.PropsWithRef<{
@@ -104,6 +105,7 @@ const IconMap = {
     'camp': CampIcon as React.FC<IconParams>,
     'home': HomeIcon as React.FC<IconParams>,
     'settings': SettingsIcon as React.FC<IconParams>,
+    'edit': EditIcon as React.FC<IconParams>,
     'error': ErrorIcon as React.FC<IconParams>
 }
 

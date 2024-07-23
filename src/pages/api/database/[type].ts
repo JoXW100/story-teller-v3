@@ -4,7 +4,7 @@ import { withApiAuthRequired, getSession } from '@auth0/nextjs-auth0'
 import { isEnum, isNumber, isObjectId, isObjectIdOrNull, isRecord, isString } from 'utils'
 import Database, { failure, success } from 'utils/database'
 import Logger from 'utils/logger'
-import { DocumentFileType } from 'structure/database'
+import { DocumentFileType, FlagType } from 'structure/database'
 import type { Enum } from 'types'
 import type { ServerRequestType } from 'types/database'
 
@@ -125,7 +125,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void>
             }
         }
 
-        Logger.log('database.handler.params', params)
         switch (req.method) {
             case 'GET':
                 switch (type) {
@@ -135,20 +134,20 @@ async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void>
                     { res.status(200).json(await Database.stories?.get(userId, toObjectId(params.storyId)) ?? failure()); return }
                     case 'getAllStories':
                     { res.status(200).json(await Database.stories?.getAll(userId) ?? failure()); return }
+                    case 'getAllAvailableSources':
+                    { res.status(200).json(await Database.stories?.getAllAvailableSources(userId) ?? failure()); return }
                     case 'getLastUpdatedStory':
                     { res.status(200).json(await Database.stories?.getLastUpdated(userId) ?? failure()); return }
                     case 'getFile':
                     { res.status(200).json(await Database.files?.get(userId, toObjectId(params.fileId), toEnumArray(params.allowedTypes, DocumentFileType)) ?? failure()); return }
                     case 'getFiles':
                     { res.status(200).json(await Database.files?.getMultiple(userId, toObjectIdArray(params.fileIds), toEnumArray(params.allowedTypes, DocumentFileType)) ?? failure()); return }
-                    case 'getSubclasses':
-                    { res.status(200).json(await Database.files?.getSubclasses(userId, toObjectId(params.storyId), toObjectId(params.classId)) ?? failure()); return }
-                    case 'getSubraces':
-                    { res.status(200).json(await Database.files?.getSubraces(userId, toObjectId(params.storyId), toObjectId(params.raceId)) ?? failure()); return }
+                    case 'getSubFiles':
+                    { res.status(200).json(await Database.files?.getSubFiles(userId, toObjectId(params.parentId), toEnum(params.fileType, DocumentFileType)) ?? failure()); return }
                     case 'getAbilitiesOfCategory':
-                    { res.status(200).json(await Database.files?.getAbilitiesOfCategory(userId, toObjectId(params.storyId), toString(params.category)) ?? failure()); return }
-                    case 'getSubscribedFiles':
-                    { res.status(200).json(await Database.files?.getSubscribedFiles(userId, toEnumArray(params.allowedTypes, DocumentFileType)) ?? failure()); return }
+                    { res.status(200).json(await Database.files?.getAbilitiesOfCategory(userId, toString(params.category)) ?? failure()); return }
+                    case 'getAll':
+                    { res.status(200).json(await Database.files?.getAll(userId, toObjectIdArray(params.sources), toEnumArray(params.allowedTypes, DocumentFileType)) ?? failure()); return }
                     case 'getFileStructure':
                     { res.status(200).json(await Database.files?.getStructure(userId, toObjectId(params.storyId)) ?? failure()); return }
                     default: break
@@ -156,12 +155,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void>
                 break
             case 'PUT': {
                 const body: Record<string, unknown> = JSON.parse(req.body)
-                Logger.log('database.handler.body', body)
+                Logger.log('body', Object.keys(body).map(key => `${key}: ${body[key] as string}`).join(', '))
                 switch (type) {
                     case 'addStory':
-                    { res.status(200).json(await Database.stories?.add(userId, toString(body.name), toString(body.description), toStringOrNull(body.image)) ?? failure()); return }
+                    { res.status(200).json(await Database.stories?.add(userId, toString(body.name), toString(body.description), toStringOrNull(body.image), toObjectIdArray(body.sources), toEnumArray(body.flags, FlagType)) ?? failure()); return }
                     case 'updateStory':
-                    { res.status(200).json(await Database.stories?.update(userId, toObjectId(body.storyId), body.update) ?? failure()); return }
+                    { res.status(200).json(await Database.stories?.update(userId, toObjectId(body.storyId), toRecord(body.update)) ?? failure()); return }
                     case 'addFile':
                     { res.status(200).json(await Database.files?.add(userId, toObjectId(body.storyId), toObjectId(body.holderId), toEnum(body.type, DocumentFileType), toString(body.name), toObject(body.data)) ?? failure()); return }
                     case 'copyFile':

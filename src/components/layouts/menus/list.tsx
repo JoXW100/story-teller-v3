@@ -108,6 +108,7 @@ const EditComponent: React.FC<ListTemplateComponentProps<any, any, ListMenuProps
     if (params.type === 'enum') {
         return (
             <DropdownMenu
+                itemClassName={params.itemClassName}
                 value={value}
                 values={params.options}
                 exclude={values}

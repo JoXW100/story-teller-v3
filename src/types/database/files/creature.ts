@@ -1,4 +1,4 @@
-import type { ICalcValue } from 'structure/database'
+import type { CalcValue } from 'structure/database'
 import type { ISourceData } from 'structure/database/files/modifier/modifier'
 import type { DieType } from 'structure/dice'
 import type { AdvantageBinding, Alignment, ArmorType, Attribute, ConditionBinding, CreatureType, Language, MovementType, OptionalAttribute, ProficiencyLevel, ProficiencyLevelBasic, DamageBinding, Sense, SizeType, Skill, ToolType, WeaponTypeValue, SpellLevel } from 'structure/dnd'
@@ -22,10 +22,10 @@ export interface ICreatureData {
     // Stats
     readonly level: number
     readonly hitDie: DieType
-    readonly health: ICalcValue
-    readonly ac: ICalcValue
-    readonly proficiency: ICalcValue
-    readonly initiative: ICalcValue
+    readonly health: CalcValue
+    readonly ac: CalcValue
+    readonly proficiency: CalcValue
+    readonly initiative: CalcValue
     readonly speed: Partial<Record<MovementType, number>>
     readonly senses: Partial<Record<Sense, number>>
     // Attributes
@@ -36,9 +36,9 @@ export interface ICreatureData {
     readonly cha: number
     readonly wis: number
     // Passives
-    readonly passivePerception: ICalcValue
-    readonly passiveInvestigation: ICalcValue
-    readonly passiveInsight: ICalcValue
+    readonly passivePerception: CalcValue
+    readonly passiveInvestigation: CalcValue
+    readonly passiveInsight: CalcValue
     // Proficiencies
     readonly proficienciesSave: Partial<Record<Attribute, ProficiencyLevel>>
     readonly proficienciesSkill: Partial<Record<Skill, ProficiencyLevel>>
@@ -56,7 +56,7 @@ export interface ICreatureData {
     readonly conditionImmunities: Partial<Record<ConditionBinding, readonly ISourceBinding[]>>
     // Spells
     readonly spellAttribute: OptionalAttribute
-    readonly casterLevel: ICalcValue
+    readonly casterLevel: CalcValue
     readonly spells: ObjectId[]
     readonly spellSlots: Partial<Record<SpellLevel, number>>
     // Abilities

@@ -8,10 +8,9 @@ type CheckboxProps = React.PropsWithRef<{
 }>
 
 const Checkbox = ({ className, value, onChange }: CheckboxProps): JSX.Element => {
-    const onClick = (): void => { onChange(!value) }
     const name = className !== undefined ? `${styles.main} ${className}` : styles.main
     return (
-        <button className={name} data={value ? 'true' : 'false'} onClick={onClick}>
+        <button className={name} data={value ? 'true' : 'false'} onClick={() => { onChange(!value) }}>
             <CheckIcon className='fill small-icon'/>
         </button>
     )

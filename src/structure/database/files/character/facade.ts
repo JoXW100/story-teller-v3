@@ -101,7 +101,6 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
         const result: Partial<Record<MovementType, number>> = {}
         for (const type of Object.values(MovementType)) {
             const value = this.modifier.speeds[type].call(asNumber(this.data.speed[type], 0) + asNumber(this.raceData?.speed[type], 0), this.properties, this.storage.choices)
-            console.log('speed', type, value, this.modifier.speeds[type])
             if (value > 0) {
                 result[type] = value
             }
@@ -141,20 +140,30 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
     }
 
     public get raceName(): string {
-        return this.data.raceName
-    }
-
-    public get raceText(): string {
-        if (this.raceData === null) {
-            return this.raceName
-        } else {
+        if (this.subraceData !== null) {
+            return this.subraceData.name
+        } else if (this.raceData !== null) {
             return this.raceData.name
+        } else {
+            return this.data.raceName
         }
     }
 
+    public get className(): string {
+        return keysOf(this.classesData).map((key) => `${this.classesData[key].name} (${this.classes[key] ?? 0})`).join(', ')
+    }
+
     public get namePlateText(): string {
-        const className = keysOf(this.classesData).map((key) => `${this.classesData[key].name} (${this.classes[key] ?? 0})`).join(', ')
-        return `${this.gender} ${this.raceText} ${className}`
+        const texts: string[] = []
+        const gender = this.gender
+        const raceName = this.raceName
+        if (gender.length > 0) {
+            texts.push(gender)
+        }
+        if (raceName.length > 0) {
+            texts.push(raceName)
+        }
+        return texts.join(' ')
     }
 
     public override get proficienciesLanguage(): Partial<Record<Language, ProficiencyLevelBasic>> {

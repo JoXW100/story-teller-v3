@@ -13,6 +13,8 @@ import type { ObjectId } from 'types'
 import type { IToken } from 'types/language'
 import type { ContextProvider, DispatchAction, DispatchActionNoData, DispatchActionWithDispatch, ISetFieldData } from 'types/context'
 import type { DBResponse } from 'types/database'
+import Router from 'next/router'
+import { useLocalizedText } from 'utils/hooks/localizedText'
 
 export interface IEditorPageData {
     pageKey: EditorPageKeyType
@@ -211,6 +213,7 @@ const reducer: React.Reducer<FileContextState, FileContextAction> = (state, acti
 
 const FileContext: React.FC<FileContextProps> = ({ children, fileId }) => {
     const [state, dispatch] = useReducer(reducer, defaultContextState)
+    const warningMsg = useLocalizedText('common-unsavedChanges')
 
     useEffect(() => {
         dispatch({ type: 'init' })
@@ -228,6 +231,30 @@ const FileContext: React.FC<FileContextProps> = ({ children, fileId }) => {
         pushEditorPage(data) { dispatch({ type: 'pushEditorPage', data: data }) },
         popEditorPage() { dispatch({ type: 'popEditorPage' }) }
     }), [])
+
+    useEffect(() => {
+        if (window !== undefined && window !== null) {
+            const handler = (e: BeforeUnloadEvent): string | undefined => {
+                if (state.buffer.requestIsQueued) {
+                    e.preventDefault()
+                    return (e.returnValue = '')
+                }
+            }
+            const routeChangeHandler = (url: string): void => {
+                if (state.buffer.requestIsQueued && Router.pathname !== url && !confirm(warningMsg)) {
+                    Router.events.emit('routeChangeError')
+                    // eslint-disable-next-line @typescript-eslint/no-throw-literal
+                    throw 'Route change was aborted (this error can be safely ignored)'
+                }
+            }
+            window.addEventListener('beforeunload', handler)
+            Router.events.on('routeChangeStart', routeChangeHandler)
+            return () => {
+                window.removeEventListener('beforeunload', handler)
+                Router.events.off('routeChangeStart', routeChangeHandler)
+            }
+        }
+    }, [state.buffer, warningMsg])
 
     return (
         <Context.Provider value={[state, memoisedDispatch]}>

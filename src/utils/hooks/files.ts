@@ -1,11 +1,8 @@
-import { useContext, useEffect, useState } from 'react'
-import { Context } from 'components/contexts/story'
+import { useEffect, useState } from 'react'
 import { isObjectId } from 'utils'
 import Logger from 'utils/logger'
 import Communication from 'utils/communication'
 import type DatabaseFile from 'structure/database/files'
-import type SubclassDocument from 'structure/database/files/subclass'
-import type SubraceDocument from 'structure/database/files/subrace'
 import type AbilityDocument from 'structure/database/files/ability'
 import type { DocumentType } from 'structure/database'
 import type { DocumentTypeMap } from 'structure/database/files/factory'
@@ -80,12 +77,11 @@ export function useFile(fileID: ObjectId | null): FileState<DatabaseFile> {
     return state
 }
 
-export function useSubclasses(classId: ObjectId | null): FilesState<SubclassDocument> {
-    const [context] = useContext(Context)
-    const [state, setState] = useState<FilesState<SubclassDocument>>([[], true])
+export function useSubFiles<T extends DocumentType>(parentId: ObjectId | null, type: T): FilesState<DocumentTypeMap[T]> {
+    const [state, setState] = useState<FilesState<DocumentTypeMap[T]>>([[], true])
     useEffect(() => {
-        if (isObjectId(classId)) {
-            Communication.getSubclasses(context.story.id, classId)
+        if (isObjectId(parentId)) {
+            Communication.getSubFiles(parentId, type)
                 .then((res) => {
                     setState([res.success ? res.result : [], false])
                 }, (e: unknown) => {
@@ -95,40 +91,20 @@ export function useSubclasses(classId: ObjectId | null): FilesState<SubclassDocu
         } else {
             setState([[], false])
         }
-    }, [context.story.id, classId])
-    return state
-}
-
-export function useSubraces(raceId: ObjectId | null): FilesState<SubraceDocument> {
-    const [context] = useContext(Context)
-    const [state, setState] = useState<FilesState<SubraceDocument>>([[], true])
-    useEffect(() => {
-        if (isObjectId(raceId)) {
-            Communication.getSubraces(context.story.id, raceId)
-                .then((res) => {
-                    setState([res.success ? res.result : [], false])
-                }, (e: unknown) => {
-                    Logger.throw('useSubclasses', e)
-                    setState([[], false])
-                })
-        } else {
-            setState([[], false])
-        }
-    }, [context.story.id, raceId])
+    }, [parentId, type])
     return state
 }
 
 export function useAbilitiesOfCategory(category: string): FilesState<AbilityDocument> {
-    const [context] = useContext(Context)
     const [state, setState] = useState<FilesState<AbilityDocument>>([[], true])
     useEffect(() => {
-        Communication.getAbilitiesOfCategory(context.story.id, category)
+        Communication.getAbilitiesOfCategory(category)
             .then((res) => {
                 setState([res.success ? res.result : [], false])
             }, (e: unknown) => {
                 Logger.throw('useAbilitiesOfCategory', e)
                 setState([[], false])
             })
-    }, [category, context.story.id])
+    }, [category])
     return state
 }

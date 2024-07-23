@@ -25,39 +25,48 @@
         @include colorInteractiveWithShadow;
         min-height: $menuItemHeight;
     }
+}
 
-    & > label {
-        @include colorWithShadow('second');
-        display: grid;
-        padding: 5px;
-        gap: 10px;
-        grid-template-columns: $labelLargeWidth minmax(0, 1fr);
+.item {
+    @include colorWithShadow('second');
+    display: grid;
+    padding: 5px;
+    gap: 10px;
+    grid-template-columns: $labelLargeWidth minmax(0, 1fr);
 
-        & > input {
-            height: $menuItemHeaderHeight;
-        }
+    & > input {
+        height: $menuItemHeaderHeight;
+    }
 
-        & > textarea {
-            height: $menuItemHeaderHeight * 2;
-            min-height: $menuItemHeaderHeight;
-            max-height: $menuItemHeaderHeight * 4;
-            resize: vertical;
-        }
+    & > textarea {
+        height: $menuItemHeaderHeight * 2;
+        min-height: $menuItemHeaderHeight;
+        max-height: $menuItemHeaderHeight * 4;
+        resize: vertical;
+    }
+
+    & > img {
+        grid-column: 2;
+        height: $menuItemHeaderHeight * 4;
+        max-height: $menuItemHeaderHeight * 4;
+        max-width: 100%;
+        width: auto;
+    }
+
+    & > .listMenu {
+        min-height: $menuItemHeaderHeight;
+        height: $menuItemHeaderHeight * 6;
+    }
+
+    & > .checkbox {
+        height: $menuItemHeaderHeight;
+    }
+
+    @include mobile {
+        grid-template-columns: minmax(0, 1fr);
 
         & > img {
-            grid-column: 2;
-            height: $menuItemHeaderHeight * 4;
-            max-height: $menuItemHeaderHeight * 4;
-            max-width: 100%;
-            width: auto;
-        }
-
-        @include mobile {
-            grid-template-columns: minmax(0, 1fr);
-
-            & > img {
-                grid-column: 1;
-            }
+            grid-column: 1;
         }
     }
 }
@@ -79,4 +88,16 @@
         @include colorInteractiveWithShadow;
         min-height: $menuItemHeaderHeight;
     }
+}
+
+.listMenuItem {
+    height: $menuItemHeaderHeight;
+}
+
+.storyItem {
+    @include fontNoLineBreak;
+    display: flex;
+    height: 100%;
+    align-items: center;
+    gap: 1ch;
 }

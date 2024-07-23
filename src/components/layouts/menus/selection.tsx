@@ -100,6 +100,9 @@ const EditComponent: React.FC<ListTemplateComponentProps<string, string, Selecti
 }
 
 const Component: React.FC<ListTemplateComponentProps<string, string, SelectionMenuProps>> = ({ value, params }) => {
+    const style = params.dropdownClassName !== undefined ? `${styles.dropdown} ${params.dropdownClassName}` : styles.dropdown
+    const itemStyle = params.dropdownItemClassName !== undefined ? `${styles.dropdownItem} ${params.dropdownItemClassName}` : styles.dropdownItem
+
     const handleChange = (input: string): void => {
         if (params.type === 'number') {
             params.onChange?.({ ...params.values, [value]: asNumber(input, 0) })
@@ -119,6 +122,8 @@ const Component: React.FC<ListTemplateComponentProps<string, string, SelectionMe
             }
             {params.type === 'enum' &&
                 <DropdownMenu
+                    className={style}
+                    itemClassName={itemStyle}
                     value={params.values[value] ?? params.defaultValue}
                     values={params.editOptions ?? {}}
                     onChange={handleChange}/>

@@ -76,12 +76,14 @@ const CharacterDocumentEditor: React.FC = () => {
                     field='speed'
                     type='number'
                     optionsType='movement'
-                    labelId='editor-speed'/>
+                    labelId='editor-speed'
+                    fill/>
                 <SelectionInputComponent
                     field='senses'
                     type='number'
                     optionsType='sense'
-                    labelId='editor-senses'/>
+                    labelId='editor-senses'
+                    fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-attributes'/>} open>
                 <NumberComponent field='str' labelId='editor-str'/>
@@ -102,57 +104,72 @@ const CharacterDocumentEditor: React.FC = () => {
                     type='enum'
                     optionsType='attr'
                     editOptionsType='proficiencyLevel'
-                    labelId='editor-proficiencies-save' />
+                    labelId='editor-proficiencies-save'
+                    fill/>
                 <SelectionInputComponent
                     field='proficienciesSkill'
                     type='enum'
                     optionsType='skill'
                     editOptionsType='proficiencyLevel'
-                    labelId='editor-proficiencies-skill' />
+                    labelId='editor-proficiencies-skill'
+                    fill/>
                 <SelectionInputComponent
                     field='proficienciesLanguage'
                     type='enum'
                     optionsType='language'
                     editOptionsType='proficiencyLevelBasic'
-                    labelId='editor-proficiencies-language' />
+                    labelId='editor-proficiencies-language'
+                    fill/>
                 <SelectionInputComponent
                     field='proficienciesTool'
                     type='enum'
                     optionsType='tool'
                     editOptionsType='proficiencyLevel'
-                    labelId='editor-proficiencies-tool' />
+                    labelId='editor-proficiencies-tool'
+                    fill/>
                 <SelectionInputComponent
                     field='proficienciesArmor'
                     type='enum'
                     optionsType='armor'
                     editOptionsType='proficiencyLevelBasic'
-                    labelId='editor-proficiencies-armor' />
+                    labelId='editor-proficiencies-armor'
+                    fill/>
                 <SelectionInputComponent
                     field='proficienciesWeapon'
                     type='enum'
                     optionsType='weaponTypeValue'
                     editOptionsType='proficiencyLevelBasic'
-                    labelId='editor-proficiencies-weapon' />
+                    labelId='editor-proficiencies-weapon'
+                    fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-advantages'/>} open>
-                <BindingInputComponent field='advantages' labelId='editor-advantages'/>
-                <BindingInputComponent field='disadvantages' labelId='editor-disadvantages'/>
+                <BindingInputComponent field='advantages' labelId='editor-advantages' fill/>
+                <BindingInputComponent field='disadvantages' labelId='editor-disadvantages' fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-abilities'/>} open>
                 <LinkListComponent
                     field='abilities'
-                    allowedTypes={[DocumentType.Ability]}
                     labelId='editor-abilities'
                     placeholderId='editor-abilities-placeholder'
-                    allowText/>
+                    allowedTypes={[DocumentType.Ability]}
+                    allowText
+                    fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-spells'/>} open>
                 <EnumComponent field='spellAttribute' type='optionalAttr' labelId='editor-spellAttribute'/>
                 { context.file.data.spellAttribute !== OptionalAttribute.None &&
                     <>
                         <CalcComponent field='casterLevel' labelId='editor-casterLevel'/>
-                        <LinkListComponent field='spells' allowedTypes={[DocumentType.Spell]} labelId='editor-spells' allowText/>
-                        <SelectionInputComponent field='spellSlots' type='number' labelId='editor-spellSlots' optionsType='spellLevel'/>
+                        <LinkListComponent
+                            field='spells'
+                            allowedTypes={[DocumentType.Spell]}
+                            labelId='editor-spells'
+                            fill/>
+                        <SelectionInputComponent
+                            field='spellSlots'
+                            type='number'
+                            labelId='editor-spellSlots'
+                            optionsType='spellLevel'/>
                     </>
                 }
             </GroupComponent>

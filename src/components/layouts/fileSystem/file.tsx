@@ -27,6 +27,7 @@ export function getFileIcon(type: DocumentFileType): React.FC<IconParams> {
         case DocumentType.Character:
             return IconMap.character
         case DocumentType.Class:
+        case DocumentType.Subclass:
             return IconMap.class
         case DocumentType.Creature:
             return IconMap.creature
@@ -37,9 +38,8 @@ export function getFileIcon(type: DocumentFileType): React.FC<IconParams> {
         case DocumentType.Item:
             return IconMap.item
         case DocumentType.Race:
+        case DocumentType.Subrace:
             return IconMap.character
-        case DocumentType.Subclass:
-            return IconMap.class
         case DocumentType.Text:
         default:
             return IconMap.document

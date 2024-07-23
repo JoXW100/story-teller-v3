@@ -1,16 +1,23 @@
-import { useContext, useState } from 'react'
-import { Context } from 'components/contexts/file'
-import Elements from 'components/elements'
-import LocalizedText from 'components/localizedText'
+import { useContext, useMemo, useState } from 'react'
+import Tooltip from '@mui/material/Tooltip'
 import MapTiles from 'assets/tiles'
+import { Context } from 'components/contexts/file'
+import Elements, { ElementDictionary } from 'components/elements'
+import { asBooleanString, isDefined, isKeyOf } from 'utils'
 import MapDocument from 'structure/database/files/map'
 import { createTile } from 'structure/database/files/map/storage'
 import styles from './styles.module.scss'
-import { asBooleanString, isKeyOf } from 'utils'
-import Tooltip from '@mui/material/Tooltip'
 
 const MapDocumentRenderer: React.FC = () => {
     const [context] = useContext(Context)
+    const descriptionToken = useMemo(() => {
+        if (isDefined(context.tokens.description)) {
+            return context.tokens.description
+        } else {
+            return context.file.getTokenizedDescription(ElementDictionary)
+        }
+    }, [context.file, context.tokens.description])
+
     if (!(context.file instanceof MapDocument)) {
         return null
     }
@@ -19,9 +26,9 @@ const MapDocumentRenderer: React.FC = () => {
 
     return <>
         <Elements.h1 underline>{file.getTitle()}</Elements.h1>
-        { context.tokens.description !== null &&
+        { !descriptionToken.isEmpty &&
             <>
-                {context.tokens.description?.build()}
+                {descriptionToken.build()}
                 <Elements.line width='2px'/>
             </>
         }
@@ -89,7 +96,7 @@ const MapTile: React.FC<MapTileProps> = ({ index }) => {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             data={asBooleanString(highlight)}>
-            <Tooltip title={<LocalizedText id={`editor-map-palette-${tile.type}`}/>}>
+            <Tooltip title={tile.type}>
                 <span className='fill'>
                     <Icon className='fill square'/>
                 </span>

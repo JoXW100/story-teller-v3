@@ -18,7 +18,6 @@ import { AbilityType } from 'structure/database/files/ability/common'
 import EffectFactory from 'structure/database/effect/factory'
 import styles from './style.module.scss'
 
-const AllowedTypes = [DocumentType.Modifier] as const
 const AbilityDocumentEditor: React.FC = () => {
     const [context, dispatch] = useContext(Context)
     const defaultEffectValue = useMemo(() => EffectFactory.create(), [])
@@ -130,7 +129,12 @@ const AbilityDocumentEditor: React.FC = () => {
                     page='charges'/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-modifiers'/>} open>
-                <LinkListComponent field='modifiers' labelId='editor-modifiers' allowedTypes={AllowedTypes} fill/>
+                <LinkListComponent
+                    field='modifiers'
+                    labelId='editor-modifiers'
+                    placeholderId='editor-modifiers-placeholder'
+                    allowedTypes={[DocumentType.Modifier]}
+                    fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-description'/>} open fill>
                 <TextEditor

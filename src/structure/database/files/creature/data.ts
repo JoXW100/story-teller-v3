@@ -1,4 +1,4 @@
-import { type ICalcValue, AutoCalcValue, createCalcValue, simplifyCalcValue, simplifyNumberRecord } from 'structure/database'
+import { type CalcValue, createCalcValue, simplifyCalcValue, simplifyNumberRecord } from 'structure/database'
 import { Alignment, CreatureType, SizeType, MovementType, Sense, OptionalAttribute, AdvantageBinding, ConditionBinding, DamageBinding, SpellLevel, Attribute, ProficiencyLevel, Skill, ToolType, Language, ArmorType, WeaponTypeValue, ProficiencyLevelBasic } from 'structure/dnd'
 import { DieType } from 'structure/dice'
 import EmptyToken from 'structure/language/tokens/empty'
@@ -27,10 +27,10 @@ class CreatureData implements ICreatureData {
     // Stats
     public readonly level: number
     public readonly hitDie: DieType
-    public readonly health: ICalcValue
-    public readonly ac: ICalcValue
-    public readonly proficiency: ICalcValue
-    public readonly initiative: ICalcValue
+    public readonly health: CalcValue
+    public readonly ac: CalcValue
+    public readonly proficiency: CalcValue
+    public readonly initiative: CalcValue
     public readonly speed: Partial<Record<MovementType, number>>
     public readonly senses: Partial<Record<Sense, number>>
     // Attributes
@@ -41,9 +41,9 @@ class CreatureData implements ICreatureData {
     public readonly wis: number
     public readonly cha: number
     // Passives
-    public readonly passivePerception: ICalcValue
-    public readonly passiveInvestigation: ICalcValue
-    public readonly passiveInsight: ICalcValue
+    public readonly passivePerception: CalcValue
+    public readonly passiveInvestigation: CalcValue
+    public readonly passiveInsight: CalcValue
     // Proficiencies
     public readonly proficienciesSave: Partial<Record<Attribute, ProficiencyLevel>>
     public readonly proficienciesSkill: Partial<Record<Skill, ProficiencyLevel>>
@@ -61,7 +61,7 @@ class CreatureData implements ICreatureData {
     public readonly conditionImmunities: Partial<Record<ConditionBinding, readonly ISourceBinding[]>>
     // Spells
     public readonly spellAttribute: OptionalAttribute
-    public readonly casterLevel: ICalcValue
+    public readonly casterLevel: CalcValue
     public readonly spellSlots: Partial<Record<SpellLevel, number>>
     public readonly spells: ObjectId[]
     // Other
@@ -80,10 +80,10 @@ class CreatureData implements ICreatureData {
         // Stats
         this.level = asNumber(data.level, CreatureData.properties.level.value)
         this.hitDie = asEnum(data.hitDie, DieType) ?? CreatureData.properties.hitDie.value
-        this.health = createCalcValue(data.health, CreatureData.properties.health.value)
-        this.ac = createCalcValue(data.ac, CreatureData.properties.ac.value)
-        this.proficiency = createCalcValue(data.proficiency, CreatureData.properties.proficiency.value)
-        this.initiative = createCalcValue(data.initiative, CreatureData.properties.initiative.value)
+        this.health = createCalcValue(data.health)
+        this.ac = createCalcValue(data.ac)
+        this.proficiency = createCalcValue(data.proficiency)
+        this.initiative = createCalcValue(data.initiative)
         this.speed = data.speed ?? CreatureData.properties.speed.value
         this.senses = data.senses ?? CreatureData.properties.senses.value
         // Attributes
@@ -94,9 +94,9 @@ class CreatureData implements ICreatureData {
         this.wis = data.wis ?? CreatureData.properties.wis.value
         this.cha = data.cha ?? CreatureData.properties.cha.value
         // Passives
-        this.passivePerception = createCalcValue(data.passivePerception, CreatureData.properties.passivePerception.value)
-        this.passiveInvestigation = createCalcValue(data.passiveInvestigation, CreatureData.properties.passiveInvestigation.value)
-        this.passiveInsight = createCalcValue(data.passiveInsight, CreatureData.properties.passiveInsight.value)
+        this.passivePerception = createCalcValue(data.passivePerception)
+        this.passiveInvestigation = createCalcValue(data.passiveInvestigation)
+        this.passiveInsight = createCalcValue(data.passiveInsight)
         // Proficiencies
         this.proficienciesSave = data.proficienciesSave ?? CreatureData.properties.proficienciesSave.value
         this.proficienciesSkill = data.proficienciesSkill ?? CreatureData.properties.proficienciesSkill.value
@@ -195,7 +195,7 @@ class CreatureData implements ICreatureData {
         // Spells
         this.spellAttribute = data.spellAttribute ?? CreatureData.properties.spellAttribute.value
         if (this.spellAttribute !== OptionalAttribute.None) {
-            this.casterLevel = createCalcValue(data.casterLevel, CreatureData.properties.casterLevel.value)
+            this.casterLevel = createCalcValue(data.casterLevel)
             this.spellSlots = CreatureData.properties.spellSlots.value
             if (data.spellSlots !== undefined) {
                 for (const level of keysOf(data.spellSlots)) {
@@ -266,22 +266,22 @@ class CreatureData implements ICreatureData {
             validate: (value) => isEnum(value, DieType)
         },
         health: {
-            get value() { return { ...AutoCalcValue } },
+            get value() { return createCalcValue() },
             validate: isCalcValue,
             simplify: simplifyCalcValue
         },
         ac: {
-            get value() { return { ...AutoCalcValue } },
+            get value() { return createCalcValue() },
             validate: isCalcValue,
             simplify: simplifyCalcValue
         },
         proficiency: {
-            get value() { return { ...AutoCalcValue } },
+            get value() { return createCalcValue() },
             validate: isCalcValue,
             simplify: simplifyCalcValue
         },
         initiative: {
-            get value() { return { ...AutoCalcValue } },
+            get value() { return createCalcValue() },
             validate: isCalcValue,
             simplify: simplifyCalcValue
         },
@@ -322,17 +322,17 @@ class CreatureData implements ICreatureData {
         },
         // Passives
         passivePerception: {
-            get value() { return { ...AutoCalcValue } },
+            get value() { return createCalcValue() },
             validate: isCalcValue,
             simplify: simplifyCalcValue
         },
         passiveInsight: {
-            get value() { return { ...AutoCalcValue } },
+            get value() { return createCalcValue() },
             validate: isCalcValue,
             simplify: simplifyCalcValue
         },
         passiveInvestigation: {
-            get value() { return { ...AutoCalcValue } },
+            get value() { return createCalcValue() },
             validate: isCalcValue,
             simplify: simplifyCalcValue
         },
@@ -401,7 +401,7 @@ class CreatureData implements ICreatureData {
         },
         // Spells
         casterLevel: {
-            get value() { return { ...AutoCalcValue } },
+            get value() { return createCalcValue() },
             validate: isCalcValue,
             simplify: simplifyCalcValue
         },

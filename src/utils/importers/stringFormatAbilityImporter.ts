@@ -1,13 +1,13 @@
 import Logger from 'utils/logger'
 import { asEnum, asNumber } from 'utils'
 import { EffectConditionType } from 'structure/database/effectCondition'
-import { ActionType, DamageType, ScalingType, TargetType } from 'structure/dnd'
+import { ActionType, AreaType, DamageType, ScalingType, TargetType } from 'structure/dnd'
 import AbilityDataFactory, { type AbilityData } from 'structure/database/files/ability/factory'
 import { DieType } from 'structure/dice'
 import { EffectCategory, EffectType } from 'structure/database/effect/common'
 import { AbilityType } from 'structure/database/files/ability/common'
 import type { IEffect } from 'types/database/effect'
-import type { IAbilityData } from 'types/database/files/ability'
+import type { IAbilityAttackDataBase, IAbilityData } from 'types/database/files/ability'
 
 function getAbilityType(ability: string): AbilityType {
     switch (ability?.toLowerCase()) {
@@ -126,8 +126,8 @@ export function toAbility(text: string): AbilityData | null {
     const modifier = getRollMod(res[9])
     let result: IAbilityData
     switch (type) {
-        case AbilityType.Attack:
-            result = {
+        case AbilityType.Attack: {
+            const base: IAbilityAttackDataBase = {
                 name: res[2] ?? 'Missing name',
                 description: res[11] ?? '',
                 type: type,
@@ -137,13 +137,33 @@ export function toAbility(text: string): AbilityData | null {
                     scaling: { [ScalingType.Constant]: getRollMod(res[4]) }
                 },
                 target: getTargetType(res[6]),
-                range: ranges.range,
                 notes: '',
                 charges: {},
                 effects: { main: createEffect(damageType, text, die, dieCount, modifier) },
                 modifiers: []
             }
-            break
+            switch (base.target) {
+                case TargetType.None:
+                    result = { ...base, target: base.target, condition: { type: EffectConditionType.None } }
+                    break
+                case TargetType.Touch:
+                    result = { ...base, target: base.target }
+                    break
+                case TargetType.Self:
+                    result = { ...base, target: base.target, area: { type: AreaType.None } }
+                    break
+                case TargetType.Single:
+                    result = { ...base, target: base.target, range: ranges.range }
+                    break
+                case TargetType.Multiple:
+                    result = { ...base, target: base.target, range: ranges.range, count: 1 }
+                    break
+                case TargetType.Area:
+                case TargetType.Point:
+                    result = { ...base, target: base.target, range: ranges.range, area: { type: AreaType.None } }
+                    break
+            }
+        } break
         case AbilityType.MeleeAttack:
         case AbilityType.MeleeWeapon:
             result = {

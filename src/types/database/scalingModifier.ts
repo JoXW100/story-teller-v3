@@ -1,5 +1,5 @@
 import type { DieType } from 'structure/dice'
-import type { ICalcValue } from 'structure/database'
+import type { CalcValue } from 'structure/database'
 import type { EffectScaling } from 'structure/database/effect/common'
 import type { ScalingModifierType } from 'structure/database/scalingModifier/common'
 
@@ -20,7 +20,7 @@ export interface IDieCountScalingModifier extends IScalingModifierBase {
 
 export interface IModifierScalingModifier extends IScalingModifierBase {
     type: ScalingModifierType.Modifier
-    modifier: ICalcValue
+    modifier: CalcValue
 }
 
 export type IScalingModifier = IDieScalingModifier | IDieCountScalingModifier | IModifierScalingModifier

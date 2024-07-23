@@ -28,15 +28,21 @@ const SubraceDocumentEditor: React.FC = () => {
                 <LinkComponent field='parentRace' labelId='editor-parentRace' allowedTypes={[DocumentType.Race]}/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-modifiers'/>} open>
-                <LinkListComponent field='modifiers' labelId='editor-modifiers' allowedTypes={[DocumentType.Modifier]} fill />
+                <LinkListComponent
+                    field='modifiers'
+                    labelId='editor-modifiers'
+                    placeholderId='editor-modifiers-placeholder'
+                    allowedTypes={[DocumentType.Modifier]}
+                    fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-abilities'/>} open>
                 <LinkListComponent
                     field='abilities'
-                    allowedTypes={[DocumentType.Ability]}
                     labelId='editor-abilities'
                     placeholderId='editor-abilities-placeholder'
-                    allowText/>
+                    allowedTypes={[DocumentType.Ability]}
+                    allowText
+                    fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-description'/>} open fill>
                 <TextEditor

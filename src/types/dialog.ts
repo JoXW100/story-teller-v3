@@ -29,8 +29,9 @@ export interface INoticeDialogParams extends IDialogParams {
 }
 
 export interface ISelectFileDialogParams extends IDialogParams {
-    allowedTypes: readonly DocumentType[]
     storyId: ObjectId
+    allowedTypes: readonly DocumentType[]
+    sources: ObjectId[]
 }
 
 export interface ICreateFileDialogParams extends IDialogParams {

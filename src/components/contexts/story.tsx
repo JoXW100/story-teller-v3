@@ -12,6 +12,7 @@ import type { DBResponse } from 'types/database'
 
 type StoryContextProps = React.PropsWithChildren<{
     storyId: ObjectId
+    edit: boolean
 }>
 
 export interface IRollEvent {
@@ -24,6 +25,7 @@ interface StoryContextState {
     loading: boolean
     error: string | null
     rollHistory: Array<IRollEvent | null>
+    editEnabled: boolean
     sidePanelExpanded: boolean
 }
 
@@ -43,13 +45,15 @@ type StoryContextAction =
     | DispatchAction<'setStory', DBResponse<DatabaseStory>>
     | DispatchAction<'roll', IRollContext>
     | DispatchActionNoData<'clearRollHistory'>
-    | DispatchAction<'setSidePanelExpanded', boolean>
+    | DispatchAction<'setEditEnabled', boolean>
 
+    | DispatchAction<'setSidePanelExpanded', boolean>
 const defaultContextState = {
     story: null as any,
     loading: false,
     error: null,
     rollHistory: Array.from({ length: 10 }).map<IRollEvent | null>(() => null),
+    editEnabled: false,
     sidePanelExpanded: true
 } satisfies StoryContextState
 
@@ -108,6 +112,8 @@ const reducer: React.Reducer<StoryContextState, StoryContextAction> = (state, ac
         case 'clearRollHistory': {
             return { ...state, rollHistory: state.rollHistory.map(entry => entry !== null ? ({ ...entry, time: 0 }) : null) }
         }
+        case 'setEditEnabled':
+            return { ...state, editEnabled: action.data }
         case 'setSidePanelExpanded':
             return { ...state, sidePanelExpanded: action.data }
         default:
@@ -115,8 +121,8 @@ const reducer: React.Reducer<StoryContextState, StoryContextAction> = (state, ac
     }
 }
 
-const StoryContext: React.FC<StoryContextProps> = ({ children, storyId }) => {
-    const [state, dispatch] = useReducer(reducer, defaultContextState)
+const StoryContext: React.FC<StoryContextProps> = ({ children, storyId, edit }) => {
+    const [state, dispatch] = useReducer(reducer, { ...defaultContextState })
 
     useEffect(() => {
         dispatch({ type: 'init' })
@@ -125,6 +131,10 @@ const StoryContext: React.FC<StoryContextProps> = ({ children, storyId }) => {
     useEffect(() => {
         dispatch({ type: 'fetchStory', data: storyId, dispatch: dispatch })
     }, [storyId])
+
+    useEffect(() => {
+        dispatch({ type: 'setEditEnabled', data: edit })
+    }, [edit])
 
     const memoisedDispatch = useMemo<StoryContextDispatch>(() => ({
         roll(context) {

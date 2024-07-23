@@ -1,7 +1,7 @@
 import { isKeyOf, keysOf } from 'utils'
 import Logger from 'utils/logger'
 import { OptionalAttribute } from 'structure/dnd'
-import type { Simplify } from 'types'
+import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IBonusGroup, ICreatureStats } from 'types/editor'
 
@@ -12,7 +12,7 @@ export enum DocumentType {
     Class = 'cla',
     Subclass = 'scl',
     Race = 'rce',
-    Subrace = 'sre',
+    Subrace = 'src',
     Item = 'ite',
     Map = 'map',
     Modifier = 'mod',
@@ -32,52 +32,38 @@ export enum CalcMode {
     Modify = 'modify'
 }
 
-export interface ICalcValue {
-    mode: CalcMode
-    value?: number
+export enum FlagType {
+    Public = 'public',
+    Official = 'official'
 }
 
-export const AutoCalcValue = { mode: CalcMode.Auto } satisfies ICalcValue
+export abstract class DatabaseObject {
+    public readonly id: ObjectId
 
-export function createCalcValue(data?: Partial<ICalcValue>, other?: ICalcValue): ICalcValue {
-    if (data === undefined) {
-        return other ?? AutoCalcValue
-    }
-    switch (data.mode) {
-        case CalcMode.Modify:
-        case CalcMode.Override:
-            return { mode: data.mode, value: data.value ?? other?.value ?? 0 }
-        case CalcMode.Auto:
-        default:
-            return { mode: data.mode ?? other?.mode ?? CalcMode.Auto }
+    protected constructor(id: ObjectId) {
+        this.id = id
     }
 }
 
-export function simplifyCalcValue(data: ICalcValue): Partial<ICalcValue> | null {
-    switch (data.mode) {
-        case CalcMode.Modify:
-        case CalcMode.Override:
-            if (data.value === 0) {
-                return { mode: data.mode }
-            }
-            return { mode: data.mode, value: data.value }
-        case CalcMode.Auto:
-            return null
-    }
+export interface ICalcValueAuto {
+    mode: CalcMode.Auto
 }
 
-export function simplifyNumberRecord(value: Record<any, number>, defaultNumber: number = 0): Simplify<typeof value> | null {
-    const result: Simplify<Record<any, number>> = {}
-    let flag = false
-    for (const key of keysOf(value)) {
-        const number = value[key]
-        if (number !== defaultNumber) {
-            result[key] = number
-            flag = true
-        }
-    }
-    return flag ? result : null
+export interface ICalcValueModify {
+    mode: CalcMode.Modify
+    value: number
 }
+
+export interface ICalcValueOverride {
+    mode: CalcMode.Override
+    value: number
+}
+
+export type CalcValue = ICalcValueAuto | ICalcValueModify | ICalcValueOverride
+
+export const DocumentFileType = { ...DocumentType, ...FileType }
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export type DocumentFileType = DocumentType | FileType
 
 export const EmptyCreatureStats: ICreatureStats = {
     level: 0,
@@ -113,9 +99,43 @@ export const EmptyBonusGroup: IBonusGroup = {
     thrownBonus: 0
 }
 
-export const DocumentFileType = { ...DocumentType, ...FileType }
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export type DocumentFileType = DocumentType | FileType
+export function createCalcValue(data: Partial<CalcValue> = {}): CalcValue {
+    switch (data.mode) {
+        case CalcMode.Modify:
+        case CalcMode.Override:
+            return { mode: data.mode, value: data.value ?? 0 }
+        case CalcMode.Auto:
+        default:
+            return { mode: CalcMode.Auto }
+    }
+}
+
+export function simplifyCalcValue(data: CalcValue): Partial<CalcValue> | null {
+    switch (data.mode) {
+        case CalcMode.Modify:
+        case CalcMode.Override:
+            if (data.value === 0) {
+                return { mode: data.mode }
+            } else {
+                return { mode: data.mode, value: data.value }
+            }
+        case CalcMode.Auto:
+            return null
+    }
+}
+
+export function simplifyNumberRecord(value: Record<any, number>, defaultNumber: number = 0): Simplify<typeof value> | null {
+    const result: Simplify<Record<any, number>> = {}
+    let flag = false
+    for (const key of keysOf(value)) {
+        const number = value[key]
+        if (number !== defaultNumber) {
+            result[key] = number
+            flag = true
+        }
+    }
+    return flag ? result : null
+}
 
 export function hasObjectProperties<T, U extends T>(value: { [P in keyof T]?: unknown }, properties: DataPropertyMap<T, U>): boolean {
     for (const key of keysOf(properties)) {

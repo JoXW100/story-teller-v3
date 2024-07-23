@@ -22,7 +22,7 @@ interface ISelectFileDialogState {
     error: string | null
 }
 
-const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, allowedTypes, storyId, callback }) => {
+const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, storyId, allowedTypes, sources, callback }) => {
     const [state, setState] = useState<ISelectFileDialogState>({
         selected: null,
         files: [],
@@ -50,13 +50,17 @@ const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, allowedTypes
         return file.getTitle().toLowerCase().includes(state.search.toLowerCase())
     }
 
+    const sortFiles = (a: (typeof state.files)[number], b: (typeof state.files)[number]): number => {
+        return a.getTitle().localeCompare(b.getTitle())
+    }
+
     const loadContent = useCallback((): void => {
         setState((state) => {
             if (state.loading) {
                 return state
             }
 
-            Communication.getSubscribedFilesOfTypes(storyId, allowedTypes).then((response) => {
+            Communication.getAllFilesOfTypes(storyId, allowedTypes, sources).then((response) => {
                 if (response.success) {
                     setState((state) => ({ ...state, files: response.result, loading: false, error: null }))
                 } else {
@@ -69,7 +73,7 @@ const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, allowedTypes
 
             return { ...state, files: [], loading: true, error: null }
         })
-    }, [allowedTypes, storyId])
+    }, [allowedTypes, sources, storyId])
 
     useEffect(() => {
         loadContent()
@@ -100,7 +104,7 @@ const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, allowedTypes
                     <div className={styles.dialogBody}>
                         <div>
                             <Loading loaded={!state.loading}>
-                                { state.files.filter(filterFiles).map((file) => (
+                                { state.files.filter(filterFiles).sort(sortFiles).map((file) => (
                                     <button
                                         key={file.id}
                                         className={styles.fileItem}

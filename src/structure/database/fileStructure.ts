@@ -1,5 +1,4 @@
-import type { DocumentFileType } from '.'
-import { DatabaseObject } from './object'
+import { DatabaseObject, type DocumentFileType } from '.'
 import type { ObjectId } from 'types'
 import type { IFileStructure } from 'types/database'
 
@@ -21,7 +20,10 @@ class FileStructure extends DatabaseObject implements IFileStructure {
 
     public updateContained(file: IFileStructure): IFileStructure {
         if (this.id === file.id) {
-            return file
+            return {
+                ...file,
+                children: this.children.map((child) => child.updateContained(file))
+            }
         } else {
             return {
                 id: this.id,

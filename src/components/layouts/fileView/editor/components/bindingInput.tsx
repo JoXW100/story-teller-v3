@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from 'react'
 import GroupItemComponent from './groupItem'
 import { Context } from 'components/contexts/file'
 import SelectionMenu from 'components/layouts/menus/selection'
-import { isEnum, isRecord, keysOf, getRelativeFieldObject } from 'utils'
+import { isEnum, isRecord, keysOf, getRelativeFieldObject, asBooleanString } from 'utils'
 import Logger from 'utils/logger'
 import type { LanguageKey } from 'data'
 import { getOptionType } from 'structure/optionData'
@@ -15,9 +15,10 @@ type BindingInputComponentParams = React.PropsWithoutRef<{
     field: string
     labelId: LanguageKey
     labelArgs?: any[]
+    fill?: boolean
 }>
 
-const BindingInputComponent: React.FC<BindingInputComponentParams> = ({ field, labelId, labelArgs }) => {
+const BindingInputComponent: React.FC<BindingInputComponentParams> = ({ field, labelId, labelArgs, fill = false }) => {
     const [context, dispatch] = useContext(Context)
     const textValue = useMemo(() => {
         if (!isRecord(context.file.data)) {
@@ -60,7 +61,11 @@ const BindingInputComponent: React.FC<BindingInputComponentParams> = ({ field, l
     }
 
     return (
-        <GroupItemComponent className={styles.editList} labelId={labelId} labelArgs={labelArgs}>
+        <GroupItemComponent
+            className={styles.editList}
+            labelId={labelId}
+            labelArgs={labelArgs}
+            data={asBooleanString(fill)}>
             <SelectionMenu
                 type='string'
                 values={textValue}

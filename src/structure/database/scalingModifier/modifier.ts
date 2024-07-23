@@ -1,13 +1,13 @@
 import ScalingModifierBase from '.'
 import { ScalingModifierType } from './common'
 import { isCalcValue } from 'utils'
-import { AutoCalcValue, simplifyCalcValue, type ICalcValue } from 'structure/database'
+import { createCalcValue, simplifyCalcValue, type CalcValue } from 'structure/database'
 import type { DataPropertyMap } from 'types/database'
 import type { IModifierScalingModifier } from 'types/database/scalingModifier'
 
 class ModifierScalingModifier extends ScalingModifierBase implements IModifierScalingModifier {
     public readonly type: ScalingModifierType.Modifier
-    public readonly modifier: ICalcValue
+    public readonly modifier: CalcValue
 
     public constructor(data: Partial<IModifierScalingModifier>) {
         super(data)
@@ -22,7 +22,7 @@ class ModifierScalingModifier extends ScalingModifierBase implements IModifierSc
             validate: (value) => value === ScalingModifierType.Modifier
         },
         modifier: {
-            get value() { return { ...AutoCalcValue } },
+            get value() { return createCalcValue() },
             validate: isCalcValue,
             simplify: simplifyCalcValue
         }

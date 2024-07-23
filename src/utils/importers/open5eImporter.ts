@@ -388,12 +388,30 @@ function createEffects(res: Open5eSpell): Record<string, IEffect> {
                     prevDieCount = higherDieCount
                 }
             }
+
             if (prevLevel > 0) {
                 effects[prevKey] = {
                     ...effects.main,
                     die: prevDie,
                     dieCount: prevDieCount,
                     condition: { geq: [{ property: 'casterLevel' }, prevLevel] }
+                }
+            } else if (res.higher_level.toLowerCase().includes('for each slot level')) {
+                const die = asEnum(`d${increaseMatch[3]}`, DieType, DieType.None)
+                const dieCount = asNumber(increaseMatch[2], 0)
+
+                effects.main = {
+                    ...effects.main,
+                    condition: { leq: [{ property: 'spellLevel' }, res.level_int] }
+                }
+
+                for (let i = res.level_int + 1; i <= 9; i++) {
+                    effects[i] = {
+                        ...effects.main,
+                        die: die,
+                        dieCount: effects.main.dieCount + dieCount * (i - res.level_int),
+                        condition: { eq: [{ property: 'spellLevel' }, i] }
+                    }
                 }
             }
         }
@@ -436,7 +454,10 @@ export const open5eSpellImporter = async (id: string): Promise<ISpellData | null
         componentVerbal: components.includes('v'),
         componentMaterial: components.includes('m'),
         componentSomatic: components.includes('s'),
-        materials: res.material
+        materials: res.material,
+        target: TargetType.None,
+        condition: { type: EffectConditionType.None },
+        effects: {}
     }
 
     let result: ISpellData

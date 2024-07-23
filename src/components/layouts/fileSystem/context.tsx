@@ -153,6 +153,12 @@ const reducer: React.Reducer<FileSystemContextState, FileSystemContextAction> = 
                 }
             }, (error: unknown) => {
                 Logger.throw('FileSystem.updateName', error)
+                openDialog('notice', {
+                    id: 'fileSystem.updateName',
+                    headerTextId: 'common-error',
+                    bodyTextId: 'fileSystem-dialog-update',
+                    bodyTextArgs: [action.data.name, String(error)]
+                })
             })
             return { ...state, root: new FileStructure(state.root.updateContained(action.data)) }
         }
@@ -161,13 +167,7 @@ const reducer: React.Reducer<FileSystemContextState, FileSystemContextAction> = 
                 'data.open': action.data.open
             }).then((response) => {
                 if (!response.success || !response.result) {
-                    Logger.error('FileSystem.updateOpen', response.result)
-                    openDialog('notice', {
-                        id: 'fileSystem.updateOpen',
-                        headerTextId: 'common-error',
-                        bodyTextId: 'fileSystem-dialog-update',
-                        bodyTextArgs: [action.data.name, isString(response.result) ? response.result : 'Unknown Error']
-                    })
+                    Logger.warn('FileSystem.updateOpen', response.result)
                 }
             }, (error: unknown) => {
                 Logger.throw('FileSystem.updateOpen', error)

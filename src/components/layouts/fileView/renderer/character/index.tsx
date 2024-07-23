@@ -39,25 +39,27 @@ const CharacterDocumentRenderer: React.FC = () => {
 
     return <VariableContext variables={variables}>
         <Elements.align direction='h' weight='1' width='100%'>
-            <Elements.block weight='1' width='100%'>
+            <Elements.block weight='1' width='calc(50% - 1px)'>
                 <div className={styles.namePlate}>
                     <div className='no-line-break'>
                         <Elements.image href={facade.portrait} border={false} weight={null} width={null}/>
                     </div>
                     <div>
                         <Elements.h2 underline={false}>{facade.name}</Elements.h2>
-                        <div className='no-line-break'>{facade.namePlateText}</div>
+                        <Tooltip title={facade.className}>
+                            <div className='no-line-break'>{facade.namePlateText}</div>
+                        </Tooltip>
                         <div className='no-line-break'><LocalizedText id='render-level' args={[facade.level]}/></div>
                     </div>
                     <div className={styles.restPanel}>
                         <Tooltip title={<LocalizedText id='render-shortRest'/>}>
-                            <button className='circularButton square' >
-                                <Icon className='small-icon' icon='camp'/>
+                            <button className='circularButton square small-icon' >
+                                <Icon className='square fill' icon='camp'/>
                             </button>
                         </Tooltip>
                         <Tooltip title={<LocalizedText id='render-longRest'/>}>
-                            <button className='circularButton square '>
-                                <Icon className='small-icon' icon='night'/>
+                            <button className='circularButton square small-icon'>
+                                <Icon className='square fill' icon='night'/>
                             </button>
                         </Tooltip>
                     </div>
@@ -94,7 +96,7 @@ const CharacterDocumentRenderer: React.FC = () => {
                 <ProficienciesPage facade={facade}/>
             </Elements.block>
             <Elements.line width='2px'/>
-            <Elements.block weight='1' width='100%'>
+            <Elements.block weight='1' width={null}>
                 <HealthBox data={facade}/>
                 <Elements.space/>
                 <PageSelector pages={Pages} selected={page} setSelected={setPage}/>

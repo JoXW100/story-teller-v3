@@ -57,12 +57,12 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCr
     const concentrationIconTooltips = useLocalizedText('render-spell-concentration') ?? null
     const ritualIconTooltips = useLocalizedText('render-spell-ritual') ?? null
     const descriptionToken = useMemo(() => {
-        if (id === context.file.id) {
+        if (id === context.file.id && isDefined(context.tokens.description)) {
             return context.tokens.description
+        } else {
+            return StoryScript.tokenize(ElementDictionary, data.description, data.createContexts(ElementDictionary)[0]).root
         }
-        const [descriptionContext] = data.createContexts(ElementDictionary)
-        return StoryScript.tokenize(ElementDictionary, data.description, descriptionContext).root
-    }, [context.file.id, data, context.tokens.description, id])
+    }, [context.file.id, context.tokens.description, data, id])
 
     useEffect(() => {
         setUpcastLevel(data.level)
@@ -152,7 +152,7 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCr
                 </div>
             </Elements.align>
             <Elements.align direction='v' width='100%' weight='1'>
-                <div className={styles.iconRow}>
+                <div>
                     <LocalizedText id='render-range-area' className='font-bold'/>
                     { data.targetIcon !== null &&
                         <Elements.icon icon={data.targetIcon} tooltips={targetIconTooltips}/>
@@ -206,7 +206,7 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCr
                 )}
             </Elements.align>
         </Elements.align>
-        { isDefined(descriptionToken) && !descriptionToken.isEmpty && <>
+        { !descriptionToken.isEmpty && <>
             <Elements.line width='2px'/>
             { descriptionToken.build() }
         </>}

@@ -1,6 +1,6 @@
 import type { IEffect } from '../effect'
 import type { DieType } from 'structure/dice'
-import type { ArmorType, Attribute, DamageType, ItemType, MeleeWeaponType, RangedWeaponType, Rarity, ScalingType, ThrownWeaponType, WeaponType } from 'structure/dnd'
+import type { ArmorType, DamageType, ItemType, MeleeWeaponType, RangedWeaponType, Rarity, ScalingType, ThrownWeaponType, WeaponType } from 'structure/dnd'
 import type { ObjectId } from 'types'
 import type { IChargesData } from '../charges'
 
@@ -27,7 +27,6 @@ export interface IItemArmorData extends IItemDataBase {
     readonly subtype: ArmorType
     readonly ac: number
     readonly disadvantageStealth: boolean
-    readonly requirements: Partial<Record<Attribute, number>>
 }
 
 export interface IItemWeaponDataBase extends IItemDataBase {

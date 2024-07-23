@@ -5,7 +5,7 @@ import { asNumber, keysOf } from 'utils'
 import { getProficiencyLevelValue } from 'utils/calculations'
 import { getOptionType } from 'structure/optionData'
 import { type Alignment, type ArmorType, Attribute, type CreatureType, type Language, MovementType, OptionalAttribute, ProficiencyLevel, Sense, type SizeType, type ToolType, type WeaponTypeValue, Skill, type AdvantageBinding, ProficiencyLevelBasic, type DamageBinding, type ConditionBinding, type SpellLevel } from 'structure/dnd'
-import { CalcMode, type ICalcValue } from 'structure/database'
+import { CalcMode, type CalcValue } from 'structure/database'
 import { type DieType } from 'structure/dice'
 import { Die } from 'structure/dice/die'
 import type { ObjectId } from 'types'
@@ -74,7 +74,7 @@ class CreatureFacade implements ICreatureData {
         return getOptionType('alignment').options[this.alignment]
     }
 
-    public get ac(): ICalcValue {
+    public get ac(): CalcValue {
         return this.data.ac
     }
 
@@ -89,7 +89,7 @@ class CreatureFacade implements ICreatureData {
         }
     }
 
-    public get health(): ICalcValue {
+    public get health(): CalcValue {
         return this.data.ac
     }
 
@@ -123,7 +123,7 @@ class CreatureFacade implements ICreatureData {
         }
     }
 
-    public get proficiency(): ICalcValue {
+    public get proficiency(): CalcValue {
         return this.data.proficiency
     }
 
@@ -138,7 +138,7 @@ class CreatureFacade implements ICreatureData {
         }
     }
 
-    public get initiative(): ICalcValue {
+    public get initiative(): CalcValue {
         return this.data.initiative
     }
 
@@ -228,7 +228,7 @@ class CreatureFacade implements ICreatureData {
         return this.modifier.abilityScores.cha.call(this.data.cha, this.properties, this.storage.choices)
     }
 
-    public get passivePerception(): ICalcValue {
+    public get passivePerception(): CalcValue {
         return this.data.passivePerception
     }
 
@@ -244,7 +244,7 @@ class CreatureFacade implements ICreatureData {
         }
     }
 
-    public get passiveInvestigation(): ICalcValue {
+    public get passiveInvestigation(): CalcValue {
         return this.data.passiveInvestigation
     }
 
@@ -260,7 +260,7 @@ class CreatureFacade implements ICreatureData {
         }
     }
 
-    public get passiveInsight(): ICalcValue {
+    public get passiveInsight(): CalcValue {
         return this.data.passiveInsight
     }
 
@@ -320,7 +320,7 @@ class CreatureFacade implements ICreatureData {
         return this.data.spellSlots
     }
 
-    public get casterLevel(): ICalcValue {
+    public get casterLevel(): CalcValue {
         return this.data.casterLevel
     }
 

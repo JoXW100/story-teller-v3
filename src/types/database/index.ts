@@ -1,4 +1,4 @@
-import type { DocumentFileType } from 'structure/database'
+import type { DocumentFileType, FlagType } from 'structure/database'
 import type { ObjectId, Simplify } from 'types'
 
 export type DBResponse<T> = {
@@ -23,6 +23,8 @@ export interface IDatabaseStory {
     readonly name: string
     readonly description: string
     readonly image: string | null
+    readonly sources: ObjectId[]
+    readonly flags: FlagType[]
     readonly dateCreated: number
     readonly dateUpdated: number
 }
@@ -37,10 +39,6 @@ export interface IDatabaseFile<T extends DocumentFileType = DocumentFileType, S 
     readonly dateUpdated: number
     readonly data: Readonly<D>
     readonly storage: Readonly<S>
-}
-
-export interface IDatabaseStoryData extends IDatabaseStory {
-    readonly root: ObjectId | null
 }
 
 export interface IDataProperty<T, U extends T = T> {
@@ -61,6 +59,6 @@ export interface IDatabaseFactory<T extends object, U extends T = T> {
 
 export type ServerRequestType = 'isConnected' | 'getStory' | 'getAllStories' |
 'getLastUpdatedStory' | 'getFile' | 'getFiles' | 'getFileStructure' |
-'getSubscribedFiles' | 'addStory' | 'updateStory' | 'addFile' | 'copyFile' |
-'updateFile' | 'moveFile' | 'deleteStory' | 'deleteFile' | 'getSubclasses' |
-'getAbilitiesOfCategory' | 'getSubraces'
+'getAll' | 'addStory' | 'updateStory' | 'addFile' | 'copyFile' |
+'updateFile' | 'moveFile' | 'deleteStory' | 'deleteFile' | 'getSubFiles' |
+'getAbilitiesOfCategory' | 'getAllAvailableSources'

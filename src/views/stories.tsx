@@ -6,7 +6,9 @@ import Loading from 'components/loading'
 import AppBar from 'components/layouts/appBar'
 import SettingsButton from 'components/layouts/settingsButton'
 import StoryCard, { EmptyCard } from 'components/layouts/storyCard'
+import { openDialog } from 'components/dialogs/handler'
 import type DatabaseStory from 'structure/database/story'
+import { isString } from 'utils'
 import Navigation from 'utils/navigation'
 import Communication from 'utils/communication'
 import Logger from 'utils/logger'
@@ -35,10 +37,22 @@ const StoriesView: React.FC = () => {
                     if (response.success) {
                         setState((state) => ({ ...state, loading: false, stories: response.result }))
                     } else {
+                        openDialog('notice', {
+                            id: 'file.setData',
+                            headerTextId: 'common-error',
+                            bodyTextId: 'stories-dialog-getAllStories',
+                            bodyTextArgs: [isString(response.result) ? response.result : 'Unknown Error']
+                        })
                         Logger.error('StoriesView.getAllStories', response.result)
                         setState((state) => ({ ...state, loading: false, stories: [] }))
                     }
                 }, (error: unknown) => {
+                    openDialog('notice', {
+                        id: 'file.setData',
+                        headerTextId: 'common-error',
+                        bodyTextId: 'stories-dialog-getAllStories',
+                        bodyTextArgs: [String(error)]
+                    })
                     Logger.throw('StoriesView.getAllStories', error)
                     setState((state) => ({ ...state, loading: false, stories: [] }))
                 })

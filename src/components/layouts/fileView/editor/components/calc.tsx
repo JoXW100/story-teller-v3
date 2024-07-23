@@ -3,7 +3,7 @@ import GroupItemComponent from './groupItem'
 import { Context } from 'components/contexts/file'
 import DropdownMenu from 'components/layouts/dropdownMenu'
 import NumberInput from 'components/layouts/numericInput'
-import { CalcMode, type ICalcValue } from 'structure/database'
+import { CalcMode } from 'structure/database'
 import { getOptionType } from 'structure/optionData'
 import { getRelativeFieldObject, isCalcValue, isRecord } from 'utils'
 import type { LanguageKey } from 'data'
@@ -36,11 +36,11 @@ const CalcComponent: React.FC<CalcComponentParams> = ({ field, labelId, labelArg
     }
 
     const handleModeChange = (newMode: CalcMode): void => {
-        dispatch.setData(field, { ...value, mode: newMode } satisfies ICalcValue)
+        dispatch.setData(field, { ...value, mode: newMode })
     }
 
     const handleNumericInput = (newValue: number): void => {
-        dispatch.setData(field, { ...value, value: newValue } satisfies ICalcValue)
+        dispatch.setData(field, { ...value, value: newValue })
     }
 
     return (
@@ -53,8 +53,8 @@ const CalcComponent: React.FC<CalcComponentParams> = ({ field, labelId, labelArg
                 onChange={handleModeChange}/>
             <NumberInput
                 onChange={handleNumericInput}
-                value={value.value ?? 0}
-                disabled={value.mode as CalcMode === CalcMode.Auto}/>
+                value={value.mode === CalcMode.Auto ? 0 : value.value}
+                disabled={value.mode === CalcMode.Auto}/>
         </GroupItemComponent>
     )
 }

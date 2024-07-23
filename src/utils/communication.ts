@@ -1,15 +1,14 @@
 import Logger from './logger'
-import DatabaseStory from 'structure/database/story'
+import type DatabaseStory from 'structure/database/story'
 import { isEnum, isObjectId, keysOf } from 'utils'
-import { type DocumentFileType, DocumentType } from 'structure/database'
-import type SubclassDocument from 'structure/database/files/subclass'
-import type SubraceDocument from 'structure/database/files/subrace'
+import { type DocumentFileType, DocumentType, type FlagType } from 'structure/database'
 import type DatabaseFile from 'structure/database/files'
 import FileStructure from 'structure/database/fileStructure'
 import DocumentFactory, { type DocumentTypeMap } from 'structure/database/files/factory'
+import StoryFactory from 'structure/database/story/factory'
 import type AbilityDocument from 'structure/database/files/ability'
 import type { ObjectId } from 'types'
-import type { IDatabaseStory, IDatabaseStoryData, DBResponse, IFileStructure, IDatabaseFile, ServerRequestType } from 'types/database'
+import type { IDatabaseStory, DBResponse, IFileStructure, IDatabaseFile, ServerRequestType } from 'types/database'
 
 type FetchMethod = 'GET' | 'PUT' | 'DELETE'
 type FetchParams = Record<string, unknown>
@@ -62,11 +61,16 @@ abstract class Communication {
     }
 
     public static async getStory(storyId: ObjectId): Promise<DBResponse<DatabaseStory>> {
-        const response = await this.databaseFetch<IDatabaseStoryData>('getStory', 'GET', {
+        const response = await this.databaseFetch<IDatabaseStory>('getStory', 'GET', {
             storyId: storyId
         })
+        Logger.log('Communication.getStory', response)
         if (response.success) {
-            return { success: true, result: new DatabaseStory(response.result) }
+            if (StoryFactory.validate(response.result)) {
+                return { success: true, result: StoryFactory.create(response.result) }
+            } else {
+                return { success: false, result: 'Failed validation' }
+            }
         }
         return response
     }
@@ -76,7 +80,25 @@ abstract class Communication {
         if (response.success) {
             const result: DatabaseStory[] = []
             for (let i = 0; i < response.result.length; i++) {
-                result.push(new DatabaseStory(response.result[i]))
+                const story = response.result[i]
+                if (StoryFactory.validate(story)) {
+                    result.push(StoryFactory.create(story))
+                }
+            }
+            return { success: true, result: result }
+        }
+        return response
+    }
+
+    public static async getAllAvailableSources(): Promise<DBResponse<DatabaseStory[]>> {
+        const response = await this.databaseFetch<IDatabaseStory[]>('getAllAvailableSources', 'GET')
+        if (response.success) {
+            const result: DatabaseStory[] = []
+            for (let i = 0; i < response.result.length; i++) {
+                const story = response.result[i]
+                if (StoryFactory.validate(story)) {
+                    result.push(StoryFactory.create(story))
+                }
             }
             return { success: true, result: result }
         }
@@ -85,17 +107,20 @@ abstract class Communication {
 
     public static async getLastUpdatedStory(): Promise<DatabaseStory | null> {
         const response = await this.databaseFetch<IDatabaseStory>('getLastUpdatedStory', 'GET')
-        if (response.success) {
-            return new DatabaseStory(response.result)
+        if (response.success && StoryFactory.validate(response.result)) {
+            return StoryFactory.create(response.result)
         }
         return null
     }
 
-    public static async addStory(name: string, description: string, image: string | null): Promise<DBResponse<ObjectId>> {
+    public static async addStory(name: string, description: string, image: string | null, sources: ObjectId[], flags: FlagType[]): Promise<DBResponse<ObjectId>> {
+        Logger.log('Communication.addStory', name, description, image, sources, flags)
         const response = await this.databaseFetch<ObjectId>('addStory', 'PUT', {
             name: name,
             description: description,
-            image: image
+            image: image,
+            sources: sources,
+            flags: flags
         })
         if (response.success && !isObjectId(response.result)) {
             Logger.error('Communication.addStory', response.result)
@@ -105,6 +130,7 @@ abstract class Communication {
     }
 
     public static async updateStory(storyId: ObjectId, update: Record<string, unknown>): Promise<DBResponse<boolean>> {
+        Logger.log('Communication.updateStory', storyId, update)
         const response = await this.databaseFetch<boolean>('updateStory', 'PUT', {
             storyId: storyId,
             update: update
@@ -218,14 +244,15 @@ abstract class Communication {
         return response
     }
 
-    public static async getSubscribedFilesOfTypes<T extends readonly DocumentType[]>(storyId: ObjectId, allowedTypes: T): Promise<DBResponse<Array<DocumentTypeMap[T[number]]>>> {
-        const response = await this.databaseFetch<IDatabaseFile[]>('getSubscribedFiles', 'GET', {
+    public static async getAllFilesOfTypes<T extends readonly DocumentType[]>(storyId: ObjectId, allowedTypes: T, sources: ObjectId[] = []): Promise<DBResponse<Array<DocumentTypeMap[T[number]]>>> {
+        const response = await this.databaseFetch<IDatabaseFile[]>('getAll', 'GET', {
             storyId: storyId,
-            allowedTypes: allowedTypes
+            allowedTypes: allowedTypes,
+            sources: sources
         })
         if (response.success) {
             if (!response.result.every(value => DocumentFactory.validate(value))) {
-                Logger.error('Communication.getSubscribedFilesOfTypes', response.result)
+                Logger.error('Communication.getAllFilesOfTypes', response.result)
                 return { success: false, result: 'Failed to get file, type missmatch' }
             } else {
                 return {
@@ -244,20 +271,20 @@ abstract class Communication {
         return response
     }
 
-    public static async getSubclasses(storyId: ObjectId, classId: ObjectId): Promise<DBResponse<SubclassDocument[]>> {
-        const response = await this.databaseFetch<IDatabaseFile[]>('getSubclasses', 'GET', {
-            storyId: storyId,
-            classId: classId
+    public static async getSubFiles<T extends DocumentType>(parentId: ObjectId, type: T): Promise<DBResponse<Array<DocumentTypeMap[T]>>> {
+        const response = await this.databaseFetch<IDatabaseFile[]>('getSubFiles', 'GET', {
+            parentId: parentId,
+            fileType: type
         })
         if (response.success) {
             if (!response.result.every(value => DocumentFactory.validate(value))) {
-                Logger.error('Communication.getSubclasses', response.result)
+                Logger.error('Communication.getSubFiles', response.result)
                 return { success: false, result: 'Failed to get file, type missmatch' }
             } else {
                 return {
                     success: true,
                     result: response.result.map(value => {
-                        const instance = DocumentFactory.createOfTypes(value, [DocumentType.Subclass])
+                        const instance = DocumentFactory.createOfTypes(value, [type])
                         if (instance === null) {
                             throw new Error('Validated file creation resulted in null value')
                         }
@@ -270,35 +297,8 @@ abstract class Communication {
         return response
     }
 
-    public static async getSubraces(storyId: ObjectId, raceId: ObjectId): Promise<DBResponse<SubraceDocument[]>> {
-        const response = await this.databaseFetch<IDatabaseFile[]>('getSubraces', 'GET', {
-            storyId: storyId,
-            raceId: raceId
-        })
-        if (response.success) {
-            if (!response.result.every(value => DocumentFactory.validate(value))) {
-                Logger.error('Communication.getSubraces', response.result)
-                return { success: false, result: 'Failed to get file, type missmatch' }
-            } else {
-                return {
-                    success: true,
-                    result: response.result.map(value => {
-                        const instance = DocumentFactory.createOfTypes(value, [DocumentType.Subrace])
-                        if (instance === null) {
-                            throw new Error('Validated file creation resulted in null value')
-                        }
-                        this.cache[value.id] = instance
-                        return instance
-                    })
-                }
-            }
-        }
-        return response
-    }
-
-    public static async getAbilitiesOfCategory(storyId: ObjectId, category: string): Promise<DBResponse<AbilityDocument[]>> {
+    public static async getAbilitiesOfCategory(category: string): Promise<DBResponse<AbilityDocument[]>> {
         const response = await this.databaseFetch<IDatabaseFile[]>('getAbilitiesOfCategory', 'GET', {
-            storyId: storyId,
             category: category
         })
         if (response.success) {

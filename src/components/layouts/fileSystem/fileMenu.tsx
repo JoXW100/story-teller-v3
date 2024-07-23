@@ -12,8 +12,9 @@ import type { IFileStructure } from 'types/database'
 import styles from './style.module.scss'
 
 function checkFilers(structure: IFileStructure, filter: FileFilter): boolean {
-    return (!isKeyOf(structure.type, filter) || filter[structure.type]) &&
-        (filter.search.length === 0 || structure.name.toLowerCase().includes(filter.search.toLowerCase()))
+    return ((!isKeyOf(structure.type, filter) || filter[structure.type]) &&
+        (filter.search.length === 0 || structure.name.toLowerCase().includes(filter.search.toLowerCase()))) ||
+        structure.children.some((child) => checkFilers(child, filter))
 }
 
 function buildFileStructure(file: IFileStructure): React.ReactNode {
@@ -57,7 +58,7 @@ function sortFileStructure(root: IFileStructure, filter: FileFilter): IFileStruc
     const queue = [...root.children]
     while (queue.length > 0) {
         const structure = queue.pop()!
-        if (structure.children.length > 0 || checkFilers(structure, filter)) {
+        if (checkFilers(structure, filter)) {
             if (filter.showEmptyFolders) {
                 visible.add(structure.id)
                 for (const child of structure.children) {

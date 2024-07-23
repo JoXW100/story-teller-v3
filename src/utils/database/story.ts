@@ -1,33 +1,46 @@
 import { type Db, type Collection, type ObjectId } from 'mongodb'
 import Database, { failure, success } from '.'
 import { StoryCollectionName, StoryCollectionTestName } from './constants'
-import { keysOf } from 'utils'
+import { isKeyOf, keysOf } from 'utils'
 import Logger from 'utils/logger'
-import { FileType } from 'structure/database'
-import DatabaseStory from 'structure/database/story'
+import { FileType, FlagType } from 'structure/database'
+import StoryFactory from 'structure/database/story/factory'
 import type { KeysOfTwo } from 'types'
-import type { IDatabaseStory, IDatabaseStoryData, DBResponse } from 'types/database'
+import type { IDatabaseStory, DBResponse } from 'types/database'
 
 interface IDBStory {
+    _id: ObjectId
     _userId: string
     name: string
     description: string
     image: string | null
+    sources: ObjectId[]
+    flags: FlagType[]
     dateCreated: number
     dateUpdated: number
 }
 
-const isKeyUpdateValid = (key: string, value: unknown): boolean => {
-    switch (key) {
-        case 'name':
-            return typeof value === 'string' && value.length > 0 && value.length < 500
-        case 'description':
-            return typeof value === 'string' && value.length < 500
-        case 'image':
-            return value === null || (typeof value === 'string' && value.length < 500)
-        default:
-            return false
+function validateUpdate(update: Record<string, unknown>): boolean {
+    const updateRecord: Record<string, unknown> = {}
+    for (const updateKey of keysOf(update)) {
+        const keys = updateKey.split('.')
+        let relative = updateRecord
+        for (let i = 0; i < keys.length - 1; i++) {
+            relative = (relative[keys[i]] ??= {}) as Record<string, unknown>
+        }
+
+        relative[keys[keys.length - 1]] = update[updateKey]
     }
+
+    const properties = StoryFactory.properties()
+    for (const updateKey of keysOf(updateRecord)) {
+        if (!isKeyOf(updateKey, properties) || !properties[updateKey].validate(updateRecord[updateKey])) {
+            Logger.warn('story.validateUpdate', 'Failed Update Key Validation', updateKey)
+            return false
+        }
+    }
+
+    return true
 }
 
 class StoryCollection {
@@ -48,14 +61,15 @@ class StoryCollection {
      * @param image The url to an image, or null
      * @returns A response containing the id of the story, or an error message
      */
-    async add(userId: string, name: string, description: string, image: string | null): Promise<DBResponse<string>> {
+    async add(userId: string, name: string, description: string, image: string | null, sources: ObjectId[], flags: FlagType[]): Promise<DBResponse<string>> {
         try {
             const time = Date.now()
-            const request: IDBStory = {
-                _userId: userId,
+            const request: Omit<IDBStory, '_id' | '_userId'> = {
                 name: name,
                 description: description,
                 image: image === 'null' ? null : image,
+                sources: sources,
+                flags: flags,
                 dateCreated: time,
                 dateUpdated: time
             }
@@ -67,12 +81,12 @@ class StoryCollection {
                 return failure('Documents collection was disabled')
             }
 
-            if (!DatabaseStory.validate(request)) {
+            if (!StoryFactory.validate(request)) {
                 Logger.warn('story.add', 'Failed validation')
                 return failure('Failed story validation')
             }
 
-            const result = await this.collection.insertOne(request)
+            const result = await this.collection.insertOne({ ...request, _userId: userId } as unknown as IDBStory)
 
             if (!result.acknowledged) {
                 Logger.warn('story.add', 'Failed to acknowledge')
@@ -111,30 +125,25 @@ class StoryCollection {
      * @param update The key-value pair update
      * @returns A response containing the id of the story, or an error message
      */
-    async update(userId: string, storyId: ObjectId, update: unknown): Promise<DBResponse<boolean>> {
+    async update(userId: string, storyId: ObjectId, update: Record<string, unknown>): Promise<DBResponse<boolean>> {
         try {
-            if (typeof update !== 'object' || update === null) {
-                Logger.warn('story.update', update)
+            if (!validateUpdate(update)) {
+                Logger.warn('story.update', 'Invalid story update', update)
                 return failure('Invalid story update')
             }
 
-            const query: { $set: Record<string, unknown> } = { $set: { dateUpdated: Date.now() } }
-            for (const key of keysOf(update)) {
-                const value = update[key]
-                if (isKeyUpdateValid(key, value)) {
-                    query.$set[key] = value
-                } else {
-                    Logger.warn('story.update', key, update)
-                    return failure('Invalid update request, tried to update key=' + String(key))
-                }
+            const query: { $set: Record<string, unknown> } = {
+                $set: { dateUpdated: Date.now() }
             }
 
-            const filter = {
+            for (const key of keysOf(update)) {
+                query.$set[key] = update[key]
+            }
+
+            const result = await this.collection.updateOne({
                 _userId: userId,
                 _id: storyId
-            }
-
-            const result = await this.collection.updateOne(filter, query)
+            }, query)
 
             if (!result.acknowledged) {
                 Logger.warn('story.update', result)
@@ -146,7 +155,7 @@ class StoryCollection {
                 return failure('No story found to update')
             }
 
-            Logger.log('story.update', storyId, result.modifiedCount)
+            Logger.log('story.update', storyId, Object.keys(update).map((key) => `${key}: ${String(update[key])}`).join(', '))
             return success(result.matchedCount > 0)
         } catch (error) {
             Logger.error('story.update', error)
@@ -174,32 +183,17 @@ class StoryCollection {
                     }
                 },
                 {
-                    $lookup: {
-                        from: Database.files!.collection.collectionName,
-                        pipeline: [
-                            {
-                                $match: {
-                                    _userId: userId,
-                                    _storyId: storyId,
-                                    type: FileType.Root
-                                }
-                            },
-                            { $limit: 1 }
-                        ],
-                        as: 'root'
-                    }
-                },
-                {
                     $project: {
                         _id: 0,
                         id: '$_id',
                         name: '$name',
                         description: '$description',
                         image: '$image',
-                        root: { $first: '$root._id' },
+                        sources: '$sources',
+                        flags: '$flags',
                         dateCreated: '$dateCreated',
                         dateUpdated: '$dateUpdated'
-                    } satisfies KeysOfTwo<IDatabaseStoryData, object>
+                    } satisfies KeysOfTwo<IDatabaseStory, object>
                 }
             ]).toArray()
 
@@ -220,6 +214,12 @@ class StoryCollection {
         }
     }
 
+    /**
+     * Checks if the given user owns the given story
+     * @param userId The user to check ownership of
+     * @param storyId The story to check owner of
+     * @returns True if the user owns the story, false otherwise
+     */
     async has(userId: string, storyId: ObjectId): Promise<DBResponse<boolean>> {
         try {
             const result = await this.collection.findOne({
@@ -258,6 +258,53 @@ class StoryCollection {
                         name: '$name',
                         description: '$description',
                         image: '$image',
+                        sources: '$sources',
+                        flags: '$flags',
+                        dateCreated: '$dateCreated',
+                        dateUpdated: '$dateUpdated'
+                    } satisfies KeysOfTwo<IDatabaseStory, object>
+                }
+            ]).toArray())
+            Logger.log('story.getAll', result.length, result.map(x => x.name))
+            return success(result)
+        } catch (error) {
+            Logger.error('story.getAll', error)
+            if (error instanceof Error) {
+                return failure(error.message)
+            } else {
+                return failure(String(error))
+            }
+        }
+    }
+
+    /**
+     * Gets all available source stories for the given user
+     * @param userId The Auth0 sub of the user
+     * @returns A response containing an array of story, or an error message
+     */
+    async getAllAvailableSources(userId: string): Promise<DBResponse<IDatabaseStory[]>> {
+        try {
+            const result = (await this.collection.aggregate<IDatabaseStory>([
+                {
+                    $addFields: {
+                        valid: {
+                            $or: [
+                                { $eq: [userId, '$_userId'] },
+                                { $in: [FlagType.Public, '$flags'] }
+                            ]
+                        }
+                    }
+                },
+                { $match: { valid: true } },
+                {
+                    $project: {
+                        _id: 0,
+                        id: '$_id',
+                        name: '$name',
+                        description: '$description',
+                        image: '$image',
+                        sources: '$sources',
+                        flags: '$flags',
                         dateCreated: '$dateCreated',
                         dateUpdated: '$dateUpdated'
                     } satisfies KeysOfTwo<IDatabaseStory, object>
@@ -308,6 +355,8 @@ class StoryCollection {
                         name: '$name',
                         description: '$description',
                         image: '$image',
+                        sources: '$sources',
+                        flags: '$flags',
                         dateCreated: '$dateCreated',
                         dateUpdated: { $max: ['$dateUpdated', '$documents.dateUpdated'] }
                     } satisfies KeysOfTwo<IDBStory, object>
@@ -321,6 +370,8 @@ class StoryCollection {
                         name: '$name',
                         description: '$description',
                         image: '$image',
+                        sources: '$sources',
+                        flags: '$flags',
                         dateCreated: '$dateCreated',
                         dateUpdated: '$dateUpdated'
                     } satisfies KeysOfTwo<IDatabaseStory, object>

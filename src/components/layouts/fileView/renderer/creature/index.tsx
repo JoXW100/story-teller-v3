@@ -5,12 +5,13 @@ import SpellGroups from '../spell/groups'
 import AttributesBox from './attributesBox'
 import ProficienciesPage from './proficienciesPage'
 import { Context } from 'components/contexts/file'
-import Elements from 'components/elements'
+import Elements, { ElementDictionary } from 'components/elements'
 import VariableContext from 'components/contexts/variable'
 import { useCreatureFacade } from 'utils/hooks/documents'
 import { OptionalAttribute, type SpellLevel } from 'structure/dnd'
 import { RollMethodType, RollType } from 'structure/dice'
 import type CreatureDocument from 'structure/database/files/creature'
+import { isDefined } from 'utils'
 
 const Pages = {
     'actions': { key: 'render-page-actions' },
@@ -22,6 +23,13 @@ const CreatureDocumentRenderer: React.FC = () => {
     const [page, setPage] = useState<keyof typeof Pages>('actions')
     const { facade, abilities, spells, variables } = useCreatureFacade(context.file as CreatureDocument)
     const stats = useMemo(() => facade.getStats(), [facade])
+    const descriptionToken = useMemo(() => {
+        if (isDefined(context.tokens.description)) {
+            return context.tokens.description
+        } else {
+            return context.file.getTokenizedDescription(ElementDictionary)
+        }
+    }, [context.file, context.tokens.description])
 
     const handleSetExpandedAbilityCharges = (charges: Partial<Record<string, number>>): void => {
         dispatch.setStorage('abilitiesExpendedCharges', charges)
@@ -76,7 +84,7 @@ const CreatureDocumentRenderer: React.FC = () => {
                 <AttributesBox data={facade}/>
                 <Elements.line width='2px'/>
                 <Elements.h2 underline={false}>Description</Elements.h2>
-                { context.tokens.description?.build() }
+                { descriptionToken.build() }
                 <Elements.line width='2px'/>
                 <div><Elements.bold>Challenge </Elements.bold>{facade.challengeText}</div>
                 <div><Elements.bold>Speed </Elements.bold>{facade.speedAsText}</div>

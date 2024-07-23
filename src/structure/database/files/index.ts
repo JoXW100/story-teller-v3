@@ -1,5 +1,4 @@
-import { DocumentFileType, FileType } from '..'
-import { DatabaseObject } from '../object'
+import { DatabaseObject, DocumentFileType, FileType } from '..'
 import { isBoolean, isEnum, isNumber, isObjectId, isRecord, isString } from 'utils'
 import type { DataPropertyMap, IDatabaseFactory, IDatabaseFile } from 'types/database'
 import type { ObjectId } from 'types'

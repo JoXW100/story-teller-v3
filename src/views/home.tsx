@@ -14,12 +14,12 @@ import { isDefined, isObjectId } from 'utils'
 import Navigation from 'utils/navigation'
 import Logger from 'utils/logger'
 import Communication from 'utils/communication'
-import type { IDatabaseStoryData } from 'types/database'
+import type { IDatabaseStory } from 'types/database'
 import styles from 'styles/pages/home.module.scss'
 
 interface HomeState {
     loading: boolean
-    lastStory: IDatabaseStoryData | null
+    lastStory: IDatabaseStory | null
 }
 
 const HomeView: React.FC = () => {

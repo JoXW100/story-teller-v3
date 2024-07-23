@@ -18,7 +18,6 @@ import EffectFactory from 'structure/database/effect/factory'
 import styles from './style.module.scss'
 import { isEnum } from 'utils'
 
-const AllowedTypes = [DocumentType.Modifier] as const
 const ItemDocumentEditor: React.FC = () => {
     const [context, dispatch] = useContext(Context)
     const defaultEffectValue = useMemo(() => EffectFactory.create(), [])
@@ -52,11 +51,6 @@ const ItemDocumentEditor: React.FC = () => {
                 <GroupComponent header={<LocalizedText id='editor-header-details'/>} open>
                     <NumberComponent field='ac' labelId='editor-ac' />
                     <BooleanComponent field='disadvantageStealth' labelId='editor-disadvantageStealth'/>
-                    <SelectionInputComponent
-                        field='requirements'
-                        type='number'
-                        optionsType='attr'
-                        labelId='editor-requirements' />
                 </GroupComponent>
             }{ context.file.data.type === ItemType.Weapon &&
                 <>
@@ -105,7 +99,12 @@ const ItemDocumentEditor: React.FC = () => {
                     page='charges'/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-modifiers'/>} open>
-                <LinkListComponent field='modifiers' labelId='editor-modifiers' allowedTypes={AllowedTypes} fill/>
+                <LinkListComponent
+                    field='modifiers'
+                    labelId='editor-modifiers'
+                    placeholderId='editor-modifiers-placeholder'
+                    allowedTypes={[DocumentType.Modifier]}
+                    fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-description'/>} open fill>
                 <TextEditor

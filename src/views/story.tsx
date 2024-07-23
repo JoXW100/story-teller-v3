@@ -4,6 +4,7 @@ import { Context } from 'components/contexts/story'
 import AppBar from 'components/layouts/appBar'
 import FileSystem from 'components/layouts/fileSystem'
 import Divider from 'components/layouts/divider'
+import EditButton from 'components/layouts/editButton'
 import SettingsButton from 'components/layouts/settingsButton'
 import RollHistoryButton from 'components/layouts/rollHistoryButton'
 import FileSystemCollapsedMenu from 'components/layouts/fileSystem/collapsedMenu'
@@ -28,6 +29,7 @@ const StoryView: React.FC<StoryViewProps> = ({ fileId }) => {
         <div className={styles.view}>
             <AppBar headerId='empty' headerArgs={[context.story.name]} iconId='story' handleBack={handleBack}>
                 <SettingsButton/>
+                <EditButton/>
                 <RollHistoryButton/>
             </AppBar>
             <Divider

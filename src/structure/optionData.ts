@@ -269,6 +269,7 @@ const OptionTypes = {
             [ScalingType.INT]: 'INT',
             [ScalingType.WIS]: 'WIS',
             [ScalingType.CHA]: 'CHA',
+            [ScalingType.AttunedItems]: 'Attuned Items',
             [ScalingType.WalkSpeed]: 'Walk Speed',
             [ScalingType.BurrowSpeed]: 'Burrow Speed',
             [ScalingType.ClimbSpeed]: 'Climb Speed',
@@ -334,6 +335,7 @@ const OptionTypes = {
         default: ModifierBonusType.AC,
         options: {
             [ModifierBonusType.AC]: 'AC',
+            [ModifierBonusType.Health]: 'Health',
             [ModifierBonusType.AbilityScore]: 'Ability Score',
             [ModifierBonusType.Save]: 'Save',
             [ModifierBonusType.Skill]: 'Skill',

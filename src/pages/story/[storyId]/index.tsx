@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import StoryView from 'views/story'
 import Loading from 'components/loading'
 import StoryContext from 'components/contexts/story'
-import { isObjectId, isObjectIdOrNull } from 'utils'
+import { asObjectId, isObjectId, isObjectIdOrNull } from 'utils'
 import Navigation from 'utils/navigation'
 import { useValidation } from 'utils/hooks/validation'
 import type { ObjectId } from 'types'
@@ -11,6 +11,7 @@ import type { ObjectId } from 'types'
 interface StoryPageProps {
     storyId: string
     fileId?: string
+    edit?: string
 }
 
 const StoryPage: React.FC<{ props: StoryPageProps }> = ({ props }) => {
@@ -30,8 +31,8 @@ const StoryPage: React.FC<{ props: StoryPageProps }> = ({ props }) => {
 
     return (
         <Loading loaded={validated && isObjectId(props.storyId) && isObjectIdOrNull(fileId)}>
-            <StoryContext storyId={props.storyId as ObjectId}>
-                <StoryView fileId={fileId as ObjectId | null}/>
+            <StoryContext storyId={props.storyId as ObjectId} edit={'edit' in props}>
+                <StoryView fileId={asObjectId(fileId)}/>
             </StoryContext>
         </Loading>
     )
