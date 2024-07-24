@@ -2,7 +2,6 @@ import { AbilityType } from '../common'
 import AbilityDataBase from '../data'
 import type { IconType } from 'assets/icons'
 import { isRecord, keysOf } from 'utils'
-import { getOptionType } from 'structure/optionData'
 import type { TargetType } from 'structure/dnd'
 import EffectFactory, { simplifyEffectRecord, type Effect } from 'structure/database/effect/factory'
 import type { EffectCondition } from 'structure/database/effectCondition/factory'
@@ -27,10 +26,6 @@ abstract class AbilityAttackDataBase extends AbilityDataBase implements IAbility
                 }
             }
         }
-    }
-
-    public get typeName(): string {
-        return getOptionType('abilityType').options[this.type]
     }
 
     public abstract get targetText(): string

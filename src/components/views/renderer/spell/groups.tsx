@@ -3,8 +3,8 @@ import { SpellToggleRenderer } from '.'
 import ChargesRenderer from '../charges'
 import Elements from 'components/elements'
 import { keysOf } from 'utils'
+import { useLocalizedOptions } from 'utils/hooks/localization'
 import { SpellLevel } from 'structure/dnd'
-import { getOptionType } from 'structure/optionData'
 import { EmptyCreatureStats } from 'structure/database'
 import type { ObjectId } from 'types'
 import type { ICreatureStats } from 'types/editor'
@@ -19,6 +19,7 @@ type SpellGroupsProps = React.PropsWithRef<{
 }>
 
 const SpellGroups: React.FC<SpellGroupsProps> = ({ spells, spellSlots, expendedSlots, stats = EmptyCreatureStats, setExpendedSlots }) => {
+    const options = useLocalizedOptions('spellLevel')
     const categories = useMemo(() => {
         const categories: Partial<Record<SpellLevel, Array<keyof typeof spells>>> = {}
         for (const key of keysOf(spellSlots)) {
@@ -31,15 +32,13 @@ const SpellGroups: React.FC<SpellGroupsProps> = ({ spells, spellSlots, expendedS
         return categories
     }, [spellSlots, spells])
 
-    const option = getOptionType('spellLevel')
-
     return (
         <>
             { keysOf(categories).map(level => (
                 <React.Fragment key={level}>
                     <Elements.row>
                         <Elements.b>
-                            { option.options[level] }
+                            { options[level] }
                         </Elements.b>
                         { level !== SpellLevel.Cantrip &&
                             <ChargesRenderer

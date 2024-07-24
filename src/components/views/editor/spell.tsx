@@ -79,7 +79,7 @@ const SpellDocumentEditor: React.FC = () => {
                 </GroupComponent>
             }{ context.file.data.target !== TargetType.None &&
                 <GroupComponent header={<LocalizedText id='editor-header-condition'/>} open>
-                    <EnumComponent field='condition.type' type='effectConditionType' labelId='editor-condition-type'/>
+                    <EnumComponent field='condition.type' type='effectCondition' labelId='editor-condition-type'/>
                     { context.file.data.condition.type === EffectConditionType.Hit &&
                         <SelectionInputComponent
                             field='condition.scaling'

@@ -1,8 +1,8 @@
 import ItemDataBase from '../data'
 import { asNumber, isEnum, isNumber, isRecord, isString, keysOf } from 'utils'
+import type { TranslationHandler } from 'utils/hooks/localization'
 import { DamageType, ItemType, ScalingType, type WeaponType } from 'structure/dnd'
 import { DieType } from 'structure/dice'
-import { getOptionType } from 'structure/optionData'
 import { simplifyNumberRecord } from 'structure/database'
 import EffectFactory, { type Effect, simplifyEffectRecord } from 'structure/database/effect/factory'
 import type { Simplify } from 'types'
@@ -55,8 +55,8 @@ abstract class ItemWeaponDataBase extends ItemDataBase implements IItemWeaponDat
         }
     }
 
-    public override get categoryText(): string {
-        return getOptionType('weaponType').options[this.subtype]
+    public override getCategoryText(translator: TranslationHandler): string {
+        return translator(`enum-weaponType-${this.subtype}`)
     }
 
     public override get equippable(): boolean {

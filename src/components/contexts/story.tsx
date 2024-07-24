@@ -70,6 +70,7 @@ export const Context = React.createContext<StoryContextProvider>([
 ])
 
 const reducer: React.Reducer<StoryContextState, StoryContextAction> = (state, action) => {
+    Logger.log('story.reducer', action.type)
     switch (action.type) {
         case 'init':
             return state

@@ -4,7 +4,7 @@ import { Context } from 'components/contexts/file'
 import GroupItemComponent from './groupItem'
 import { isRecord, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
-import { useLocalizedText } from 'utils/hooks/localizedText'
+import { useLocalizedText } from 'utils/hooks/localization'
 import styles from '../style.module.scss'
 
 type TextComponentParams = React.PropsWithoutRef<{

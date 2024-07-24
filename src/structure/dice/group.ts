@@ -1,6 +1,7 @@
-import { type DieType, DiceBase, type IDiceRoll } from '.'
+import { type DieType, type IDiceRoll, DiceBase } from '.'
 import { Die } from './die'
 import { keysOf } from 'utils/index'
+import type Random from 'structure/random'
 
 export class DiceGroup extends DiceBase {
     protected readonly collection: Partial<Record<DieType, number>> = {}
@@ -32,7 +33,7 @@ export class DiceGroup extends DiceBase {
         }
     }
 
-    public override rollOnce(group: string = '0'): IDiceRoll {
+    public override rollOnce(generator?: Random, group: string = '0'): IDiceRoll {
         const result: IDiceRoll = {
             dice: this,
             sum: 0,
@@ -44,7 +45,7 @@ export class DiceGroup extends DiceBase {
             const x: number = this.collection[type] ?? 0
             const dice = Die.parse(type)
             for (let i = 0; i < x; i++) {
-                const value = dice.rollOnceValue()
+                const value = dice.rollOnceValue(generator)
                 result.sum += value
                 result.rolls.push({ type: type, group: group, value: value })
             }
@@ -52,13 +53,13 @@ export class DiceGroup extends DiceBase {
         return result
     }
 
-    public override rollOnceValue(): number {
+    public override rollOnceValue(generator?: Random): number {
         let sum: number = 0
         for (const type of keysOf(this.collection)) {
             const x: number = this.collection[type] ?? 0
             const dice = Die.parse(type)
             for (let i = 0; i < x; i++) {
-                sum += dice.rollOnceValue()
+                sum += dice.rollOnceValue(generator)
             }
         }
         return sum

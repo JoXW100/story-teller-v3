@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useReducer } from 'react'
 import { asBoolean, asEnum, asKeyOf, isKeyOf, keysOf } from 'utils'
 import Storage from 'utils/storage'
-import { TextData, type LanguageType } from 'assets'
+import { TextData, type ITextData, type LanguageType } from 'assets'
 import Palettes from 'assets/palettes'
 import type { ContextProvider, DispatchAction, DispatchActionNoData, ISetFieldData } from 'types/context'
-import type { LocalizationItem } from 'types/localization'
 
 export enum ViewMode {
     SplitView = 'split',
@@ -14,7 +13,7 @@ export enum ViewMode {
 interface AppContextState {
     palette: keyof typeof Palettes
     language: LanguageType
-    localization: LocalizationItem
+    localization: ITextData
     viewMode: ViewMode
     enableEditorWordWrap: boolean
     enableColorFileByType: boolean

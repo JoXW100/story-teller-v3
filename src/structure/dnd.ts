@@ -396,7 +396,7 @@ export enum ToolType {
 }
 
 export enum Language {
-    All = 'All',
+    All = 'all',
     Abyssal = 'abyssal',
     Celestial = 'celestial',
     Common = 'common',
@@ -530,20 +530,31 @@ export enum DamageBinding {
 
 export enum ConditionBinding {
     Generic = 'generic',
+    Blinded = 'blinded',
     Charmed = 'charmed',
-    Sleep = 'sleep',
-    Frightened = 'frightened',
+    Deafened = 'deafened',
     Diseased = 'diseased',
+    Exhaustion = 'exhaustion',
+    Frightened = 'frightened',
+    Grappled = 'grappled',
+    Incapacitated = 'incapacitated',
+    Invisible = 'invisible',
+    Paralyzed = 'paralyzed',
+    Petrified = 'petrified',
     Poisoned = 'poisoned',
+    Restrained = 'restrained',
+    Sleep = 'sleep',
+    Stunned = 'stunned',
+    Unconscious = 'unconscious',
 }
 
 export enum SpellPreparationType {
     None = 'none',
-    Cantrip = 'cantrip',
-    FreeCantrip = 'freeCantrip',
     AlwaysPrepared = 'always',
     Prepared = 'prepared',
-    Learned = 'learned'
+    Learned = 'learned',
+    Cantrip = 'cantrip',
+    FreeCantrip = 'freeCantrip'
 }
 
 export enum SpellLevel {

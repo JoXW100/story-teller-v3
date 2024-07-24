@@ -1,6 +1,6 @@
 import { type ChangeEventHandler, type MouseEventHandler, useRef } from 'react'
 import SearchIcon from '@mui/icons-material/SearchSharp'
-import { useLocalizedText } from 'utils/hooks/localizedText'
+import { useLocalizedText } from 'utils/hooks/localization'
 import styles from './style.module.scss'
 
 type SearchboxProps = React.PropsWithRef<{

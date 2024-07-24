@@ -6,8 +6,8 @@ import { Context } from 'components/contexts/file'
 import LinkRecordMenu, { type ILinkRecordMenuButtonProps } from 'components/controls/menus/linkRecord'
 import type { LanguageKey } from 'assets'
 import { asBooleanString, isEnum, isNumber, isObjectId, isRecord, isString, getRelativeFieldObject } from 'utils'
-import { useLocalizedText } from 'utils/hooks/localizedText'
 import Logger from 'utils/logger'
+import { useLocalizedOptions, useLocalizedText } from 'utils/hooks/localization'
 import { getOptionType, type IOptionType, type OptionTypeKey } from 'structure/optionData'
 import type { DocumentType } from 'structure/database'
 import type { ObjectId } from 'types'
@@ -32,6 +32,8 @@ const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type,
     const [context, dispatch] = useContext(Context)
     const placeholder = useLocalizedText(placeholderId, placeholderArgs)
     const buttonTooltips = useLocalizedText('common-edit')
+    const options = useLocalizedOptions(enumType)
+
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.LinkRecordComponent', 'Data of incorrect type', context.file.data)
         return null
@@ -50,7 +52,7 @@ const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type,
             return null
         }
 
-        option = getOptionType(enumType as OptionTypeKey)
+        option = getOptionType(enumType)
         if (option === null) {
             Logger.throw('Editor.LinkRecordComponent', 'No option type of type: ' + enumType, field)
             return null
@@ -119,7 +121,7 @@ const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type,
                     editClassName={styles.editRecordItem}
                     type={type}
                     value={value as Record<ObjectId, string>}
-                    options={option!.options}
+                    options={options}
                     defaultValue={option!.default}
                     onChange={handleChange}
                     placeholder={placeholder}

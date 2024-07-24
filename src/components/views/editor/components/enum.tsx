@@ -6,6 +6,7 @@ import { type OptionTypeKey, getOptionType } from 'structure/optionData'
 import type { LanguageKey } from 'assets'
 import { isEnum, isRecord, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
+import { useLocalizedOptions } from 'utils/hooks/localization'
 import styles from '../style.module.scss'
 
 type EnumComponentParams = React.PropsWithoutRef<{
@@ -17,6 +18,8 @@ type EnumComponentParams = React.PropsWithoutRef<{
 
 const EnumComponent: React.FC<EnumComponentParams> = ({ field, type, labelId, labelArgs }) => {
     const [context, dispatch] = useContext(Context)
+    const options = useLocalizedOptions(type)
+
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.NumberComponent', 'Data of incorrect type', context.file.data)
         return null
@@ -28,15 +31,9 @@ const EnumComponent: React.FC<EnumComponentParams> = ({ field, type, labelId, la
         return null
     }
 
-    const option = getOptionType(type)
-    if (option === null) {
-        Logger.throw('Editor.EnumComponent', 'No option type of type: ' + type, field)
-        return null
-    }
-
     const value = relative.relative[relative.key]
-    if (!isEnum(value, option.enum)) {
-        Logger.throw('Editor.EnumComponent', 'Relative field not of expected type', relative.relative, relative.key, value, option)
+    if (!isEnum(value, getOptionType(type).enum)) {
+        Logger.throw('Editor.EnumComponent', 'Relative field not of expected type', relative.relative, relative.key, value)
         return null
     }
 
@@ -49,7 +46,7 @@ const EnumComponent: React.FC<EnumComponentParams> = ({ field, type, labelId, la
             <DropdownMenu<typeof value>
                 className={styles.dropdown}
                 itemClassName={styles.dropdownItem}
-                values={option.options}
+                values={options}
                 value={value}
                 onChange={handleInput}/>
         </GroupItemComponent>

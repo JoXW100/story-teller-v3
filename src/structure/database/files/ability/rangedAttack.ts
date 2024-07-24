@@ -3,7 +3,6 @@ import AbilityDataBase from './data'
 import { isNumber, isRecord } from 'utils'
 import EffectFactory, { simplifyEffectRecord, type Effect } from 'structure/database/effect/factory'
 import EffectConditionFactory, { type EffectCondition } from 'structure/database/effectCondition/factory'
-import { getOptionType } from 'structure/optionData'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IAbilityRangedAttackData } from 'types/database/files/ability'
@@ -32,10 +31,6 @@ class AbilityRangedAttackData extends AbilityDataBase implements IAbilityRangedA
                 }
             }
         }
-    }
-
-    public get typeName(): string {
-        return getOptionType('abilityType').options[this.type]
     }
 
     public static override properties: DataPropertyMap<IAbilityRangedAttackData, AbilityRangedAttackData> = {

@@ -2,11 +2,10 @@ import Icons from 'assets/icons'
 import Elements from 'components/elements'
 import type { LanguageKey } from 'assets'
 import { isKeyOf } from 'utils'
-import { useLocalizedText } from 'utils/hooks/localizedText'
 import { RollMethodType, RollType } from 'structure/dice'
 import { EffectType } from 'structure/database/effect/common'
-import { getOptionType } from 'structure/optionData'
 import type { Effect } from 'structure/database/effect/factory'
+import { useLocalizedOptions, useLocalizedText } from 'utils/hooks/localization'
 import type { IBonusGroup } from 'types/editor'
 import type { IConditionProperties } from 'types/database/condition'
 import styles from './styles.module.scss'
@@ -22,6 +21,7 @@ type EffectRendererProps = React.PropsWithRef<{
 
 const EffectRenderer: React.FC<EffectRendererProps> = ({ data, properties, bonuses, desc, tooltipsId, tooltipsArgs = [] }) => {
     const tooltips = useLocalizedText(tooltipsId, tooltipsArgs)
+    const options = useLocalizedOptions('damageType')
     switch (data.type) {
         case EffectType.Text:
             return (
@@ -45,7 +45,7 @@ const EffectRenderer: React.FC<EffectRendererProps> = ({ data, properties, bonus
                         { isKeyOf(data.damageType, Icons) &&
                             <Elements.icon
                                 icon={data.damageType}
-                                tooltips={getOptionType('damageType').options[data.damageType]}/>
+                                tooltips={options[data.damageType]}/>
                         }
                     </Elements.roll>
                 </div>

@@ -3,7 +3,7 @@
 @import 'styles/prefabs.scss';
 @import 'styles/constants.scss';
 
-.circularButton {
+.circular-center {
     display: grid;
     border-radius: 50%;
     justify-content: center;
@@ -148,6 +148,22 @@
 .label-xl {
     width: $labelExtraLargeWidth;
 }
+
+.color-main { @include colorBackground('main'); }
+.color-main-shadow { @include colorWithShadow('main'); }
+.color-second { @include colorBackground('second'); }
+.color-second-shadow { @include colorWithShadow('second'); }
+.color-input-shadow { @include colorWithShadow('input'); }
+.color-interactive { @include colorInteractive; }
+.color-interactive-shadow { @include colorInteractiveWithShadow; }
+
+.margin-small { margin: 2px; }
+.margin-medium { margin: 5px; }
+.margin-large { margin: 10px; }
+
+.padding-small { padding: 2px; }
+.padding-medium { padding: 5px; }
+.padding-large { padding: 10px; }
 
 .no-line-break { @include fontNoLineBreak; }
 .font-normal { @include fontNormal; }

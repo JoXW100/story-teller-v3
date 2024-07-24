@@ -61,4 +61,4 @@ export type ServerRequestType = 'isConnected' | 'getStory' | 'getAllStories' |
 'getLastUpdatedStory' | 'getFile' | 'getFiles' | 'getFileStructure' |
 'getAll' | 'addStory' | 'updateStory' | 'addFile' | 'copyFile' |
 'updateFile' | 'moveFile' | 'deleteStory' | 'deleteFile' | 'getSubFiles' |
-'getAbilitiesOfCategory' | 'getAllAvailableSources'
+'getAbilitiesOfCategory' | 'getAllAvailableSources' | 'debug'

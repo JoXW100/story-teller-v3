@@ -1,6 +1,6 @@
 import { type Db, type Collection, type ObjectId } from 'mongodb'
 import Database, { failure, success } from '.'
-import { StoryCollectionName, StoryCollectionTestName } from './constants'
+import { Collections } from './constants'
 import { isKeyOf, keysOf } from 'utils'
 import Logger from 'utils/logger'
 import { FileType, FlagType } from 'structure/database'
@@ -8,7 +8,7 @@ import StoryFactory from 'structure/database/story/factory'
 import type { KeysOfTwo } from 'types'
 import type { IDatabaseStory, DBResponse } from 'types/database'
 
-interface IDBStory {
+export interface IDBStory {
     _id: ObjectId
     _userId: string
     name: string
@@ -48,8 +48,8 @@ class StoryCollection {
 
     constructor (database: Db, test: boolean) {
         const name = test
-            ? StoryCollectionTestName
-            : StoryCollectionName
+            ? Collections._story.test
+            : Collections._story.main
         this.collection = database.collection<IDBStory>(name)
     }
 
@@ -84,6 +84,11 @@ class StoryCollection {
             if (!StoryFactory.validate(request)) {
                 Logger.warn('story.add', 'Failed validation')
                 return failure('Failed story validation')
+            }
+
+            if (process.env.NODE_ENV !== 'development' && request.flags.includes(FlagType.Official)) {
+                Logger.warn('story.add', 'Failed flag validation')
+                return failure('Failed story flag validation')
             }
 
             const result = await this.collection.insertOne({ ...request, _userId: userId } as unknown as IDBStory)
@@ -130,6 +135,11 @@ class StoryCollection {
             if (!validateUpdate(update)) {
                 Logger.warn('story.update', 'Invalid story update', update)
                 return failure('Invalid story update')
+            }
+
+            if (process.env.NODE_ENV !== 'development' && 'flags' in update && (update.flags as FlagType[]).includes(FlagType.Official)) {
+                Logger.warn('story.update', 'Failed flag validation')
+                return failure('Failed story flag validation')
             }
 
             const query: { $set: Record<string, unknown> } = {

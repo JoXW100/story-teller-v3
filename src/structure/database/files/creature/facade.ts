@@ -3,12 +3,12 @@ import type CreatureStorage from './storage'
 import type Modifier from '../modifier/modifier'
 import { asNumber, keysOf } from 'utils'
 import { getProficiencyLevelValue } from 'utils/calculations'
-import { getOptionType } from 'structure/optionData'
 import { type Alignment, type ArmorType, Attribute, type CreatureType, type Language, MovementType, OptionalAttribute, ProficiencyLevel, Sense, type SizeType, type ToolType, type WeaponTypeValue, Skill, type AdvantageBinding, ProficiencyLevelBasic, type DamageBinding, type ConditionBinding, type SpellLevel } from 'structure/dnd'
 import { CalcMode, type CalcValue } from 'structure/database'
 import { type DieType } from 'structure/dice'
 import { Die } from 'structure/dice/die'
 import type { ObjectId } from 'types'
+import type { TranslationHandler } from 'utils/hooks/localization'
 import type { IBonusGroup, ICreatureStats } from 'types/editor'
 import type { ICreatureData, ISourceBinding } from 'types/database/files/creature'
 import type { IConditionProperties } from 'types/database/condition'
@@ -18,6 +18,7 @@ class CreatureFacade implements ICreatureData {
     public readonly storage: CreatureStorage
     public readonly modifier: Modifier
     public readonly properties: Partial<IConditionProperties>
+    public readonly translator: TranslationHandler
 
     // 0 - none / unarmored / clothing
     // 1 - light
@@ -31,11 +32,12 @@ class CreatureFacade implements ICreatureData {
     protected shieldLevel: number = 0
     protected armorAC: number = 10
 
-    constructor(data: CreatureData, storage: CreatureStorage, modifier: Modifier, properties: Partial<IConditionProperties> = {}) {
+    constructor(data: CreatureData, storage: CreatureStorage, modifier: Modifier, translator: TranslationHandler, properties: Partial<IConditionProperties> = {}) {
         this.data = data
         this.storage = storage
         this.modifier = modifier
         this.properties = properties
+        this.translator = translator
     }
 
     public get name(): string {
@@ -55,7 +57,7 @@ class CreatureFacade implements ICreatureData {
     }
 
     public get sizeText(): string {
-        return getOptionType('size').options[this.size]
+        return this.translator(`enum-size-${this.size}`)
     }
 
     public get type(): CreatureType {
@@ -63,7 +65,7 @@ class CreatureFacade implements ICreatureData {
     }
 
     public get typeText(): string {
-        return getOptionType('creatureType').options[this.type]
+        return this.translator(`enum-creatureType-${this.type}`)
     }
 
     public get alignment(): Alignment {
@@ -71,7 +73,7 @@ class CreatureFacade implements ICreatureData {
     }
 
     public get alignmentText(): string {
-        return getOptionType('alignment').options[this.alignment]
+        return this.translator(`enum-alignment-${this.alignment}`)
     }
 
     public get ac(): CalcValue {
@@ -90,7 +92,7 @@ class CreatureFacade implements ICreatureData {
     }
 
     public get health(): CalcValue {
-        return this.data.ac
+        return this.data.health
     }
 
     public get hitDie(): DieType {
@@ -182,9 +184,8 @@ class CreatureFacade implements ICreatureData {
     }
 
     public get speedAsText(): string {
-        const options = getOptionType('movement').options
         const speed = this.speed
-        return keysOf(speed).map((type) => `${options[type]} ${speed[type]}ft`).join(', ')
+        return keysOf(speed).map((type) => `${this.translator(`enum-movement-${type}`)} ${speed[type]}ft`).join(', ')
     }
 
     public get senses(): Partial<Record<Sense, number>> {
@@ -199,9 +200,8 @@ class CreatureFacade implements ICreatureData {
     }
 
     public get sensesAsText(): string {
-        const options = getOptionType('sense').options
         const senses = this.senses
-        return keysOf(senses).map((type) => `${options[type]} ${senses[type]}ft`).join(', ')
+        return keysOf(senses).map((type) => `${this.translator(`enum-sense-${type}`)} ${senses[type]}ft`).join(', ')
     }
 
     public get str(): number {
@@ -351,7 +351,7 @@ class CreatureFacade implements ICreatureData {
         const proficiencies = this.proficienciesTool
         return keysOf(proficiencies)
             .filter((type) => proficiencies[type] !== ProficiencyLevelBasic.None)
-            .map((type) => getOptionType('tool').options[type])
+            .map((type) => this.translator(`enum-tool-${type}`))
             .join(', ')
     }
 
@@ -363,7 +363,7 @@ class CreatureFacade implements ICreatureData {
         const proficiencies = this.proficienciesLanguage
         return keysOf(proficiencies)
             .filter((type) => proficiencies[type] === ProficiencyLevelBasic.Proficient)
-            .map((type) => getOptionType('language').options[type])
+            .map((type) => this.translator(`enum-language-${type}`))
             .join(', ')
     }
 
@@ -375,7 +375,7 @@ class CreatureFacade implements ICreatureData {
         const proficiencies = this.proficienciesArmor
         return keysOf(proficiencies)
             .filter((type) => proficiencies[type] === ProficiencyLevelBasic.Proficient)
-            .map((type) => getOptionType('armor').options[type])
+            .map((type) => this.translator(`enum-armor-${type}`))
             .join(', ')
     }
 
@@ -387,7 +387,7 @@ class CreatureFacade implements ICreatureData {
         const proficiencies = this.proficienciesWeapon
         return keysOf(proficiencies)
             .filter((type) => proficiencies[type] === ProficiencyLevelBasic.Proficient)
-            .map((type) => getOptionType('weaponTypeValue').options[type])
+            .map((type) => this.translator(`enum-weaponTypeValue-${type}`))
             .join(', ')
     }
 

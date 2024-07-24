@@ -53,12 +53,12 @@ const CharacterDocumentRenderer: React.FC = () => {
                     </div>
                     <div className={styles.restPanel}>
                         <Tooltip title={<LocalizedText id='render-shortRest'/>}>
-                            <button className='circularButton square small-icon' >
+                            <button className='circular-center square small-icon' >
                                 <Icon className='square fill' icon='camp'/>
                             </button>
                         </Tooltip>
                         <Tooltip title={<LocalizedText id='render-longRest'/>}>
-                            <button className='circularButton square small-icon'>
+                            <button className='circular-center square small-icon'>
                                 <Icon className='square fill' icon='night'/>
                             </button>
                         </Tooltip>

@@ -7,9 +7,9 @@ import NumberInput from 'components/controls/numericInput'
 import DropdownMenu from 'components/controls/dropdownMenu'
 import { asBooleanString, asEnum, isRecord, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
-import { useLocalizedText } from 'utils/hooks/localizedText'
 import { type OptionTypeKey, getOptionType } from 'structure/optionData'
 import styles from '../style.module.scss'
+import { useLocalizedOptions, useLocalizedText } from 'utils/hooks/localization'
 
 type RecordComponentParams = React.PropsWithoutRef<{
     field: string
@@ -86,6 +86,7 @@ const RecordComponent: React.FC<RecordComponentParams> = ({ field, defaultValue,
 
 const RecordItemComponent: React.FC<RecordItemComponentParams> = ({ itemKey, value, values, update, params }) => {
     const [label, setLabel] = useState(itemKey)
+    const options = useLocalizedOptions(params.enumType)
     const optionType = params.enumType !== undefined
         ? getOptionType(params.enumType)
         : null
@@ -128,11 +129,11 @@ const RecordItemComponent: React.FC<RecordItemComponentParams> = ({ itemKey, val
                 <DropdownMenu
                     className={styles.editInput}
                     value={asEnum(value, optionType.enum) ?? optionType.default}
-                    values={optionType.options as Record<string, React.ReactNode>}
+                    values={options}
                     onChange={update}/>
             }
             { !params.allowKeyChange && params.inputType === 'enum' && optionType !== null &&
-                (optionType.options as Record<string, React.ReactNode>)[asEnum(value, optionType.enum) ?? optionType.default]
+                options[asEnum(value, optionType.enum) ?? optionType.default]
             }
             { params.valueType === 'text' &&
                 <input
@@ -156,6 +157,7 @@ const RecordItemComponent: React.FC<RecordItemComponentParams> = ({ itemKey, val
 }
 
 const RecordEditComponent: React.FC<RecordItemComponentParams> = ({ value, update, params }) => {
+    const options = useLocalizedOptions(params.enumType)
     if (params.inputType === 'text') {
         const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
             update(e.target.value)
@@ -175,7 +177,7 @@ const RecordEditComponent: React.FC<RecordItemComponentParams> = ({ value, updat
             <DropdownMenu
                 className={styles.editInput}
                 value={asEnum(value, optionType.enum) ?? optionType.default}
-                values={optionType.options as Record<string, React.ReactNode>}
+                values={options as Record<string, React.ReactNode>}
                 onChange={update}/>
         )
     }

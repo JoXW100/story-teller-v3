@@ -10,7 +10,7 @@ import { type LanguageType, TextData } from 'assets'
 import type { IconType } from 'assets/icons'
 import { keysOf } from 'utils'
 import Navigation from 'utils/navigation'
-import { getOptionType } from 'structure/optionData'
+import { useLocalizedOptions } from 'utils/hooks/localization'
 import styles from './style.module.scss'
 
 interface SettingsViewParams {
@@ -32,6 +32,7 @@ function createLanguageOptions(): Record<LanguageType, React.ReactNode> {
 
 const SettingsView: React.FC<SettingsViewParams> = ({ returnPath }) => {
     const [context, dispatch] = useContext(Context)
+    const options = useLocalizedOptions('viewMode')
     const router = useRouter()
 
     const handleBack = (): void => {
@@ -55,7 +56,7 @@ const SettingsView: React.FC<SettingsViewParams> = ({ returnPath }) => {
                 <span>
                     <DropdownMenu
                         value={context.viewMode}
-                        values={getOptionType('viewMode').options}
+                        values={options}
                         onChange={(value) => { dispatch.setOption('viewMode', value) }}
                     />
                 </span>

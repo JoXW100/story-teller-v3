@@ -4,12 +4,6 @@ export enum EffectType {
     Damage = 'damage'
 }
 
-export enum EffectScaling {
-    Level = 'level',
-    CasterLevel = 'casterLevel',
-    SpellSlot = 'spellSlot'
-}
-
 export enum EffectCategory {
     Uncategorized = 'uncategorized',
     AttackDamage = 'attack',

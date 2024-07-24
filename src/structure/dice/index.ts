@@ -1,3 +1,5 @@
+import type Random from 'structure/random'
+
 export enum DieType {
     None = 'none',
     D4 = 'd4',
@@ -7,7 +9,7 @@ export enum DieType {
     D12 = 'd12',
     D20 = 'd20',
     D100 = 'd100',
-    DX = 'dX'
+    DX = 'dx'
 }
 
 export enum RollMethodType {
@@ -66,15 +68,15 @@ export interface IRollContext {
 export abstract class DiceBase {
     public abstract readonly modifier: number
 
-    public roll(method: RollMethodType = RollMethodType.Normal, group: string = '0'): IDiceRollResult {
+    public roll(method: RollMethodType = RollMethodType.Normal, generator?: Random, group: string = '0'): IDiceRollResult {
         const numRolls = DiceBase.numRollsForRollMethod(method)
         return DiceBase.createRollResult(this, Array.from({ length: numRolls }).map(() => (
-            this.rollOnce(group)
+            this.rollOnce(generator, group)
         )), method)
     }
 
-    public abstract rollOnce(group?: string): IDiceRoll
-    public abstract rollOnceValue(): number
+    public abstract rollOnce(generator?: Random, group?: string): IDiceRoll
+    public abstract rollOnceValue(generator?: Random): number
     public abstract stringify(): string
 
     protected static numRollsForRollMethod(method: RollMethodType): number {

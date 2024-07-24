@@ -6,6 +6,7 @@ import TextDocumentRenderer from './text'
 import CreatureDocumentRenderer from './creature'
 import CreatureLinkRenderer from './creature/link'
 import CharacterDocumentRenderer from './character'
+import EncounterDocumentRenderer from './encounter'
 import AbilityDocumentRenderer from './ability'
 import AbilityLinkRenderer from './ability/link'
 import SpellDocumentRender from './spell'
@@ -27,6 +28,7 @@ export const DocumentRendererMap = {
     [DocumentType.Class]: { document: DefaultRenderer, link: DefaultRenderer },
     [DocumentType.Subclass]: { document: DefaultRenderer, link: DefaultRenderer },
     [DocumentType.Creature]: { document: CreatureDocumentRenderer, link: CreatureLinkRenderer },
+    [DocumentType.Encounter]: { document: EncounterDocumentRenderer, link: DefaultRenderer },
     [DocumentType.Item]: { document: ItemDocumentRenderer, link: CreatureLinkRenderer },
     [DocumentType.Map]: { document: MapDocumentRenderer, link: DefaultRenderer },
     [DocumentType.Modifier]: { document: DefaultRenderer, link: DefaultRenderer },
@@ -43,7 +45,7 @@ const Renderer: React.FC = () => {
     const [zoom, setZoom] = useState(100)
     const Renderer = isKeyOf(context.file.type, DocumentRendererMap)
         ? DocumentRendererMap[context.file.type].document
-        : () => null
+        : () => { return null }
 
     const changeZoom = (delta: number): void => {
         setZoom((val) => Math.min(Math.max(val + delta, 10), 400))

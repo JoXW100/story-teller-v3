@@ -1,9 +1,9 @@
 import type { IconType } from 'assets/icons'
 import { asEnum, isBoolean, isEnum, isNumber, isRecord, isString } from 'utils'
 import { getSpellLevelValue } from 'utils/calculations'
+import type { TranslationHandler } from 'utils/hooks/localization'
 import { CastingTime, Duration, MagicSchool, SpellLevel, type TargetType } from 'structure/dnd'
 import type { EffectCondition } from 'structure/database/effectCondition/factory'
-import { getOptionType } from 'structure/optionData'
 import EmptyToken from 'structure/language/tokens/empty'
 import EffectFactory, { type Effect, simplifyEffectRecord } from 'structure/database/effect/factory'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
@@ -93,39 +93,39 @@ abstract class SpellDataBase implements ISpellDataBase {
         return getSpellLevelValue(this.level)
     }
 
-    public get levelText(): string {
-        return getOptionType('spellLevel').options[this.level] ?? String(this.level)
+    public getLevelText(translator: TranslationHandler): string {
+        return translator(`enum-spellLevel-${this.level}`)
     }
 
-    public get schoolName(): string {
-        return getOptionType('magicSchool').options[this.school] ?? String(this.school)
+    public getSchoolNameText(translator: TranslationHandler): string {
+        return translator(`enum-magicSchool-${this.school}`)
     }
 
-    public get timeText(): string {
-        return getOptionType('castingTime').options[this.time] ?? String(this.time)
+    public getDurationName(translator: TranslationHandler): string {
+        return translator(`enum-duration-${this.duration}`)
     }
 
-    public get timeValueText(): string {
+    public getTimeText(translator: TranslationHandler): string {
+        return translator(`enum-castingTime-${this.time}`)
+    }
+
+    public getTimeValueText(translator: TranslationHandler): string {
         if (this.time === CastingTime.Custom) { return this.timeCustom }
         return this.timeValue > 1
-            ? `${this.timeValue} ${this.timeText}s`
-            : `${this.timeValue} ${this.timeText}`
+            ? `${this.timeValue} ${this.getTimeText(translator)}s`
+            : `${this.timeValue} ${this.getTimeText(translator)}`
     }
 
-    public get durationName(): string {
-        return getOptionType('duration').options[this.duration] ?? String(this.duration)
-    }
-
-    public get durationText(): string {
+    public getDurationText(translator: TranslationHandler): string {
         switch (this.duration) {
             case Duration.Custom:
                 return this.durationCustom
             case Duration.Instantaneous:
-                return this.durationName
+                return this.getDurationName(translator)
             default:
                 return this.durationValue > 1
-                    ? `${this.durationValue} ${this.durationName}s`
-                    : `${this.durationValue} ${this.durationName}`
+                    ? `${this.durationValue} ${this.getDurationName(translator)}s`
+                    : `${this.durationValue} ${this.getDurationName(translator)}`
         }
     }
 

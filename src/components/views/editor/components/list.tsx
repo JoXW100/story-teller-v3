@@ -4,7 +4,7 @@ import { Context } from 'components/contexts/file'
 import ListMenu from 'components/controls/menus/list'
 import { asBooleanString, isNumber, isRecord, isString, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
-import { useLocalizedText } from 'utils/hooks/localizedText'
+import { useLocalizedOptions, useLocalizedText } from 'utils/hooks/localization'
 import type { LanguageKey } from 'assets'
 import { getOptionType, type IOptionType, type OptionTypeKey } from 'structure/optionData'
 import styles from '../style.module.scss'
@@ -25,6 +25,8 @@ type ListComponentParams = React.PropsWithChildren<{
 const ListComponent: React.FC<ListComponentParams> = ({ field, type, enumType, labelId, labelArgs, placeholderId, placeholderArgs, fill = false, editEnabled = false, allowNegative = false }) => {
     const [context, dispatch] = useContext(Context)
     const placeholder = useLocalizedText(placeholderId, placeholderArgs)
+    const options = useLocalizedOptions(enumType)
+
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.LinkListComponent', 'Data of incorrect type', context.file.data)
         return null
@@ -36,14 +38,14 @@ const ListComponent: React.FC<ListComponentParams> = ({ field, type, enumType, l
         return null
     }
 
-    let options: IOptionType | null = null
+    let option: IOptionType | null = null
     if (type === 'enum') {
         if (enumType === undefined) {
             Logger.throw('Editor.LinkListComponent', 'No enum type specified', field)
             return null
         }
-        options = getOptionType(enumType)
-        if (options === null) {
+        option = getOptionType(enumType)
+        if (option === null) {
             Logger.throw('Editor.LinkListComponent', 'Invalid enum type specified', field, enumType)
             return null
         }
@@ -95,8 +97,8 @@ const ListComponent: React.FC<ListComponentParams> = ({ field, type, enumType, l
                     itemClassName={styles.itemListItem}
                     values={value}
                     type={type}
-                    options={options!.options}
-                    defaultValue={options!.default}
+                    options={options}
+                    defaultValue={option!.default}
                     onChange={handleChange}
                     validateInput={handleValidate}
                     editEnabled={editEnabled}

@@ -10,8 +10,8 @@ import NumberInput from 'components/controls/numericInput'
 import ListTemplateMenu, { type ListTemplateComponentProps } from 'components/controls/menus/template'
 import { isRecord, createField, getRelativeFieldObject, asBooleanString } from 'utils'
 import Logger from 'utils/logger'
+import { useLocalizedOptions } from 'utils/hooks/localization'
 import Condition, { ConditionType, ConditionValueType } from 'structure/database/condition'
-import { getOptionType } from 'structure/optionData'
 import ConditionFactory from 'structure/database/condition/factory'
 import type { ConditionExplicit, ConditionValue, IConditionProperties } from 'types/database/condition'
 import styles from '../style.module.scss'
@@ -140,7 +140,7 @@ type ConditionControlProps = React.PropsWithoutRef<{
 
 export const ConditionControl: React.FC<ConditionControlProps> = ({ value, field, className, allowEditType = false }) => {
     const [, dispatch] = useContext(Context)
-    const option = getOptionType('condition')
+    const options = useLocalizedOptions('condition')
 
     const handleInput = (type: ConditionType): void => {
         switch (type) {
@@ -193,7 +193,7 @@ export const ConditionControl: React.FC<ConditionControlProps> = ({ value, field
         dispatch.pushEditorPage({
             pageKey: 'condition',
             root: createField(field, value.data.type),
-            name: option.options[value.data.type]
+            name: options[value.data.type]
         })
     }
 
@@ -203,7 +203,7 @@ export const ConditionControl: React.FC<ConditionControlProps> = ({ value, field
                 <DropdownMenu
                     className={styles.dropdown}
                     itemClassName={styles.dropdownItem}
-                    values={option.options}
+                    values={options}
                     value={value.data.type}
                     onChange={handleInput}/>
             }
@@ -284,19 +284,20 @@ export const ConditionControl: React.FC<ConditionControlProps> = ({ value, field
 type ListItemComponentParams = ListTemplateComponentProps<Condition, Condition, IItemParams>
 const ItemListItemComponent: React.FC<ListItemComponentParams> = ({ value, index, params }) => {
     const [, dispatch] = useContext(Context)
+    const options = useLocalizedOptions('condition')
     const condition = value instanceof Condition ? value : ConditionFactory.create(value)
 
     const handleClick: React.MouseEventHandler<HTMLButtonElement> = () => {
         dispatch.pushEditorPage({
             pageKey: 'condition',
             root: createField(params.field, String(index)),
-            name: getOptionType('condition').options[condition.data.type]
+            name: options[condition.data.type]
         })
     }
 
     return (
         <div className={styles.editRecordItem}>
-            <span className='fill'>{`${index + 1}: ${getOptionType('condition').options[condition.data.type]}`}</span>
+            <span className='fill'>{`${index + 1}: ${options[condition.data.type]}`}</span>
             <Tooltip title={<LocalizedText id='common-edit'/>}>
                 <button className='center-flex fill-height square' onClick={handleClick}>
                     <EditIcon className='small-icon'/>
@@ -308,13 +309,14 @@ const ItemListItemComponent: React.FC<ListItemComponentParams> = ({ value, index
 
 type ListEditComponentParams = ListTemplateComponentProps<Condition, ConditionType, IItemParams>
 const ItemListEditComponent: React.FC<ListEditComponentParams> = ({ value, onUpdate }) => {
+    const options = useLocalizedOptions('condition')
     return (
         <div>
             <DropdownMenu
                 className={styles.dropdown}
                 itemClassName={styles.dropdownItem}
                 value={value}
-                values={getOptionType('condition').options}
+                values={options}
                 onChange={onUpdate}/>
         </div>
     )
@@ -341,6 +343,7 @@ const ItemListValueItemComponent: React.FC<ItemListValueItemComponentParams> = (
 
 type ItemListValueEditComponentParams = ListTemplateComponentProps<ConditionValue, ConditionEditorValue, IItemParams>
 const ItemListValueEditComponent: React.FC<ItemListValueEditComponentParams> = ({ value, onUpdate }) => {
+    const options = useLocalizedOptions('conditionValue')
     const handleTypeChange = (type: ConditionValueType): void => {
         switch (type) {
             case ConditionValueType.Boolean:
@@ -361,7 +364,7 @@ const ItemListValueEditComponent: React.FC<ItemListValueEditComponentParams> = (
                 className={styles.dropdown}
                 itemClassName={styles.dropdownItem}
                 value={value.type}
-                values={getOptionType('conditionValue').options}
+                values={options}
                 onChange={handleTypeChange}/>
             { value.type === ConditionValueType.Boolean &&
                 <DropdownMenu

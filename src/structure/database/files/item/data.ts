@@ -1,6 +1,6 @@
 import type { AbilityData } from '../ability/factory'
 import { isBoolean, isEnum, isNumber, isObjectId, isRecord, isString, keysOf } from 'utils'
-import { getOptionType } from 'structure/optionData'
+import type { TranslationHandler } from 'utils/hooks/localization'
 import type ChargesData from 'structure/database/charges'
 import ChargesDataFactory, { simplifyChargesDataRecord } from 'structure/database/charges/factory'
 import { type ItemType, Rarity } from 'structure/dnd'
@@ -50,8 +50,8 @@ abstract class ItemDataBase implements IItemDataBase {
         }
     }
 
-    public get categoryText(): string {
-        return getOptionType('itemType').options[this.type]
+    public getCategoryText(translator: TranslationHandler): string {
+        return translator(`enum-itemType-${this.type}`)
     }
 
     public get equippable(): boolean {

@@ -13,9 +13,9 @@ import SubraceDocumentEditor from './subrace'
 import SpellDocumentEditor from './spell'
 import SubclassDocumentEditor from './subclass'
 import EffectEditor from './effect'
-import ScalingModifierEditor from './scalingModifier'
 import ConditionEditor from './condition'
 import ChargesEditor from './charges'
+import EncounterDocumentEditor from './encounter'
 import { Context } from 'components/contexts/file'
 import { isKeyOf } from 'utils'
 import { DocumentType } from 'structure/database'
@@ -25,6 +25,7 @@ export const DocumentEditorMap = {
     [DocumentType.Creature]: CreatureDocumentEditor,
     [DocumentType.Character]: CharacterDocumentEditor,
     [DocumentType.Class]: ClassDocumentEditor,
+    [DocumentType.Encounter]: EncounterDocumentEditor,
     [DocumentType.Item]: ItemDocumentEditor,
     [DocumentType.Map]: MapDocumentEditor,
     [DocumentType.Modifier]: ModifierDocumentEditor,
@@ -35,7 +36,6 @@ export const DocumentEditorMap = {
     [DocumentType.Text]: TextDocumentEditor,
     'classLevel': ClassLevelEditor,
     'effect': EffectEditor,
-    'scalingModifier': ScalingModifierEditor,
     'conditionInner': ConditionEditor,
     'condition': ConditionEditor,
     'charges': ChargesEditor,

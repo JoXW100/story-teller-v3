@@ -10,6 +10,7 @@ export enum DocumentType {
     Character = 'cha',
     Creature = 'cre',
     Class = 'cla',
+    Encounter = 'enc',
     Subclass = 'scl',
     Race = 'rce',
     Subrace = 'src',

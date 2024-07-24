@@ -15,6 +15,7 @@ import type { ObjectId } from 'types'
 import type { IBonusGroup, ICreatureStats } from 'types/editor'
 import type { IConditionProperties } from 'types/database/condition'
 import styles from '../styles.module.scss'
+import { useLocalizedText } from 'utils/hooks/localization'
 
 type AbilityRendererProps = React.PropsWithRef<{
     id: ObjectId | string
@@ -46,6 +47,7 @@ function getBonus(type: AbilityType, bonuses: IBonusGroup): number {
 
 export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ id, data, open = false, stats = EmptyCreatureStats, classLevel = 0, attackBonuses = EmptyBonusGroup, damageBonuses = EmptyBonusGroup, expendedCharges, setExpendedCharges }) => {
     const [context] = useContext(Context)
+    const typeText = useLocalizedText(`enum-abilityType-${data.type}`)
     const descriptionToken = useMemo(() => {
         if (id === context.file.id && isDefined(context.tokens.description)) {
             return context.tokens.description
@@ -68,7 +70,7 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ id, data, open
                     <Elements.block width='50%' weight={null}>
                         <Elements.b>{data.name}</Elements.b>
                         <Elements.newline/>
-                        {data.typeName}
+                        {typeText}
                         <Elements.newline/>
                         <ChargesRenderer
                             charges={data.evaluateNumCharges(properties)}
@@ -106,7 +108,7 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ id, data, open
                     <Elements.block width='50%' weight={null}>
                         <Elements.b>{data.name}</Elements.b>
                         <Elements.newline/>
-                        {data.typeName}
+                        {typeText}
                         <Elements.newline/>
                         <ChargesRenderer
                             charges={data.evaluateNumCharges(properties)}

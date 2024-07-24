@@ -5,6 +5,7 @@ import { type OptionTypeKey, getOptionType, type IOptionType } from 'structure/o
 import SelectionMenu from 'components/controls/menus/selection'
 import { asBooleanString, isEnum, isNumber, isRecord, isString, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
+import { useLocalizedOptions } from 'utils/hooks/localization'
 import type { LanguageKey } from 'assets'
 import type { Enum } from 'types'
 import styles from '../style.module.scss'
@@ -21,6 +22,9 @@ type SelectionInputComponentParams = React.PropsWithoutRef<{
 
 const SelectionInputComponent: React.FC<SelectionInputComponentParams> = ({ field, type, optionsType, editOptionsType, labelId, labelArgs, fill = false }) => {
     const [context, dispatch] = useContext(Context)
+    const options = useLocalizedOptions(optionsType)
+    const editOptions = useLocalizedOptions(editOptionsType)
+
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.SelectionInputComponent', 'Data of incorrect type', context.file.data)
         return null
@@ -74,7 +78,7 @@ const SelectionInputComponent: React.FC<SelectionInputComponentParams> = ({ fiel
                     type={type}
                     values={value as Record<string, string>}
                     defaultValue=''
-                    options={option.options}
+                    options={options}
                     componentClassName={styles.editSelectionItem}
                     onChange={handleChange}/>
             }
@@ -82,7 +86,7 @@ const SelectionInputComponent: React.FC<SelectionInputComponentParams> = ({ fiel
                 <SelectionMenu
                     type={type}
                     values={value as Record<string, number>}
-                    options={option.options}
+                    options={options}
                     defaultValue={0}
                     componentClassName={styles.editSelectionItem}
                     onChange={handleChange}/>
@@ -91,8 +95,8 @@ const SelectionInputComponent: React.FC<SelectionInputComponentParams> = ({ fiel
                 <SelectionMenu
                     type={type}
                     values={value as Record<string, string>}
-                    options={option.options}
-                    editOptions={editOption!.options}
+                    options={options}
+                    editOptions={editOptions}
                     defaultValue={String(editOption!.default)}
                     componentClassName={styles.editSelectionItem}
                     onChange={handleChange}/>
@@ -101,7 +105,7 @@ const SelectionInputComponent: React.FC<SelectionInputComponentParams> = ({ fiel
                 <SelectionMenu
                     type={type}
                     values={value as string[]}
-                    options={option.options}
+                    options={options}
                     componentClassName={styles.editSelectionItem}
                     onChange={handleChange}/>
             }

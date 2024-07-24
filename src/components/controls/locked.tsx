@@ -1,6 +1,6 @@
 import LockIcon from '@mui/icons-material/LockSharp'
+import LocalizedText from 'components/controls/localizedText'
 import type { LanguageKey } from 'assets'
-import LocalizedText from './localizedText'
 
 type LockedProps = React.PropsWithChildren<{
     locked: boolean
@@ -12,7 +12,7 @@ const Locked: React.FC<LockedProps> = ({ locked, textId, children }): React.Reac
         return (
             <div>
                 <LocalizedText className='no-line-break' id={textId}/>
-                <LockIcon/>
+                <LockIcon className='icon circular-center color-interactive padding-medium'/>
             </div>
         )
     } else {

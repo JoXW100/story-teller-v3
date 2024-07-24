@@ -1,6 +1,6 @@
 import { type Db, type Collection, ObjectId } from 'mongodb'
 import Database, { failure, success } from '.'
-import { DocumentCollectionName, DocumentCollectionTestName } from './constants'
+import { Collections } from './constants'
 import { isKeyOf, isRecord, keysOf } from 'utils'
 import Logger from 'utils/logger'
 import { DocumentFileType, FileType, FlagType } from 'structure/database'
@@ -10,7 +10,7 @@ import type { KeysOfTwo } from 'types'
 import type { DBResponse, IFileStructure, IDatabaseFile } from 'types/database'
 import { AbilityType } from 'structure/database/files/ability/common'
 
-interface IDBFile {
+export interface IDBFile {
     _id: ObjectId
     _userId: string
     _storyId: ObjectId
@@ -87,8 +87,8 @@ class FileCollection {
 
     constructor (database: Db, test: boolean) {
         const name = test
-            ? DocumentCollectionTestName
-            : DocumentCollectionName
+            ? Collections._document.test
+            : Collections._document.main
         this.collection = database.collection<IDBFile>(name)
     }
 

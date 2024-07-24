@@ -3,11 +3,11 @@ import GroupItemComponent from './groupItem'
 import { Context } from 'components/contexts/file'
 import DropdownMenu from 'components/controls/dropdownMenu'
 import NumberInput from 'components/controls/numericInput'
-import { CalcMode } from 'structure/database'
-import { getOptionType } from 'structure/optionData'
-import { getRelativeFieldObject, isCalcValue, isRecord } from 'utils'
 import type { LanguageKey } from 'assets'
+import { getRelativeFieldObject, isCalcValue, isRecord } from 'utils'
 import Logger from 'utils/logger'
+import { useLocalizedOptions } from 'utils/hooks/localization'
+import { CalcMode } from 'structure/database'
 import styles from '../style.module.scss'
 
 type CalcComponentParams = React.PropsWithChildren<{
@@ -18,6 +18,8 @@ type CalcComponentParams = React.PropsWithChildren<{
 
 const CalcComponent: React.FC<CalcComponentParams> = ({ field, labelId, labelArgs }) => {
     const [context, dispatch] = useContext(Context)
+    const options = useLocalizedOptions('calc')
+
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.NumberComponent', 'Data of incorrect type', context.file.data)
         return null
@@ -48,7 +50,7 @@ const CalcComponent: React.FC<CalcComponentParams> = ({ field, labelId, labelArg
             <DropdownMenu
                 className={styles.dropdown}
                 itemClassName={styles.dropdownItem}
-                values={getOptionType('calc').options}
+                values={options}
                 value={value.mode}
                 onChange={handleModeChange}/>
             <NumberInput

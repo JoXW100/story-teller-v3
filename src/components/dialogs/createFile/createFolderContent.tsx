@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { type CreateContentProps } from '.'
 import LocalizedText from 'components/controls/localizedText'
-import { useLocalizedText } from 'utils/hooks/localizedText'
+import { useLocalizedText } from 'utils/hooks/localization'
 import { FileType } from 'structure/database'
 import styles from './style.module.scss'
 

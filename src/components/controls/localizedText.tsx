@@ -1,5 +1,5 @@
 import type { LanguageKey } from 'assets'
-import { useLocalizedText } from 'utils/hooks/localizedText'
+import { useLocalizedText } from 'utils/hooks/localization'
 
 type LocalizedTextProps = React.PropsWithRef<{
     id: LanguageKey

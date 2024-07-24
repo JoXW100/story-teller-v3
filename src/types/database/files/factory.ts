@@ -3,6 +3,7 @@ import type { IAbilityData, IAbilityStorage } from './ability'
 import type { ICreatureData, ICreatureStorage } from './creature'
 import type { ICharacterData, ICharacterStorage } from './character'
 import type { IClassData, IClassStorage } from './class'
+import type { IEncounterData, IEncounterStorage } from './encounter'
 import type { ISubclassData, ISubclassStorage } from './subclass'
 import type { ISpellData, ISpellStorage } from './spell'
 import type { IItemData, IItemStorage } from './item'
@@ -18,6 +19,7 @@ export interface DocumentIDataMap {
     [DocumentType.Character]: ICharacterData
     [DocumentType.Class]: IClassData
     [DocumentType.Creature]: ICreatureData
+    [DocumentType.Encounter]: IEncounterData
     [DocumentType.Item]: IItemData
     [DocumentType.Map]: IMapData
     [DocumentType.Modifier]: IModifierData
@@ -34,6 +36,7 @@ export interface DocumentIStorageMap {
     [DocumentType.Character]: ICharacterStorage
     [DocumentType.Class]: IClassStorage
     [DocumentType.Creature]: ICreatureStorage
+    [DocumentType.Encounter]: IEncounterStorage
     [DocumentType.Item]: IItemStorage
     [DocumentType.Map]: IMapStorage
     [DocumentType.Modifier]: IModifierStorage

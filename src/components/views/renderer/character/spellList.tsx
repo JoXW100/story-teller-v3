@@ -5,6 +5,7 @@ import { Tooltip } from '@mui/material'
 import LocalizedText from 'components/controls/localizedText'
 import CollapsibleGroup from 'components/controls/collapsibleGroup'
 import { asBooleanString, keysOf } from 'utils'
+import { useTranslator } from 'utils/hooks/localization'
 import { getSpellLevelValue } from 'utils/calculations'
 import type { SpellData } from 'structure/database/files/spell/factory'
 import { SpellLevel } from 'structure/dnd'
@@ -88,12 +89,13 @@ type SpellListItemProps = React.PropsWithRef<{
     handlePrepare?: () => void
 }>
 
-const SpellListItem = ({ data, removeIsDisabled, prepareIsDisabled, handleRemove, handlePrepare, isValid = false }: SpellListItemProps): JSX.Element => {
+const SpellListItem: React.FC<SpellListItemProps> = ({ data, removeIsDisabled, prepareIsDisabled, handleRemove, handlePrepare, isValid = false }) => {
+    const translator = useTranslator()
     return (
         <div className={styles.spellItem} error={asBooleanString(!isValid)}>
             <b>{data.name}: </b>
-            <span>{data.levelText}</span>
-            <span>{data.schoolName}</span>
+            <span>{data.getLevelText(translator)}</span>
+            <span>{data.getSchoolNameText(translator)}</span>
             <span/>
             { handlePrepare !== undefined &&
                 <Tooltip title={<LocalizedText id='render-spellList-prepare'/>}>

@@ -3,11 +3,13 @@ import LocalizedText from 'components/controls/localizedText'
 import Elements, { ElementDictionary } from 'components/elements'
 import { Context } from 'components/contexts/file'
 import { isDefined } from 'utils'
-import { getOptionType } from 'structure/optionData'
+import { useLocalizedOptions, useTranslator } from 'utils/hooks/localization'
 import type { ItemData } from 'structure/database/files/item/factory'
 
 const ItemDocumentRenderer: React.FC = (): React.ReactNode => {
     const [context] = useContext(Context)
+    const translator = useTranslator()
+    const options = useLocalizedOptions('rarity')
     const data = context.file.data as ItemData
     const descriptionToken = useMemo(() => {
         if (isDefined(context.tokens.description)) {
@@ -19,7 +21,7 @@ const ItemDocumentRenderer: React.FC = (): React.ReactNode => {
 
     return <>
         <Elements.h1 underline>{data.name}</Elements.h1>
-        {`${data.categoryText}, ${getOptionType('rarity').options[data.rarity]} `}
+        {`${data.getCategoryText(translator)}, ${options[data.rarity]} `}
         { data.attunement &&
             <LocalizedText id='renderer-item-requiresAttunement'/>
         }

@@ -3,6 +3,8 @@ import AbilityDocument from './ability'
 import CharacterDocument from './character'
 import ClassDocument from './class'
 import CreatureDocument from './creature'
+import EncounterDocument from './encounter'
+import EncounterDataFactory, { EncounterStorageFactory } from './encounter/factory'
 import ItemDocument from './item'
 import MapDocument from './map'
 import ModifierDocument from './modifier'
@@ -22,6 +24,7 @@ import ClassDataFactory from './class/factory'
 import SpellDataFactory, { type SpellData } from './spell/factory'
 import RaceDataFactory from './race/factory'
 import ItemDataFactory, { type ItemData } from './item/factory'
+import SubraceDataFactory from './subrace/factory'
 import MapDataFactory, { MapStorageFactory } from './map/factory'
 import ModifierDataFactory from './modifier/factory'
 import TextDataFactory from './text/factory'
@@ -37,11 +40,12 @@ import type CreatureData from './creature/data'
 import type FolderData from './folder/data'
 import type CreatureStorage from './creature/storage'
 import type CharacterStorage from './character/storage'
+import type EncounterStorage from './encounter/storage'
+import type EncounterData from './encounter/data'
 import { isEnum, isObjectId, isRecord } from 'utils'
 import { DocumentType, type DocumentFileType, FileType, validateObjectProperties, hasObjectProperties } from 'structure/database'
 import type { DataPropertyMap, IDatabaseFactory, IDatabaseFile } from 'types/database'
 import type { DocumentIDataMap, DocumentIStorageMap } from 'types/database/files/factory'
-import SubraceDataFactory from './subrace/factory'
 
 export interface DocumentDataMap {
     [DocumentType.Ability]: AbilityData
@@ -49,6 +53,7 @@ export interface DocumentDataMap {
     [DocumentType.Character]: CharacterData
     [DocumentType.Class]: ClassData
     [DocumentType.Subclass]: SubclassData
+    [DocumentType.Encounter]: EncounterData
     [DocumentType.Item]: ItemData
     [DocumentType.Map]: MapData
     [DocumentType.Modifier]: ModifierData
@@ -65,6 +70,7 @@ export interface DocumentStorageMap {
     [DocumentType.Character]: CharacterStorage
     [DocumentType.Class]: DocumentIStorageMap[DocumentType.Class]
     [DocumentType.Subclass]: DocumentIStorageMap[DocumentType.Subclass]
+    [DocumentType.Encounter]: EncounterStorage
     [DocumentType.Item]: DocumentIStorageMap[DocumentType.Item]
     [DocumentType.Map]: MapStorage
     [DocumentType.Modifier]: DocumentIStorageMap[DocumentType.Modifier]
@@ -80,6 +86,7 @@ export interface DocumentTypeMap {
     [DocumentType.Creature]: CreatureDocument
     [DocumentType.Character]: CharacterDocument
     [DocumentType.Class]: ClassDocument
+    [DocumentType.Encounter]: EncounterDocument
     [DocumentType.Subclass]: SubclassDocument
     [DocumentType.Item]: ItemDocument
     [DocumentType.Map]: MapDocument
@@ -121,6 +128,8 @@ const DocumentFactory: IDocumentFactory = {
                 return new ClassDocument({ ...data, type: data.type, data: ClassDataFactory.create(data.data) })
             case DocumentType.Subclass:
                 return new SubclassDocument({ ...data, type: data.type, data: SubclassDataFactory.create(data.data) })
+            case DocumentType.Encounter:
+                return new EncounterDocument({ ...data, type: data.type, data: EncounterDataFactory.create(data.data), storage: EncounterStorageFactory.create(data.storage) })
             case DocumentType.Race:
                 return new RaceDocument({ ...data, type: data.type, data: RaceDataFactory.create(data.data) })
             case DocumentType.Subrace:
@@ -176,6 +185,8 @@ const DocumentFactory: IDocumentFactory = {
                 return ClassDataFactory
             case DocumentType.Subclass:
                 return SubclassDataFactory
+            case DocumentType.Encounter:
+                return EncounterDataFactory
             case DocumentType.Spell:
                 return SpellDataFactory
             case DocumentType.Race:
@@ -204,6 +215,8 @@ const DocumentFactory: IDocumentFactory = {
                 return CreatureStorageFactory
             case DocumentType.Map:
                 return MapStorageFactory
+            case DocumentType.Encounter:
+                return EncounterStorageFactory
             default:
                 return null
         }

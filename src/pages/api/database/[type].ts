@@ -169,6 +169,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void>
                     { res.status(200).json(await Database.files?.update(userId, toObjectId(body.fileId), toEnum(body.type, DocumentFileType), toRecord(body.update)) ?? failure()); return }
                     case 'moveFile':
                     { res.status(200).json(await Database.files?.move(userId, toObjectId(body.fileId), toObjectId(body.targetId)) ?? failure()); return }
+                    case 'debug':
+                    { res.status(200).json(await Database.debug?.run(body) ?? failure()); return }
                     default: break
                 }
             } break

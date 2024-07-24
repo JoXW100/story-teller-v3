@@ -10,10 +10,11 @@
 
     "folder": "#ffffff",
     "abi": "#ffffff",
-    "doc": "#ffffff",
     "cla": "#ffffff",
     "cha": "#ffffff",
     "cre": "#ffffff",
+    "doc": "#ffffff",
+    "enc": "#ffffff",
     "spe": "#ffffff",
     "ite": "#ffffff",
     "rce": "#ffffff",

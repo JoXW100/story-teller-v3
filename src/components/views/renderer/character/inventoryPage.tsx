@@ -17,6 +17,7 @@ import type { ItemData } from 'structure/database/files/item/factory'
 import type { ObjectId } from 'types'
 import type { IInventoryItemData } from 'types/database/files/character'
 import styles from '../styles.module.scss'
+import { useTranslator } from 'utils/hooks/localization'
 
 type CharacterInventoryPageProps = React.PropsWithRef<{
     facade: CharacterFacade
@@ -27,6 +28,7 @@ const AllowedTypes = [DocumentType.Item] as const
 const CharacterInventoryPage: React.FC<CharacterInventoryPageProps> = ({ facade, items }) => {
     const [, dispatch] = useContext(Context)
     const [text, setText] = useState<string>('')
+    const translator = useTranslator()
     const attunementOptions = useMemo(() => {
         const options: Record<string, string> = { null: 'None' }
         for (const key of keysOf(items)) {
@@ -138,7 +140,7 @@ const CharacterInventoryPage: React.FC<CharacterInventoryPageProps> = ({ facade,
                             </Tooltip>
                             <div>
                                 <b data={item.rarity}>{item.name}</b>
-                                <span>{item.categoryText}</span>
+                                <span>{item.getCategoryText(translator)}</span>
                             </div>
                             <span>{String(item.weight * quantity)}</span>
                             <span>{String(quantity)}</span>

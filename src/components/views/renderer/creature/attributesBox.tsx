@@ -3,8 +3,8 @@ import Elements from 'components/elements'
 import Icon from 'components/controls/icon'
 import SourceTooltips from './sourceTooltips'
 import { AttributeAdvantageBindingMap } from 'utils/calculations'
+import { useLocalizedOptions } from 'utils/hooks/localization'
 import { Attribute } from 'structure/dnd'
-import { getOptionType } from 'structure/optionData'
 import { RollMethodType, RollType } from 'structure/dice'
 import type CreatureFacade from 'structure/database/files/creature/facade'
 import styles from '../styles.module.scss'
@@ -14,27 +14,27 @@ type AttributesBoxParams = React.PropsWithRef<{
 }>
 
 const AttributesBox: React.FC<AttributesBoxParams> = ({ data }) => {
-    const options = getOptionType('attr')
+    const options = useLocalizedOptions('attr')
     return (
         <Elements.align direction='h' weight='1' width='100%'>
             { Object.values(Attribute).map((attr, index) => (
                 <div className={styles.attributeBox} key={index}>
-                    <Elements.bold>{options.options[attr]}</Elements.bold>
+                    <Elements.bold>{options[attr]}</Elements.bold>
                     <Elements.bold>{data[attr] ?? 0}</Elements.bold>
                     <Elements.roll
                         dice={String(data.getAttributeModifier(attr))}
-                        desc={`${options.options[attr]} Check`}
+                        desc={`${options[attr]} Check`}
                         details={null}
-                        tooltips={`Roll ${options.options[attr]} Check`}
+                        tooltips={`Roll ${options[attr]} Check`}
                         critRange={20}
                         mode={RollMethodType.Normal}
                         type={RollType.Check}/>
                     <div/>
                     <Elements.roll
                         dice={String(data.getSaveModifier(attr))}
-                        desc={`${options.options[attr]} Save`}
+                        desc={`${options[attr]} Save`}
                         details={null}
-                        tooltips={`Roll ${options.options[attr]} Save`}
+                        tooltips={`Roll ${options[attr]} Save`}
                         critRange={20}
                         mode={RollMethodType.Normal}
                         type={RollType.Save}/>

@@ -1,6 +1,7 @@
 import { MongoClient } from 'mongodb'
 import StoryCollection from './story'
 import FileCollection from './files'
+import DebugHandler from './debug'
 import Logger from 'utils/logger'
 import variables from 'types/variables'
 import type { DBResponse } from 'types/database'
@@ -17,10 +18,12 @@ abstract class Database {
     private static _connection: MongoClient | null = null
     private static _stories: StoryCollection | null = null
     private static _documents: FileCollection | null = null
+    private static _debug: DebugHandler | null = null
 
     static get isConnected(): boolean { return this._connection !== null }
     static get stories(): StoryCollection | null { return this._stories }
     static get files(): FileCollection | null { return this._documents }
+    static get debug(): DebugHandler | null { return this._debug }
 
     static async connect(test: boolean = false): Promise<DBResponse<boolean>> {
         if (!this.isConnected) {
@@ -43,10 +46,12 @@ abstract class Database {
                 const database = this._connection.db(process.env.MONGODB_DB)
                 this._stories = new StoryCollection(database, test)
                 this._documents = new FileCollection(database, test)
+                this._debug = new DebugHandler(database, test)
             } catch (error: unknown) {
                 this._connection = null
                 this._stories = null
                 this._documents = null
+                this._debug = null
                 Logger.error('Database.connect', error)
                 return failure(String(error))
             }

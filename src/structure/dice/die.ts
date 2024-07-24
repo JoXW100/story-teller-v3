@@ -1,4 +1,5 @@
 import { DieType, DiceBase, numberFromType, typeFromNumber, type IDiceRoll } from '.'
+import type Random from 'structure/random'
 
 export class Die extends DiceBase {
     public static readonly None: Die = new Die(0)
@@ -17,8 +18,8 @@ export class Die extends DiceBase {
         }
     }
 
-    public override rollOnce(group: string = '0'): IDiceRoll {
-        const value = this.rollOnceValue()
+    public override rollOnce(generator?: Random, group: string = '0'): IDiceRoll {
+        const value = this.rollOnceValue(generator)
         return {
             dice: this,
             sum: value,
@@ -27,8 +28,8 @@ export class Die extends DiceBase {
         }
     }
 
-    public override rollOnceValue(): number {
-        return Math.ceil(Math.random() * this.size)
+    public override rollOnceValue(generator?: Random): number {
+        return Math.ceil((generator?.random() ?? Math.random()) * this.size)
     }
 
     public override stringify(): string {

@@ -3,12 +3,12 @@ import { isBoolean, getRelativeFieldObject } from 'utils'
 
 export enum ConditionType {
     None = 'none',
+    Not = 'not',
+    Range = 'range',
     Equals = 'eq',
     NotEquals = 'neq',
     GreaterEquals = 'geq',
     LessEquals = 'leq',
-    Range = 'range',
-    Not = 'not',
     Or = 'or',
     Nor = 'nor',
     And = 'and',
@@ -16,9 +16,9 @@ export enum ConditionType {
 }
 
 export enum ConditionValueType {
+    Constant = 'constant',
     Property = 'property',
     Boolean = 'boolean',
-    Constant = 'constant'
 }
 
 class Condition implements ICondition {

@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import { Context } from 'components/contexts/story'
 import HistoryRollEntry from './entry'
+import { asBooleanString } from 'utils'
 import styles from './style.module.scss'
 
 type RollHistoryPanelProps = React.PropsWithRef<{
@@ -62,7 +63,7 @@ const RollHistoryPanel: React.FC<RollHistoryPanelProps> = ({ open, close, isOpen
     const display = isOpen || context.rollHistory.some((x) => x !== null && date - x.time < duration)
 
     return (
-        <div className={styles.main} data={String(display)}>
+        <div className={styles.main} data={asBooleanString(display)}>
             { display && context.rollHistory
                 .reduceRight<React.ReactNode[]>((prev, event, index) => {
                 if (event !== null && (isOpen || date - event.time < duration)) {

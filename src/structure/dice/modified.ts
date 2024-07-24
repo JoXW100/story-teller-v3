@@ -1,4 +1,5 @@
 import { DiceBase, type IDiceRoll } from '.'
+import type Random from 'structure/random'
 
 export class ModifiedDice extends DiceBase {
     protected readonly dice: DiceBase
@@ -16,15 +17,15 @@ export class ModifiedDice extends DiceBase {
         this.modifier = modifier
     }
 
-    public override rollOnce(group: string = '0'): IDiceRoll {
-        const result = this.dice.rollOnce(group)
+    public override rollOnce(generator?: Random, group: string = '0'): IDiceRoll {
+        const result = this.dice.rollOnce(generator, group)
         result.sum += this.modifier
         result.modifier = this.modifier
         return result
     }
 
-    public override rollOnceValue(): number {
-        return this.dice.rollOnceValue() + this.modifier
+    public override rollOnceValue(generator?: Random): number {
+        return this.dice.rollOnceValue(generator) + this.modifier
     }
 
     public override stringify(): string {

@@ -12,7 +12,7 @@ import CharacterFacade from 'structure/database/files/character/facade'
 import type { AbilityData } from 'structure/database/files/ability/factory'
 import type { SpellData } from 'structure/database/files/spell/factory'
 import type ModifierDocument from 'structure/database/files/modifier'
-import type CharacterDocument from 'structure/database/files/character'
+import CharacterDocument from 'structure/database/files/character'
 import type ClassData from 'structure/database/files/class/data'
 import type SubclassData from 'structure/database/files/subclass/data'
 import type CreatureDocument from 'structure/database/files/creature'
@@ -21,6 +21,7 @@ import type SubraceDocument from 'structure/database/files/subrace'
 import type { ItemData } from 'structure/database/files/item/factory'
 import type { ObjectId } from 'types'
 import type { IConditionProperties } from 'types/database/condition'
+import { useTranslator, type TranslationHandler } from './localization'
 
 interface ICreatureFacadeState {
     facade: CreatureFacade
@@ -110,7 +111,7 @@ async function fetchSpells(ids: ObjectId[]): Promise<Record<ObjectId, SpellData>
     return spells
 }
 
-async function fetchCreatureData(creature: CreatureDocument, current: ICreatureFacadeState): Promise<ICreatureFacadeState> {
+async function fetchCreatureData(creature: CreatureDocument, current: ICreatureFacadeState, translator: TranslationHandler): Promise<ICreatureFacadeState> {
     const modifier = new Modifier()
     // Start ability/modifier fetch loop
     const initialAbilityIds: Record<string, ObjectId | string> = {}
@@ -123,7 +124,7 @@ async function fetchCreatureData(creature: CreatureDocument, current: ICreatureF
     let properties: Partial<IConditionProperties> = {}
     for (let depth = 0; depth < 100; depth++) {
         // Find new abilities to fetch
-        const facade = new CreatureFacade(creature.data, creature.storage, modifier, properties)
+        const facade = new CreatureFacade(creature.data, creature.storage, modifier, translator, properties)
         properties = facade.createProperties()
         const abilityIds = modifier.abilities.call(initialAbilityIds, properties, creature.storage.choices)
 
@@ -139,7 +140,7 @@ async function fetchCreatureData(creature: CreatureDocument, current: ICreatureF
     return current
 }
 
-async function fetchCharacterData(character: CharacterDocument, current: ICharacterFacadeState): Promise<ICharacterFacadeState> {
+async function fetchCharacterData(character: CharacterDocument, current: ICharacterFacadeState, translator: TranslationHandler): Promise<ICharacterFacadeState> {
     const modifier = new Modifier()
 
     let race: RaceDocument | null = null
@@ -299,7 +300,7 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
     // Start ability/modifier fetch loop
     for (let depth = 0; depth < 100; depth++) {
         // Find new abilities to fetch
-        const facade = new CharacterFacade(character.data, character.storage, modifier, race?.data, subrace?.data, classes, subclasses, items, properties)
+        const facade = new CharacterFacade(character.data, character.storage, modifier, translator, race?.data, subrace?.data, classes, subclasses, items, properties)
         properties = facade.createProperties()
         const abilityIds = modifier.abilities.call(initialAbilityIds, properties, character.storage.choices)
 
@@ -468,8 +469,9 @@ export function useModifiers(ids: readonly ObjectId[]): ModifiersState {
 }
 
 export function useCreatureFacade(creature: CreatureDocument): ICreatureFacadeState {
+    const translator = useTranslator()
     const [state, setState] = useState<ICreatureFacadeState>({
-        facade: new CreatureFacade(creature.data, creature.storage, new Modifier()),
+        facade: new CreatureFacade(creature.data, creature.storage, new Modifier(), translator),
         abilities: {},
         spells: {},
         variables: {},
@@ -478,7 +480,7 @@ export function useCreatureFacade(creature: CreatureDocument): ICreatureFacadeSt
 
     useEffect(() => {
         setState((state) => {
-            fetchCreatureData(creature, state).then((res) => {
+            fetchCreatureData(creature, state, translator).then((res) => {
                 setState(res)
             }, (error: unknown) => {
                 Logger.throw('useCreatureFacade', error)
@@ -486,14 +488,15 @@ export function useCreatureFacade(creature: CreatureDocument): ICreatureFacadeSt
             })
             return { ...state, loading: true }
         })
-    }, [creature])
+    }, [creature, translator])
 
     return state
 }
 
 export function useCharacterFacade(character: CharacterDocument): ICharacterFacadeState {
+    const translator = useTranslator()
     const [state, setState] = useState<ICharacterFacadeState>({
-        facade: new CharacterFacade(character.data, character.storage, new Modifier()),
+        facade: new CharacterFacade(character.data, character.storage, new Modifier(), translator),
         abilities: {},
         spells: {},
         classes: {},
@@ -506,7 +509,7 @@ export function useCharacterFacade(character: CharacterDocument): ICharacterFaca
 
     useEffect(() => {
         setState((state) => {
-            fetchCharacterData(character, state).then((res) => {
+            fetchCharacterData(character, state, translator).then((res) => {
                 setState(res)
             }, (error: unknown) => {
                 Logger.throw('useCharacterFacade', error)
@@ -514,7 +517,53 @@ export function useCharacterFacade(character: CharacterDocument): ICharacterFaca
             })
             return { ...state, loading: true }
         })
-    }, [character])
+    }, [character, translator])
+
+    return state
+}
+
+export function useCharacterCreatureFacade(creature: CreatureDocument | CharacterDocument): ICreatureFacadeState {
+    const translator = useTranslator()
+    const [state, setState] = useState(creature instanceof CharacterDocument
+        ? {
+            facade: new CharacterFacade(creature.data, creature.storage, new Modifier(), translator),
+            abilities: {},
+            spells: {},
+            classes: {},
+            subclasses: {},
+            variables: {},
+            items: {},
+            race: null,
+            loading: true
+        }
+        : {
+            facade: new CreatureFacade(creature.data, creature.storage, new Modifier(), translator),
+            abilities: {},
+            spells: {},
+            variables: {},
+            loading: true
+        })
+
+    useEffect(() => {
+        setState((state) => {
+            if (creature instanceof CharacterDocument) {
+                fetchCharacterData(creature, state as ICharacterFacadeState, translator).then((res) => {
+                    setState(res as ICreatureFacadeState)
+                }, (error: unknown) => {
+                    Logger.throw('useCreatureFacade', error)
+                    setState((state) => ({ ...state, loading: false }))
+                })
+            } else {
+                fetchCreatureData(creature, state, translator).then((res) => {
+                    setState(res)
+                }, (error: unknown) => {
+                    Logger.throw('useCreatureFacade', error)
+                    setState((state) => ({ ...state, loading: false }))
+                })
+            }
+            return { ...state, loading: true }
+        })
+    }, [creature, translator])
 
     return state
 }

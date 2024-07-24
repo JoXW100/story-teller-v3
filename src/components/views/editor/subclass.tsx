@@ -10,21 +10,21 @@ import BooleanComponent from './components/boolean'
 import GroupItemComponent from './components/groupItem'
 import LinkComponent from './components/link'
 import EditItemButtonComponent from './components/editItemButton'
+import { useLocalizedOptions } from 'utils/hooks/localization'
 import { ClassLevel } from 'structure/dnd'
-import { getOptionType } from 'structure/optionData'
 import { DocumentType } from 'structure/database'
 import SubclassDocument from 'structure/database/files/subclass'
 import styles from './style.module.scss'
 
 const SubclassDocumentEditor: React.FC = () => {
     const [context, dispatch] = useContext(Context)
+    const options = useLocalizedOptions('classLevel')
 
     if (!(context.file instanceof SubclassDocument)) {
         return null
     }
 
     const data = context.file.data
-    const option = getOptionType('classLevel')
     const [descriptionContext] = data.createContexts(ElementDictionary)
 
     return (
@@ -35,9 +35,9 @@ const SubclassDocumentEditor: React.FC = () => {
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-levels'/>} open>
                 { Object.values(ClassLevel).map((level) => (
-                    <GroupItemComponent key={level} labelId='empty' labelArgs={[option.options[level]]}>
+                    <GroupItemComponent key={level} labelId='empty' labelArgs={[options[level]]}>
                         <span className={styles.classLevelRow}>
-                            <EditItemButtonComponent pageKey='classLevel' root={`levels.${level}`} name={option.options[level]} />
+                            <EditItemButtonComponent pageKey='classLevel' root={`levels.${level}`} name={options[level]} />
                         </span>
                     </GroupItemComponent>
                 ))}

@@ -60,6 +60,10 @@ abstract class Communication {
         }
     }
 
+    public static async debug(params: FetchParams = {}): Promise<DBResponse<boolean>> {
+        return await this.databaseFetch<boolean>('debug', 'PUT', params)
+    }
+
     public static async getStory(storyId: ObjectId): Promise<DBResponse<DatabaseStory>> {
         const response = await this.databaseFetch<IDatabaseStory>('getStory', 'GET', {
             storyId: storyId

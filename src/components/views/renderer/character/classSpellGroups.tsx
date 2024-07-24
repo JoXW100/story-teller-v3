@@ -2,15 +2,15 @@ import { useEffect, useMemo, useState } from 'react'
 import SpellGroups from '../spell/groups'
 import PageSelector, { type IPageSelectorData } from '../pageSelector'
 import type { FileContextDispatch } from 'components/contexts/file'
-import { asObjectId, isObjectId, keysOf } from 'utils'
-import { OptionalAttribute, type SpellLevel, SpellPreparationType } from 'structure/dnd'
 import Elements from 'components/elements'
+import { asObjectId, isObjectId, keysOf } from 'utils'
+import { useLocalizedOptions } from 'utils/hooks/localization'
+import { OptionalAttribute, type SpellLevel, SpellPreparationType } from 'structure/dnd'
 import type CharacterFacade from 'structure/database/files/character/facade'
-import type { ObjectId } from 'types'
 import type { SpellData } from 'structure/database/files/spell/factory'
-import type { ICreatureStats } from 'types/editor'
 import { RollMethodType, RollType } from 'structure/dice'
-import { getOptionType } from 'structure/optionData'
+import type { ObjectId } from 'types'
+import type { ICreatureStats } from 'types/editor'
 
 type ClassSpellGroupsProps = React.PropsWithRef<{
     facade: CharacterFacade
@@ -20,6 +20,7 @@ type ClassSpellGroupsProps = React.PropsWithRef<{
 
 const ClassSpellGroups: React.FC<ClassSpellGroupsProps> = ({ facade, spells, setStorage }) => {
     const [selectedClass, setSelectedClass] = useState<ObjectId | null>(null)
+    const options = useLocalizedOptions('optionalAttr')
     const pages = useMemo(() => {
         const pages: Record<ObjectId | 'none', IPageSelectorData> = {} as any
         if (facade.spellAttribute !== OptionalAttribute.None || keysOf(facade.spells).length > 0) {
@@ -123,7 +124,7 @@ const ClassSpellGroups: React.FC<ClassSpellGroupsProps> = ({ facade, spells, set
                 </Elements.align>
                 <Elements.align direction='vc' weight='2' width='100%'>
                     <Elements.b>Spellcasting Attribute</Elements.b>
-                    <Elements.b>{getOptionType('optionalAttr').options[modifiedStats.spellAttribute]}</Elements.b>
+                    <Elements.b>{options[modifiedStats.spellAttribute]}</Elements.b>
                 </Elements.align>
                 <Elements.align direction='vc' weight='1' width='100%'>
                     <Elements.b>Spell Modifier</Elements.b>

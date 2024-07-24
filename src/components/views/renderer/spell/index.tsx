@@ -8,7 +8,7 @@ import LocalizedText from 'components/controls/localizedText'
 import Elements, { ElementDictionary } from 'components/elements'
 import { asBooleanString, isDefined, keysOf } from 'utils'
 import { getSpellLevelFromValue, getSpellLevelValue } from 'utils/calculations'
-import { useLocalizedText } from 'utils/hooks/localizedText'
+import { useTranslator } from 'utils/hooks/localization'
 import SpellDataBase from 'structure/database/files/spell/data'
 import SpellDataFactory, { type SpellData } from 'structure/database/files/spell/factory'
 import { EffectConditionType } from 'structure/database/effectCondition'
@@ -53,9 +53,10 @@ function getBonus(type: TargetType, bonuses: IBonusGroup): number {
 const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCreatureStats, attackBonuses = EmptyBonusGroup, damageBonuses = EmptyBonusGroup }) => {
     const [context] = useContext(Context)
     const [upcastLevel, setUpcastLevel] = useState(data.level)
-    const targetIconTooltips = useLocalizedText(data.targetIcon !== null ? `icon-${data.targetIcon}` : null) ?? null
-    const concentrationIconTooltips = useLocalizedText('render-spell-concentration') ?? null
-    const ritualIconTooltips = useLocalizedText('render-spell-ritual') ?? null
+    const translator = useTranslator()
+    const targetIconTooltips = data.targetIcon !== null ? translator(`icon-${data.targetIcon}`) : null
+    const concentrationIconTooltips = translator('render-spell-concentration')
+    const ritualIconTooltips = translator('render-spell-ritual')
     const descriptionToken = useMemo(() => {
         if (id === context.file.id && isDefined(context.tokens.description)) {
             return context.tokens.description
@@ -114,10 +115,10 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCr
                             </span>
                         </Tooltip>
                     </div>
-                    : <span>{data.levelText}</span>
+                    : <span>{data.getLevelText(translator)}</span>
                 }
                 <Elements.b>School</Elements.b>
-                <span>{data.schoolName}</span>
+                <span>{data.getSchoolNameText(translator)}</span>
             </Elements.align>
             <Elements.align direction='v' width='100%' weight='1'>
                 <div><Elements.b>Casting</Elements.b>
@@ -138,14 +139,14 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCr
                     }
                 </div>
                 <div className={styles.iconRow}>
-                    { data.timeValueText }
+                    { data.getTimeValueText(translator) }
                     { data.ritual &&
                         <Elements.icon icon='ritual' tooltips={ritualIconTooltips}/>
                     }
                 </div>
                 <Elements.b>Duration</Elements.b>
                 <div className={styles.iconRow}>
-                    { data.durationText }
+                    { data.getDurationText(translator) }
                     { data.concentration &&
                         <Elements.icon icon='concentration' tooltips={concentrationIconTooltips}/>
                     }
@@ -214,9 +215,10 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCr
 }
 
 const SpellClosedRenderer: React.FC<SpellRendererProps> = ({ data, stats }) => {
-    const targetIconTooltips = useLocalizedText(data.targetIcon !== null ? `icon-${data.targetIcon}` : null) ?? null
-    const concentrationIconTooltips = useLocalizedText('render-spell-concentration') ?? null
-    const ritualIconTooltips = useLocalizedText('render-spell-ritual') ?? null
+    const translator = useTranslator()
+    const targetIconTooltips = data.targetIcon !== null ? translator(`icon-${data.targetIcon}`) : null
+    const concentrationIconTooltips = translator('render-spell-concentration')
+    const ritualIconTooltips = translator('render-spell-ritual')
     return (
         <Elements.align direction='h' width='100%' weight='1'>
             <div className={styles.iconRow} style={{ flex: '1.5' }}>
@@ -229,10 +231,10 @@ const SpellClosedRenderer: React.FC<SpellRendererProps> = ({ data, stats }) => {
                 }
             </div>
             <Elements.block weight='0.8' width={null}>
-                {data.timeText}
+                {data.getTimeText(translator)}
             </Elements.block>
             <Elements.block weight='0.8' width={null}>
-                {data.durationText}
+                {data.getDurationText(translator)}
             </Elements.block>
             <div className={styles.iconRow} style={{ flex: '0.8' }}>
                 {data.targetText}

@@ -1,7 +1,7 @@
 import { isEnum, isNumber, isObjectId, isRecord, isString } from 'utils'
 import { isValidAbilityFormat } from 'utils/importers/stringFormatAbilityImporter'
+import type { TranslationHandler } from 'utils/hooks/localization'
 import { CreatureType, Language, MovementType, ProficiencyLevelBasic, Sense, SizeType } from 'structure/dnd'
-import { getOptionType } from 'structure/optionData'
 import EmptyToken from 'structure/language/tokens/empty'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { ObjectId, Simplify } from 'types'
@@ -46,22 +46,6 @@ class RaceData implements IRaceData {
         }
     }
 
-    public createContexts(elements: ElementDefinitions): [TokenContext] {
-        const descriptionContext: TokenContext = {
-            title: new EmptyToken(elements, this.name),
-            name: new EmptyToken(elements, this.name)
-        }
-        return [descriptionContext]
-    }
-
-    public get typeText(): string {
-        return getOptionType('creatureType').options[this.type]
-    }
-
-    public get sizeText(): string {
-        return getOptionType('size').options[this.size]
-    }
-
     public static properties: DataPropertyMap<IRaceData, RaceData> = {
         name: {
             value: '',
@@ -104,6 +88,22 @@ class RaceData implements IRaceData {
             validate: (value) => Array.isArray(value) && value.every(isObjectId),
             simplify: (value) => value.length > 0 ? value : null
         }
+    }
+
+    public createContexts(elements: ElementDefinitions): [TokenContext] {
+        const descriptionContext: TokenContext = {
+            title: new EmptyToken(elements, this.name),
+            name: new EmptyToken(elements, this.name)
+        }
+        return [descriptionContext]
+    }
+
+    public getTypeText(translator: TranslationHandler): string {
+        return translator(`enum-creatureType-${this.type}`)
+    }
+
+    public getSizeText(translator: TranslationHandler): string {
+        return translator(`enum-size-${this.size}`)
     }
 }
 

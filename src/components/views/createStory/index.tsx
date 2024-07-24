@@ -306,13 +306,15 @@ const CreateStoryView: React.FC<CreateStoryViewProps> = ({ storyId = null }) => 
                             value={state.flags.includes(FlagType.Public)}
                             onChange={(value) => { flagChangeHandler(value, FlagType.Public) }}/>
                     </div>
-                    <div className={styles.item}>
-                        <LocalizedText className='no-line-break' id='create-story-label-official'/>
-                        <Checkbox
-                            className={styles.checkbox}
-                            value={state.flags.includes(FlagType.Official)}
-                            onChange={(value) => { flagChangeHandler(value, FlagType.Official) }}/>
-                    </div>
+                    { process.env.NODE_ENV === 'development' &&
+                        <div className={styles.item}>
+                            <LocalizedText className='no-line-break' id='create-story-label-official'/>
+                            <Checkbox
+                                className={styles.checkbox}
+                                value={state.flags.includes(FlagType.Official)}
+                                onChange={(value) => { flagChangeHandler(value, FlagType.Official) }}/>
+                        </div>
+                    }
                     <button disabled={!isValid || !state.hasChanges} onClick={confirmClickHandler}>
                         <LocalizedText className='no-line-break' id={storyId !== null ? 'create-story-update' : 'create-story-create'}/>
                     </button>

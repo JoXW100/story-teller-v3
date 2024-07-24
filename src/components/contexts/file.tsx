@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useReducer } from 'react'
+import Router from 'next/router'
 import Head from 'next/head'
 import Loading from 'components/controls/loading'
 import { openDialog } from 'components/dialogs/handler'
@@ -6,6 +7,7 @@ import Communication from 'utils/communication'
 import { getRelativeFieldObject, isString } from 'utils'
 import Logger from 'utils/logger'
 import RequestBuffer from 'utils/buffer'
+import { useLocalizedText } from 'utils/hooks/localization'
 import type { EditorPageKeyType } from 'components/views/editor'
 import type DatabaseFile from 'structure/database/files'
 import DocumentFactory from 'structure/database/files/factory'
@@ -13,13 +15,11 @@ import type { ObjectId } from 'types'
 import type { IToken } from 'types/language'
 import type { ContextProvider, DispatchAction, DispatchActionNoData, DispatchActionWithDispatch, ISetFieldData } from 'types/context'
 import type { DBResponse } from 'types/database'
-import Router from 'next/router'
-import { useLocalizedText } from 'utils/hooks/localizedText'
 
 export interface IEditorPageData {
     pageKey: EditorPageKeyType
     root: string
-    name: string
+    name: React.ReactNode
 }
 
 interface FileContextState {

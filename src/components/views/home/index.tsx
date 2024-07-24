@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import { useUser } from '@auth0/nextjs-auth0/client'
 import LogoutIcon from '@mui/icons-material/LogoutSharp'
 import LoginIcon from '@mui/icons-material/LoginSharp'
+import DebugIcon from '@mui/icons-material/BugReportSharp'
 import { Tooltip } from '@mui/material'
 import LocalizedText from 'components/controls/localizedText'
 import Loading from 'components/controls/loading'
@@ -20,6 +21,10 @@ import styles from './style.module.scss'
 interface HomeState {
     loading: boolean
     lastStory: IDatabaseStory | null
+}
+
+const handleDebugClick = (): void => {
+    Communication.debug().catch(console.error)
 }
 
 const HomeView: React.FC = () => {
@@ -90,6 +95,14 @@ const HomeView: React.FC = () => {
                         </Link>
                     </Tooltip>
                 }
+                { process.env.NODE_ENV === 'development' &&
+                    <Tooltip title={<LocalizedText className={styles.headerButtonTooltips} id='home-debug'/>}>
+                        <button className={styles.headerButton} onClick={handleDebugClick}>
+                            <LocalizedText className='no-line-break label-xl mobile-hide' id='home-debug'/>
+                            <DebugIcon/>
+                        </button>
+                    </Tooltip>
+                }
                 <SettingsButton/>
             </AppBar>
 
@@ -114,13 +127,15 @@ const HomeView: React.FC = () => {
                         </div>
                     </Locked>
                 </button>
-                <button id='galleryButton' onClick={cardButtonClickHandler}>
-                    <div>
-                        <LocalizedText className='no-line-break' id='home-card-gallery'/>
-                    </div>
+                <button id='galleryButton' onClick={cardButtonClickHandler} disabled>
+                    <Locked locked textId='login-wip'>
+                        <div>
+                            <LocalizedText className='no-line-break' id='home-card-gallery'/>
+                        </div>
+                    </Locked>
                 </button>
-                <button id='mapButton' onClick={cardButtonClickHandler} disabled={user === undefined}>
-                    <Locked locked={user === undefined} textId='login-required-access'>
+                <button id='mapButton' onClick={cardButtonClickHandler} disabled>
+                    <Locked locked textId='login-wip'>
                         <div>
                             <LocalizedText className='no-line-break' id='home-card-map'/>
                         </div>

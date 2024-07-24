@@ -2,7 +2,6 @@ import { AbilityType } from './common'
 import AbilityDataBase from './data'
 import { isRecord, keysOf } from 'utils'
 import EffectFactory, { simplifyEffectRecord, type Effect } from 'structure/database/effect/factory'
-import { getOptionType } from 'structure/optionData'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IAbilitySkillData } from 'types/database/files/ability'
@@ -22,10 +21,6 @@ class AbilitySkillData extends AbilityDataBase implements IAbilitySkillData {
                 }
             }
         }
-    }
-
-    public get typeName(): string {
-        return getOptionType('abilityType').options[this.type]
     }
 
     public static override properties: DataPropertyMap<IAbilitySkillData, AbilitySkillData> = {

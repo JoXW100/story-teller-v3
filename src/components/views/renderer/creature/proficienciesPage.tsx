@@ -1,11 +1,11 @@
 import { Tooltip } from '@mui/material'
-import { getOptionType } from 'structure/optionData'
+import SourceTooltips from './sourceTooltips'
 import Elements from 'components/elements'
 import LocalizedText from 'components/controls/localizedText'
 import Icon from 'components/controls/icon'
-import SourceTooltips from './sourceTooltips'
 import { keysOf } from 'utils'
 import { SkillAdvantageBindingMap } from 'utils/calculations'
+import { useLocalizedOptions } from 'utils/hooks/localization'
 import { ProficiencyLevel } from 'structure/dnd'
 import { RollMethodType, RollType } from 'structure/dice'
 import type CreatureFacade from 'structure/database/files/creature/facade'
@@ -16,8 +16,9 @@ type DataProps = React.PropsWithRef<{
 }>
 
 const ProficienciesPage = ({ facade }: DataProps): JSX.Element => {
-    const skillOptions = getOptionType('skill').options
-    const attributeOptions = getOptionType('attr').options
+    const skillOptions = useLocalizedOptions('skill')
+    const attributeOptions = useLocalizedOptions('attr')
+    const proficiencyLevelOptions = useLocalizedOptions('proficiencyLevel')
     return (
         <>
             <div className={styles.skillTable}>
@@ -32,7 +33,7 @@ const ProficienciesPage = ({ facade }: DataProps): JSX.Element => {
                     return (
                         <div key={skill}>
                             <b>{attributeOptions[facade.getSkillAttribute(skill)]}</b>
-                            <Tooltip title={getOptionType('proficiencyLevel').options[facade.proficienciesSkill[skill] ?? ProficiencyLevel.None]}>
+                            <Tooltip title={proficiencyLevelOptions[facade.proficienciesSkill[skill] ?? ProficiencyLevel.None]}>
                                 <div className={styles.proficiencyMarker} data={facade.proficienciesSkill[skill] ?? 'none'}/>
                             </Tooltip>
                             <div className={styles.label}>{skillOptions[skill]}</div>

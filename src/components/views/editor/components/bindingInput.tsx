@@ -4,8 +4,8 @@ import { Context } from 'components/contexts/file'
 import SelectionMenu from 'components/controls/menus/selection'
 import { isEnum, isRecord, keysOf, getRelativeFieldObject, asBooleanString } from 'utils'
 import Logger from 'utils/logger'
+import { useLocalizedOptions } from 'utils/hooks/localization'
 import type { LanguageKey } from 'assets'
-import { getOptionType } from 'structure/optionData'
 import { isSourceBinding } from 'structure/database/files/creature/data'
 import { AdvantageBinding } from 'structure/dnd'
 import type { ISourceBinding } from 'types/database/files/creature'
@@ -20,6 +20,8 @@ type BindingInputComponentParams = React.PropsWithoutRef<{
 
 const BindingInputComponent: React.FC<BindingInputComponentParams> = ({ field, labelId, labelArgs, fill = false }) => {
     const [context, dispatch] = useContext(Context)
+    const options = useLocalizedOptions('advantageBinding')
+
     const textValue = useMemo(() => {
         if (!isRecord(context.file.data)) {
             Logger.throw('Editor.SelectionInputComponent', 'Data of incorrect type', context.file.data)
@@ -50,8 +52,6 @@ const BindingInputComponent: React.FC<BindingInputComponentParams> = ({ field, l
         return null
     }
 
-    const option = getOptionType('advantageBinding')
-
     const handleChange = (values: Record<string, string>): void => {
         const result: Record<string, ISourceBinding[]> = {}
         for (const key of keysOf(values)) {
@@ -69,7 +69,7 @@ const BindingInputComponent: React.FC<BindingInputComponentParams> = ({ field, l
             <SelectionMenu
                 type='string'
                 values={textValue}
-                options={option.options}
+                options={options}
                 defaultValue=''
                 componentClassName={styles.editSelectionItem}
                 onChange={handleChange}/>

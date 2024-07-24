@@ -13,6 +13,7 @@ import { SourceType } from '../modifier/modifier'
 import ItemArmorData from '../item/armor'
 import { asNumber, isKeyOf, keysOf } from 'utils'
 import { getMaxProficiencyLevel, getMaxSpellLevel, getPreviousClassLevels } from 'utils/calculations'
+import type { TranslationHandler } from 'utils/hooks/localization'
 import { type ClassLevel, type CreatureType, type Language, type SizeType, ArmorType, MovementType, Sense, SpellLevel, type Attribute, type ProficiencyLevel, type ToolType, type WeaponTypeValue, OptionalAttribute, AdvantageBinding, ProficiencyLevelBasic } from 'structure/dnd'
 import type { ObjectId } from 'types'
 import type { ICharacterData } from 'types/database/files/character'
@@ -28,8 +29,8 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
     public readonly subclassesData: Record<ObjectId, SubclassData>
     public readonly itemsData: Record<ObjectId, ItemData>
 
-    constructor(data: CharacterData, storage: CharacterStorage, modifier: Modifier, raceData: RaceData | null = null, subraceData: SubraceData | null = null, classesData: Record<ObjectId, ClassData> = {}, subclassesData: Record<ObjectId, SubclassData> = {}, itemsData: Record<ObjectId, ItemData> = {}, properties: Partial<IConditionProperties> = {}) {
-        super(data, storage, modifier, properties)
+    constructor(data: CharacterData, storage: CharacterStorage, modifier: Modifier, translator: TranslationHandler, raceData: RaceData | null = null, subraceData: SubraceData | null = null, classesData: Record<ObjectId, ClassData> = {}, subclassesData: Record<ObjectId, SubclassData> = {}, itemsData: Record<ObjectId, ItemData> = {}, properties: Partial<IConditionProperties> = {}) {
+        super(data, storage, modifier, translator, properties)
         this.data = data
         this.storage = storage
         this.raceData = raceData

@@ -31,7 +31,7 @@ class MapStorage implements IMapStorage {
         this.tiles = MapStorage.properties.tiles.value
         if (data.tiles !== undefined) {
             for (const index of keysOf(data.tiles)) {
-                data.tiles[index] = createTile(data.tiles[index])
+                this.tiles[index] = createTile(data.tiles[index])
             }
         }
     }

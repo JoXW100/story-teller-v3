@@ -2,6 +2,7 @@ import React, { useState, useContext, useCallback } from 'react'
 import HistoryIcon from '@mui/icons-material/HistorySharp'
 import { Tooltip } from '@mui/material'
 import RollHistoryPanel from './panel'
+import { isDefined } from 'utils'
 import { Context } from 'components/contexts/story'
 import LocalizedText from 'components/controls/localizedText'
 import styles from './style.module.scss'
@@ -30,7 +31,7 @@ const RollHistoryButton: React.FC<RollHistoryButtonProps> = ({ disabled = false 
         setOpen(false)
     }, [])
 
-    disabled ||= !context.rollHistory.some(x => x !== null)
+    disabled ||= !context.rollHistory.some(isDefined)
     const tooltip = toggled
         ? 'rollHistory-button-close-tooltips'
         : 'rollHistory-button-open-tooltips'

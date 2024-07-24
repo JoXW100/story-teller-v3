@@ -90,7 +90,7 @@ const AbilityDocumentEditor: React.FC = () => {
                 </GroupComponent>
             }{ ((context.file.data.type === AbilityType.Attack && context.file.data.target !== TargetType.None) || context.file.data.type === AbilityType.MeleeAttack || context.file.data.type === AbilityType.RangedAttack || context.file.data.type === AbilityType.MeleeWeapon || context.file.data.type === AbilityType.RangedWeapon || context.file.data.type === AbilityType.ThrownWeapon) &&
                 <GroupComponent header={<LocalizedText id='editor-header-condition'/>} open>
-                    <EnumComponent field='condition.type' type='effectConditionType' labelId='editor-condition-type'/>
+                    <EnumComponent field='condition.type' type='effectCondition' labelId='editor-condition-type'/>
                     { context.file.data.condition.type === EffectConditionType.Hit &&
                         <SelectionInputComponent
                             field='condition.scaling'

@@ -1,6 +1,6 @@
 import Elements from 'components/elements'
 import LocalizedText from 'components/controls/localizedText'
-import { useLocalizedText } from 'utils/hooks/localizedText'
+import { useLocalizedText } from 'utils/hooks/localization'
 import { AbilityType } from 'structure/database/files/ability/common'
 import type { AbilityData } from 'structure/database/files/ability/factory'
 import styles from '../styles.module.scss'

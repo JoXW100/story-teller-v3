@@ -31,7 +31,7 @@ const CollapsibleGroup = ({ header, open = true, onChange, onRemove, onDrag, onD
         ? 'common-collapse'
         : 'common-expand'
 
-    const handleContextMenu: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+    const handleContextMenu: React.MouseEventHandler = (e) => {
         e.preventDefault()
         e.stopPropagation()
 
@@ -70,21 +70,14 @@ const CollapsibleGroup = ({ header, open = true, onChange, onRemove, onDrag, onD
         setState((state) => ({ ...state, header: e.target.value }))
     }
 
-    const handleLoseFocus = (): void => {
-        if (state.header !== header) {
-            onChange?.(state.header)
-        }
-        setState((state) => ({ ...state, isEdit: false }))
-    }
-
-    const handleDragOver = (e: React.DragEvent<HTMLInputElement>): void => {
+    const handleDragOver: React.DragEventHandler = (e) => {
         if (onDrag !== undefined && onDrag(window.dragData)) {
             e.preventDefault()
             e.stopPropagation()
         }
     }
 
-    const handleDragEnter = (e: React.DragEvent<HTMLInputElement>): void => {
+    const handleDragEnter: React.DragEventHandler = (e) => {
         if (onDrag !== undefined && onDrag(window.dragData)) {
             e.preventDefault()
             e.stopPropagation()
@@ -92,19 +85,26 @@ const CollapsibleGroup = ({ header, open = true, onChange, onRemove, onDrag, onD
         }
     }
 
-    const handleDragLeave = (e: React.DragEvent<HTMLInputElement>): void => {
+    const handleDragLeave: React.DragEventHandler = (e) => {
         if (onDrag !== undefined && onDrag(window.dragData)) {
             e.preventDefault()
             setState({ ...state, highlight: false })
         }
     }
 
-    const handleDrop = (e: React.DragEvent<HTMLInputElement>): void => {
+    const handleDrop: React.DragEventHandler = (e) => {
         if (onDrag !== undefined && onDrop !== undefined && onDrag(window.dragData)) {
             e.preventDefault()
             e.stopPropagation()
             onDrop(window.dragData)
         }
+    }
+
+    const handleLoseFocus: React.FocusEventHandler = (): void => {
+        if (state.header !== header) {
+            onChange?.(state.header)
+        }
+        setState((state) => ({ ...state, isEdit: false }))
     }
 
     return <>

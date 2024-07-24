@@ -8,9 +8,8 @@ import LinkListMenu from 'components/controls/menus/link'
 import LocalizedText from 'components/controls/localizedText'
 import LinkInput from 'components/controls/linkInput'
 import { ElementDictionary } from 'components/elements'
-import { asNumber, isEnum, isKeyOf, isNumber, isObjectId, keysOf } from 'utils'
+import { asNumber, isKeyOf, isNumber, isObjectId, keysOf } from 'utils'
 import { useAbilitiesOfCategory, useFilesOfType, useSubFiles } from 'utils/hooks/files'
-import { getOptionType } from 'structure/optionData'
 import StoryScript from 'structure/language/storyscript'
 import { DocumentType } from 'structure/database'
 import type DatabaseFile from 'structure/database/files'
@@ -20,6 +19,7 @@ import type CharacterFacade from 'structure/database/files/character/facade'
 import type { ObjectId } from 'types'
 import type { IEditorChoiceData, IEditorDocumentChoiceData, IEditorEnumChoiceData, IEditorLinkedChoiceData, IEditorValueChoiceData } from 'types/database/choice'
 import styles from '../styles.module.scss'
+import { useLocalizedOptions } from 'utils/hooks/localization'
 
 type ChoicePageProps = React.PropsWithRef<{
     facade: CharacterFacade
@@ -73,7 +73,7 @@ function getValueArray(value: unknown, validate: (value: unknown) => boolean): u
 
 const ModifierChoiceEnumItem: React.FC<ModifierChoiceEnumItemProps> = ({ facade, choiceKey, data }) => {
     const [, dispatch] = useContext(Context)
-    const optionType = getOptionType(data.enum)
+    const optionOptions = useLocalizedOptions('classLevel')
     const options = useMemo<Record<string, React.ReactNode>>(() => {
         const options: Record<string, React.ReactNode> = {}
         if (data === null) {
@@ -82,14 +82,14 @@ const ModifierChoiceEnumItem: React.FC<ModifierChoiceEnumItemProps> = ({ facade,
 
         for (let i = 0; i < data.value.length; i++) {
             const value = data.value[i]
-            if (isEnum(value, optionType.enum)) {
-                options[String(i)] = optionType.options[value]
+            if (isKeyOf(value, optionOptions)) {
+                options[String(i)] = optionOptions[value]
             } else {
                 options[String(i)] = String(value)
             }
         }
         return options
-    }, [data, optionType.enum, optionType.options])
+    }, [data, optionOptions])
     const value = getValueArray(facade.storage.choices[choiceKey], (value) => isKeyOf(value, options)) as Array<keyof typeof options>
 
     const handleChange = (value: unknown): void => {

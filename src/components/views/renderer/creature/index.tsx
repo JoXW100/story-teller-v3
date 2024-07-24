@@ -7,11 +7,11 @@ import ProficienciesPage from './proficienciesPage'
 import { Context } from 'components/contexts/file'
 import Elements, { ElementDictionary } from 'components/elements'
 import VariableContext from 'components/contexts/variable'
+import { isDefined } from 'utils'
 import { useCreatureFacade } from 'utils/hooks/documents'
 import { OptionalAttribute, type SpellLevel } from 'structure/dnd'
 import { RollMethodType, RollType } from 'structure/dice'
 import type CreatureDocument from 'structure/database/files/creature'
-import { isDefined } from 'utils'
 
 const Pages = {
     'actions': { key: 'render-page-actions' },
@@ -65,7 +65,7 @@ const CreatureDocumentRenderer: React.FC = () => {
                         dice={String(facade.initiativeValue)}
                         desc='Initiative'
                         details={null}
-                        tooltips={null}
+                        tooltips="Roll Initiative"
                         critRange={20}
                         mode={RollMethodType.Normal}
                         type={RollType.Initiative}/>
@@ -75,7 +75,7 @@ const CreatureDocumentRenderer: React.FC = () => {
                         dice={String(facade.proficiencyValue)}
                         desc='Proficiency'
                         details={null}
-                        tooltips={null}
+                        tooltips="Roll Proficiency Check"
                         critRange={20}
                         mode={RollMethodType.Normal}
                         type={RollType.Check}/>

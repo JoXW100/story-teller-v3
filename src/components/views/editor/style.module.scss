@@ -375,6 +375,6 @@ $sizeExtra: ($size + 1px) * 8 - 1px;
 
 .paletteGrid {
     display: grid;
+    grid-template-columns: repeat(auto-fit, $iconNormalSize);
     gap: 2px;
-    width: fit-content;
 }

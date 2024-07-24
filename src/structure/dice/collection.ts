@@ -1,4 +1,5 @@
 import { DiceBase, type IDiceRoll } from '.'
+import type Random from 'structure/random'
 
 export enum DiceOperator {
     Add = 'add',
@@ -24,7 +25,7 @@ export class DiceCollection extends DiceBase {
         this.collection.push({ value: dice, operator: operator })
     }
 
-    public override rollOnce(group: string = '0'): IDiceRoll {
+    public override rollOnce(generator?: Random, group: string = '0'): IDiceRoll {
         const result: IDiceRoll = {
             dice: this,
             sum: 0,
@@ -32,22 +33,22 @@ export class DiceCollection extends DiceBase {
             rolls: []
         }
         for (let i = 0; i < this.collection.length; i++) {
-            const res = this.collection[i].value.rollOnce(`${group}.${i}`)
+            const res = this.collection[i].value.rollOnce(generator, `${group}.${i}`)
             result.sum += res.sum
             result.rolls.push(...res.rolls)
         }
         return result
     }
 
-    public override rollOnceValue(): number {
+    public override rollOnceValue(generator?: Random): number {
         let sum = 0
         for (let i = 0; i < this.collection.length; i++) {
             switch (this.collection[i].operator) {
                 case DiceOperator.Add:
-                    sum += this.collection[i].value.rollOnceValue()
+                    sum += this.collection[i].value.rollOnceValue(generator)
                     break
                 case DiceOperator.Subtract:
-                    sum -= this.collection[i].value.rollOnceValue()
+                    sum -= this.collection[i].value.rollOnceValue(generator)
                     break
                 default:
                     break

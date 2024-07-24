@@ -31,6 +31,8 @@ export function getFileIcon(type: DocumentFileType): React.FC<IconParams> {
             return IconMap.class
         case DocumentType.Creature:
             return IconMap.creature
+        case DocumentType.Encounter:
+            return IconMap.encounter
         case DocumentType.Spell:
             return IconMap.spell
         case DocumentType.Modifier:
@@ -111,7 +113,7 @@ const File: React.FC<FileProps> = ({ file }) => {
             {
                 text: 'fileSystem-file-createCopy',
                 icon: <DuplicateIcon/>,
-                action: () => { dispatch.copyFile(file, file.holderId, file.name) }
+                action: () => { dispatch.copyFile(file, file.holderId, `${file.name} copy`) }
             }
         ], { x: e.pageX, y: e.pageY }, true)
     }, [dispatch, file, router, contextID])

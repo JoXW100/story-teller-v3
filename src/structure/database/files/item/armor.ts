@@ -1,7 +1,7 @@
 import ItemDataBase from './data'
 import { isBoolean, isEnum, isNumber } from 'utils'
+import type { TranslationHandler } from 'utils/hooks/localization'
 import { ArmorType, ItemType } from 'structure/dnd'
-import { getOptionType } from 'structure/optionData'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IItemArmorData } from 'types/database/files/item'
@@ -19,8 +19,8 @@ class ItemArmorData extends ItemDataBase implements IItemArmorData {
         this.disadvantageStealth = data.disadvantageStealth ?? ItemArmorData.properties.disadvantageStealth.value
     }
 
-    public override get categoryText(): string {
-        return getOptionType('armor').options[this.subtype]
+    public override getCategoryText(translator: TranslationHandler): string {
+        return translator(`enum-armor-${this.subtype}`)
     }
 
     public override get equippable(): boolean {
