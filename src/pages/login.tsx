@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useUser } from '@auth0/nextjs-auth0/client'
-import Loading from 'components/loading'
+import Loading from 'components/controls/loading'
 import Navigation from 'utils/navigation'
 
 interface LoginPageProps {

@@ -1,4 +1,4 @@
-import SettingsView from 'views/settings'
+import SettingsView from 'components/views/settings'
 
 interface SettingsPageProps {
     props: {

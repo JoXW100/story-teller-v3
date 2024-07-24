@@ -22,147 +22,6 @@ import type { ItemData } from 'structure/database/files/item/factory'
 import type { ObjectId } from 'types'
 import type { IConditionProperties } from 'types/database/condition'
 
-type AbilitiesState = [Record<string, AbilityData>, boolean]
-export function useAbilities(ids: Array<ObjectId | string | null>): AbilitiesState {
-    const [state, setState] = useState<AbilitiesState>([{}, true])
-
-    useEffect(() => {
-        setState((state) => {
-            const fileIds = new Set<ObjectId>()
-            let values: Record<string, AbilityData> = {}
-            let count = 0
-            for (const id of ids) {
-                const key = isObjectId(id) ? String(id) : `custom.${count++}`
-                if (key in values) {
-                    continue
-                } else if (key in state[0]) {
-                    values[key] = state[0][key]
-                } else if (isObjectId(id)) {
-                    fileIds.add(id)
-                } else if (id !== null) {
-                    const ability = toAbility(id)
-                    if (ability !== null) {
-                        values[key] = ability
-                    }
-                }
-            }
-
-            if (fileIds.size > 0) {
-                Communication.getFilesOfTypes(Array.from(fileIds), [DocumentType.Ability])
-                    .then((res) => {
-                        if (res.success) {
-                            values = { ...values, ...res.result }
-                        }
-                    }, (e: unknown) => {
-                        Logger.throw('useAbilities', e)
-                    }).finally(() => {
-                        setState([values, false])
-                    })
-                return [values, true]
-            } else {
-                return state
-            }
-        })
-    }, [ids])
-
-    return state
-}
-
-type SpellsState = [Record<ObjectId, SpellData>, boolean]
-export function useSpells(ids: Array<ObjectId | null>, preparations?: Record<ObjectId, SpellPreparationType>): SpellsState {
-    const [state, setState] = useState<SpellsState>([{}, true])
-
-    useEffect(() => {
-        const fileIds = new Set<ObjectId>()
-        for (const id of ids) {
-            if (isObjectId(id)) {
-                fileIds.add(id)
-            }
-        }
-
-        if (preparations !== undefined) {
-            for (const id of keysOf(preparations)) {
-                if (PreparedSpellPreparationType.has(preparations[id])) {
-                    fileIds.add(id)
-                }
-            }
-        }
-
-        const values: Record<ObjectId, SpellData> = {}
-        if (fileIds.size > 0) {
-            Communication.getFilesOfTypes(Array.from(fileIds), [DocumentType.Spell])
-                .then((res) => {
-                    if (res.success) {
-                        for (const file of Object.values(res.result)) {
-                            values[file.id] = file.data
-                        }
-                    }
-                }, (e: unknown) => {
-                    Logger.throw('useSpells', e)
-                }).finally(() => {
-                    setState([values, false])
-                })
-        } else {
-            setState([values, false])
-        }
-    }, [ids, preparations])
-
-    return state
-}
-
-type ClassesState = [Record<ObjectId, ClassData>, boolean]
-export function useClasses(ids: Record<ObjectId, any>): ClassesState {
-    const [state, setState] = useState<ClassesState>([{}, true])
-
-    useEffect(() => {
-        const fileIds = new Set<ObjectId>(keysOf(ids))
-        const values: Record<ObjectId, ClassData> = {}
-        if (fileIds.size > 0) {
-            Communication.getFilesOfTypes(Array.from(fileIds), [DocumentType.Class])
-                .then((res) => {
-                    if (res.success) {
-                        for (const file of Object.values(res.result)) {
-                            values[file.id] = file.data
-                        }
-                    }
-                }, (e: unknown) => {
-                    Logger.throw('useClasses', e)
-                }).finally(() => {
-                    setState([values, false])
-                })
-        } else {
-            setState([values, false])
-        }
-    }, [ids])
-
-    return state
-}
-
-type ModifiersState = [Record<ObjectId, ModifierDocument>, boolean]
-export function useModifiers(ids: readonly ObjectId[]): ModifiersState {
-    const [state, setState] = useState<ModifiersState>([{}, true])
-
-    useEffect(() => {
-        let values: Record<ObjectId, ModifierDocument> = {}
-        if (ids.length > 0) {
-            Communication.getFilesOfTypes(ids, [DocumentType.Modifier])
-                .then((res) => {
-                    if (res.success) {
-                        values = { ...values, ...res.result }
-                    }
-                }, (e: unknown) => {
-                    Logger.throw('useModifiers', e)
-                }).finally(() => {
-                    setState([values, false])
-                })
-        } else {
-            setState([values, false])
-        }
-    }, [ids])
-
-    return state
-}
-
 interface ICreatureFacadeState {
     facade: CreatureFacade
     abilities: Record<ObjectId | string, AbilityData>
@@ -179,6 +38,11 @@ interface ICharacterFacadeState extends ICreatureFacadeState {
     items: Record<ObjectId, ItemData>
     loading: boolean
 }
+
+type AbilitiesState = [Record<string, AbilityData>, boolean]
+type SpellsState = [Record<ObjectId, SpellData>, boolean]
+type ClassesState = [Record<ObjectId, ClassData>, boolean]
+type ModifiersState = [Record<ObjectId, ModifierDocument>, boolean]
 
 async function fetchModifiers(values: Record<string, ObjectId>, modifier: Modifier): Promise<void> {
     const keys = keysOf(values)
@@ -464,6 +328,143 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
     }
     Logger.throw('fetchCharacterData', 'maximum depth exceeded')
     return current
+}
+
+export function useAbilities(ids: Array<ObjectId | string | null>): AbilitiesState {
+    const [state, setState] = useState<AbilitiesState>([{}, true])
+
+    useEffect(() => {
+        setState((state) => {
+            const fileIds = new Set<ObjectId>()
+            let values: Record<string, AbilityData> = {}
+            let count = 0
+            for (const id of ids) {
+                const key = isObjectId(id) ? String(id) : `custom.${count++}`
+                if (key in values) {
+                    continue
+                } else if (key in state[0]) {
+                    values[key] = state[0][key]
+                } else if (isObjectId(id)) {
+                    fileIds.add(id)
+                } else if (id !== null) {
+                    const ability = toAbility(id)
+                    if (ability !== null) {
+                        values[key] = ability
+                    }
+                }
+            }
+
+            if (fileIds.size > 0) {
+                Communication.getFilesOfTypes(Array.from(fileIds), [DocumentType.Ability])
+                    .then((res) => {
+                        if (res.success) {
+                            values = { ...values, ...res.result }
+                        }
+                    }, (e: unknown) => {
+                        Logger.throw('useAbilities', e)
+                    }).finally(() => {
+                        setState([values, false])
+                    })
+                return [values, true]
+            } else {
+                return state
+            }
+        })
+    }, [ids])
+
+    return state
+}
+
+export function useSpells(ids: Array<ObjectId | null>, preparations?: Record<ObjectId, SpellPreparationType>): SpellsState {
+    const [state, setState] = useState<SpellsState>([{}, true])
+
+    useEffect(() => {
+        const fileIds = new Set<ObjectId>()
+        for (const id of ids) {
+            if (isObjectId(id)) {
+                fileIds.add(id)
+            }
+        }
+
+        if (preparations !== undefined) {
+            for (const id of keysOf(preparations)) {
+                if (PreparedSpellPreparationType.has(preparations[id])) {
+                    fileIds.add(id)
+                }
+            }
+        }
+
+        const values: Record<ObjectId, SpellData> = {}
+        if (fileIds.size > 0) {
+            Communication.getFilesOfTypes(Array.from(fileIds), [DocumentType.Spell])
+                .then((res) => {
+                    if (res.success) {
+                        for (const file of Object.values(res.result)) {
+                            values[file.id] = file.data
+                        }
+                    }
+                }, (e: unknown) => {
+                    Logger.throw('useSpells', e)
+                }).finally(() => {
+                    setState([values, false])
+                })
+        } else {
+            setState([values, false])
+        }
+    }, [ids, preparations])
+
+    return state
+}
+
+export function useClasses(ids: Record<ObjectId, any>): ClassesState {
+    const [state, setState] = useState<ClassesState>([{}, true])
+
+    useEffect(() => {
+        const fileIds = new Set<ObjectId>(keysOf(ids))
+        const values: Record<ObjectId, ClassData> = {}
+        if (fileIds.size > 0) {
+            Communication.getFilesOfTypes(Array.from(fileIds), [DocumentType.Class])
+                .then((res) => {
+                    if (res.success) {
+                        for (const file of Object.values(res.result)) {
+                            values[file.id] = file.data
+                        }
+                    }
+                }, (e: unknown) => {
+                    Logger.throw('useClasses', e)
+                }).finally(() => {
+                    setState([values, false])
+                })
+        } else {
+            setState([values, false])
+        }
+    }, [ids])
+
+    return state
+}
+
+export function useModifiers(ids: readonly ObjectId[]): ModifiersState {
+    const [state, setState] = useState<ModifiersState>([{}, true])
+
+    useEffect(() => {
+        let values: Record<ObjectId, ModifierDocument> = {}
+        if (ids.length > 0) {
+            Communication.getFilesOfTypes(ids, [DocumentType.Modifier])
+                .then((res) => {
+                    if (res.success) {
+                        values = { ...values, ...res.result }
+                    }
+                }, (e: unknown) => {
+                    Logger.throw('useModifiers', e)
+                }).finally(() => {
+                    setState([values, false])
+                })
+        } else {
+            setState([values, false])
+        }
+    }, [ids])
+
+    return state
 }
 
 export function useCreatureFacade(creature: CreatureDocument): ICreatureFacadeState {

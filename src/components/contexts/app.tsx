@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useReducer } from 'react'
 import { asBoolean, asEnum, asKeyOf, isKeyOf, keysOf } from 'utils'
 import Storage from 'utils/storage'
-import { TextData, type LanguageType } from 'data'
-import Palettes from 'data/palettes'
+import { TextData, type LanguageType } from 'assets'
+import Palettes from 'assets/palettes'
 import type { ContextProvider, DispatchAction, DispatchActionNoData, ISetFieldData } from 'types/context'
 import type { LocalizationItem } from 'types/localization'
 

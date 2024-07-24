@@ -5,14 +5,14 @@ import CloseIcon from '@mui/icons-material/CloseSharp'
 import Dialog from '.'
 import Communication from 'utils/communication'
 import Logger from 'utils/logger'
-import Loading from 'components/loading'
-import LocalizedText from 'components/localizedText'
-import SearchBar from 'components/layouts/searchBar'
+import Loading from 'components/controls/loading'
+import LocalizedText from 'components/controls/localizedText'
+import SearchBar from 'components/controls/searchBar'
 import type { DocumentType } from 'structure/database'
 import type { DocumentTypeMap } from 'structure/database/files/factory'
 import type { DialogArgs } from 'types/dialog'
 import styles from './style.module.scss'
-import Error from 'components/error'
+import Error from 'components/controls/error'
 
 interface ISelectFileDialogState {
     selected: DocumentTypeMap[DocumentType] | null

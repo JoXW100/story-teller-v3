@@ -1,7 +1,7 @@
 import { useContext, useMemo } from 'react'
 import { Context } from 'components/contexts/app'
 import Logger from 'utils/logger'
-import type { LanguageKey } from 'data'
+import type { LanguageKey } from 'assets'
 
 export function useLocalizedText(id: LanguageKey | null | undefined, args: Array<string | number> = []): string | undefined {
     const [context] = useContext(Context)

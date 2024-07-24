@@ -6,7 +6,7 @@ import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { ICharacterStorage, IInventoryItemData } from 'types/database/files/character'
 
-function simplifySpell(value: Record<ObjectId, Record<ObjectId, SpellPreparationType>>): Record<ObjectId, Record<ObjectId, SpellPreparationType>> | null {
+function simplifyPreparations(value: Record<ObjectId, Record<ObjectId, SpellPreparationType>>): Record<ObjectId, Record<ObjectId, SpellPreparationType>> | null {
     const result: Record<ObjectId, Record<ObjectId, SpellPreparationType>> = {}
     let hasValue: boolean = false
     for (const id of keysOf(value)) {
@@ -49,7 +49,7 @@ class CharacterStorage extends CreatureStorage implements ICharacterStorage {
         if (storage.subclasses !== undefined) {
             for (const id of keysOf(storage.subclasses)) {
                 const subclassId = storage.subclasses[id]
-                if (isObjectId(subclassId)) {
+                if (isObjectId(id) && isObjectId(subclassId)) {
                     this.subclasses[id] = subclassId
                 }
             }
@@ -58,11 +58,11 @@ class CharacterStorage extends CreatureStorage implements ICharacterStorage {
         if (storage.spellPreparations !== undefined) {
             for (const id of keysOf(storage.spellPreparations)) {
                 const classPreparations = storage.spellPreparations[id]
-                if (classPreparations !== undefined) {
+                if (isObjectId(id) && classPreparations !== undefined) {
                     this.spellPreparations[id] = {}
                     for (const key of keysOf(classPreparations)) {
                         const type = classPreparations[key]
-                        if (type !== undefined) {
+                        if (isEnum(type, SpellPreparationType)) {
                             this.spellPreparations[id][key] = type
                         }
                     }
@@ -73,11 +73,11 @@ class CharacterStorage extends CreatureStorage implements ICharacterStorage {
         if (storage.preparationsExpendedSlots !== undefined) {
             for (const id of keysOf(storage.preparationsExpendedSlots)) {
                 const expendedSlots = storage.preparationsExpendedSlots[id]
-                if (expendedSlots !== undefined) {
+                if (isObjectId(id) && expendedSlots !== undefined) {
                     this.preparationsExpendedSlots[id] = {}
                     for (const key of keysOf(expendedSlots)) {
                         const type = expendedSlots[key]
-                        if (type !== undefined) {
+                        if (isNumber(type)) {
                             this.preparationsExpendedSlots[id][key] = type
                         }
                     }
@@ -88,7 +88,7 @@ class CharacterStorage extends CreatureStorage implements ICharacterStorage {
         if (storage.inventory !== undefined) {
             for (const id of keysOf(storage.inventory)) {
                 const data = storage.inventory[id]
-                if (data !== undefined) {
+                if (isObjectId(id) && data !== undefined) {
                     this.inventory[id] = InventoryItemDataFactory.create(data)
                 }
             }
@@ -119,7 +119,7 @@ class CharacterStorage extends CreatureStorage implements ICharacterStorage {
             validate: (value) => isRecord(value, (classId, classPreparations) =>
                 isObjectId(classId) && isRecord(classPreparations, (spellId, type) =>
                     isObjectId(spellId) && isEnum(type, SpellPreparationType))),
-            simplify: simplifySpell
+            simplify: simplifyPreparations
         },
         preparationsExpendedSlots: {
             get value() { return {} },

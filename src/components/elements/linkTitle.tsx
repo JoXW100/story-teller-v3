@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import LocalizedText from 'components/localizedText'
+import LocalizedText from 'components/controls/localizedText'
 import { useFile } from 'utils/hooks/files'
 import Navigation from 'utils/navigation'
 import LinkTitleElement, { type LinkTitleElementParams } from 'structure/elements/linkTitle'

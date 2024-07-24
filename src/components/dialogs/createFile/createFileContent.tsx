@@ -1,10 +1,10 @@
 import React, { useRef, useState } from 'react'
 import { type CreateContentProps, type CreateFilePopupData } from '.'
-import LocalizedText from 'components/localizedText'
-import DropdownMenu from 'components/layouts/dropdownMenu'
+import LocalizedText from 'components/controls/localizedText'
+import DropdownMenu from 'components/controls/dropdownMenu'
 import { useLocalizedText } from 'utils/hooks/localizedText'
 import { DocumentType } from 'structure/database'
-import type { LanguageKey } from 'data'
+import type { LanguageKey } from 'assets'
 import styles from './style.module.scss'
 
 function createFileOptionMap(): Record<DocumentType, React.ReactNode> {

@@ -45,7 +45,12 @@ class CreatureStorage implements ICreatureStorage {
                 }
             }
         }
-        this.choices = storage.choices ?? CreatureStorage.properties.choices.value
+        this.choices = CreatureStorage.properties.choices.value
+        if (storage.choices !== undefined) {
+            for (const key of keysOf(storage.choices)) {
+                this.choices[key] = storage.choices[key]
+            }
+        }
     }
 
     public static properties: DataPropertyMap<ICreatureStorage, CreatureStorage> = {

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useReducer } from 'react'
 import type { IRollContext } from 'structure/dice'
-import Loading from 'components/loading'
+import Loading from 'components/controls/loading'
 import { openDialog } from 'components/dialogs/handler'
 import Beyond20 from 'utils/beyond20'
 import Communication from 'utils/communication'

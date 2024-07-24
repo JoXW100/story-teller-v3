@@ -1,5 +1,5 @@
 import Dialog from '.'
-import LocalizedText from 'components/localizedText'
+import LocalizedText from 'components/controls/localizedText'
 import { type DialogArgs } from 'types/dialog'
 import styles from './style.module.scss'
 

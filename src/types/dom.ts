@@ -1,5 +1,5 @@
 import 'react'
-import type { ContextEventDetails } from 'components/layouts/contextMenu/types'
+import type { ContextEventDetails } from 'components/controls/contextMenu/types'
 import type { DialogDetails } from './dialog'
 import type { IFileStructure } from './database'
 import type { BooleanString } from 'types'

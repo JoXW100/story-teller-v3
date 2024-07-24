@@ -1,5 +1,5 @@
 import type { CreateFilePopupData } from 'components/dialogs/createFile'
-import type { LanguageKey } from 'data'
+import type { LanguageKey } from 'assets'
 import type { DocumentType } from 'structure/database'
 import type { IDatabaseFile } from './database'
 import type { ObjectId } from 'types'

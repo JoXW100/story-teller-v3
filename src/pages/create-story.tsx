@@ -1,5 +1,5 @@
-import CreateStoryView from 'views/createStory'
-import Loading from 'components/loading'
+import CreateStoryView from 'components/views/createStory'
+import Loading from 'components/controls/loading'
 import { useValidation } from 'utils/hooks/validation'
 
 const CreateStoryPage: React.FC = () => {
