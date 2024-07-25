@@ -4,11 +4,10 @@ import { DieType } from 'structure/dice'
 import EmptyToken from 'structure/language/tokens/empty'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 import { asEnum, asNumber, isCalcValue, isEnum, isNumber, isObjectId, isObjectIdOrNull, isRecord, isString, isURLString, keysOf } from 'utils'
-import { isValidAbilityFormat } from 'utils/importers/stringFormatAbilityImporter'
 import type { ObjectId, Simplify } from 'types'
+import type { TokenContext } from 'types/language'
 import type { DataPropertyMap } from 'types/database'
 import type { ICreatureData, ISourceBinding } from 'types/database/files/creature'
-import type { TokenContext } from 'types/language'
 
 export function isSourceBinding(value: unknown): value is ISourceBinding {
     return isRecord(value) && isObjectIdOrNull(value.source) && isString(value.description)
@@ -415,13 +414,13 @@ class CreatureData implements ICreatureData {
         },
         spells: {
             get value() { return [] },
-            validate: (value) => Array.isArray(value) && value.every((value) => isObjectId(value) || isValidAbilityFormat(value)),
+            validate: (value) => Array.isArray(value) && value.every(isObjectId),
             simplify: (value) => value.length > 0 ? value : null
         },
         // Other
         abilities: {
             get value() { return [] },
-            validate: (value) => Array.isArray(value) && value.every((value) => isObjectId(value) || isValidAbilityFormat(value)),
+            validate: (value) => Array.isArray(value) && value.every(isString),
             simplify: (value) => value.length > 0 ? value : null
         }
     }

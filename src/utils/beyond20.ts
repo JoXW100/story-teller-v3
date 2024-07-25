@@ -1,4 +1,4 @@
-import { RollType, type IRollContext, type IDiceRoll, type DieType, type IDiceTypeValuePair, numberFromType, RollMethodType, isFail, isCritical } from 'structure/dice'
+import { RollType, type IRollContext, type IDiceRoll, type DieType, type IDiceTypeValuePair, numberFromDieType, RollMethodType, isFail, isCritical } from 'structure/dice'
 import { keysOf } from 'utils'
 
 type MessageType = 'rendered-roll' | 'hp-update'
@@ -113,7 +113,7 @@ abstract class Beyond20 {
             return {
                 amount: num,
                 total: result.reduce((sum, x) => sum + x.value, 0),
-                faces: numberFromType(type),
+                faces: numberFromDieType(type),
                 formula: `${num}${type}`,
                 rolls: result.map(x => ({ roll: x.value }))
             }

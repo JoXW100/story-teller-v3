@@ -1,9 +1,8 @@
 import { useCallback, useContext, useMemo } from 'react'
-import { Context } from 'components/contexts/app'
 import type { ITextData, LanguageKey } from 'assets'
+import { Context } from 'components/contexts/app'
 import Logger from 'utils/logger'
-import { getOptionType } from 'structure/optionData'
-import type { OptionTypeKey, OptionTypeKeyValue, OptionTypeValue } from 'structure/optionData'
+import { getEnumType, type EnumTypeKey, type EnumTypeKeyValue, type EnumTypeValue } from 'structure/enums'
 
 function translate(data: ITextData, id: LanguageKey, args: Array<string | number> = []): string {
     let text: string = data.values[id]
@@ -39,25 +38,25 @@ export function useTranslator(): TranslationHandler {
     }, [context.localization])
 }
 
-export function useLocalizedOptions<T extends OptionTypeKey>(type?: T): Record<OptionTypeValue<T>, string> {
+export function useLocalizedOptions<T extends EnumTypeKey>(type?: T): Record<EnumTypeValue<T>, string> {
     const [context] = useContext(Context)
     return useMemo(() => {
-        const options: Partial<Record<OptionTypeValue<T>, string>> = {}
+        const options: Partial<Record<EnumTypeValue<T>, string>> = {}
         if (type !== undefined) {
-            const optionTypes = getOptionType(type)
+            const optionTypes = getEnumType(type)
             for (const value of Object.values(optionTypes.enum)) {
-                const localizationKey = `enum-${type}-${value}` as OptionTypeKeyValue
-                options[value as OptionTypeValue<T>] = context.localization.values[localizationKey]
+                const localizationKey = `enum-${type}-${value}` as EnumTypeKeyValue
+                options[value as EnumTypeValue<T>] = context.localization.values[localizationKey]
             }
         }
-        return options as Record<OptionTypeValue<T>, string>
+        return options as Record<EnumTypeValue<T>, string>
     }, [context.localization, type])
 }
 
-export function useLocalizedOption<T extends OptionTypeKey>(type?: T, value?: OptionTypeValue<T>): string | undefined {
+export function useLocalizedOption<T extends EnumTypeKey>(type?: T, value?: EnumTypeValue<T>): string | undefined {
     const [context] = useContext(Context)
     if (type !== undefined && value !== undefined) {
-        const localizationKey = `enum-${type}-${value as OptionTypeValue}` as OptionTypeKeyValue
+        const localizationKey = `enum-${type}-${value as EnumTypeValue}` as EnumTypeKeyValue
         return context.localization.values[localizationKey]
     }
     return undefined

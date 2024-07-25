@@ -34,6 +34,7 @@ export interface IDatabaseFile<T extends DocumentFileType = DocumentFileType, S 
     readonly storyId: ObjectId
     readonly type: T
     readonly name: string
+    readonly flags: FlagType[]
     readonly isOwner: boolean
     readonly dateCreated: number
     readonly dateUpdated: number
@@ -61,4 +62,4 @@ export type ServerRequestType = 'isConnected' | 'getStory' | 'getAllStories' |
 'getLastUpdatedStory' | 'getFile' | 'getFiles' | 'getFileStructure' |
 'getAll' | 'addStory' | 'updateStory' | 'addFile' | 'copyFile' |
 'updateFile' | 'moveFile' | 'deleteStory' | 'deleteFile' | 'getSubFiles' |
-'getAbilitiesOfCategory' | 'getAllAvailableSources' | 'debug'
+'getAbilitiesOfCategory' | 'getAllAvailableSources' | 'debug' | 'publishFile'

@@ -2,6 +2,7 @@ import { useContext } from 'react'
 import Tooltip from '@mui/material/Tooltip'
 import TextEditor from 'components/controls/textEditor'
 import { Context } from 'components/contexts/file'
+import PublishComponent from './components/publish'
 import GroupComponent from './components/group'
 import LocalizedText from 'components/controls/localizedText'
 import TextComponent from './components/text'
@@ -24,6 +25,7 @@ const MapDocumentEditor: React.FC = () => {
     return (
         <div className={styles.main}>
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
+                <PublishComponent/>
                 <TextComponent field='name' labelId='editor-name'/>
                 <NumberComponent field='sizeX' labelId='editor-sizeX'/>
                 <NumberComponent field='sizeY' labelId='editor-sizeY'/>

@@ -21,6 +21,7 @@ class SubclassData implements ISubclassData {
     public readonly preparationAll: boolean
     public readonly learnedAll: boolean
     public readonly learnedSlotsScaling: OptionalAttribute
+    public readonly ritualCaster: boolean
 
     public constructor (data: Simplify<ISubclassData> = {}) {
         this.name = data.name ?? SubclassData.properties.name.value
@@ -34,10 +35,19 @@ class SubclassData implements ISubclassData {
         }
         // Spells
         this.spellAttribute = data.spellAttribute ?? SubclassData.properties.spellAttribute.value
-        this.preparationSlotsScaling = data.preparationSlotsScaling ?? SubclassData.properties.preparationSlotsScaling.value
         this.preparationAll = data.preparationAll ?? SubclassData.properties.preparationAll.value
+        if (this.preparationAll) {
+            this.preparationSlotsScaling = SubclassData.properties.preparationSlotsScaling.value
+        } else {
+            this.preparationSlotsScaling = data.preparationSlotsScaling ?? SubclassData.properties.preparationSlotsScaling.value
+        }
         this.learnedAll = data.learnedAll ?? SubclassData.properties.learnedAll.value
-        this.learnedSlotsScaling = data.learnedSlotsScaling ?? SubclassData.properties.learnedSlotsScaling.value
+        if (this.learnedAll) {
+            this.learnedSlotsScaling = SubclassData.properties.learnedSlotsScaling.value
+        } else {
+            this.learnedSlotsScaling = data.learnedSlotsScaling ?? SubclassData.properties.learnedSlotsScaling.value
+        }
+        this.ritualCaster = data.ritualCaster ?? SubclassData.properties.ritualCaster.value
     }
 
     public static properties: DataPropertyMap<ISubclassData, SubclassData> = {
@@ -111,6 +121,10 @@ class SubclassData implements ISubclassData {
         learnedSlotsScaling: {
             value: OptionalAttribute.None,
             validate: (value) => isEnum(value, OptionalAttribute)
+        },
+        ritualCaster: {
+            value: false,
+            validate: isBoolean
         }
     }
 

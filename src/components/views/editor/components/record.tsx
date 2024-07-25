@@ -7,7 +7,7 @@ import NumberInput from 'components/controls/numericInput'
 import DropdownMenu from 'components/controls/dropdownMenu'
 import { asBooleanString, asEnum, isRecord, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
-import { type OptionTypeKey, getOptionType } from 'structure/optionData'
+import { type EnumTypeKey, getEnumType } from 'structure/enums'
 import styles from '../style.module.scss'
 import { useLocalizedOptions, useLocalizedText } from 'utils/hooks/localization'
 
@@ -16,7 +16,7 @@ type RecordComponentParams = React.PropsWithoutRef<{
     defaultValue: unknown
     inputType: 'text' | 'enum'
     valueType: 'text' | 'number'
-    enumType?: OptionTypeKey
+    enumType?: EnumTypeKey
     labelId: LanguageKey
     labelArgs?: any[]
     placeholderId?: LanguageKey
@@ -28,7 +28,7 @@ type RecordComponentParams = React.PropsWithoutRef<{
 interface IRecordItemComponent {
     inputType: 'text' | 'enum'
     valueType: RecordComponentParams['valueType']
-    enumType?: OptionTypeKey
+    enumType?: EnumTypeKey
     handleChange: (value: unknown) => void
     placeholder?: string
     allowKeyChange: boolean
@@ -88,7 +88,7 @@ const RecordItemComponent: React.FC<RecordItemComponentParams> = ({ itemKey, val
     const [label, setLabel] = useState(itemKey)
     const options = useLocalizedOptions(params.enumType)
     const optionType = params.enumType !== undefined
-        ? getOptionType(params.enumType)
+        ? getEnumType(params.enumType)
         : null
 
     const validateKey = (key: string): boolean => {
@@ -172,7 +172,7 @@ const RecordEditComponent: React.FC<RecordItemComponentParams> = ({ value, updat
         )
     }
     if (params.inputType === 'enum' && params.enumType !== undefined) {
-        const optionType = getOptionType(params.enumType)
+        const optionType = getEnumType(params.enumType)
         return (
             <DropdownMenu
                 className={styles.editInput}

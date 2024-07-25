@@ -92,6 +92,10 @@ abstract class Navigation {
         return new URL(location.origin + location.pathname + (edit ? '?edit' : ''))
     }
 
+    public static viewURL(fileId: ObjectId): URL {
+        return new URL(`${location.origin}/view/${String(fileId)}`)
+    }
+
     public static getCurrentStoryId(): ObjectId | null {
         const result = /^\/story\/([0-9a-fA-F]{24})/.exec(location.pathname)
         if (result !== null) {

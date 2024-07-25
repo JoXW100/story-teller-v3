@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { IRollEvent } from 'components/contexts/story'
+import type { IRollEvent } from 'components/contexts/roll'
 import LocalizedText from 'components/controls/localizedText'
 import { D20RollTypes, RollMethodType, isCritical, isFail, type IRollContext } from 'structure/dice'
 import styles from './style.module.scss'

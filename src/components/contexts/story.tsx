@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useReducer } from 'react'
-import type { IRollContext } from 'structure/dice'
 import Loading from 'components/controls/loading'
 import { openDialog } from 'components/dialogs/handler'
-import Beyond20 from 'utils/beyond20'
 import Communication from 'utils/communication'
 import Logger from 'utils/logger'
 import type DatabaseStory from 'structure/database/story'
@@ -15,16 +13,10 @@ type StoryContextProps = React.PropsWithChildren<{
     edit: boolean
 }>
 
-export interface IRollEvent {
-    context: IRollContext
-    time: number
-}
-
 interface StoryContextState {
     story: DatabaseStory
     loading: boolean
     error: string | null
-    rollHistory: Array<IRollEvent | null>
     editEnabled: boolean
     sidePanelExpanded: boolean
 }
@@ -32,8 +24,6 @@ interface StoryContextState {
 interface StoryContextDispatch {
     expandSizePanel: () => void
     collapseSidePanel: () => void
-    roll: (context: IRollContext) => void
-    clearRollHistory: () => void
 }
 
 type StoryContextProvider = ContextProvider<StoryContextState, StoryContextDispatch>
@@ -43,8 +33,6 @@ type StoryContextAction =
     | DispatchActionNoData<'update'>
     | DispatchActionWithDispatch<'fetchStory', ObjectId, StoryContextAction>
     | DispatchAction<'setStory', DBResponse<DatabaseStory>>
-    | DispatchAction<'roll', IRollContext>
-    | DispatchActionNoData<'clearRollHistory'>
     | DispatchAction<'setEditEnabled', boolean>
 
     | DispatchAction<'setSidePanelExpanded', boolean>
@@ -52,16 +40,13 @@ const defaultContextState = {
     story: null as any,
     loading: false,
     error: null,
-    rollHistory: Array.from({ length: 10 }).map<IRollEvent | null>(() => null),
     editEnabled: false,
     sidePanelExpanded: true
 } satisfies StoryContextState
 
 const defaultContextDispatch: StoryContextDispatch = {
-    roll() {},
     expandSizePanel() {},
-    collapseSidePanel() {},
-    clearRollHistory() {}
+    collapseSidePanel() {}
 }
 
 export const Context = React.createContext<StoryContextProvider>([
@@ -106,13 +91,6 @@ const reducer: React.Reducer<StoryContextState, StoryContextAction> = (state, ac
                 return { ...state, loading: false, error: response.result, story: defaultContextState.story }
             }
         }
-        case 'roll': {
-            const [, ...history] = state.rollHistory
-            return { ...state, rollHistory: [...history, { time: Date.now(), context: action.data }] }
-        }
-        case 'clearRollHistory': {
-            return { ...state, rollHistory: state.rollHistory.map(entry => entry !== null ? ({ ...entry, time: 0 }) : null) }
-        }
         case 'setEditEnabled':
             return { ...state, editEnabled: action.data }
         case 'setSidePanelExpanded':
@@ -138,13 +116,8 @@ const StoryContext: React.FC<StoryContextProps> = ({ children, storyId, edit }) 
     }, [edit])
 
     const memoisedDispatch = useMemo<StoryContextDispatch>(() => ({
-        roll(context) {
-            Beyond20.sendRoll(context)
-            dispatch({ type: 'roll', data: context })
-        },
         expandSizePanel() { dispatch({ type: 'setSidePanelExpanded', data: true }) },
-        collapseSidePanel() { dispatch({ type: 'setSidePanelExpanded', data: false }) },
-        clearRollHistory() { dispatch({ type: 'clearRollHistory' }) }
+        collapseSidePanel() { dispatch({ type: 'setSidePanelExpanded', data: false }) }
     }), [dispatch])
 
     return (

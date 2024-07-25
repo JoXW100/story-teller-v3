@@ -1,4 +1,4 @@
-import { DatabaseObject, DocumentFileType, FileType } from '..'
+import { DatabaseObject, DocumentFileType, FileType, FlagType } from '..'
 import { isBoolean, isEnum, isNumber, isObjectId, isRecord, isString } from 'utils'
 import type { DataPropertyMap, IDatabaseFactory, IDatabaseFile } from 'types/database'
 import type { ObjectId } from 'types'
@@ -9,22 +9,24 @@ abstract class DatabaseFile<T extends DocumentFileType = DocumentFileType, S ext
     public readonly storyId: ObjectId
     public readonly type: T
     public readonly name: string
-    public readonly dateCreated: number
-    public readonly dateUpdated: number
+    public readonly flags: FlagType[]
     public readonly isOwner: boolean
     public readonly data: D
     public readonly storage: S
+    public readonly dateCreated: number
+    public readonly dateUpdated: number
 
     public constructor(document: IDatabaseFile<T, S, D>) {
         super(document.id)
         this.storyId = document.storyId
-        this.type = document.type
-        this.name = document.name
-        this.data = document.data
-        this.storage = document.storage
-        this.isOwner = document.isOwner
-        this.dateCreated = document.dateCreated
-        this.dateUpdated = document.dateUpdated
+        this.type = document.type ?? DatabaseFile.properties.type.value
+        this.name = document.name ?? DatabaseFile.properties.name.value
+        this.flags = document.flags ?? DatabaseFile.properties.flags.value
+        this.isOwner = document.isOwner ?? DatabaseFile.properties.isOwner.value
+        this.data = document.data ?? DatabaseFile.properties.data.value
+        this.storage = document.storage ?? DatabaseFile.properties.storage.value
+        this.dateCreated = document.dateCreated ?? DatabaseFile.properties.dateCreated.value
+        this.dateUpdated = document.dateUpdated ?? DatabaseFile.properties.dateUpdated.value
     }
 
     public static properties: DataPropertyMap<IDatabaseFile, DatabaseFile> = {
@@ -48,6 +50,25 @@ abstract class DatabaseFile<T extends DocumentFileType = DocumentFileType, S ext
             validate: (value) => isString(value) && value.length > 0,
             simplify: (value) => value
         },
+        isOwner: {
+            value: false,
+            validate: isBoolean
+        },
+        flags: {
+            get value() { return [] },
+            validate: (value) => Array.isArray(value) && value.every((val) => isEnum(val, FlagType)),
+            simplify: (value) => value.reduce<FlagType[]>((flags, value) => flags.includes(value) ? flags : [...flags, value], [])
+        },
+        data: {
+            get value() { return {} },
+            validate: isRecord,
+            simplify: (value) => value
+        },
+        storage: {
+            get value() { return {} },
+            validate: isRecord,
+            simplify: (value) => value
+        },
         dateCreated: {
             value: 0,
             validate: isNumber,
@@ -57,20 +78,6 @@ abstract class DatabaseFile<T extends DocumentFileType = DocumentFileType, S ext
             value: 0,
             validate: isNumber,
             simplify: (value) => value
-        },
-        storage: {
-            get value() { return {} },
-            validate: isRecord,
-            simplify: (value) => value
-        },
-        data: {
-            get value() { return {} },
-            validate: isRecord,
-            simplify: (value) => value
-        },
-        isOwner: {
-            value: false,
-            validate: isBoolean
         }
     }
 

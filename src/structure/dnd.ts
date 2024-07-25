@@ -141,10 +141,10 @@ export enum AreaType {
 }
 
 export enum ItemType {
-    WondrousItem = 'wondrousItem',
     Armor = 'armor',
-    Consumable = 'consumable',
     Weapon = 'weapon',
+    Consumable = 'consumable',
+    WondrousItem = 'wondrousItem',
     Other = 'other'
 }
 
@@ -207,6 +207,10 @@ export enum ArmorType {
 }
 
 export enum WeaponTypeValue {
+    Simple = 'simple',
+    Martial = 'martial',
+    Improvised = 'improvised',
+
     Battleaxe = 'battleaxe',
     Club = 'club',
     Dagger = 'dagger',
@@ -243,10 +247,7 @@ export enum WeaponTypeValue {
     Longbow = 'longbow',
     Net = 'net',
     Shortbow = 'shortbow',
-    Sling = 'sling',
-    Simple = 'simple',
-    Martial = 'martial',
-    Improvised = 'improvised'
+    Sling = 'sling'
 }
 
 export enum SimpleWeapon {

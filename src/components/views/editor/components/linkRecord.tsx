@@ -8,7 +8,7 @@ import type { LanguageKey } from 'assets'
 import { asBooleanString, isEnum, isNumber, isObjectId, isRecord, isString, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
 import { useLocalizedOptions, useLocalizedText } from 'utils/hooks/localization'
-import { getOptionType, type IOptionType, type OptionTypeKey } from 'structure/optionData'
+import { getEnumType, type IEnumType, type EnumTypeKey } from 'structure/enums'
 import type { DocumentType } from 'structure/database'
 import type { ObjectId } from 'types'
 import styles from '../style.module.scss'
@@ -17,7 +17,7 @@ type LinkRecordComponentParams = React.PropsWithChildren<{
     field: string
     type: 'text' | 'number' | 'enum' | 'edit'
     editPage?: EditorPageKeyType
-    enumType?: OptionTypeKey
+    enumType?: EnumTypeKey
     allowedTypes: readonly DocumentType[]
     defaultValue: string | number | object
     root?: string
@@ -45,14 +45,14 @@ const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type,
         return null
     }
 
-    let option: IOptionType | null = null
+    let option: IEnumType | null = null
     if (type === 'enum') {
         if (enumType === undefined) {
             Logger.throw('Editor.LinkRecordComponent', 'No enum type specified', field)
             return null
         }
 
-        option = getOptionType(enumType)
+        option = getEnumType(enumType)
         if (option === null) {
             Logger.throw('Editor.LinkRecordComponent', 'No option type of type: ' + enumType, field)
             return null

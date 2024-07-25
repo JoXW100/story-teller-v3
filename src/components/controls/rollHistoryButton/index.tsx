@@ -3,7 +3,7 @@ import HistoryIcon from '@mui/icons-material/HistorySharp'
 import { Tooltip } from '@mui/material'
 import RollHistoryPanel from './panel'
 import { isDefined } from 'utils'
-import { Context } from 'components/contexts/story'
+import { Context } from 'components/contexts/roll'
 import LocalizedText from 'components/controls/localizedText'
 import styles from './style.module.scss'
 

@@ -1,4 +1,4 @@
-import { type DiceBase, typeFromNumber } from '.'
+import { type DiceBase, DieType, parseDieType } from '.'
 import { DiceGroup } from './group'
 import { Die } from './die'
 import { DiceCollection, DiceOperator } from './collection'
@@ -48,9 +48,9 @@ export default abstract class DiceFactory {
                     : DiceOperator.Subtract
                 )
             }
-            const typeNum = asNumber(match[3], 0)
-            if (typeNum > 0) {
-                group.addDiceOfType(typeFromNumber(typeNum), quantity)
+            const die = parseDieType(match[3], DieType.None)
+            if (die !== DieType.None) {
+                group.addDiceOfType(die, quantity)
             }
         }
 

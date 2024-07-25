@@ -27,6 +27,7 @@ class ClassData implements IClassData {
     public readonly preparationSlotsScaling: OptionalAttribute
     public readonly learnedAll: boolean
     public readonly learnedSlotsScaling: OptionalAttribute
+    public readonly ritualCaster: boolean
 
     public constructor (data: Simplify<IClassData> = {}) {
         this.name = data.name ?? ClassData.properties.name.value
@@ -86,6 +87,7 @@ class ClassData implements IClassData {
         } else {
             this.learnedSlotsScaling = data.learnedSlotsScaling ?? ClassData.properties.learnedSlotsScaling.value
         }
+        this.ritualCaster = data.ritualCaster ?? ClassData.properties.ritualCaster.value
     }
 
     public static properties: DataPropertyMap<IClassData, ClassData> = {
@@ -184,6 +186,10 @@ class ClassData implements IClassData {
         learnedSlotsScaling: {
             value: OptionalAttribute.None,
             validate: (value) => isEnum(value, OptionalAttribute)
+        },
+        ritualCaster: {
+            value: false,
+            validate: isBoolean
         }
     }
 

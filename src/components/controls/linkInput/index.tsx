@@ -177,11 +177,11 @@ const LinkInput: React.FC<EditLinkInputComponentProps> = (props) => {
                         onDragEnter={handleDragEnter}
                         onDrop={handleDrop}
                         data={state.highlight ? 'highlight' : undefined}
-                        disabled={props.disabled}
+                        disabled={context.story === null || props.disabled}
                         error={asBooleanString(isString(props.value) && props.value.length > 0 && (!props.allowText || !(props.validateText !== undefined && props.validateText(props.value))))}/>
                     <Tooltip title={<LocalizedText id='common-select'/>}>
                         <span>
-                            <button className='center-flex fill-height square' disabled={props.disabled} onClick={handleSelect}>
+                            <button className='center-flex fill-height square' disabled={context.story === null || props.disabled} onClick={handleSelect}>
                                 <SelectIcon className='small-icon'/>
                             </button>
                         </span>
@@ -191,7 +191,7 @@ const LinkInput: React.FC<EditLinkInputComponentProps> = (props) => {
                     <span className='fill center-vertical-flex'>{state.file?.getTitle() ?? '...'}</span>
                     <Tooltip title={<LocalizedText id='common-clear'/>}>
                         <span>
-                            <button className='center-flex fill-height square' disabled={props.disabled} onClick={handleClearClick}>
+                            <button className='center-flex fill-height square' disabled={context.story === null || props.disabled} onClick={handleClearClick}>
                                 <ClearIcon className='small-icon'/>
                             </button>
                         </span>
@@ -204,7 +204,7 @@ const LinkInput: React.FC<EditLinkInputComponentProps> = (props) => {
                         <button
                             className='center-flex fill-height square'
                             onClick={handleAddClick}
-                            disabled={props.disabled === true || state.file === null || (props.validateAdd !== undefined && !props.validateAdd(state.file))}>
+                            disabled={context.story === null || props.disabled === true || state.file === null || (props.validateAdd !== undefined && !props.validateAdd(state.file))}>
                             <AddIcon className='small-icon'/>
                         </button>
                     </span>

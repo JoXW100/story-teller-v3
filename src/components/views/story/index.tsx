@@ -1,6 +1,7 @@
 import { useContext } from 'react'
 import { useRouter } from 'next/router'
 import { Context } from 'components/contexts/story'
+import RollContext from 'components/contexts/roll'
 import AppBar from 'components/controls/appBar'
 import FileSystem from 'components/controls/fileSystem'
 import Divider from 'components/controls/divider'
@@ -27,23 +28,25 @@ const StoryView: React.FC<StoryViewProps> = ({ fileId }) => {
 
     return (
         <div className={styles.view}>
-            <AppBar headerId='empty' headerArgs={[context.story.name]} iconId='story' handleBack={handleBack}>
-                <SettingsButton/>
-                <EditButton/>
-                <RollHistoryButton/>
-            </AppBar>
-            <Divider
-                className='fill-width'
-                leftClassName='z-2'
-                rightClassName='z-1'
-                defaultSlider={0}
-                collapsed={!context.sidePanelExpanded}
-                minLeft='8em'
-                minRight='2em'
-                left={<FileSystem fileId={fileId}/>}
-                right={<FileView fileId={fileId}/>}
-                collapsedLeft={<FileSystemCollapsedMenu/>}
-            />
+            <RollContext>
+                <AppBar headerId='empty' headerArgs={[context.story.name]} iconId='story' handleBack={handleBack}>
+                    <SettingsButton/>
+                    <EditButton/>
+                    <RollHistoryButton/>
+                </AppBar>
+                <Divider
+                    className='fill-width'
+                    leftClassName='z-2'
+                    rightClassName='z-1'
+                    defaultSlider={0}
+                    collapsed={!context.sidePanelExpanded}
+                    minLeft='8em'
+                    minRight='2em'
+                    left={<FileSystem fileId={fileId}/>}
+                    right={<FileView fileId={fileId} editEnabled={context.editEnabled}/>}
+                    collapsedLeft={<FileSystemCollapsedMenu/>}
+                />
+            </RollContext>
         </div>
     )
 }

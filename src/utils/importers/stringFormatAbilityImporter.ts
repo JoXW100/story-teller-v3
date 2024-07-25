@@ -3,11 +3,13 @@ import { asEnum, asNumber } from 'utils'
 import { EffectConditionType } from 'structure/database/effectCondition'
 import { ActionType, AreaType, DamageType, ScalingType, TargetType } from 'structure/dnd'
 import AbilityDataFactory, { type AbilityData } from 'structure/database/files/ability/factory'
-import { DieType } from 'structure/dice'
+import { DieType, parseDieType } from 'structure/dice'
 import { EffectCategory, EffectType } from 'structure/database/effect/common'
 import { AbilityType } from 'structure/database/files/ability/common'
 import type { IEffect } from 'types/database/effect'
 import type { IAbilityAttackDataBase, IAbilityData } from 'types/database/files/ability'
+
+const roll20AbilityExpr = /^(?:([\w ]+): *)?([^\.]+)\. *(?:([a-z ]+): *([+-][0-9]+) *to hit,?.*[a-z ]+([0-9]+(?:\/[0-9]+)?)[^.]+\.,? *([^.]+)[^:]+: *(?:[0-9]+)? *\(([0-9]+)d([0-9]+) *([+-] *[0-9]+)?\) *(\w+)[^.]+. *)?(.*)?/mi
 
 function getAbilityType(ability: string): AbilityType {
     switch (ability?.toLowerCase()) {
@@ -39,8 +41,8 @@ function getTargetType(target: string): TargetType {
     }
 }
 
-function getRollMod(roll: string | null): number {
-    return asNumber(roll?.trim())
+function getRollMod(roll: string): number {
+    return asNumber(roll?.match(/-? *[0-9]+/)?.[0], 0)
 }
 
 function getRange(range: string): { range: number, rangeLong: number } {
@@ -73,7 +75,6 @@ function getAction(action: string, type: AbilityType): ActionType {
     }
 }
 
-const roll20AbilityExpr = /^(?:([a-z ]+): *)?([a-z 0-9-\(\)]+)\. *(?:([a-z ]+): *([+-][0-9]+) *to hit,?.*[a-z ]+([0-9]+(?:\/[0-9]+)?)[^.]+\.,? *([^.]+)[^:]+: *(?:[0-9]+)? *\(([0-9]+)d([0-9]+) *([+-] *[0-9]+)?\) *([A-z]+)[^.]+. *)?(.*)?/mi
 export function isValidAbilityFormat(text: string): boolean {
     return new RegExp(roll20AbilityExpr).test(text)
 }
@@ -121,9 +122,10 @@ export function toAbility(text: string): AbilityData | null {
     const type = getAbilityType(res[3])
     const ranges = getRange(res[5])
     const damageType = asEnum(res[10], DamageType) ?? DamageType.None
-    const die = asEnum(res[8], DieType) ?? DieType.None
+    const die = parseDieType(res[8], DieType.None)
     const dieCount = asNumber(res[7], 1)
     const modifier = getRollMod(res[9])
+    console.log('toAbility', text, res)
     let result: IAbilityData
     switch (type) {
         case AbilityType.Attack: {

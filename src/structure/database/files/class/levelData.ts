@@ -1,5 +1,4 @@
-import { isEnum, isNumber, isObjectId, isRecord } from 'utils'
-import { isValidAbilityFormat } from 'utils/importers/stringFormatAbilityImporter'
+import { isEnum, isNumber, isObjectId, isRecord, isString } from 'utils'
 import { OptionalAttribute, SpellLevel } from 'structure/dnd'
 import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
@@ -72,7 +71,7 @@ class ClassLevelData implements IClassLevelData {
         },
         abilities: {
             get value() { return [] },
-            validate: (value) => Array.isArray(value) && value.every((value) => isObjectId(value) || isValidAbilityFormat(value)),
+            validate: (value) => Array.isArray(value) && value.every(isString),
             simplify: (value) => value.length > 0 ? value : null
         },
         modifiers: {

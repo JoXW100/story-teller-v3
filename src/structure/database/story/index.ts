@@ -14,11 +14,11 @@ class DatabaseStory extends DatabaseObject implements IDatabaseStory {
 
     public constructor(data: IDatabaseStory) {
         super(data.id)
-        this.name = data.name ?? DatabaseStory.properties.name.value
-        this.description = data.description ?? DatabaseStory.properties.description.value
-        this.image = data.image ?? DatabaseStory.properties.image.value
-        this.sources = data.sources ?? DatabaseStory.properties.sources.value
-        this.flags = data.flags ?? DatabaseStory.properties.flags.value
+        this.name = data.name
+        this.description = data.description
+        this.image = data.image
+        this.sources = data.sources
+        this.flags = data.flags
         this.dateCreated = data.dateCreated
         this.dateUpdated = data.dateUpdated
     }
@@ -52,7 +52,7 @@ class DatabaseStory extends DatabaseObject implements IDatabaseStory {
         flags: {
             get value() { return [] },
             validate: (value) => Array.isArray(value) && value.every((val) => isEnum(val, FlagType)),
-            simplify: (value) => value
+            simplify: (value) => value.reduce<FlagType[]>((flags, value) => flags.includes(value) ? flags : [...flags, value], [])
         },
         dateCreated: {
             value: 0,

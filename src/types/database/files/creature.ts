@@ -14,8 +14,8 @@ export interface ICreatureData {
     readonly description: string
     readonly portrait: string
     // Info
-    readonly size: SizeType
     readonly type: CreatureType
+    readonly size: SizeType
     readonly alignment: Alignment
     readonly challenge: number
     readonly xp: number

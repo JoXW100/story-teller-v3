@@ -98,7 +98,7 @@ const LinkListMenu: React.FC<LinkListMenuProps> = (props) => {
 const Component: React.FC<ListTemplateComponentProps<string, string, LinkListMenuComponent>> = ({ value, params }) => {
     const { files, allowedTypes, allowText = false, itemClassName } = params
     const file = files.find((file) => file?.id === value)
-    const valid = (allowText || isObjectId(value)) && (file?.type !== undefined && allowedTypes.includes(file.type))
+    const valid = allowText || (isObjectId(value) && file?.type !== undefined && allowedTypes.includes(file.type))
     const name = valid && file?.type !== undefined && allowedTypes.includes(file.type)
         ? file.getTitle()
         : value

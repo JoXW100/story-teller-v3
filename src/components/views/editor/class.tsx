@@ -1,9 +1,8 @@
 import { useContext } from 'react'
 import { Context } from 'components/contexts/file'
 import { ElementDictionary } from 'components/elements'
-import { ClassLevel } from 'structure/dnd'
-import ClassDocument from 'structure/database/files/class'
 import TextEditor from 'components/controls/textEditor'
+import PublishComponent from './components/publish'
 import GroupComponent from './components/group'
 import LocalizedText from 'components/controls/localizedText'
 import TextComponent from './components/text'
@@ -13,6 +12,8 @@ import GroupItemComponent from './components/groupItem'
 import EditItemButtonComponent from './components/editItemButton'
 import SelectionInputComponent from './components/selectionInput'
 import { useLocalizedOptions } from 'utils/hooks/localization'
+import { ClassLevel } from 'structure/dnd'
+import ClassDocument from 'structure/database/files/class'
 import styles from './style.module.scss'
 
 const ClassDocumentEditor: React.FC = () => {
@@ -30,6 +31,7 @@ const ClassDocumentEditor: React.FC = () => {
     return (
         <div className={styles.main}>
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
+                <PublishComponent/>
                 <TextComponent field='name' labelId='editor-name'/>
                 <EnumComponent field='hitDie' labelId='editor-hitDie' type='die'/>
                 <EnumComponent field='subclassLevel' labelId='editor-subclassLevel' type='classLevel'/>

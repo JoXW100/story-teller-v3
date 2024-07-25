@@ -11,7 +11,6 @@ export interface IAbilityDataBase {
     readonly name: string
     readonly description: string
     readonly notes: string
-    // readonly icon: string
     readonly action: ActionType
     // Charges
     readonly charges: Record<string, IChargesData>

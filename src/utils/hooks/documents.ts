@@ -93,6 +93,8 @@ async function fetchAbilities(ids: Record<string, ObjectId | string>, abilities:
             }
         }
         await fetchModifiers(modifierIds, modifier)
+    } else {
+        return 0
     }
 
     return fetchIds.size
@@ -238,7 +240,7 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
         }
     }
 
-    for (const classId of classIds) {
+    for (const classId of keysOf(classes)) {
         const classData = classes[classId]
         for (const level of getPreviousClassLevels(character.data.classes[classId])) {
             const levelData = classData.levels[level]
@@ -256,7 +258,7 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
         }
     }
 
-    for (const subclassId of subclassIds) {
+    for (const subclassId of keysOf(subclasses)) {
         const subclassData = subclasses[subclassId]
         if (subclassData.parentClass === null) {
             continue
@@ -277,7 +279,7 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
         }
     }
 
-    for (const itemId of itemIds) {
+    for (const itemId of keysOf(items)) {
         const itemData = items[itemId]
         if (character.storage.inventory[itemId]?.equipped && (!itemData.attunement || character.storage.attunement.includes(itemId))) {
             for (const id of itemData.modifiers) {

@@ -1,14 +1,15 @@
 import { useContext } from 'react'
 import TextEditor from 'components/controls/textEditor'
-import { Context } from 'components/contexts/file'
-import GroupComponent from './components/group'
 import LocalizedText from 'components/controls/localizedText'
+import { Context } from 'components/contexts/file'
+import { ElementDictionary } from 'components/elements'
+import PublishComponent from './components/publish'
+import GroupComponent from './components/group'
 import TextComponent from './components/text'
 import NumberComponent from './components/number'
 import EnumComponent from './components/enum'
 import BooleanComponent from './components/boolean'
 import EditItemRecordComponent from './components/editItemRecord'
-import { ElementDictionary } from 'components/elements'
 import SelectionInputComponent from './components/selectionInput'
 import { AreaType, CastingTime, Duration, SpellLevel, TargetType } from 'structure/dnd'
 import SpellDocument from 'structure/database/files/spell'
@@ -27,6 +28,7 @@ const SpellDocumentEditor: React.FC = () => {
     return (
         <div className={styles.main}>
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
+                <PublishComponent/>
                 <TextComponent field='name' labelId='editor-name'/>
                 <EnumComponent field='level' labelId='editor-level' type='spellLevel'/>
                 <EnumComponent field='school' labelId='editor-school' type='magicSchool'/>

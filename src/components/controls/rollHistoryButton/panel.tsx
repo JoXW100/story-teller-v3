@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
-import { Context } from 'components/contexts/story'
+import { Context } from 'components/contexts/roll'
 import HistoryRollEntry from './entry'
 import { asBooleanString } from 'utils'
 import styles from './style.module.scss'

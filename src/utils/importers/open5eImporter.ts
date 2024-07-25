@@ -2,7 +2,7 @@ import { asEnum, asNumber, capitalizeFirstLetter, isString } from 'utils'
 import Communication from 'utils/communication'
 import Logger from 'utils/logger'
 import { getSpellLevelFromValue } from 'utils/calculations'
-import { DieType } from 'structure/dice'
+import { DieType, parseDieType } from 'structure/dice'
 import { CalcMode } from 'structure/database'
 import { AreaType, Attribute, CastingTime, DamageType, Duration, MagicSchool, ScalingType, Skill, SpellLevel, TargetType } from 'structure/dnd'
 import { EffectConditionType } from 'structure/database/effectCondition'
@@ -166,7 +166,7 @@ export const getDamage = (desc: string): { damageType: DamageType, effectDie: Di
     const res = damageMatchExpr.exec(desc.toLowerCase())
     if (res !== null) {
         effectDieNum = asNumber(res[1], effectDieNum)
-        effectDie = asEnum(`d${res[2]}`, DieType, DieType.None)
+        effectDie = parseDieType(res[2], DieType.None)
         damageType = asEnum(res[3], DamageType, DamageType.None)
     }
 
@@ -371,7 +371,7 @@ function createEffects(res: Open5eSpell): Record<string, IEffect> {
             let prevDieCount: number = effects.main.dieCount
             while ((hit = expr.exec(res.higher_level)) != null) {
                 const level = asNumber(hit[1])
-                const higherDie = asEnum(`d${hit[3]}`, DieType, DieType.None)
+                const higherDie = parseDieType(hit[3], DieType.None)
                 const higherDieCount = asNumber(hit[2], 0)
                 if (!isNaN(level)) {
                     effects[prevKey] = {
@@ -397,7 +397,7 @@ function createEffects(res: Open5eSpell): Record<string, IEffect> {
                     condition: { geq: [{ property: 'casterLevel' }, prevLevel] }
                 }
             } else if (res.higher_level.toLowerCase().includes('for each slot level')) {
-                const die = asEnum(`d${increaseMatch[3]}`, DieType, DieType.None)
+                const die = parseDieType(increaseMatch[3], DieType.None)
                 const dieCount = asNumber(increaseMatch[2], 0)
 
                 effects.main = {

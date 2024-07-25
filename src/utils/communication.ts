@@ -361,6 +361,17 @@ abstract class Communication {
         return response
     }
 
+    public static async publishFile(fileId: ObjectId, type: DocumentFileType, publish: boolean): Promise<DBResponse<boolean>> {
+        delete this.cache[fileId]
+        Logger.log('Communication.publishFile', fileId, type, publish)
+        const response = await this.databaseFetch<boolean>('publishFile', 'PUT', {
+            fileId: fileId,
+            type: type,
+            publish: publish
+        })
+        return response
+    }
+
     public static async moveFile(fileId: ObjectId, targetId: ObjectId): Promise<DBResponse<boolean>> {
         const response = await this.databaseFetch<boolean>('moveFile', 'PUT', {
             fileId: fileId,

@@ -1,0 +1,11 @@
+@import 'styles/fonts.scss';
+@import 'styles/colors.scss';
+@import 'styles/prefabs.scss';
+@import 'styles/constants.scss';
+
+.view {
+    display: grid;
+    height: 100%;
+    grid-template-rows: $pageHeaderHeight 1fr;
+    grid-template-columns: minmax(0, 1fr);
+}

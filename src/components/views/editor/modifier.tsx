@@ -2,6 +2,7 @@ import { useContext } from 'react'
 import TextEditor from 'components/controls/textEditor'
 import { Context } from 'components/contexts/file'
 import LocalizedText from 'components/controls/localizedText'
+import PublishComponent from './components/publish'
 import GroupComponent from './components/group'
 import TextComponent from './components/text'
 import EnumComponent from './components/enum'
@@ -47,14 +48,14 @@ const ModifierDocumentEditor: React.FC = () => {
         return null
     }
 
+    const isRoot = field === 'data'
     const [descriptionContext] = data.createContexts(ElementDictionary)
 
     return (
         <div className={styles.main}>
-            { field !== 'data' &&
-                <NavigationComponent/>
-            }
+            { !isRoot && <NavigationComponent/> }
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
+                { isRoot && <PublishComponent/> }
                 <TextComponent field={createField(field, 'name')} labelId='editor-name' />
                 <EnumComponent field={createField(field, 'type')} type='modifierType' labelId='editor-type' />
                 { data.type === ModifierType.Ability &&

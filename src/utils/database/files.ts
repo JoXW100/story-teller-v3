@@ -17,6 +17,7 @@ export interface IDBFile {
     _holderId: ObjectId | null
     type: DocumentFileType
     name: string
+    flags: FlagType[]
     data?: unknown
     storage?: unknown
     dateCreated: number
@@ -65,9 +66,14 @@ function validateUpdate(update: Record<string, unknown>, type: DocumentFileType)
 
                 return factory.validate(updateRecord[updateKey])
             }
+            case '_id':
+            case '_userId':
+            case '_storyId':
+            case '_holderId':
+            case 'isOwner':
+            case 'isPublic':
             case 'dateCreated':
             case 'dateUpdated':
-            case 'isOwner':
                 Logger.warn('file.validateUpdate', 'Failed Update Key Validation', updateKey)
                 return false
             default: {
@@ -88,7 +94,7 @@ class FileCollection {
     constructor (database: Db, test: boolean) {
         const name = test
             ? Collections._document.test
-            : Collections._document.main
+            : Collections.files.temp
         this.collection = database.collection<IDBFile>(name)
     }
 
@@ -133,7 +139,7 @@ class FileCollection {
             }
 
             const time = Date.now()
-            const request: Omit<IDBFile, '_id'> = {
+            const request: Omit<IDBFile, '_id' | 'flags'> = {
                 _userId: userId,
                 _storyId: storyId,
                 _holderId: holderId,
@@ -236,6 +242,7 @@ class FileCollection {
      * Updates a file in the database
      * @param userId The Auth0 sub of the user
      * @param fileId The id of the file to update
+     * @param type The type of file to update
      * @param update The key-value pair update
      * @returns True if the document was deleted, False otherwise, or an error message
      */
@@ -267,15 +274,60 @@ class FileCollection {
                 return failure('Database failed to acknowledge')
             }
 
-            if (result.modifiedCount < 1) {
-                Logger.warn('file.update', 'No file found to update', result)
-                return failure('No file found to update')
-            }
-
             Logger.log('file.update', fileId, result.modifiedCount)
             return success(result.acknowledged)
         } catch (error: unknown) {
             Logger.error('file.update', error)
+            if (error instanceof Error) {
+                return failure(error.message)
+            } else {
+                return failure(String(error))
+            }
+        }
+    }
+
+    /**
+     * Updates a file in the database
+     * @param userId The Auth0 sub of the user
+     * @param fileId The id of the file to update
+     * @param type The type of file to update
+     * @param publish If the file should be published or not
+     * @returns True if the document was deleted, False otherwise, or an error message
+     */
+    async publish(userId: string, fileId: ObjectId, type: DocumentFileType, publish: boolean): Promise<DBResponse<boolean>> {
+        try {
+            if (type === DocumentFileType.Empty || type === DocumentFileType.Folder || type === DocumentFileType.Root) {
+                Logger.warn('file.publish', 'Invalid file type', type)
+                return failure('Invalid file type')
+            }
+
+            const query: Record<string, unknown> = {
+                $set: { dateUpdated: Date.now() }
+            }
+
+            if (publish) {
+                query.$addToSet = { flags: FlagType.Public }
+            } else {
+                query.$pull = { flags: FlagType.Public }
+            }
+
+            const filter = {
+                _userId: userId,
+                _id: fileId,
+                type: type
+            } satisfies KeysOfTwo<IDatabaseFile, object>
+
+            const result = await this.collection.updateOne(filter, query)
+
+            if (!result.acknowledged) {
+                Logger.warn('file.publish', 'Database failed to acknowledge', result)
+                return failure('Database failed to acknowledge')
+            }
+
+            Logger.log('file.publish', fileId, result.modifiedCount)
+            return success(result.acknowledged)
+        } catch (error: unknown) {
+            Logger.error('file.publish', error)
             if (error instanceof Error) {
                 return failure(error.message)
             } else {
@@ -368,20 +420,7 @@ class FileCollection {
                     }
                 },
                 ...this.getSubscribedFilter(userId),
-                {
-                    $project: {
-                        _id: 0,
-                        id: '$_id',
-                        storyId: '$_storyId',
-                        type: '$type',
-                        name: '$name',
-                        isOwner: { $eq: ['$_userId', userId] },
-                        dateCreated: '$dateCreated',
-                        dateUpdated: '$dateUpdated',
-                        data: { $ifNull: ['$data', {}] },
-                        storage: { $ifNull: ['$storage', {}] }
-                    }
-                },
+                ...this.getFileProjection(userId),
                 { $limit: 1 }
             ]).toArray()
 
@@ -424,20 +463,7 @@ class FileCollection {
                     } satisfies KeysOfTwo<IDatabaseFile, object>
                 },
                 ...this.getSubscribedFilter(userId),
-                {
-                    $project: {
-                        _id: 0,
-                        id: '$_id',
-                        storyId: '$_storyId',
-                        type: '$type',
-                        name: '$name',
-                        isOwner: { $eq: ['$_userId', userId] },
-                        dateCreated: '$dateCreated',
-                        dateUpdated: '$dateUpdated',
-                        data: { $ifNull: ['$data', {}] },
-                        storage: { $ifNull: ['$storage', {}] }
-                    } satisfies KeysOfTwo<IDatabaseFile, object>
-                }
+                ...this.getFileProjection(userId)
             ]).toArray()
 
             if (result.length > 0) {
@@ -477,20 +503,7 @@ class FileCollection {
                     } satisfies KeysOfTwo<IDatabaseFile, object>
                 },
                 ...this.getSubscribedFilter(userId),
-                {
-                    $project: {
-                        _id: 0,
-                        id: '$_id',
-                        storyId: '$_storyId',
-                        type: '$type',
-                        name: '$name',
-                        isOwner: { $eq: ['$_userId', userId] },
-                        dateCreated: '$dateCreated',
-                        dateUpdated: '$dateUpdated',
-                        data: { $ifNull: ['$data', {}] },
-                        storage: { $ifNull: ['$storage', {}] }
-                    } satisfies KeysOfTwo<IDatabaseFile, object>
-                }
+                ...this.getFileProjection(userId)
             ]).toArray()
 
             Logger.log('file.getAll', result.map(x => x.name).join(', '))
@@ -523,20 +536,7 @@ class FileCollection {
                     } satisfies KeysOfTwo<IDatabaseFile, object>
                 },
                 ...this.getSubscribedFilter(userId),
-                {
-                    $project: {
-                        _id: 0,
-                        id: '$_id',
-                        storyId: '$_storyId',
-                        type: '$type',
-                        name: '$name',
-                        isOwner: { $eq: ['$_userId', userId] },
-                        dateCreated: '$dateCreated',
-                        dateUpdated: '$dateUpdated',
-                        data: { $ifNull: ['$data', {}] },
-                        storage: { $ifNull: ['$storage', {}] }
-                    } satisfies KeysOfTwo<IDatabaseFile, object>
-                }
+                ...this.getFileProjection(userId)
             ]).toArray()
 
             Logger.log('file.getSubraces', String(parentId), result.map(x => x.name).join(', '))
@@ -569,20 +569,7 @@ class FileCollection {
                     } satisfies KeysOfTwo<IDatabaseFile, object>
                 },
                 ...this.getSubscribedFilter(userId),
-                {
-                    $project: {
-                        _id: 0,
-                        id: '$_id',
-                        storyId: '$_storyId',
-                        type: '$type',
-                        name: '$name',
-                        isOwner: { $eq: ['$_userId', userId] },
-                        dateCreated: '$dateCreated',
-                        dateUpdated: '$dateUpdated',
-                        data: { $ifNull: ['$data', {}] },
-                        storage: { $ifNull: ['$storage', {}] }
-                    } satisfies KeysOfTwo<IDatabaseFile, object>
-                }
+                ...this.getFileProjection(userId)
             ]).toArray()
 
             Logger.log('file.getAbilitiesOfCategory', result.map(x => x.name).join(', '))
@@ -759,12 +746,33 @@ class FileCollection {
                     valid: {
                         $or: [
                             { $eq: ['$_userId', userId] },
+                            { $in: [FlagType.Public, { $ifNull: ['$flags', []] }] },
                             { $in: [FlagType.Public, '$story.flags'] }
                         ]
                     }
                 }
             },
             { $match: { valid: true } }
+        ]
+    }
+
+    private getFileProjection(userId: string): object[] {
+        return [
+            {
+                $project: {
+                    _id: 0,
+                    id: '$_id',
+                    storyId: '$_storyId',
+                    type: '$type',
+                    name: '$name',
+                    flags: '$flags',
+                    isOwner: { $eq: ['$_userId', userId] },
+                    dateCreated: '$dateCreated',
+                    dateUpdated: '$dateUpdated',
+                    data: { $ifNull: ['$data', {}] },
+                    storage: { $ifNull: ['$storage', {}] }
+                } satisfies { [K in keyof IDatabaseFile]: unknown } & Record<string, unknown>
+            }
         ]
     }
 }

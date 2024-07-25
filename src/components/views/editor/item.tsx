@@ -1,8 +1,9 @@
 import { useContext, useMemo } from 'react'
 import { Context } from 'components/contexts/file'
 import TextEditor from 'components/controls/textEditor'
-import GroupComponent from './components/group'
 import LocalizedText from 'components/controls/localizedText'
+import GroupComponent from './components/group'
+import PublishComponent from './components/publish'
 import TextComponent from './components/text'
 import NumberComponent from './components/number'
 import EnumComponent from './components/enum'
@@ -11,12 +12,12 @@ import EditItemRecordComponent from './components/editItemRecord'
 import LinkListComponent from './components/linkList'
 import SelectionInputComponent from './components/selectionInput'
 import { ElementDictionary } from 'components/elements'
+import { isEnum } from 'utils'
 import ItemDocument from 'structure/database/files/item'
 import { DocumentType } from 'structure/database'
 import { ItemType, MeleeWeaponType, RangedWeaponType, ThrownWeaponType } from 'structure/dnd'
 import EffectFactory from 'structure/database/effect/factory'
 import styles from './style.module.scss'
-import { isEnum } from 'utils'
 
 const ItemDocumentEditor: React.FC = () => {
     const [context, dispatch] = useContext(Context)
@@ -31,6 +32,7 @@ const ItemDocumentEditor: React.FC = () => {
     return (
         <div className={styles.main}>
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
+                <PublishComponent/>
                 <TextComponent field='name' labelId='editor-name'/>
                 <EnumComponent field='type' type='itemType' labelId='editor-type'/>
                 { context.file.data.type === ItemType.Armor &&

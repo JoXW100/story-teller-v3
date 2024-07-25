@@ -1,4 +1,4 @@
-import { DieType, DiceBase, numberFromType, typeFromNumber, type IDiceRoll } from '.'
+import { DieType, DiceBase, numberFromDieType, parseDieType, type IDiceRoll } from '.'
 import type Random from 'structure/random'
 
 export class Die extends DiceBase {
@@ -11,9 +11,9 @@ export class Die extends DiceBase {
         super()
         if (typeof size === 'number') {
             this.size = size
-            this.type = typeFromNumber(this.size)
+            this.type = parseDieType(this.size)
         } else {
-            this.size = numberFromType(size)
+            this.size = numberFromDieType(size)
             this.type = size
         }
     }
@@ -39,6 +39,7 @@ export class Die extends DiceBase {
     public static parse(value: DieType | string): Die {
         switch (value) {
             case DieType.None:
+            case DieType.DX:
                 break
             case DieType.D4:
             case DieType.D6:
@@ -48,8 +49,6 @@ export class Die extends DiceBase {
             case DieType.D20:
             case DieType.D100:
                 return new Die(value)
-            case DieType.DX:
-                break
             default: {
                 const match = /^d([0-9]+)$/.exec(value)
                 if (match !== null) {
@@ -66,7 +65,7 @@ export class Die extends DiceBase {
     }
 
     public static average (type: DieType): number {
-        const t = numberFromType(type)
+        const t = numberFromDieType(type)
         return t <= 0 ? 0 : (t + 1) / 2.0
     }
 }

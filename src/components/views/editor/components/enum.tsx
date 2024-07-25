@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import GroupItemComponent from './groupItem'
 import DropdownMenu from 'components/controls/dropdownMenu'
 import { Context } from 'components/contexts/file'
-import { type OptionTypeKey, getOptionType } from 'structure/optionData'
+import { type EnumTypeKey, getEnumType } from 'structure/enums'
 import type { LanguageKey } from 'assets'
 import { isEnum, isRecord, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
@@ -11,7 +11,7 @@ import styles from '../style.module.scss'
 
 type EnumComponentParams = React.PropsWithoutRef<{
     field: string
-    type: OptionTypeKey
+    type: EnumTypeKey
     labelId: LanguageKey
     labelArgs?: any[]
 }>
@@ -32,7 +32,7 @@ const EnumComponent: React.FC<EnumComponentParams> = ({ field, type, labelId, la
     }
 
     const value = relative.relative[relative.key]
-    if (!isEnum(value, getOptionType(type).enum)) {
+    if (!isEnum(value, getEnumType(type).enum)) {
         Logger.throw('Editor.EnumComponent', 'Relative field not of expected type', relative.relative, relative.key, value)
         return null
     }

@@ -1,6 +1,6 @@
 import type { DocumentType } from 'structure/database'
 import type { ModifierData } from 'structure/database/files/modifier/factory'
-import type { OptionTypeKey } from 'structure/optionData'
+import type { EnumTypeKey } from 'structure/enums'
 import type { ObjectId } from 'types'
 
 export interface ISingleChoiceData<V = unknown> {
@@ -29,7 +29,7 @@ export interface IEditorChoiceDataBase {
 export interface IEditorEnumChoiceData extends IEditorChoiceDataBase {
     readonly type: 'enum'
     readonly value: unknown[]
-    readonly enum: OptionTypeKey
+    readonly enum: EnumTypeKey
 }
 
 export interface IEditorValueChoiceData extends IEditorChoiceDataBase {

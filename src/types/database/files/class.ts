@@ -33,6 +33,7 @@ export interface IClassData {
     readonly preparationSlotsScaling: OptionalAttribute
     readonly learnedAll: boolean
     readonly learnedSlotsScaling: OptionalAttribute
+    readonly ritualCaster: boolean
 }
 
 export interface IClassStorage {

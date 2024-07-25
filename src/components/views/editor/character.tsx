@@ -1,5 +1,6 @@
 import { useContext } from 'react'
 import { Context } from 'components/contexts/file'
+import PublishComponent from './components/publish'
 import GroupComponent from './components/group'
 import LocalizedText from 'components/controls/localizedText'
 import TextComponent from './components/text'
@@ -31,6 +32,7 @@ const CharacterDocumentEditor: React.FC = () => {
     return (
         <div className={styles.main}>
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
+                <PublishComponent/>
                 <TextComponent field='name' labelId='editor-name'/>
                 <TextareaComponent field='description' labelId='editor-description' languageContext={descriptionContext}/>
                 <TextComponent field='portrait' labelId='editor-portrait'/>

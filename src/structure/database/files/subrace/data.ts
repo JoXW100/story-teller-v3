@@ -1,5 +1,4 @@
 import { asObjectId, isObjectId, isObjectIdOrNull, isString } from 'utils'
-import { isValidAbilityFormat } from 'utils/importers/stringFormatAbilityImporter'
 import EmptyToken from 'structure/language/tokens/empty'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { ObjectId, Simplify } from 'types'
@@ -53,7 +52,7 @@ class SubraceData implements ISubraceData {
         },
         abilities: {
             get value() { return [] },
-            validate: (value) => Array.isArray(value) && value.every((value) => isObjectId(value) || isValidAbilityFormat(value)),
+            validate: (value) => Array.isArray(value) && value.every(isString),
             simplify: (value) => value.length > 0 ? value : null
         },
         modifiers: {

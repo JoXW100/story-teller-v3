@@ -1,6 +1,7 @@
 import { useContext, useMemo } from 'react'
 import { Context } from 'components/contexts/file'
 import TextEditor from 'components/controls/textEditor'
+import PublishComponent from './components/publish'
 import GroupComponent from './components/group'
 import LocalizedText from 'components/controls/localizedText'
 import TextComponent from './components/text'
@@ -31,6 +32,7 @@ const AbilityDocumentEditor: React.FC = () => {
     return (
         <div className={styles.main}>
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
+                <PublishComponent/>
                 <TextComponent field='name' labelId='editor-name'/>
                 <EnumComponent field='type' type='abilityType' labelId='editor-type' />
                 { context.file.data.type === AbilityType.Custom &&

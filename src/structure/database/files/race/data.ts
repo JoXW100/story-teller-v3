@@ -1,5 +1,4 @@
 import { isEnum, isNumber, isObjectId, isRecord, isString } from 'utils'
-import { isValidAbilityFormat } from 'utils/importers/stringFormatAbilityImporter'
 import type { TranslationHandler } from 'utils/hooks/localization'
 import { CreatureType, Language, MovementType, ProficiencyLevelBasic, Sense, SizeType } from 'structure/dnd'
 import EmptyToken from 'structure/language/tokens/empty'
@@ -80,7 +79,7 @@ class RaceData implements IRaceData {
         },
         abilities: {
             get value() { return [] },
-            validate: (value) => Array.isArray(value) && value.every((value) => isObjectId(value) || isValidAbilityFormat(value)),
+            validate: (value) => Array.isArray(value) && value.every(isString),
             simplify: (value) => value.length > 0 ? value : null
         },
         modifiers: {

@@ -1,11 +1,6 @@
 import { AbilityType } from './database/files/ability/common'
-import { ActionType, AdvantageBinding, Alignment, AreaType, ArmorType, Attribute, CastingTime, CreatureType, DamageType, Duration, ItemType, Language, MagicSchool, MovementType, OptionalAttribute, ProficiencyLevel, ProficiencyLevelBasic, ProficiencyType, Rarity, DamageBinding, RestType, ScalingType, Sense, SizeType, Skill, SpellPreparationType, TargetType, ToolType, WeaponTypeValue, ConditionBinding, ClassLevel, SpellLevel, WeaponType, WeaponTypeCategory } from './dnd'
-import { DieType } from './dice'
-import { CalcMode } from './database'
 import { EffectConditionType } from './database/effectCondition'
 import { EffectCategory, EffectType } from './database/effect/common'
-import type { Enum, ValueOf } from 'types'
-import { ViewMode } from 'components/contexts/app'
 import { ConditionType, ConditionValueType } from './database/condition'
 import { ModifierType } from 'structure/database/files/modifier/common'
 import { ModifierAddType } from './database/files/modifier/add'
@@ -14,13 +9,18 @@ import { ModifierAbilityType } from './database/files/modifier/ability'
 import { ModifierSetType } from './database/files/modifier/set'
 import { LevelModifyType } from './database/files/class/levelData'
 import { ModifierVariableType, OperationType } from './database/files/modifier/variable'
+import { ActionType, AdvantageBinding, Alignment, AreaType, ArmorType, Attribute, CastingTime, CreatureType, DamageType, Duration, ItemType, Language, MagicSchool, MovementType, OptionalAttribute, ProficiencyLevel, ProficiencyLevelBasic, ProficiencyType, Rarity, DamageBinding, RestType, ScalingType, Sense, SizeType, Skill, SpellPreparationType, TargetType, ToolType, WeaponTypeValue, ConditionBinding, ClassLevel, SpellLevel, WeaponType, WeaponTypeCategory } from './dnd'
+import { DieType } from './dice'
+import { CalcMode } from './database'
+import { ViewMode } from 'components/contexts/app'
+import type { Enum, ValueOf } from 'types'
 
-export interface IOptionType<T extends Enum = Enum> {
+export interface IEnumType<T extends Enum = Enum> {
     enum: T
     default: T[keyof T]
 }
 
-const OptionTypes = {
+const EnumTypes = {
     calc: {
         enum: CalcMode,
         default: CalcMode.Auto
@@ -225,19 +225,19 @@ const OptionTypes = {
         enum: LevelModifyType,
         default: LevelModifyType.Add
     }
-} satisfies Record<string, IOptionType>
+} satisfies Record<string, IEnumType>
 
-export type OptionTypeKey = keyof typeof OptionTypes
-export type OptionTypeEnum<T extends OptionTypeKey = OptionTypeKey> = (typeof OptionTypes)[T]['enum']
-export type OptionTypeValue<T extends OptionTypeKey = OptionTypeKey> = { [K in OptionTypeKey]: ValueOf<OptionTypeEnum<K>> }[T]
-export type OptionTypeKeyValue = { [K in OptionTypeKey]: `enum-${K}-${OptionTypeValue<K> & string}` }[OptionTypeKey]
+export type EnumTypeKey = keyof typeof EnumTypes
+export type EnumTypeEnum<T extends EnumTypeKey = EnumTypeKey> = (typeof EnumTypes)[T]['enum']
+export type EnumTypeValue<T extends EnumTypeKey = EnumTypeKey> = { [K in EnumTypeKey]: ValueOf<EnumTypeEnum<K>> }[T]
+export type EnumTypeKeyValue = { [K in EnumTypeKey]: `enum-${K}-${EnumTypeValue<K> & string}` }[EnumTypeKey]
 
-export type ExtractOptionType<T> = T extends OptionTypeKey
-    ? typeof OptionTypes[T]
-    : IOptionType
+export type ExtractEnumType<T> = T extends EnumTypeKey
+    ? typeof EnumTypes[T]
+    : IEnumType
 
-export function getOptionType<T extends OptionTypeKey> (key: T): ExtractOptionType<T>
-export function getOptionType<T extends string>(key: string): ExtractOptionType<T> | null
-export function getOptionType<T extends OptionTypeKey> (key: T): T extends OptionTypeKey ? ExtractOptionType<T> : IOptionType | null {
-    return OptionTypes[key] as any ?? null
+export function getEnumType<T extends EnumTypeKey> (key: T): ExtractEnumType<T>
+export function getEnumType<T extends string>(key: string): ExtractEnumType<T> | null
+export function getEnumType<T extends EnumTypeKey> (key: T): T extends EnumTypeKey ? ExtractEnumType<T> : IEnumType | null {
+    return EnumTypes[key] as any ?? null
 }

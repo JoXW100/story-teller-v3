@@ -13,6 +13,7 @@ export interface ISubclassData {
     readonly preparationSlotsScaling: OptionalAttribute
     readonly learnedAll: boolean
     readonly learnedSlotsScaling: OptionalAttribute
+    readonly ritualCaster: boolean
 }
 
 export interface ISubclassStorage extends IClassStorage {

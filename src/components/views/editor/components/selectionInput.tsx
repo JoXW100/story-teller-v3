@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import GroupItemComponent from './groupItem'
 import { Context } from 'components/contexts/file'
-import { type OptionTypeKey, getOptionType, type IOptionType } from 'structure/optionData'
+import { type EnumTypeKey, getEnumType, type IEnumType } from 'structure/enums'
 import SelectionMenu from 'components/controls/menus/selection'
 import { asBooleanString, isEnum, isNumber, isRecord, isString, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
@@ -13,8 +13,8 @@ import styles from '../style.module.scss'
 type SelectionInputComponentParams = React.PropsWithoutRef<{
     field: string
     type: 'string' | 'number' | 'enum' | 'none'
-    optionsType: OptionTypeKey
-    editOptionsType?: OptionTypeKey
+    optionsType: EnumTypeKey
+    editOptionsType?: EnumTypeKey
     labelId: LanguageKey
     labelArgs?: any[]
     fill?: boolean
@@ -36,19 +36,19 @@ const SelectionInputComponent: React.FC<SelectionInputComponentParams> = ({ fiel
         return null
     }
 
-    const option = getOptionType(optionsType)
+    const option = getEnumType(optionsType)
     if (option === null) {
         Logger.throw('Editor.SelectionInputComponent', 'No optionsType type of type: ' + optionsType)
         return null
     }
 
-    let editOption: IOptionType<Enum> | null = null
+    let editOption: IEnumType<Enum> | null = null
     if (type === 'enum') {
         if (editOptionsType === undefined) {
             Logger.throw('Editor.SelectionInputComponent', 'No editOptionsTypes defined')
             return null
         }
-        editOption = getOptionType(editOptionsType)
+        editOption = getEnumType(editOptionsType)
         if (editOption === null) {
             Logger.throw('Editor.SelectionInputComponent', 'No editOptionsType type of type: ' + editOptionsType)
             return null

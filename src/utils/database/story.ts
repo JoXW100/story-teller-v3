@@ -11,11 +11,11 @@ import type { IDatabaseStory, DBResponse } from 'types/database'
 export interface IDBStory {
     _id: ObjectId
     _userId: string
+    flags: FlagType[]
     name: string
     description: string
     image: string | null
     sources: ObjectId[]
-    flags: FlagType[]
     dateCreated: number
     dateUpdated: number
 }
@@ -49,7 +49,7 @@ class StoryCollection {
     constructor (database: Db, test: boolean) {
         const name = test
             ? Collections._story.test
-            : Collections._story.main
+            : Collections.stories.temp
         this.collection = database.collection<IDBStory>(name)
     }
 
@@ -69,7 +69,7 @@ class StoryCollection {
                 description: description,
                 image: image === 'null' ? null : image,
                 sources: sources,
-                flags: flags,
+                flags: Array.from(new Set(flags)),
                 dateCreated: time,
                 dateUpdated: time
             }
@@ -98,7 +98,7 @@ class StoryCollection {
                 return failure('Database failed to acknowledge')
             }
 
-            const response = await files.add(userId, result.insertedId, null, FileType.Root, name, {})
+            const response = await files.add(userId, result.insertedId, null, FileType.Root, '', {})
             if (response.success) {
                 Logger.log('story.add', result.insertedId, name)
                 return success(String(result.insertedId))

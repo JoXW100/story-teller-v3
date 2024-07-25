@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { ObjectId } from 'mongodb'
 import { withApiAuthRequired, getSession } from '@auth0/nextjs-auth0'
-import { isEnum, isNumber, isObjectId, isObjectIdOrNull, isRecord, isString } from 'utils'
+import { asBoolean, isEnum, isNumber, isObjectId, isObjectIdOrNull, isRecord, isString } from 'utils'
 import Database, { failure, success } from 'utils/database'
 import Logger from 'utils/logger'
 import { DocumentFileType, FlagType } from 'structure/database'
@@ -115,7 +115,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void>
         const { type, ...params } = req.query as Record<string, unknown> & { type: ServerRequestType | undefined }
 
         if (userId === undefined) {
-            res.status(404).json(failure('Could not parse user id')); return
+            res.status(400).json(failure('Invalid user')); return
         }
 
         if (!Database.isConnected) {
@@ -167,6 +167,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void>
                     { res.status(200).json(await Database.files?.addCopy(userId, toObjectId(body.fileId), toObjectId(body.holderId), toString(body.name)) ?? failure()); return }
                     case 'updateFile':
                     { res.status(200).json(await Database.files?.update(userId, toObjectId(body.fileId), toEnum(body.type, DocumentFileType), toRecord(body.update)) ?? failure()); return }
+                    case 'publishFile':
+                    { res.status(200).json(await Database.files?.publish(userId, toObjectId(body.fileId), toEnum(body.type, DocumentFileType), asBoolean(body.publish)) ?? failure()); return }
                     case 'moveFile':
                     { res.status(200).json(await Database.files?.move(userId, toObjectId(body.fileId), toObjectId(body.targetId)) ?? failure()); return }
                     case 'debug':

@@ -4,7 +4,7 @@ import { Context } from 'components/contexts/file'
 import LinkListMenu from 'components/controls/menus/link'
 import { asBooleanString, isObjectId, isRecord, isString, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
-import { isValidAbilityFormat, toAbility } from 'utils/importers/stringFormatAbilityImporter'
+import { toAbility } from 'utils/importers/stringFormatAbilityImporter'
 import { useLocalizedText } from 'utils/hooks/localization'
 import type { LanguageKey } from 'assets'
 import { DocumentType } from 'structure/database'
@@ -39,7 +39,7 @@ const LinkListComponent: React.FC<LinkListComponentParams> = ({ field, labelId, 
     }
 
     const handleValidate = (value: unknown): value is ObjectId => {
-        return isObjectId(value) || (allowText && isString(value) && isValidAbilityFormat(value))
+        return isObjectId(value) || (allowText && isString(value))
     }
 
     const value = relative.relative[relative.key]
@@ -60,6 +60,7 @@ const LinkListComponent: React.FC<LinkListComponentParams> = ({ field, labelId, 
                     id: 'custom' as any,
                     storyId: context.file.id,
                     type: DocumentType.Ability,
+                    flags: [],
                     name: 'custom',
                     isOwner: true,
                     dateCreated: 0,

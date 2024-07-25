@@ -144,8 +144,8 @@ export function isCritical(result: IDiceRoll, criticalRange: number = 20): boole
     return result.rolls.length === 1 && result.rolls[0].type === DieType.D20 && result.rolls[0].value >= criticalRange
 }
 
-export function typeFromNumber(num: number): DieType {
-    switch (num) {
+export function parseDieType(num: number | string, other: DieType = DieType.DX): DieType {
+    switch (Number(num)) {
         case 0:
             return DieType.None
         case 4:
@@ -163,11 +163,11 @@ export function typeFromNumber(num: number): DieType {
         case 100:
             return DieType.D100
         default:
-            return DieType.DX
+            return other
     }
 }
 
-export function numberFromType(type: DieType): number {
+export function numberFromDieType(type: DieType): number {
     switch (type) {
         case DieType.None:
             return 0

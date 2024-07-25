@@ -37,6 +37,7 @@ export interface FileContextDispatch {
     setEditorPage: (data: IEditorPageData) => void
     pushEditorPage: (data: IEditorPageData) => void
     popEditorPage: () => void
+    publish: (value: boolean) => void
 }
 
 type FileContextAction =
@@ -47,6 +48,7 @@ type FileContextAction =
     | DispatchAction<'setToken', { field: string, value: IToken | null }>
     | DispatchActionWithDispatch<'setData', ISetFieldData, FileContextAction>
     | DispatchActionWithDispatch<'setStorage', ISetFieldData, FileContextAction>
+    | DispatchActionWithDispatch<'publish', boolean, FileContextAction>
     | DispatchAction<'setEditorPage', IEditorPageData>
     | DispatchAction<'pushEditorPage', IEditorPageData>
     | DispatchActionNoData<'popEditorPage'>
@@ -70,7 +72,8 @@ const defaultContextDispatch: FileContextDispatch = {
     setStorage() {},
     setEditorPage() {},
     pushEditorPage() {},
-    popEditorPage() {}
+    popEditorPage() {},
+    publish() {}
 }
 
 export const Context = React.createContext<FileContextProvider>([
@@ -197,6 +200,36 @@ const reducer: React.Reducer<FileContextState, FileContextAction> = (state, acti
             }, 'update.storage')
             return { ...state, file: file }
         }
+        case 'publish': {
+            state.buffer.add(() => {
+                Communication.publishFile(state.file.id, state.file.type, action.data).then((response) => {
+                    if (!response.success || !response.result) {
+                        Logger.warn('FileContext.setPublic', 'Failed to update file storage')
+                        openDialog('notice', {
+                            id: 'file.setPublic',
+                            headerTextId: 'common-error',
+                            bodyTextId: 'file-dialog-setPublic',
+                            bodyTextArgs: [isString(response.result) ? response.result : 'Unknown Error']
+                        }).onClose(() => {
+                            action.dispatch({ type: 'fetchFile', data: state.file.id, dispatch: action.dispatch })
+                        })
+                    } else {
+                        action.dispatch({ type: 'fetchFile', data: state.file.id, dispatch: action.dispatch })
+                    }
+                }, (error: unknown) => {
+                    Logger.throw('FileContext.setPublic', 'Database failed set file storage', error)
+                    openDialog('notice', {
+                        id: 'file.setPublic',
+                        headerTextId: 'common-error',
+                        bodyTextId: 'file-dialog-setPublic',
+                        bodyTextArgs: [String(error)]
+                    }).onClose(() => {
+                        action.dispatch({ type: 'fetchFile', data: state.file.id, dispatch: action.dispatch })
+                    })
+                }).finally()
+            }, 'update.public')
+            return { ...state, file: null, loading: false }
+        }
         case 'setEditorPage': {
             return { ...state, editorPages: [action.data] }
         }
@@ -229,7 +262,8 @@ const FileContext: React.FC<FileContextProps> = ({ children, fileId }) => {
         setStorage(field, value) { dispatch({ type: 'setStorage', data: { field: field, value: value }, dispatch: dispatch }) },
         setEditorPage(data) { dispatch({ type: 'setEditorPage', data: data }) },
         pushEditorPage(data) { dispatch({ type: 'pushEditorPage', data: data }) },
-        popEditorPage() { dispatch({ type: 'popEditorPage' }) }
+        popEditorPage() { dispatch({ type: 'popEditorPage' }) },
+        publish(value) { dispatch({ type: 'publish', data: value, dispatch: dispatch }) }
     }), [])
 
     useEffect(() => {

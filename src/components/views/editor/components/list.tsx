@@ -6,13 +6,13 @@ import { asBooleanString, isNumber, isRecord, isString, getRelativeFieldObject }
 import Logger from 'utils/logger'
 import { useLocalizedOptions, useLocalizedText } from 'utils/hooks/localization'
 import type { LanguageKey } from 'assets'
-import { getOptionType, type IOptionType, type OptionTypeKey } from 'structure/optionData'
+import { getEnumType, type IEnumType, type EnumTypeKey } from 'structure/enums'
 import styles from '../style.module.scss'
 
 type ListComponentParams = React.PropsWithChildren<{
     field: string
     type: 'string' | 'number' | 'enum'
-    enumType?: OptionTypeKey
+    enumType?: EnumTypeKey
     labelId: LanguageKey
     labelArgs?: any[]
     placeholderId?: LanguageKey
@@ -38,13 +38,13 @@ const ListComponent: React.FC<ListComponentParams> = ({ field, type, enumType, l
         return null
     }
 
-    let option: IOptionType | null = null
+    let option: IEnumType | null = null
     if (type === 'enum') {
         if (enumType === undefined) {
             Logger.throw('Editor.LinkListComponent', 'No enum type specified', field)
             return null
         }
-        option = getOptionType(enumType)
+        option = getEnumType(enumType)
         if (option === null) {
             Logger.throw('Editor.LinkListComponent', 'Invalid enum type specified', field, enumType)
             return null

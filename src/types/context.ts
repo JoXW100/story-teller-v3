@@ -1,7 +1,6 @@
-export type ContextProvider<A extends Record<string, any>, B extends Record<string, any>> = [
-    data: A,
-    dispatch: B
-]
+export type ContextProvider<A extends Record<string, any>, B extends Record<string, any> | undefined = undefined> = B extends undefined
+    ? [data: A]
+    : [data: A, dispatch: B]
 
 export interface DispatchAction<T extends string, D> {
     type: T

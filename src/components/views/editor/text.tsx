@@ -1,11 +1,12 @@
 import { useContext } from 'react'
-import TextEditor from 'components/controls/textEditor'
 import { Context } from 'components/contexts/file'
-import GroupComponent from './components/group'
+import { ElementDictionary } from 'components/elements'
+import TextEditor from 'components/controls/textEditor'
 import LocalizedText from 'components/controls/localizedText'
+import PublishComponent from './components/publish'
+import GroupComponent from './components/group'
 import TextComponent from './components/text'
 import TextareaComponent from './components/textarea'
-import { ElementDictionary } from 'components/elements'
 import TextDocument from 'structure/database/files/text'
 import styles from './style.module.scss'
 
@@ -21,6 +22,7 @@ const TextDocumentEditor: React.FC = () => {
     return (
         <div className={styles.main}>
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
+                <PublishComponent/>
                 <TextComponent field='title' labelId='editor-title'/>
                 <TextareaComponent field='description' labelId='editor-description' languageContext={descriptionContext}/>
             </GroupComponent>

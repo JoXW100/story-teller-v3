@@ -14,7 +14,7 @@ const SourceTooltips: React.FC<SourceTooltipsParams> = ({ type, binding, values 
     const bindings = values[binding]
     return (
         <span>
-            <LocalizedText id={`enum-${type}`}/>
+            <LocalizedText id={`icon-${type}`}/>
             { bindings?.map((binding, index) => (
                 <div key={index}>
                     { binding.description }
