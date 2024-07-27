@@ -17,8 +17,9 @@ type RecordMenuProps<T, P> = React.PropsWithRef<{
     defaultValue: T
     placeholder?: string
     params: P
+    disableRemove?: boolean
     Component: React.FC<RecordComponentProps<T, P>>
-    EditComponent: React.FC<RecordComponentProps<T, P>>
+    EditComponent?: React.FC<RecordComponentProps<T, P>>
     onChange?: (selection: Record<string, T>) => void
     validateInput?: (value: string) => boolean
 }>
@@ -28,7 +29,7 @@ type RecordMenuComponentParams<T, P> = React.PropsWithRef<{
     placeholder?: string
     values: Record<string, T>
     Component: React.FC<RecordComponentProps<T, P>>
-    EditComponent: React.FC<RecordComponentProps<T, P>>
+    EditComponent?: React.FC<RecordComponentProps<T, P>>
     params: P
 }>
 
@@ -75,7 +76,7 @@ function RecordMenu<T, P>(props: RecordMenuProps<T, P>): React.ReactNode {
             onChange={handleChange}
             validateInput={handleValidate}
             Component={ItemComponent<T, P>}
-            EditComponent={EditComponent<T, P>}
+            EditComponent={props.EditComponent !== undefined ? EditComponent<T, P> : undefined}
             params={props}
             addLast/>
     )
@@ -92,7 +93,9 @@ function ItemComponent<T, P>({ value, params: { Component, values, itemClassName
 function EditComponent<T, P>({ value, onUpdate, params: { EditComponent, values, itemClassName, params } }: ListTemplateComponentProps<string, string, RecordMenuComponentParams<T, P>>): React.ReactNode {
     return (
         <div className={itemClassName}>
-            <EditComponent itemKey={value} value={values[value]} values={values} params={params} update={onUpdate}/>
+            { EditComponent !== undefined &&
+                <EditComponent itemKey={value} value={values[value]} values={values} params={params} update={onUpdate}/>
+            }
         </div>
     )
 }

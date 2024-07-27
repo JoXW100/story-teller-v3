@@ -13,7 +13,7 @@ const BoxComponent: React.FC<BoxElementParams> = ({ children, color, border, wei
             properties.maxWidth = width
         }
         if (color !== null) {
-            style.background = color
+            properties.background = color
         }
         return properties
     }, [color, weight, width])

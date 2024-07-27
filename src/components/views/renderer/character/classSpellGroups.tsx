@@ -4,7 +4,7 @@ import PageSelector, { type IPageSelectorData } from '../pageSelector'
 import type { FileContextDispatch } from 'components/contexts/file'
 import Elements from 'components/elements'
 import { asObjectId, isObjectId, keysOf } from 'utils'
-import { useLocalizedOptions } from 'utils/hooks/localization'
+import { useLocalizedEnums } from 'utils/hooks/localization'
 import { OptionalAttribute, type SpellLevel, SpellPreparationType } from 'structure/dnd'
 import type CharacterFacade from 'structure/database/files/character/facade'
 import type { SpellData } from 'structure/database/files/spell/factory'
@@ -20,7 +20,7 @@ type ClassSpellGroupsProps = React.PropsWithRef<{
 
 const ClassSpellGroups: React.FC<ClassSpellGroupsProps> = ({ facade, spells, setStorage }) => {
     const [selectedClass, setSelectedClass] = useState<ObjectId | null>(null)
-    const options = useLocalizedOptions('optionalAttr')
+    const options = useLocalizedEnums('optionalAttr')
     const pages = useMemo(() => {
         const pages: Record<ObjectId | 'none', IPageSelectorData> = {} as any
         if (facade.spellAttribute !== OptionalAttribute.None || keysOf(facade.spells).length > 0) {

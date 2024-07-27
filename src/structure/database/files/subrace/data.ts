@@ -1,5 +1,6 @@
 import { asObjectId, isObjectId, isObjectIdOrNull, isString } from 'utils'
 import EmptyToken from 'structure/language/tokens/empty'
+import StoryScript from 'structure/language/storyscript'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
@@ -9,6 +10,7 @@ import type { TokenContext } from 'types/language'
 class SubraceData implements ISubraceData {
     public readonly name: string
     public readonly description: string
+    public readonly content: string
     public readonly parentRace: ObjectId | null
     // Abilities
     public readonly abilities: Array<ObjectId | string>
@@ -18,6 +20,7 @@ class SubraceData implements ISubraceData {
     public constructor (data: Simplify<ISubraceData> = {}) {
         this.name = data.name ?? SubraceData.properties.name.value
         this.description = data.description ?? SubraceData.properties.description.value
+        this.content = data.content ?? SubraceData.properties.content.value
         this.parentRace = asObjectId(data.parentRace) ?? SubraceData.properties.parentRace.value
         // Abilities
         this.abilities = SubraceData.properties.abilities.value
@@ -46,6 +49,10 @@ class SubraceData implements ISubraceData {
             value: '',
             validate: isString
         },
+        content: {
+            value: '',
+            validate: isString
+        },
         parentRace: {
             value: null,
             validate: isObjectIdOrNull
@@ -62,12 +69,21 @@ class SubraceData implements ISubraceData {
         }
     }
 
-    public createContexts(elements: ElementDefinitions): [TokenContext] {
-        const descriptionContext: TokenContext = {
+    public createDescriptionContexts(elements: ElementDefinitions): [description: TokenContext] {
+        const descriptionContext = {
             title: new EmptyToken(elements, this.name),
             name: new EmptyToken(elements, this.name)
         }
         return [descriptionContext]
+    }
+
+    public createContexts(elements: ElementDefinitions): [description: TokenContext, content: TokenContext] {
+        const [descriptionContext] = this.createDescriptionContexts(elements)
+        const contentContext: TokenContext = {
+            ...descriptionContext,
+            description: StoryScript.tokenize(elements, this.description, descriptionContext).root
+        }
+        return [descriptionContext, contentContext]
     }
 }
 

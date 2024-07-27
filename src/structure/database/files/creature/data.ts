@@ -2,8 +2,9 @@ import { type CalcValue, createCalcValue, simplifyCalcValue, simplifyNumberRecor
 import { Alignment, CreatureType, SizeType, MovementType, Sense, OptionalAttribute, AdvantageBinding, ConditionBinding, DamageBinding, SpellLevel, Attribute, ProficiencyLevel, Skill, ToolType, Language, ArmorType, WeaponTypeValue, ProficiencyLevelBasic } from 'structure/dnd'
 import { DieType } from 'structure/dice'
 import EmptyToken from 'structure/language/tokens/empty'
+import StoryScript from 'structure/language/storyscript'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
-import { asEnum, asNumber, isCalcValue, isEnum, isNumber, isObjectId, isObjectIdOrNull, isRecord, isString, isURLString, keysOf } from 'utils'
+import { asEnum, asNumber, isBoolean, isCalcValue, isEnum, isNumber, isObjectId, isObjectIdOrNull, isRecord, isString, isURLString, keysOf } from 'utils'
 import type { ObjectId, Simplify } from 'types'
 import type { TokenContext } from 'types/language'
 import type { DataPropertyMap } from 'types/database'
@@ -16,6 +17,7 @@ export function isSourceBinding(value: unknown): value is ISourceBinding {
 class CreatureData implements ICreatureData {
     public readonly name: string
     public readonly description: string
+    public readonly content: string
     public readonly portrait: string
     // Info
     public readonly size: SizeType
@@ -51,8 +53,8 @@ class CreatureData implements ICreatureData {
     public readonly proficienciesArmor: Partial<Record<ArmorType, ProficiencyLevelBasic>>
     public readonly proficienciesWeapon: Partial<Record<WeaponTypeValue, ProficiencyLevelBasic>>
     // Advantages
-    public readonly advantages: Partial<Record<AdvantageBinding, ISourceBinding[]>>
-    public readonly disadvantages: Partial<Record<AdvantageBinding, ISourceBinding[]>>
+    public readonly advantages: Partial<Record<AdvantageBinding, readonly ISourceBinding[]>>
+    public readonly disadvantages: Partial<Record<AdvantageBinding, readonly ISourceBinding[]>>
     // Resistances
     public readonly resistances: Partial<Record<DamageBinding, readonly ISourceBinding[]>>
     public readonly vulnerabilities: Partial<Record<DamageBinding, readonly ISourceBinding[]>>
@@ -63,12 +65,14 @@ class CreatureData implements ICreatureData {
     public readonly casterLevel: CalcValue
     public readonly spellSlots: Partial<Record<SpellLevel, number>>
     public readonly spells: ObjectId[]
+    public readonly ritualCaster: boolean
     // Other
     public readonly abilities: Array<ObjectId | string>
 
     public constructor(data: Simplify<ICreatureData>) {
         this.name = data.name ?? CreatureData.properties.name.value
         this.description = data.description ?? CreatureData.properties.description.value
+        this.content = data.content ?? CreatureData.properties.content.value
         this.portrait = data.portrait ?? CreatureData.properties.portrait.value
         // Info
         this.size = asEnum(data.size, SizeType) ?? CreatureData.properties.size.value
@@ -140,13 +144,13 @@ class CreatureData implements ICreatureData {
         }
         // Resistances
         this.resistances = CreatureData.properties.resistances.value
-        if (data.disadvantages !== undefined) {
-            for (const key of keysOf(data.disadvantages)) {
-                const bindings = data.disadvantages[key]
+        if (data.resistances !== undefined) {
+            for (const key of keysOf(data.resistances)) {
+                const bindings = data.resistances[key]
                 if (bindings !== undefined) {
                     for (const value of bindings) {
                         if (isSourceBinding(value)) {
-                            this.disadvantages[key] = [...this.disadvantages[key] ?? [], value]
+                            this.resistances[key] = [...this.resistances[key] ?? [], value]
                         }
                     }
                 }
@@ -207,10 +211,12 @@ class CreatureData implements ICreatureData {
                     this.spells.push(id as ObjectId)
                 }
             }
+            this.ritualCaster = data.ritualCaster ?? CreatureData.properties.ritualCaster.value
         } else {
             this.casterLevel = CreatureData.properties.casterLevel.value
             this.spellSlots = CreatureData.properties.spellSlots.value
             this.spells = CreatureData.properties.spells.value
+            this.ritualCaster = CreatureData.properties.ritualCaster.value
         }
         // Other
         this.abilities = CreatureData.properties.abilities.value
@@ -227,6 +233,10 @@ class CreatureData implements ICreatureData {
             validate: isString
         },
         description: {
+            value: '',
+            validate: isString
+        },
+        content: {
             value: '',
             validate: isString
         },
@@ -417,6 +427,10 @@ class CreatureData implements ICreatureData {
             validate: (value) => Array.isArray(value) && value.every(isObjectId),
             simplify: (value) => value.length > 0 ? value : null
         },
+        ritualCaster: {
+            value: false,
+            validate: isBoolean
+        },
         // Other
         abilities: {
             get value() { return [] },
@@ -425,12 +439,21 @@ class CreatureData implements ICreatureData {
         }
     }
 
-    public createContexts(elements: ElementDefinitions): [TokenContext] {
-        const descriptionContext: TokenContext = {
+    public createDescriptionContexts(elements: ElementDefinitions): [description: TokenContext] {
+        const descriptionContext = {
             title: new EmptyToken(elements, this.name),
             name: new EmptyToken(elements, this.name)
         }
         return [descriptionContext]
+    }
+
+    public createContexts(elements: ElementDefinitions): [description: TokenContext, content: TokenContext] {
+        const [descriptionContext] = this.createDescriptionContexts(elements)
+        const contentContext: TokenContext = {
+            ...descriptionContext,
+            description: StoryScript.tokenize(elements, this.description, descriptionContext).root
+        }
+        return [descriptionContext, contentContext]
     }
 }
 

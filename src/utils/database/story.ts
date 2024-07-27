@@ -49,7 +49,7 @@ class StoryCollection {
     constructor (database: Db, test: boolean) {
         const name = test
             ? Collections._story.test
-            : Collections.stories.temp
+            : Collections._story.main
         this.collection = database.collection<IDBStory>(name)
     }
 

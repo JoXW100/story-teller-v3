@@ -48,6 +48,10 @@ class CreatureFacade implements ICreatureData {
         return this.data.description
     }
 
+    public get content(): string {
+        return this.data.content
+    }
+
     public get portrait(): string {
         return this.data.portrait
     }

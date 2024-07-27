@@ -19,6 +19,7 @@ export interface IClassLevelData {
 export interface IClassData {
     readonly name: string
     readonly description: string
+    readonly content: string
     readonly hitDie: DieType
     readonly subclassLevel: ClassLevel
     readonly levels: Record<ClassLevel, IClassLevelData>
@@ -33,7 +34,6 @@ export interface IClassData {
     readonly preparationSlotsScaling: OptionalAttribute
     readonly learnedAll: boolean
     readonly learnedSlotsScaling: OptionalAttribute
-    readonly ritualCaster: boolean
 }
 
 export interface IClassStorage {

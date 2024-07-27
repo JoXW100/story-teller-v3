@@ -14,7 +14,7 @@ const LinkTitleComponent: React.FC<LinkTitleElementParams> = ({ fileId, newTab }
         ? <Link href={Navigation.filePath(fileId, file.storyId)} className={styles.linkTitle} target={target} rel={rel} passHref>
             { file.getTitle() }
         </Link>
-        : <LocalizedText className={styles.error} id='common-error'/>
+        : <LocalizedText className={styles.errorText} id='common-error'/>
 }
 
 export const element = {

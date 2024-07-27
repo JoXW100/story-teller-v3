@@ -175,14 +175,7 @@ $sizeExtra: ($size + 1px) * 8 - 1px;
 
 .dropdown {
     font: inherit;
-    font-size: small;
-}
-
-.dropdownItem {
-    @include fontNoLineBreak;
-    display: inline-flex;
-    font-size: small;
-    align-items: center;
+    font-size: small !important;
     height: $size !important;
 }
 
@@ -226,6 +219,12 @@ $sizeExtra: ($size + 1px) * 8 - 1px;
 .itemListItem {
     display: flex;
     min-height: $size;
+    align-items: center;
+}
+
+.editSubclassItem {
+    @extend .editGroupItem;
+    margin: 0;
     align-items: center;
 }
 

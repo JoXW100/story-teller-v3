@@ -140,6 +140,10 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
         return this.data.race
     }
 
+    public get subrace(): ObjectId | null {
+        return this.data.subrace
+    }
+
     public get raceName(): string {
         if (this.subraceData !== null) {
             return this.subraceData.name
@@ -249,6 +253,10 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
         return this.data.classes
     }
 
+    public get subclasses(): Record<ObjectId, ObjectId> {
+        return this.data.subclasses
+    }
+
     public get cantripSlots(): number {
         return this.spellSlots[SpellLevel.Cantrip] ?? 0
     }
@@ -274,7 +282,7 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
                 }
             }
         }
-        for (const id of keysOf(this.storage.subclasses)) {
+        for (const id of keysOf(this.subclasses)) {
             const subclassData = this.subclassesData[id]
             const subclassLevel = this.data.classes[subclassData.parentClass!]
             for (const level of getPreviousClassLevels(subclassLevel)) {
@@ -369,8 +377,8 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
         const classLevel = this.classes[classId]
         const classData = this.classesData[classId]
         const levels = getPreviousClassLevels(classLevel)
-        const subclassData = classId in this.storage.subclasses && Number(classLevel) >= Number(classData.subclassLevel)
-            ? this.subclassesData[this.storage.subclasses[classId]] ?? null
+        const subclassData = classId in this.subclasses && Number(classLevel) >= Number(classData.subclassLevel)
+            ? this.subclassesData[this.subclasses[classId]] ?? null
             : null
         const result: ClassLevelData[] = []
         for (const level of levels) {

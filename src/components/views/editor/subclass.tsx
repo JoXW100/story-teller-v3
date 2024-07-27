@@ -11,7 +11,8 @@ import BooleanComponent from './components/boolean'
 import GroupItemComponent from './components/groupItem'
 import LinkComponent from './components/link'
 import EditItemButtonComponent from './components/editItemButton'
-import { useLocalizedOptions } from 'utils/hooks/localization'
+import TextareaComponent from './components/textarea'
+import { useLocalizedEnums } from 'utils/hooks/localization'
 import { ClassLevel } from 'structure/dnd'
 import { DocumentType } from 'structure/database'
 import SubclassDocument from 'structure/database/files/subclass'
@@ -19,20 +20,21 @@ import styles from './style.module.scss'
 
 const SubclassDocumentEditor: React.FC = () => {
     const [context, dispatch] = useContext(Context)
-    const options = useLocalizedOptions('classLevel')
+    const options = useLocalizedEnums('classLevel')
 
     if (!(context.file instanceof SubclassDocument)) {
         return null
     }
 
     const data = context.file.data
-    const [descriptionContext] = data.createContexts(ElementDictionary)
+    const [descriptionContext, contentContext] = data.createContexts(ElementDictionary)
 
     return (
         <div className={styles.main}>
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
                 <PublishComponent/>
                 <TextComponent field='name' labelId='editor-name'/>
+                <TextareaComponent field='description' labelId='editor-description' languageContext={descriptionContext}/>
                 <LinkComponent field='parentClass' labelId='editor-parentClass' allowedTypes={[DocumentType.Class]}/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-levels'/>} open>
@@ -59,16 +61,12 @@ const SubclassDocumentEditor: React.FC = () => {
                     }
                 </GroupComponent>
             </GroupComponent>
-            <GroupComponent header={<LocalizedText id='editor-header-description'/>} open fill>
+            <GroupComponent header={<LocalizedText id='editor-header-content'/>} open fill>
                 <TextEditor
-                    value={data.description}
+                    value={data.content}
                     className={styles.editTextEditor}
-                    context={descriptionContext}
-                    onMount={(token) => { dispatch.setToken('description', token) }}
-                    onChange={(text, token) => {
-                        dispatch.setData('description', text)
-                        dispatch.setToken('description', token)
-                    }}/>
+                    context={contentContext}
+                    onChange={(text) => { dispatch.setData('content', text) }}/>
             </GroupComponent>
         </div>
     )

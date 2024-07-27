@@ -40,11 +40,7 @@ const MapDocumentEditor: React.FC = () => {
                     value={context.file.data.description}
                     className={styles.editTextEditor}
                     context={descriptionContext}
-                    onMount={(token) => { dispatch.setToken('description', token) }}
-                    onChange={(text, token) => {
-                        dispatch.setData('description', text)
-                        dispatch.setToken('description', token)
-                    }}/>
+                    onChange={(text) => { dispatch.setData('description', text) }}/>
             </GroupComponent>
         </div>
     )

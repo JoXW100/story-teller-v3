@@ -3,7 +3,7 @@ import Elements from 'components/elements'
 import Icon from 'components/controls/icon'
 import SourceTooltips from './sourceTooltips'
 import { AttributeAdvantageBindingMap } from 'utils/calculations'
-import { useLocalizedOptions } from 'utils/hooks/localization'
+import { useLocalizedEnums } from 'utils/hooks/localization'
 import { Attribute } from 'structure/dnd'
 import { RollMethodType, RollType } from 'structure/dice'
 import type CreatureFacade from 'structure/database/files/creature/facade'
@@ -14,7 +14,7 @@ type AttributesBoxParams = React.PropsWithRef<{
 }>
 
 const AttributesBox: React.FC<AttributesBoxParams> = ({ data }) => {
-    const options = useLocalizedOptions('attr')
+    const options = useLocalizedEnums('attr')
     return (
         <Elements.align direction='h' weight='1' width='100%'>
             { Object.values(Attribute).map((attr, index) => (

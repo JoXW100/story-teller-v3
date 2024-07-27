@@ -4,6 +4,7 @@ import SubclassDataFactory from './factory'
 import StoryScript from 'structure/language/storyscript'
 import type { DocumentType } from 'structure/database'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
+import type { ObjectId } from 'types'
 import type { IDatabaseFactory } from 'types/database'
 import type { ISubclassData, ISubclassStorage } from 'types/database/files/subclass'
 import type { IToken } from 'types/language'
@@ -24,6 +25,10 @@ class SubclassDocument extends DatabaseFile<DocumentType.Subclass, ISubclassStor
 
     public override getDataFactory(): IDatabaseFactory<ISubclassData, SubclassData> {
         return SubclassDataFactory
+    }
+
+    public override getParentFile(): ObjectId | null {
+        return this.data.parentClass
     }
 }
 

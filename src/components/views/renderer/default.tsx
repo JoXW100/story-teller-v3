@@ -1,13 +1,18 @@
 import { useContext, useMemo } from 'react'
+import type { LinkRendererProps } from '.'
 import { Context } from 'components/contexts/file'
 import Elements, { ElementDictionary } from 'components/elements'
 
-const DefaultRenderer: React.FC = () => {
+export const DefaultRenderer: React.FC = () => {
     const [context] = useContext(Context)
-    const description = useMemo(() => context.file.getTokenizedDescription(ElementDictionary), [context.file])
+    return <DefaultLinkRenderer file={context.file}/>
+}
+
+export const DefaultLinkRenderer: React.FC<LinkRendererProps> = ({ file }) => {
+    const description = useMemo(() => file.getTokenizedDescription(ElementDictionary), [file])
 
     return <>
-        <Elements.h1 underline>{context.file.getTitle()}</Elements.h1>
+        <Elements.h3 underline={false}>{file.getTitle()}</Elements.h3>
         { description.build() }
     </>
 }

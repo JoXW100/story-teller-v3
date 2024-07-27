@@ -94,7 +94,7 @@ class FileCollection {
     constructor (database: Db, test: boolean) {
         const name = test
             ? Collections._document.test
-            : Collections.files.temp
+            : Collections._document.main
         this.collection = database.collection<IDBFile>(name)
     }
 
@@ -526,12 +526,15 @@ class FileCollection {
      * @param type The type sub-files files
      * @returns The subscribed sub-files, or an error message
      */
-    async getSubFiles(userId: string, parentId: ObjectId, type: DocumentFileType): Promise<DBResponse<IDatabaseFile[]>> {
+    async getSubFiles(userId: string, parentId: ObjectId, type: DocumentFileType, sources: ObjectId[]): Promise<DBResponse<IDatabaseFile[]>> {
         try {
             const result = await this.collection.aggregate<IDatabaseFile>([
                 {
                     $match: {
                         type: type,
+                        _storyId: sources.length > 0
+                            ? { $in: sources }
+                            : undefined,
                         'data.parentClass': String(parentId)
                     } satisfies KeysOfTwo<IDatabaseFile, object>
                 },

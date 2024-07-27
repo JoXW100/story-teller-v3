@@ -7,6 +7,7 @@ import type { IChargesData } from '../charges'
 export interface IItemDataBase {
     readonly name: string
     readonly description: string
+    readonly content: string
     readonly type: ItemType
     readonly rarity: Rarity
     readonly attunement: boolean

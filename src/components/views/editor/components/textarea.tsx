@@ -3,7 +3,7 @@ import GroupItemComponent from './groupItem'
 import type { LanguageKey } from 'assets'
 import TextEditor from 'components/controls/textEditor'
 import { Context } from 'components/contexts/file'
-import { isRecord, getRelativeFieldObject } from 'utils'
+import { isRecord, getRelativeFieldObject, asBooleanString } from 'utils'
 import Logger from 'utils/logger'
 import type { IToken, TokenContext } from 'types/language'
 import styles from '../style.module.scss'
@@ -36,20 +36,18 @@ const TextareaComponent: React.FC<TextareaComponentParams> = ({ field, labelId, 
     }
 
     const handleInput = (value: string, token: IToken | null): void => {
-        dispatch.setToken(field, token)
         dispatch.setData(field, value)
     }
 
     return (
         <GroupItemComponent
             className={styles.editTextArea}
-            data={String(fill)}
+            data={asBooleanString(fill)}
             labelId={labelId}
             labelArgs={labelArgs}>
             <TextEditor
                 value={value}
                 className='fill-height'
-                onMount={(token) => { dispatch.setToken(field, token) }}
                 context={languageContext}
                 onChange={handleInput}/>
         </GroupItemComponent>

@@ -7,9 +7,9 @@ import NumberInput from 'components/controls/numericInput'
 import DropdownMenu from 'components/controls/dropdownMenu'
 import { asBooleanString, asEnum, isRecord, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
+import { useLocalizedEnums, useLocalizedText } from 'utils/hooks/localization'
 import { type EnumTypeKey, getEnumType } from 'structure/enums'
 import styles from '../style.module.scss'
-import { useLocalizedOptions, useLocalizedText } from 'utils/hooks/localization'
 
 type RecordComponentParams = React.PropsWithoutRef<{
     field: string
@@ -86,7 +86,7 @@ const RecordComponent: React.FC<RecordComponentParams> = ({ field, defaultValue,
 
 const RecordItemComponent: React.FC<RecordItemComponentParams> = ({ itemKey, value, values, update, params }) => {
     const [label, setLabel] = useState(itemKey)
-    const options = useLocalizedOptions(params.enumType)
+    const options = useLocalizedEnums(params.enumType)
     const optionType = params.enumType !== undefined
         ? getEnumType(params.enumType)
         : null
@@ -157,7 +157,7 @@ const RecordItemComponent: React.FC<RecordItemComponentParams> = ({ itemKey, val
 }
 
 const RecordEditComponent: React.FC<RecordItemComponentParams> = ({ value, update, params }) => {
-    const options = useLocalizedOptions(params.enumType)
+    const options = useLocalizedEnums(params.enumType)
     if (params.inputType === 'text') {
         const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
             update(e.target.value)

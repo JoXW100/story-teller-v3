@@ -10,7 +10,7 @@ import { type LanguageType, TextData } from 'assets'
 import type { IconType } from 'assets/icons'
 import { keysOf } from 'utils'
 import Navigation from 'utils/navigation'
-import { useLocalizedOptions } from 'utils/hooks/localization'
+import { useLocalizedEnums } from 'utils/hooks/localization'
 import styles from './style.module.scss'
 
 interface SettingsViewParams {
@@ -32,7 +32,7 @@ function createLanguageOptions(): Record<LanguageType, React.ReactNode> {
 
 const SettingsView: React.FC<SettingsViewParams> = ({ returnPath }) => {
     const [context, dispatch] = useContext(Context)
-    const options = useLocalizedOptions('viewMode')
+    const options = useLocalizedEnums('viewMode')
     const router = useRouter()
 
     const handleBack = (): void => {

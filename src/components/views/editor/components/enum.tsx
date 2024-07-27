@@ -6,7 +6,7 @@ import { type EnumTypeKey, getEnumType } from 'structure/enums'
 import type { LanguageKey } from 'assets'
 import { isEnum, isRecord, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
-import { useLocalizedOptions } from 'utils/hooks/localization'
+import { useLocalizedEnums } from 'utils/hooks/localization'
 import styles from '../style.module.scss'
 
 type EnumComponentParams = React.PropsWithoutRef<{
@@ -18,7 +18,7 @@ type EnumComponentParams = React.PropsWithoutRef<{
 
 const EnumComponent: React.FC<EnumComponentParams> = ({ field, type, labelId, labelArgs }) => {
     const [context, dispatch] = useContext(Context)
-    const options = useLocalizedOptions(type)
+    const options = useLocalizedEnums(type)
 
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.NumberComponent', 'Data of incorrect type', context.file.data)
@@ -45,7 +45,6 @@ const EnumComponent: React.FC<EnumComponentParams> = ({ field, type, labelId, la
         <GroupItemComponent labelId={labelId} labelArgs={labelArgs}>
             <DropdownMenu<typeof value>
                 className={styles.dropdown}
-                itemClassName={styles.dropdownItem}
                 values={options}
                 value={value}
                 onChange={handleInput}/>

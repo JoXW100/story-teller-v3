@@ -2,7 +2,7 @@ import { useMemo, type CSSProperties } from 'react'
 import ImageElement, { type ImageElementParams } from 'structure/elements/image'
 import styles from './styles.module.scss'
 
-const ImageComponent: React.FC<ImageElementParams> = ({ href, border, weight, width }) => {
+const ImageComponent: React.FC<ImageElementParams> = ({ href = '', border, weight, width }) => {
     const style = useMemo<CSSProperties>(() => {
         const properties: React.CSSProperties = {}
         if (weight !== null) {

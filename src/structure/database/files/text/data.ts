@@ -32,7 +32,7 @@ class TextData implements ITextData {
         }
     }
 
-    public createDescriptionContexts(elements: ElementDefinitions): [TokenContext] {
+    public createDescriptionContexts(elements: ElementDefinitions): [description: TokenContext] {
         const descriptionContext = {
             title: new EmptyToken(elements, this.title),
             name: new EmptyToken(elements, this.title)
@@ -40,7 +40,7 @@ class TextData implements ITextData {
         return [descriptionContext]
     }
 
-    public createContexts(elements: ElementDefinitions): [TokenContext, TokenContext] {
+    public createContexts(elements: ElementDefinitions): [description: TokenContext, content: TokenContext] {
         const [descriptionContext] = this.createDescriptionContexts(elements)
         const contentContext = {
             ...descriptionContext,

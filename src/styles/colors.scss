@@ -151,7 +151,6 @@ $grouped-palette: (
     cursor: pointer;
     &:hover {
         filter: brightness(105%);
-        font-weight: bolder;
     }
     &:active {
         filter: brightness(110%);

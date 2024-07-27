@@ -7,7 +7,7 @@ import Loading from 'components/controls/loading'
 import Elements, { ElementDictionary } from 'components/elements'
 import LocalizedText from 'components/controls/localizedText'
 import CollapsibleGroup from 'components/controls/collapsibleGroup'
-import { isDefined, isNumber, isString, keysOf } from 'utils'
+import { isNumber, isString, keysOf } from 'utils'
 import { useFilesOfType } from 'utils/hooks/files'
 import { DocumentType } from 'structure/database'
 import EncounterCard from 'structure/database/files/encounter/card'
@@ -25,12 +25,8 @@ const EncounterDocumentRenderer: React.FC = (): React.ReactNode => {
     const [context, dispatch] = useContext(Context)
     const encounter = context.file as EncounterDocument
     const descriptionToken = useMemo(() => {
-        if (isDefined(context.tokens.description)) {
-            return context.tokens.description
-        } else {
-            return context.file.getTokenizedDescription(ElementDictionary)
-        }
-    }, [context.file, context.tokens.description])
+        return context.file.getTokenizedDescription(ElementDictionary)
+    }, [context.file])
     const creatureIds = useMemo(() => keysOf(encounter.data.creatures), [encounter.data.creatures])
     const [creatures, loading] = useFilesOfType(creatureIds, FileTypes)
 

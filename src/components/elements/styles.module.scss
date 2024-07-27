@@ -206,10 +206,14 @@
     font-size: large;
 }
 
+.errorText {
+    color: color(error);
+}
+
 .error {
+    @extend .errorText;
     @include centerFlex;
     @include fontLarge;
-    color: color(error);
     width: 100%;
     flex: 1;
     height: 50px;

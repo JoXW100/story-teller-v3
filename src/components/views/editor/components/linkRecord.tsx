@@ -7,7 +7,7 @@ import LinkRecordMenu, { type ILinkRecordMenuButtonProps } from 'components/cont
 import type { LanguageKey } from 'assets'
 import { asBooleanString, isEnum, isNumber, isObjectId, isRecord, isString, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
-import { useLocalizedOptions, useLocalizedText } from 'utils/hooks/localization'
+import { useLocalizedEnums, useLocalizedText } from 'utils/hooks/localization'
 import { getEnumType, type IEnumType, type EnumTypeKey } from 'structure/enums'
 import type { DocumentType } from 'structure/database'
 import type { ObjectId } from 'types'
@@ -32,7 +32,7 @@ const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type,
     const [context, dispatch] = useContext(Context)
     const placeholder = useLocalizedText(placeholderId, placeholderArgs)
     const buttonTooltips = useLocalizedText('common-edit')
-    const options = useLocalizedOptions(enumType)
+    const options = useLocalizedEnums(enumType)
 
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.LinkRecordComponent', 'Data of incorrect type', context.file.data)

@@ -152,7 +152,7 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
         const raceResponse = await Communication.getFileOfTypes(raceId, [DocumentType.Race])
         if (raceResponse.success) {
             race = raceResponse.result
-            subraceId = character.storage.subrace
+            subraceId = character.data.subrace
         }
     }
 
@@ -173,8 +173,8 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
         if (classesResponse.success) {
             for (const classDocument of Object.values(classesResponse.result)) {
                 classes[classDocument.id] = classDocument.data
-                if (Number(character.data.classes[classDocument.id]) >= Number(classDocument.data.subclassLevel) && classDocument.id in character.storage.subclasses) {
-                    const subclassId = character.storage.subclasses[classDocument.id]
+                if (Number(character.data.classes[classDocument.id]) >= Number(classDocument.data.subclassLevel) && classDocument.id in character.data.subclasses) {
+                    const subclassId = character.data.subclasses[classDocument.id]
                     subclassIds.push(subclassId)
                     modifier.addSource(subclassId, SourceType.Class, classDocument.id)
                 }
@@ -339,7 +339,7 @@ export function useAbilities(ids: Array<ObjectId | string | null>): AbilitiesSta
     useEffect(() => {
         setState((state) => {
             const fileIds = new Set<ObjectId>()
-            let values: Record<string, AbilityData> = {}
+            const values: Record<string, AbilityData> = {}
             let count = 0
             for (const id of ids) {
                 const key = isObjectId(id) ? String(id) : `custom.${count++}`
@@ -361,7 +361,9 @@ export function useAbilities(ids: Array<ObjectId | string | null>): AbilitiesSta
                 Communication.getFilesOfTypes(Array.from(fileIds), [DocumentType.Ability])
                     .then((res) => {
                         if (res.success) {
-                            values = { ...values, ...res.result }
+                            for (const id of keysOf(res.result)) {
+                                values[id] = res.result[id].data
+                            }
                         }
                     }, (e: unknown) => {
                         Logger.throw('useAbilities', e)

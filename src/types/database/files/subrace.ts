@@ -4,6 +4,7 @@ import type { ObjectId } from 'types'
 export interface ISubraceData {
     readonly name: string
     readonly description: string
+    readonly content: string
     readonly parentRace: ObjectId | null
     // Abilities
     readonly abilities: Array<ObjectId | string>

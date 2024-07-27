@@ -12,6 +12,7 @@ import { ElementDictionary } from 'components/elements'
 import { DocumentType } from 'structure/database'
 import RaceDocument from 'structure/database/files/race'
 import styles from './style.module.scss'
+import TextareaComponent from './components/textarea'
 
 const RaceDocumentEditor: React.FC = () => {
     const [context, dispatch] = useContext(Context)
@@ -20,13 +21,14 @@ const RaceDocumentEditor: React.FC = () => {
         return null
     }
 
-    const [descriptionContext] = context.file.data.createContexts(ElementDictionary)
+    const [descriptionContext, contentContext] = context.file.data.createContexts(ElementDictionary)
 
     return (
         <div className={styles.main}>
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
                 <PublishComponent/>
                 <TextComponent field='name' labelId='editor-name'/>
+                <TextareaComponent field='description' labelId='editor-description' languageContext={descriptionContext}/>
                 <EnumComponent field='type' type='creatureType' labelId='editor-type'/>
                 <EnumComponent field='size' type='size' labelId='editor-size'/>
                 <SelectionInputComponent
@@ -63,16 +65,12 @@ const RaceDocumentEditor: React.FC = () => {
                     allowText
                     fill/>
             </GroupComponent>
-            <GroupComponent header={<LocalizedText id='editor-header-description'/>} open fill>
+            <GroupComponent header={<LocalizedText id='editor-header-content'/>} open fill>
                 <TextEditor
-                    value={context.file.data.description}
+                    value={context.file.data.content}
                     className={styles.editTextEditor}
-                    context={descriptionContext}
-                    onMount={(token) => { dispatch.setToken('description', token) }}
-                    onChange={(text, token) => {
-                        dispatch.setData('description', text)
-                        dispatch.setToken('description', token)
-                    }}/>
+                    context={contentContext}
+                    onChange={(text) => { dispatch.setData('content', text) }}/>
             </GroupComponent>
         </div>
     )

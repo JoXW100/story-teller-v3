@@ -217,7 +217,6 @@ const ModifierDocumentEditor: React.FC = () => {
                                     optionsType='scaling'
                                     labelId='editor-maxAttributeValues'
                                     fill/>
-                                <NumberComponent field={createField(field, 'bonus')} labelId='editor-bonus'/>
                             </>
                         }
                     </>
@@ -260,10 +259,8 @@ const ModifierDocumentEditor: React.FC = () => {
                     value={data.description}
                     className={styles.editTextEditor}
                     context={descriptionContext}
-                    onMount={(token) => { dispatch.setToken(createField(field, 'description'), token) }}
-                    onChange={(text, token) => {
+                    onChange={(text) => {
                         dispatch.setData(createField(field, 'description'), text)
-                        dispatch.setToken(createField(field, 'description'), token)
                     }}/>
             </GroupComponent>
         </div>

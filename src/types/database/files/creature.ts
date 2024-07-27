@@ -12,6 +12,7 @@ export interface ISourceBinding {
 export interface ICreatureData {
     readonly name: string
     readonly description: string
+    readonly content: string
     readonly portrait: string
     // Info
     readonly type: CreatureType
@@ -59,6 +60,7 @@ export interface ICreatureData {
     readonly casterLevel: CalcValue
     readonly spells: ObjectId[]
     readonly spellSlots: Partial<Record<SpellLevel, number>>
+    readonly ritualCaster: boolean
     // Abilities
     readonly abilities: Array<ObjectId | string>
 }

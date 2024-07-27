@@ -4,6 +4,7 @@ import SubraceDataFactory from './factory'
 import StoryScript from 'structure/language/storyscript'
 import type { DocumentType } from 'structure/database'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
+import type { ObjectId } from 'types'
 import type { IToken } from 'types/language'
 import type { IDatabaseFactory } from 'types/database'
 import type { ISubraceData, ISubraceStorage } from 'types/database/files/subrace'
@@ -24,6 +25,10 @@ class SubraceDocument extends DatabaseFile<DocumentType.Subrace, ISubraceStorage
 
     public override getDataFactory(): IDatabaseFactory<ISubraceData, SubraceData> {
         return SubraceDataFactory
+    }
+
+    public override getParentFile(): ObjectId | null {
+        return this.data.parentRace
     }
 }
 

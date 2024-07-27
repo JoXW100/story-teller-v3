@@ -4,6 +4,7 @@ import { DieType } from 'structure/dice'
 import { ArmorType, Attribute, ClassLevel, OptionalAttribute, ProficiencyLevel, ProficiencyLevelBasic, ToolType, WeaponTypeValue } from 'structure/dnd'
 import { simplifyObjectProperties, validateObjectProperties } from 'structure/database'
 import EmptyToken from 'structure/language/tokens/empty'
+import StoryScript from 'structure/language/storyscript'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { Simplify } from 'types'
 import type { TokenContext } from 'types/language'
@@ -13,6 +14,7 @@ import type { IClassData, IClassLevelData } from 'types/database/files/class'
 class ClassData implements IClassData {
     public readonly name: string
     public readonly description: string
+    public readonly content: string
     public readonly hitDie: DieType
     public readonly subclassLevel: ClassLevel
     public readonly levels: Record<ClassLevel, ClassLevelData>
@@ -27,11 +29,11 @@ class ClassData implements IClassData {
     public readonly preparationSlotsScaling: OptionalAttribute
     public readonly learnedAll: boolean
     public readonly learnedSlotsScaling: OptionalAttribute
-    public readonly ritualCaster: boolean
 
     public constructor (data: Simplify<IClassData> = {}) {
         this.name = data.name ?? ClassData.properties.name.value
         this.description = data.description ?? ClassData.properties.description.value
+        this.content = data.content ?? ClassData.properties.content.value
         this.hitDie = data.hitDie ?? ClassData.properties.hitDie.value
         this.subclassLevel = data.subclassLevel ?? ClassData.properties.subclassLevel.value
         this.levels = ClassData.properties.levels.value
@@ -87,7 +89,6 @@ class ClassData implements IClassData {
         } else {
             this.learnedSlotsScaling = data.learnedSlotsScaling ?? ClassData.properties.learnedSlotsScaling.value
         }
-        this.ritualCaster = data.ritualCaster ?? ClassData.properties.ritualCaster.value
     }
 
     public static properties: DataPropertyMap<IClassData, ClassData> = {
@@ -96,6 +97,10 @@ class ClassData implements IClassData {
             validate: isString
         },
         description: {
+            value: '',
+            validate: isString
+        },
+        content: {
             value: '',
             validate: isString
         },
@@ -186,19 +191,24 @@ class ClassData implements IClassData {
         learnedSlotsScaling: {
             value: OptionalAttribute.None,
             validate: (value) => isEnum(value, OptionalAttribute)
-        },
-        ritualCaster: {
-            value: false,
-            validate: isBoolean
         }
     }
 
-    public createContexts(elements: ElementDefinitions): [TokenContext] {
-        const descriptionContext: TokenContext = {
+    public createDescriptionContexts(elements: ElementDefinitions): [description: TokenContext] {
+        const descriptionContext = {
             title: new EmptyToken(elements, this.name),
             name: new EmptyToken(elements, this.name)
         }
         return [descriptionContext]
+    }
+
+    public createContexts(elements: ElementDefinitions): [description: TokenContext, content: TokenContext] {
+        const [descriptionContext] = this.createDescriptionContexts(elements)
+        const contentContext: TokenContext = {
+            ...descriptionContext,
+            description: StoryScript.tokenize(elements, this.description, descriptionContext).root
+        }
+        return [descriptionContext, contentContext]
     }
 }
 

@@ -38,7 +38,7 @@ export function useTranslator(): TranslationHandler {
     }, [context.localization])
 }
 
-export function useLocalizedOptions<T extends EnumTypeKey>(type?: T): Record<EnumTypeValue<T>, string> {
+export function useLocalizedEnums<T extends EnumTypeKey>(type?: T): Record<EnumTypeValue<T>, string> {
     const [context] = useContext(Context)
     return useMemo(() => {
         const options: Partial<Record<EnumTypeValue<T>, string>> = {}
@@ -53,7 +53,7 @@ export function useLocalizedOptions<T extends EnumTypeKey>(type?: T): Record<Enu
     }, [context.localization, type])
 }
 
-export function useLocalizedOption<T extends EnumTypeKey>(type?: T, value?: EnumTypeValue<T>): string | undefined {
+export function useLocalizedEnum<T extends EnumTypeKey>(type?: T, value?: EnumTypeValue<T>): string | undefined {
     const [context] = useContext(Context)
     if (type !== undefined && value !== undefined) {
         const localizationKey = `enum-${type}-${value as EnumTypeValue}` as EnumTypeKeyValue

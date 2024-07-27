@@ -1,14 +1,12 @@
+import AbilityDocument from 'structure/database/files/ability'
 import { AbilityRenderer } from '.'
-import type { AbilityData } from 'structure/database/files/ability/factory'
-import type { ObjectId } from 'types'
+import type { LinkRendererProps } from '..'
 
-type AbilityLinkRendererProps = React.PropsWithRef<{
-    id: ObjectId
-    data: AbilityData
-}>
-
-const AbilityLinkRenderer: React.FC<AbilityLinkRendererProps> = ({ id, data }) => {
-    return <AbilityRenderer id={id} data={data} open/>
+const AbilityLinkRenderer: React.FC<LinkRendererProps> = ({ file }) => {
+    if (file instanceof AbilityDocument) {
+        return <AbilityRenderer data={file.data} open/>
+    }
+    return null
 }
 
 export default AbilityLinkRenderer

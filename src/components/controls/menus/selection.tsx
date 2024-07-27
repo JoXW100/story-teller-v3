@@ -35,7 +35,6 @@ type SelectionMenuProps = React.PropsWithRef<{
     className?: string
     componentClassName?: string
     dropdownClassName?: string
-    dropdownItemClassName?: string
     options: Record<string, React.ReactNode>
     addLast?: boolean
 } & (IStringSelectionMenuProps | IEnumSelectionMenuProps<string> | INumberSelectionMenuProps | INoneSelectionMenuProps)>
@@ -76,7 +75,6 @@ const SelectionMenu: React.FC<SelectionMenuProps> = (params) => {
 
 const EditComponent: React.FC<ListTemplateComponentProps<string, string, SelectionMenuProps>> = ({ value, values: selected, params }) => {
     const style = params.dropdownClassName !== undefined ? `${styles.dropdown} ${params.dropdownClassName}` : styles.dropdown
-    const itemStyle = params.dropdownItemClassName !== undefined ? `${styles.dropdownItem} ${params.dropdownItemClassName}` : styles.dropdownItem
 
     const handleChange = (value: string): void => {
         if (params.type === 'number') {
@@ -91,7 +89,6 @@ const EditComponent: React.FC<ListTemplateComponentProps<string, string, Selecti
     return (
         <DropdownMenu
             className={style}
-            itemClassName={itemStyle}
             values={params.options}
             exclude={selected}
             value={value}
@@ -101,7 +98,6 @@ const EditComponent: React.FC<ListTemplateComponentProps<string, string, Selecti
 
 const Component: React.FC<ListTemplateComponentProps<string, string, SelectionMenuProps>> = ({ value, params }) => {
     const style = params.dropdownClassName !== undefined ? `${styles.dropdown} ${params.dropdownClassName}` : styles.dropdown
-    const itemStyle = params.dropdownItemClassName !== undefined ? `${styles.dropdownItem} ${params.dropdownItemClassName}` : styles.dropdownItem
 
     const handleChange = (input: string): void => {
         if (params.type === 'number') {
@@ -123,7 +119,6 @@ const Component: React.FC<ListTemplateComponentProps<string, string, SelectionMe
             {params.type === 'enum' &&
                 <DropdownMenu
                     className={style}
-                    itemClassName={itemStyle}
                     value={params.values[value] ?? params.defaultValue}
                     values={params.editOptions ?? {}}
                     onChange={handleChange}/>

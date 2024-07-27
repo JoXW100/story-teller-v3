@@ -1,6 +1,6 @@
 import CreatureStorage from '../creature/storage'
 import { InventoryItemDataFactory } from './factory'
-import { asObjectId, isEnum, isNumber, isObjectId, isObjectIdOrNull, isRecord, isString, keysOf } from 'utils'
+import { isEnum, isNumber, isObjectId, isRecord, isString, keysOf } from 'utils'
 import { SpellLevel, SpellPreparationType } from 'structure/dnd'
 import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
@@ -34,8 +34,6 @@ function simplifyInventoryItemDataRecord(value: Record<ObjectId, IInventoryItemD
 }
 
 class CharacterStorage extends CreatureStorage implements ICharacterStorage {
-    public readonly subrace: ObjectId | null
-    public readonly subclasses: Record<ObjectId, ObjectId>
     public readonly spellPreparations: Record<ObjectId, Record<ObjectId, SpellPreparationType>>
     public readonly preparationsExpendedSlots: Record<ObjectId, Partial<Record<SpellLevel, number>>>
     public readonly inventory: Record<ObjectId, IInventoryItemData>
@@ -44,16 +42,6 @@ class CharacterStorage extends CreatureStorage implements ICharacterStorage {
 
     public constructor(storage: Simplify<ICharacterStorage>) {
         super(storage)
-        this.subrace = asObjectId(storage.subrace)
-        this.subclasses = CharacterStorage.properties.subclasses.value
-        if (storage.subclasses !== undefined) {
-            for (const id of keysOf(storage.subclasses)) {
-                const subclassId = storage.subclasses[id]
-                if (isObjectId(id) && isObjectId(subclassId)) {
-                    this.subclasses[id] = subclassId
-                }
-            }
-        }
         this.spellPreparations = CharacterStorage.properties.spellPreparations.value
         if (storage.spellPreparations !== undefined) {
             for (const id of keysOf(storage.spellPreparations)) {
@@ -106,14 +94,6 @@ class CharacterStorage extends CreatureStorage implements ICharacterStorage {
 
     public static properties: DataPropertyMap<ICharacterStorage, CharacterStorage> = {
         ...CreatureStorage.properties,
-        subrace: {
-            value: null,
-            validate: isObjectIdOrNull
-        },
-        subclasses: {
-            get value() { return {} },
-            validate: (value) => isRecord(value, (key, val) => isObjectId(key) && isObjectId(val))
-        },
         spellPreparations: {
             get value() { return {} },
             validate: (value) => isRecord(value, (classId, classPreparations) =>

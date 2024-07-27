@@ -20,13 +20,13 @@ import { LevelModifyType } from 'structure/database/files/class/levelData'
 import { EffectConditionType } from 'structure/database/effectCondition'
 import { EffectCategory, EffectType } from 'structure/database/effect/common'
 import { AbilityType } from 'structure/database/files/ability/common'
-import { ActionType, AdvantageBinding, Alignment, AreaType, ArmorType, Attribute, CastingTime, ClassLevel, ConditionBinding, CreatureType, DamageBinding, Duration, ItemType, type Language, MagicSchool, MeleeWeaponType, OptionalAttribute, ProficiencyLevel, ProficiencyLevelBasic, RangedWeaponType, Rarity, RestType, ScalingType, SizeType, Skill, SpellLevel, TargetType, ThrownWeaponType, ToolType, type WeaponTypeValue } from 'structure/dnd'
+import { ActionType, AdvantageBinding, Alignment, AreaType, ArmorType, Attribute, CastingTime, ClassLevel, ConditionBinding, CreatureType, DamageBinding, Duration, ItemType, type Language, MagicSchool, MeleeWeaponType, MovementType, OptionalAttribute, ProficiencyLevel, ProficiencyLevelBasic, RangedWeaponType, Rarity, RestType, ScalingType, Sense, SizeType, Skill, SpellLevel, TargetType, ThrownWeaponType, ToolType, type WeaponTypeValue } from 'structure/dnd'
 import type { ObjectId } from 'types'
 import type { DBItem } from 'types/old'
 import type { DBStory } from 'types/old/stories'
 import type { DBResponse } from 'types/database'
-import { DamageType, type DiceType, EffectCondition, AbilityType as OldAbilityType, type RestType as OldRestType, ScalingType as OldScalingType, ArmorType as OldArmorType, ItemType as OldItemType, TargetType as OldTargetType } from 'types/old/dnd'
-import { CalculationMode, FileType, type IOptionType } from 'types/old/files'
+import { DamageType, type DiceType, EffectCondition, AbilityType as OldAbilityType, type RestType as OldRestType, ScalingType as OldScalingType, ArmorType as OldArmorType, ItemType as OldItemType, TargetType as OldTargetType, Gender } from 'types/old/dnd'
+import { CalculationMode, FileType, type IFileContent, type IOptionType } from 'types/old/files'
 import type { ICreatureStorage as IOldCreatureStorage, ICreatureMetadata } from 'types/old/files/creature'
 import type { ISourceBinding, ICreatureData, ICreatureStorage } from 'types/database/files/creature'
 import type { ICharacterStorage as IOldCharacterStorage, ICharacterMetadata } from 'types/old/files/character'
@@ -83,6 +83,8 @@ class DebugHandler {
         // Backup
         await this.backup('files')
         await this.backup('stories')
+        await this.move('_document', 'files', 'main', 'temp')
+        await this.move('_story', 'stories', 'main', 'temp')
         // Convert
         await this.convertFiles('files')
         await this.convertStories('stories')
@@ -111,11 +113,11 @@ class DebugHandler {
         return success(true)
     }
 
-    async move(from: CollectionName, target: CollectionName, type: keyof IDebugCollections): Promise<DBResponse<boolean>> {
-        const res = await this.collections[from][type].aggregate([
-            { $out: this.collections[target][type].collectionName }
+    async move(from: CollectionName, target: CollectionName, fromType: keyof IDebugCollections, targetType: keyof IDebugCollections): Promise<DBResponse<boolean>> {
+        const res = await this.collections[from][fromType].aggregate([
+            { $out: this.collections[target][targetType].collectionName }
         ]).toArray()
-        Logger.log('debug.move', from, target, type, res.length)
+        Logger.log('debug.move', from, target, fromType, targetType, res.length)
         return success(true)
     }
 
@@ -162,19 +164,62 @@ class DebugHandler {
                     })
                     continue
                 case FileType.Character:
-                    conversions.push({
-                        _id: file._id,
-                        _userId: file._userId,
-                        _storyId: file._storyId,
-                        _holderId: file._holderId ?? null,
-                        type: DocumentFileType.Character,
-                        name: file.content.name,
-                        flags: asBoolean(file.content.public) ? [FlagType.Public] : [],
-                        data: CharacterDataFactory.simplify(this.toCharacterData(file.metadata)),
-                        storage: CharacterStorageFactory.simplify(this.toCharacterStorage(file.storage)),
-                        dateCreated: file.dateCreated,
-                        dateUpdated: file.dateUpdated
-                    })
+                    if ((file.metadata as ICharacterMetadata).simple === true) {
+                        const data = file.metadata as ICharacterMetadata
+                        let text = ''
+                        if (data.portrait !== undefined && data.portrait.length > 0) {
+                            text += `\\image[${data.portrait}, width: 30%]\n`
+                        }
+                        if (data.appearance !== undefined && data.appearance.length > 0) {
+                            text += `\\h2{Appearance}\n${data.appearance}\n`
+                        }
+                        if (data.occupation !== undefined && data.occupation.length > 0) {
+                            text += `\\h2{Occupation }\n${data.occupation}\n`
+                        }
+                        if (data.history !== undefined && data.history.length > 0) {
+                            text += `\\h2{History}\n${data.history}\n`
+                        }
+                        if (data.notes !== undefined && data.notes.length > 0) {
+                            text += `\\h2{Notes}\n${data.notes}\n`
+                        }
+                        if (data.description !== undefined && data.description.length > 0) {
+                            text += '\\h2{Description}\n$description\n'
+                        }
+                        if (text.length > 0 && file.content.text !== undefined && file.content.text.length > 0) {
+                            text += '\\h2{Content}\n'
+                            text += file.content.text
+                        }
+                        conversions.push({
+                            _id: file._id,
+                            _userId: file._userId,
+                            _storyId: file._storyId,
+                            _holderId: file._holderId ?? null,
+                            type: DocumentFileType.Text,
+                            name: file.content.name,
+                            flags: asBoolean(file.content.public) ? [FlagType.Public] : [],
+                            data: {
+                                title: file.metadata.name ?? '',
+                                description: file.metadata.description ?? '',
+                                content: text
+                            },
+                            dateCreated: file.dateCreated,
+                            dateUpdated: file.dateUpdated
+                        })
+                    } else {
+                        conversions.push({
+                            _id: file._id,
+                            _userId: file._userId,
+                            _storyId: file._storyId,
+                            _holderId: file._holderId ?? null,
+                            type: DocumentFileType.Character,
+                            name: file.content.name,
+                            flags: asBoolean(file.content.public) ? [FlagType.Public] : [],
+                            data: CharacterDataFactory.simplify(this.toCharacterData(file.metadata, file.content)),
+                            storage: CharacterStorageFactory.simplify(this.toCharacterStorage(file.storage)),
+                            dateCreated: file.dateCreated,
+                            dateUpdated: file.dateUpdated
+                        })
+                    }
                     continue
                 case FileType.Class:
                     conversions.push({
@@ -185,7 +230,7 @@ class DebugHandler {
                         type: DocumentFileType.Class,
                         name: file.content.name,
                         flags: asBoolean(file.content.public) ? [FlagType.Public] : [],
-                        data: ClassDataFactory.simplify(this.toClassData(file.metadata)),
+                        data: ClassDataFactory.simplify(this.toClassData(file.metadata, file.content)),
                         dateCreated: file.dateCreated,
                         dateUpdated: file.dateUpdated
                     })
@@ -199,7 +244,7 @@ class DebugHandler {
                         type: DocumentFileType.Creature,
                         name: file.content.name,
                         flags: asBoolean(file.content.public) ? [FlagType.Public] : [],
-                        data: CreatureDataFactory.simplify(this.toCreatureData(file.metadata)),
+                        data: CreatureDataFactory.simplify(this.toCreatureData(file.metadata, file.content)),
                         storage: CreatureStorageFactory.simplify(this.toCreatureStorage(file.storage)),
                         dateCreated: file.dateCreated,
                         dateUpdated: file.dateUpdated
@@ -232,7 +277,7 @@ class DebugHandler {
                         type: DocumentFileType.Encounter,
                         name: file.content.name,
                         flags: asBoolean(file.content.public) ? [FlagType.Public] : [],
-                        data: EncounterDataFactory.simplify(this.toEncounterData(file.metadata)),
+                        data: EncounterDataFactory.simplify(this.toEncounterData(file.metadata, file.content)),
                         dateCreated: file.dateCreated,
                         dateUpdated: file.dateUpdated
                     })
@@ -260,7 +305,7 @@ class DebugHandler {
                         type: DocumentFileType.Item,
                         name: file.content.name,
                         flags: asBoolean(file.content.public) ? [FlagType.Public] : [],
-                        data: ItemDataFactory.simplify(this.toItemData(file.metadata)),
+                        data: ItemDataFactory.simplify(this.toItemData(file.metadata, file.content)),
                         dateCreated: file.dateCreated,
                         dateUpdated: file.dateUpdated
                     })
@@ -274,7 +319,7 @@ class DebugHandler {
                         type: DocumentFileType.Race,
                         name: file.content.name,
                         flags: asBoolean(file.content.public) ? [FlagType.Public] : [],
-                        data: RaceDataFactory.simplify(this.toRaceData(file.metadata)),
+                        data: RaceDataFactory.simplify(this.toRaceData(file.metadata, file.content)),
                         dateCreated: file.dateCreated,
                         dateUpdated: file.dateUpdated
                     })
@@ -337,7 +382,7 @@ class DebugHandler {
                 return {
                     ...base,
                     type: AbilityType.MeleeAttack,
-                    reach: metadata.range ?? 5,
+                    reach: asNumber(metadata.range, 5),
                     condition: this.toCondition(metadata),
                     effects: this.toEffects(metadata.effects)
                 }
@@ -345,8 +390,8 @@ class DebugHandler {
                 return {
                     ...base,
                     type: AbilityType.RangedAttack,
-                    range: metadata.range ?? 0,
-                    rangeLong: metadata.rangeLong ?? 0,
+                    range: asNumber(metadata.range, 0),
+                    rangeLong: asNumber(metadata.rangeLong, 0),
                     condition: this.toCondition(metadata),
                     effects: this.toEffects(metadata.effects)
                 }
@@ -354,7 +399,7 @@ class DebugHandler {
                 return {
                     ...base,
                     type: AbilityType.MeleeWeapon,
-                    reach: metadata.range ?? 5,
+                    reach: asNumber(metadata.range, 5),
                     condition: this.toCondition(metadata),
                     effects: this.toEffects(metadata.effects)
                 }
@@ -362,8 +407,8 @@ class DebugHandler {
                 return {
                     ...base,
                     type: AbilityType.RangedWeapon,
-                    range: metadata.range ?? 0,
-                    rangeLong: metadata.rangeLong ?? 0,
+                    range: asNumber(metadata.range, 0),
+                    rangeLong: asNumber(metadata.rangeLong, 0),
                     condition: this.toCondition(metadata),
                     effects: this.toEffects(metadata.effects)
                 }
@@ -371,16 +416,16 @@ class DebugHandler {
                 return {
                     ...base,
                     type: AbilityType.ThrownWeapon,
-                    reach: metadata.range ?? 5,
-                    range: metadata.rangeThrown ?? 0,
-                    rangeLong: metadata.rangeLong ?? 0,
+                    reach: asNumber(metadata.range, 5),
+                    range: asNumber(metadata.rangeThrown, 0),
+                    rangeLong: asNumber(metadata.rangeLong, 0),
                     condition: this.toCondition(metadata),
                     effects: this.toEffects(metadata.effects)
                 }
         }
     }
 
-    private toCreatureData(metadata: ICreatureMetadata): ICreatureData {
+    private toCreatureData(metadata: ICreatureMetadata, content: IFileContent): ICreatureData {
         const proficienciesSave: Partial<Record<Attribute, ProficiencyLevel>> = {}
         if (Array.isArray(metadata.proficienciesSave)) {
             for (const attr of metadata.proficienciesSave) {
@@ -462,7 +507,7 @@ class DebugHandler {
         const spellSlots: Partial<Record<SpellLevel, number>> = {}
         if (Array.isArray(metadata.spellSlots)) {
             for (let i = 0; i < metadata.spellSlots.length; i++) {
-                spellSlots[String(i) as SpellLevel] = metadata.spellSlots[i]
+                spellSlots[String(i) as SpellLevel] = asNumber(metadata.spellSlots[i], 0)
             }
         }
         const spells: ObjectId[] = []
@@ -479,29 +524,46 @@ class DebugHandler {
                 abilities.push(id as ObjectId | string)
             }
         }
+        const speed: Partial<Record<MovementType, number>> = {}
+        if (metadata.speed !== undefined) {
+            for (const key of keysOf(metadata.speed)) {
+                if (isEnum(key, MovementType)) {
+                    speed[key] = asNumber(metadata.speed[key], 0)
+                }
+            }
+        }
+        const senses: Partial<Record<Sense, number>> = {}
+        if (metadata.senses !== undefined) {
+            for (const key of keysOf(metadata.senses)) {
+                if (isEnum(key, Sense)) {
+                    senses[key] = asNumber(metadata.senses[key], 0)
+                }
+            }
+        }
         return {
             name: metadata.name ?? '',
             description: metadata.description ?? '',
+            content: content.text ?? '',
             type: asEnum(metadata.type, CreatureType) ?? CreatureType.None,
             size: asEnum(metadata.size, SizeType) ?? SizeType.Medium,
             alignment: asEnum(metadata.alignment, Alignment) ?? Alignment.None,
             portrait: metadata.portrait ?? '',
-            challenge: metadata.challenge ?? 0,
-            xp: metadata.xp ?? 0,
-            level: metadata.level ?? 0,
+            challenge: asNumber(metadata.challenge),
+            xp: asNumber(metadata.xp, 0),
+            level: asNumber(metadata.level, 0),
             hitDie: this.convertDiceType(metadata.hitDice),
             health: this.convertOptionType(metadata.health),
             ac: this.convertOptionType(metadata.ac),
             proficiency: this.convertOptionType(metadata.proficiency),
             initiative: this.convertOptionType(metadata.initiative),
-            speed: metadata.speed ?? {},
-            senses: metadata.senses ?? {},
-            str: metadata.str ?? 10,
-            dex: metadata.dex ?? 10,
-            con: metadata.con ?? 10,
-            int: metadata.int ?? 10,
-            wis: metadata.wis ?? 10,
-            cha: metadata.cha ?? 10,
+            speed: speed,
+            senses: senses,
+            str: asNumber(metadata.str, 10),
+            dex: asNumber(metadata.dex, 10),
+            con: asNumber(metadata.con, 10),
+            int: asNumber(metadata.int, 10),
+            wis: asNumber(metadata.wis, 10),
+            cha: asNumber(metadata.cha, 10),
             passivePerception: this.convertOptionType(metadata.passivePerception),
             passiveInvestigation: this.convertOptionType(metadata.passiveInvestigation),
             passiveInsight: this.convertOptionType(metadata.passiveInsight),
@@ -521,6 +583,7 @@ class DebugHandler {
             casterLevel: this.convertOptionType(metadata.casterLevel),
             spellSlots: spellSlots,
             spells: spells,
+            ritualCaster: false,
             abilities: abilities
         }
     }
@@ -529,7 +592,7 @@ class DebugHandler {
         const spellsExpendedSlots: Partial<Record<SpellLevel, number>> = {}
         if (Array.isArray(storage.spellData)) {
             for (let i = 0; i < storage.spellData.length; i++) {
-                const slots = storage.spellData[i]
+                const slots = asNumber(storage.spellData[i], 0)
                 if (slots > 0) {
                     spellsExpendedSlots[String(i) as SpellLevel] = slots
                 }
@@ -544,6 +607,41 @@ class DebugHandler {
         }
     }
 
+    private toCharacterData(metadata: ICharacterMetadata, content: IFileContent): ICharacterData {
+        const classes: Record<ObjectId, ClassLevel> = {}
+        if (isObjectId(metadata.classFile)) {
+            classes[metadata.classFile] = asEnum(String(metadata.level ?? 1), ClassLevel) ?? ClassLevel.Level1
+        }
+        let text = ''
+        if (metadata.appearance !== undefined && metadata.appearance.length > 0) {
+            text += `\\h2{Appearance}\n${metadata.appearance}\n`
+        }
+        if (metadata.history !== undefined && metadata.history.length > 0) {
+            text += `\\h2{History}\n${metadata.history}\n`
+        }
+        if (metadata.notes !== undefined && metadata.notes.length > 0) {
+            text += `\\h2{Notes}\n${metadata.notes}\n`
+        }
+        if (text.length > 0) {
+            text += '\\h2{Description}\n'
+        }
+        text += metadata.description ?? ''
+        return {
+            ...this.toCreatureData(metadata, content),
+            description: text,
+            gender: this.convertGender(metadata.gender),
+            age: metadata.age ?? '',
+            height: metadata.height ?? '',
+            weight: metadata.weight ?? '',
+            race: asObjectId(metadata.raceFile),
+            subrace: null,
+            raceName: metadata.raceName ?? '',
+            classes: classes,
+            subclasses: {},
+            attunementSlots: 3
+        }
+    }
+
     private toCharacterStorage(storage: IOldCharacterStorage): ICharacterStorage {
         const inventory: Record<ObjectId, IInventoryItemData> = {}
         if (isRecord(storage.inventory)) {
@@ -551,8 +649,8 @@ class DebugHandler {
                 if (isObjectId(key)) {
                     const value = storage.inventory[key]
                     inventory[key] = {
-                        equipped: value.equipped ?? false,
-                        quantity: value.quantity ?? 1
+                        equipped: asBoolean(value.equipped, false),
+                        quantity: asNumber(value.quantity, 1)
                     }
                 }
             }
@@ -561,8 +659,6 @@ class DebugHandler {
             ...this.toCreatureStorage(storage as IOldCreatureStorage),
             health: asNumber(storage.health, null),
             healthTemp: asNumber(storage.tempHealth, null),
-            subrace: null,
-            subclasses: {},
             spellPreparations: {},
             preparationsExpendedSlots: {},
             inventory: inventory,
@@ -571,25 +667,7 @@ class DebugHandler {
         }
     }
 
-    private toCharacterData(metadata: ICharacterMetadata): ICharacterData {
-        const classes: Record<ObjectId, ClassLevel> = {}
-        if (isObjectId(metadata.classFile)) {
-            classes[metadata.classFile] = asEnum(String(metadata.level ?? 1), ClassLevel) ?? ClassLevel.Level1
-        }
-        return {
-            ...this.toCreatureData(metadata),
-            gender: metadata.gender ?? '',
-            age: metadata.age ?? '',
-            height: metadata.height ?? '',
-            weight: metadata.weight ?? '',
-            race: asObjectId(metadata.raceFile),
-            raceName: metadata.raceName ?? '',
-            classes: classes,
-            attunementSlots: 3
-        }
-    }
-
-    private toClassData(metadata: IClassMetadata): IClassData {
+    private toClassData(metadata: IClassMetadata, content: IFileContent): IClassData {
         const levels: Record<ClassLevel, IClassLevelData> = {} as any
         for (let i = 1; i <= 20; i++) {
             const level = String(i) as ClassLevel
@@ -598,7 +676,7 @@ class DebugHandler {
             for (let s = 0; s < slotsNum.length; s++) {
                 const level = asEnum(String(s), SpellLevel)
                 if (level !== null && slotsNum[s] > 0) {
-                    slots[level] = slotsNum[s]
+                    slots[level] = asNumber(slotsNum[s], 0)
                 }
             }
             levels[level] = {
@@ -614,6 +692,7 @@ class DebugHandler {
         return {
             name: metadata.name ?? '',
             description: metadata.description ?? '',
+            content: content.text ?? '',
             hitDie: this.convertDiceType(metadata.hitDice),
             subclassLevel: asEnum(String(metadata.subclassLevel ?? 1), ClassLevel) ?? ClassLevel.Level1,
             levels: levels,
@@ -625,12 +704,11 @@ class DebugHandler {
             preparationAll: metadata.preparationAll ?? false,
             preparationSlotsScaling: asEnum(metadata.preparationSlotsScaling, OptionalAttribute) ?? OptionalAttribute.None,
             learnedAll: metadata.learnedAll ?? false,
-            learnedSlotsScaling: OptionalAttribute.None,
-            ritualCaster: metadata.canRitualCast ?? false
+            learnedSlotsScaling: OptionalAttribute.None
         }
     }
 
-    private toEncounterData(metadata: IEncounterMetadata): IEncounterData {
+    private toEncounterData(metadata: IEncounterMetadata, content: IFileContent): IEncounterData {
         const creatures: Record<ObjectId, number> = {}
         if (metadata.creatures !== undefined) {
             for (const id of metadata.creatures) {
@@ -642,16 +720,18 @@ class DebugHandler {
         return {
             name: metadata.name ?? '',
             description: metadata.description ?? '',
+            content: content.text ?? '',
             challenge: metadata.challenge ?? 0,
             xp: metadata.xp ?? 0,
             creatures: creatures
         }
     }
 
-    private toItemData(metadata: IItemMetadata): IItemData {
+    private toItemData(metadata: IItemMetadata, content: IFileContent): IItemData {
         const base: IItemDataBase = {
             name: metadata.name ?? '',
             description: metadata.description ?? '',
+            content: content.text ?? '',
             type: ItemType.Armor,
             rarity: asEnum(metadata.rarity, Rarity) ?? Rarity.Mundane,
             attunement: metadata.requiresAttunement ?? false,
@@ -727,20 +807,37 @@ class DebugHandler {
         }
     }
 
-    private toRaceData(metadata: IRaceMetadata): IRaceData {
+    private toRaceData(metadata: IRaceMetadata, content: IFileContent): IRaceData {
         const languages: Partial<Record<Language, ProficiencyLevelBasic>> = {}
         if (Array.isArray(metadata.proficienciesLanguage)) {
             for (const value of metadata.proficienciesLanguage) {
                 languages[value] = ProficiencyLevelBasic.Proficient
             }
         }
+        const speed: Partial<Record<MovementType, number>> = {}
+        if (metadata.speed !== undefined) {
+            for (const key of keysOf(metadata.speed)) {
+                if (isEnum(key, MovementType)) {
+                    speed[key] = asNumber(metadata.speed[key], 0)
+                }
+            }
+        }
+        const senses: Partial<Record<Sense, number>> = {}
+        if (metadata.senses !== undefined) {
+            for (const key of keysOf(metadata.senses)) {
+                if (isEnum(key, Sense)) {
+                    senses[key] = asNumber(metadata.senses[key], 0)
+                }
+            }
+        }
         return {
             name: metadata.name ?? '',
             description: metadata.description ?? '',
-            type: asEnum(metadata.type, CreatureType) ?? CreatureType.Humanoid,
-            size: asEnum(metadata.size, SizeType) ?? SizeType.Medium,
-            speed: metadata.speed ?? {},
-            senses: metadata.senses ?? {},
+            content: content.text ?? '',
+            type: asEnum(metadata.type, CreatureType, CreatureType.Humanoid),
+            size: asEnum(metadata.size, SizeType, SizeType.Medium),
+            speed: speed,
+            senses: senses,
             languages: languages,
             abilities: [],
             modifiers: []
@@ -752,22 +849,22 @@ class DebugHandler {
             name: metadata.name ?? '',
             description: metadata.description ?? '',
             notes: metadata.notes ?? '',
-            level: asEnum(String(metadata.level ?? 1), SpellLevel) ?? SpellLevel.Cantrip,
-            school: asEnum(metadata.school, MagicSchool) ?? MagicSchool.Abjuration,
-            time: asEnum(metadata.time, CastingTime) ?? CastingTime.Action,
+            level: asEnum(String(metadata.level ?? 1), SpellLevel, SpellLevel.Cantrip),
+            school: asEnum(metadata.school, MagicSchool, MagicSchool.Abjuration),
+            time: asEnum(metadata.time, CastingTime, CastingTime.Action),
             timeCustom: metadata.timeCustom ?? '',
             timeValue: asNumber(metadata.timeValue, 1),
-            duration: asEnum(metadata.duration, Duration) ?? Duration.Instantaneous,
+            duration: asEnum(metadata.duration, Duration, Duration.Instantaneous),
             durationCustom: '',
             durationValue: asNumber(metadata.durationValue, 1),
-            target: asEnum(metadata.target, TargetType) ?? TargetType.None,
+            target: asEnum(metadata.target, TargetType, TargetType.None),
             condition: this.toCondition(metadata),
             allowUpcast: (metadata.level ?? 1) > 0,
-            ritual: metadata.ritual ?? false,
-            concentration: metadata.concentration ?? false,
-            componentVerbal: metadata.componentVerbal ?? false,
-            componentSomatic: metadata.componentSomatic ?? false,
-            componentMaterial: metadata.componentMaterial ?? false,
+            ritual: asBoolean(metadata.ritual),
+            concentration: asBoolean(metadata.concentration),
+            componentVerbal: asBoolean(metadata.componentVerbal),
+            componentSomatic: asBoolean(metadata.componentSomatic),
+            componentMaterial: asBoolean(metadata.componentMaterial),
             materials: metadata.materials ?? '',
             effects: this.toEffects(metadata.effects)
         }
@@ -817,7 +914,7 @@ class DebugHandler {
         if (charges.length > 1) {
             let prevIndex: number = -1
             for (let i = 0; i < charges.length; i++) {
-                const charge = charges[i]
+                const charge = asNumber(charges[i], 0)
                 if (charge === undefined || charge === 0) {
                     continue
                 }
@@ -859,16 +956,16 @@ class DebugHandler {
         }
     }
 
-    private toScaling(type: OldScalingType = OldScalingType.None, proficiency: boolean = false, modifier: IOptionType<number> = { type: CalculationMode.Auto, value: 0 }): Partial<Record<ScalingType, number>> {
+    private toScaling(type: OldScalingType = OldScalingType.None, proficiency: boolean = false, modifier?: IOptionType<number>): Partial<Record<ScalingType, number>> {
         const result: Partial<Record<ScalingType, number>> = {}
-        switch (modifier.type) {
+        switch (modifier?.type) {
             case CalculationMode.Auto:
                 break
             case CalculationMode.Modify:
-                result.constant = modifier.value
+                result.constant = asNumber(modifier.value, 0)
                 break
             case CalculationMode.Override:
-                return { constant: modifier.value }
+                return { constant: asNumber(modifier.value, 0) }
         }
         if (proficiency) {
             result.proficiency = 1
@@ -900,7 +997,7 @@ class DebugHandler {
                     damageType: effect.damageType,
                     scaling: this.toScaling(effect.scaling, effect.proficiency, effect.modifier), // TODO: scalingModifiers not converted
                     die: this.convertDiceType(effect.dice),
-                    dieCount: effect.diceNum ?? 1,
+                    dieCount: asNumber(effect.diceNum, 1),
                     condition: {}
                 }
             }
@@ -908,26 +1005,26 @@ class DebugHandler {
         return result
     }
 
-    private toArea(area: AreaType = AreaType.None, areaSize: number = 0, areaHeight: number = 0): IArea {
+    private toArea(area: AreaType = AreaType.None, areaSize?: number, areaHeight?: number): IArea {
         switch (area) {
             case AreaType.None:
                 return { type: AreaType.None }
             case AreaType.Line:
-                return { type: AreaType.Line, length: areaSize }
+                return { type: AreaType.Line, length: asNumber(areaSize, 0) }
             case AreaType.Cone:
-                return { type: AreaType.Cone, side: areaSize }
+                return { type: AreaType.Cone, side: asNumber(areaSize, 0) }
             case AreaType.Square:
-                return { type: AreaType.Square, side: areaSize }
+                return { type: AreaType.Square, side: asNumber(areaSize, 0) }
             case AreaType.Rectangle:
-                return { type: AreaType.Rectangle, length: areaSize, width: areaHeight }
+                return { type: AreaType.Rectangle, length: asNumber(areaSize, 0), width: asNumber(areaHeight, 0) }
             case AreaType.Cube:
-                return { type: AreaType.Cube, side: areaSize }
+                return { type: AreaType.Cube, side: asNumber(areaSize, 0) }
             case AreaType.Cuboid:
-                return { type: AreaType.Cuboid, length: areaSize, width: areaSize, height: areaHeight }
+                return { type: AreaType.Cuboid, length: asNumber(areaSize, 0), width: asNumber(areaSize, 0), height: asNumber(areaHeight, 0) }
             case AreaType.Sphere:
-                return { type: AreaType.Sphere, radius: areaSize }
+                return { type: AreaType.Sphere, radius: asNumber(areaSize, 0) }
             case AreaType.Cylinder:
-                return { type: AreaType.Cylinder, radius: areaSize, height: areaHeight }
+                return { type: AreaType.Cylinder, radius: asNumber(areaSize, 0), height: asNumber(areaHeight, 0) }
         }
     }
 
@@ -962,10 +1059,21 @@ class DebugHandler {
         }
     }
 
+    private convertGender(type?: Gender): string {
+        switch (type ?? Gender.Male) {
+            case Gender.Female:
+                return 'Female'
+            case Gender.Male:
+                return 'Male'
+            default:
+                return ''
+        }
+    }
+
     private convertOptionType(option?: IOptionType<number>): CalcValue {
         switch (option?.type) {
             case CalculationMode.Modify:
-                return { mode: CalcMode.Modify, value: option.value ?? 0 }
+                return { mode: CalcMode.Modify, value: asNumber(option.value, 0) }
             case CalculationMode.Override:
                 return { mode: CalcMode.Override, value: option.value ?? 0 }
             case CalculationMode.Auto:

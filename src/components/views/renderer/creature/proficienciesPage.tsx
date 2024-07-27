@@ -5,7 +5,7 @@ import LocalizedText from 'components/controls/localizedText'
 import Icon from 'components/controls/icon'
 import { keysOf } from 'utils'
 import { SkillAdvantageBindingMap } from 'utils/calculations'
-import { useLocalizedOptions } from 'utils/hooks/localization'
+import { useLocalizedEnums } from 'utils/hooks/localization'
 import { ProficiencyLevel } from 'structure/dnd'
 import { RollMethodType, RollType } from 'structure/dice'
 import type CreatureFacade from 'structure/database/files/creature/facade'
@@ -16,9 +16,9 @@ type DataProps = React.PropsWithRef<{
 }>
 
 const ProficienciesPage = ({ facade }: DataProps): JSX.Element => {
-    const skillOptions = useLocalizedOptions('skill')
-    const attributeOptions = useLocalizedOptions('attr')
-    const proficiencyLevelOptions = useLocalizedOptions('proficiencyLevel')
+    const skillOptions = useLocalizedEnums('skill')
+    const attributeOptions = useLocalizedEnums('attr')
+    const proficiencyLevelOptions = useLocalizedEnums('proficiencyLevel')
     return (
         <>
             <div className={styles.skillTable}>

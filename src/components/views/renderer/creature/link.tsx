@@ -1,25 +1,30 @@
 import Elements, { ElementDictionary } from 'components/elements'
 import { useMemo } from 'react'
-import type CreatureData from 'structure/database/files/creature/data'
+import type { LinkRendererProps } from '..'
 import StoryScript from 'structure/language/storyscript'
-import type { ObjectId } from 'types'
+import CreatureDocument from 'structure/database/files/creature'
 
-type CreatureLinkRendererProps = React.PropsWithRef<{
-    id: ObjectId
-    data: CreatureData
-}>
+const CreatureLinkRenderer: React.FC<LinkRendererProps> = ({ file }) => {
+    const descriptionToken = useMemo(() => {
+        if (file instanceof CreatureDocument) {
+            return StoryScript.tokenize(ElementDictionary, file.data.description).root
+        }
+        return null
+    }, [file])
 
-const CreatureLinkRenderer: React.FC<CreatureLinkRendererProps> = ({ id, data }) => {
-    const descriptionToken = useMemo(() => StoryScript.tokenize(ElementDictionary, data.description).root, [data.description])
+    if (descriptionToken === null) {
+        return null
+    }
+
     return (
         <Elements.align direction='h' weight='1' width='100%'>
             <div className='no-line-break' style={{ width: '120px', height: '120px' }}>
-                <Elements.image href={data.portrait} border={false} weight={null} width='100%'/>
+                <Elements.image href={file.data.portrait} border={false} weight={null} width='100%'/>
             </div>
             <Elements.line width='2px'/>
             <Elements.block weight='1' width={null}>
                 <Elements.h3 underline={false}>
-                    { data.name }
+                    { file.data.name }
                 </Elements.h3>
                 { descriptionToken.build() }
             </Elements.block>

@@ -4,21 +4,19 @@ import EffectRenderer from '../effect'
 import AbilityRange from './range'
 import Elements, { ElementDictionary } from 'components/elements'
 import { Context } from 'components/contexts/file'
-import { isDefined, keysOf } from 'utils'
+import { keysOf } from 'utils'
 import { EmptyBonusGroup, EmptyCreatureStats } from 'structure/database'
 import { AbilityType } from 'structure/database/files/ability/common'
 import type { AbilityData } from 'structure/database/files/ability/factory'
 import { EffectConditionType } from 'structure/database/effectCondition'
 import { RollMethodType, RollType } from 'structure/dice'
 import StoryScript from 'structure/language/storyscript'
-import type { ObjectId } from 'types'
 import type { IBonusGroup, ICreatureStats } from 'types/editor'
 import type { IConditionProperties } from 'types/database/condition'
 import styles from '../styles.module.scss'
 import { useLocalizedText } from 'utils/hooks/localization'
 
 type AbilityRendererProps = React.PropsWithRef<{
-    id: ObjectId | string
     data: AbilityData
     open?: boolean
     stats?: ICreatureStats
@@ -45,16 +43,11 @@ function getBonus(type: AbilityType, bonuses: IBonusGroup): number {
     }
 }
 
-export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ id, data, open = false, stats = EmptyCreatureStats, classLevel = 0, attackBonuses = EmptyBonusGroup, damageBonuses = EmptyBonusGroup, expendedCharges, setExpendedCharges }) => {
-    const [context] = useContext(Context)
+export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ data, open = false, stats = EmptyCreatureStats, classLevel = 0, attackBonuses = EmptyBonusGroup, damageBonuses = EmptyBonusGroup, expendedCharges, setExpendedCharges }) => {
     const typeText = useLocalizedText(`enum-abilityType-${data.type}`)
     const descriptionToken = useMemo(() => {
-        if (id === context.file.id && isDefined(context.tokens.description)) {
-            return context.tokens.description
-        } else {
-            return StoryScript.tokenize(ElementDictionary, data.description, data.createContexts(ElementDictionary)[0]).root
-        }
-    }, [context.file.id, context.tokens.description, data, id])
+        return StoryScript.tokenize(ElementDictionary, data.description, data.createContexts(ElementDictionary)[0]).root
+    }, [data])
 
     const properties: IConditionProperties = {
         ...stats,
@@ -68,7 +61,7 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ id, data, open
             return <>
                 <Elements.align direction='h' weight='1' width='100%'>
                     <Elements.block width='50%' weight={null}>
-                        <Elements.b>{data.name}</Elements.b>
+                        <Elements.h3 underline={false}>{data.name}</Elements.h3>
                         <Elements.newline/>
                         {typeText}
                         <Elements.newline/>
@@ -106,7 +99,7 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ id, data, open
             return <>
                 <Elements.align direction='h' weight='1' width='100%'>
                     <Elements.block width='50%' weight={null}>
-                        <Elements.b>{data.name}</Elements.b>
+                        <Elements.h3 underline={false}>{data.name}</Elements.h3>
                         <Elements.newline/>
                         {typeText}
                         <Elements.newline/>
@@ -168,7 +161,7 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ id, data, open
         default:
             return <>
                 <Elements.align direction='hc' width='100%' weight='1'>
-                    <Elements.b>{data.name}</Elements.b>
+                    <Elements.h3 underline={false}>{data.name}</Elements.h3>
                     <Elements.fill/>
                     <ChargesRenderer
                         charges={data.evaluateNumCharges(properties)}
@@ -186,7 +179,7 @@ const AbilityDocumentRenderer: React.FC = () => {
 
     return (
         <div className={styles.rendererBox} data='true'>
-            <AbilityRenderer id={context.file.id} data={data} open/>
+            <AbilityRenderer data={data} open/>
         </div>
     )
 }

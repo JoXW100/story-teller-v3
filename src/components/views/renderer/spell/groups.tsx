@@ -3,7 +3,7 @@ import { SpellToggleRenderer } from '.'
 import ChargesRenderer from '../charges'
 import Elements from 'components/elements'
 import { keysOf } from 'utils'
-import { useLocalizedOptions } from 'utils/hooks/localization'
+import { useLocalizedEnums } from 'utils/hooks/localization'
 import { SpellLevel } from 'structure/dnd'
 import { EmptyCreatureStats } from 'structure/database'
 import type { ObjectId } from 'types'
@@ -19,7 +19,7 @@ type SpellGroupsProps = React.PropsWithRef<{
 }>
 
 const SpellGroups: React.FC<SpellGroupsProps> = ({ spells, spellSlots, expendedSlots, stats = EmptyCreatureStats, setExpendedSlots }) => {
-    const options = useLocalizedOptions('spellLevel')
+    const options = useLocalizedEnums('spellLevel')
     const categories = useMemo(() => {
         const categories: Partial<Record<SpellLevel, Array<keyof typeof spells>>> = {}
         for (const key of keysOf(spellSlots)) {

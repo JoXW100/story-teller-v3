@@ -5,7 +5,7 @@ import { type EnumTypeKey, getEnumType, type IEnumType } from 'structure/enums'
 import SelectionMenu from 'components/controls/menus/selection'
 import { asBooleanString, isEnum, isNumber, isRecord, isString, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
-import { useLocalizedOptions } from 'utils/hooks/localization'
+import { useLocalizedEnums } from 'utils/hooks/localization'
 import type { LanguageKey } from 'assets'
 import type { Enum } from 'types'
 import styles from '../style.module.scss'
@@ -22,8 +22,8 @@ type SelectionInputComponentParams = React.PropsWithoutRef<{
 
 const SelectionInputComponent: React.FC<SelectionInputComponentParams> = ({ field, type, optionsType, editOptionsType, labelId, labelArgs, fill = false }) => {
     const [context, dispatch] = useContext(Context)
-    const options = useLocalizedOptions(optionsType)
-    const editOptions = useLocalizedOptions(editOptionsType)
+    const options = useLocalizedEnums(optionsType)
+    const editOptions = useLocalizedEnums(editOptionsType)
 
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.SelectionInputComponent', 'Data of incorrect type', context.file.data)

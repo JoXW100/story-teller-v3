@@ -1,26 +1,26 @@
 import Elements from 'components/elements'
 import LocalizedText from 'components/controls/localizedText'
-import type { AdvantageBinding } from 'structure/dnd'
-import type { ISourceBinding } from 'types/database/files/creature'
 import { isObjectId } from 'utils'
+import type { ISourceBinding } from 'types/database/files/creature'
 
-type SourceTooltipsParams = React.PropsWithRef<{
-    type: 'advantage' | 'disadvantage'
-    binding: AdvantageBinding
-    values: Partial<Record<AdvantageBinding, readonly ISourceBinding[]>>
+export type SourceEnumType = 'advantage' | 'disadvantage' | 'resistance' | 'vulnerability' | 'damageImmunity' | 'conditionImmunity'
+type SourceTooltipsParams<T extends string> = React.PropsWithRef<{
+    type: SourceEnumType
+    binding: T
+    values: Partial<Record<T, readonly ISourceBinding[]>>
 }>
 
-const SourceTooltips: React.FC<SourceTooltipsParams> = ({ type, binding, values }) => {
+const SourceTooltips = <T extends string>({ type, binding, values }: SourceTooltipsParams<T>): React.ReactNode => {
     const bindings = values[binding]
-    return (
+    return bindings !== undefined && (
         <span>
-            <LocalizedText id={`icon-${type}`}/>
-            { bindings?.map((binding, index) => (
+            <LocalizedText id={`binding-${type}`}/>
+            { bindings?.map((value, index) => (
                 <div key={index}>
-                    { binding.description }
-                    { isObjectId(binding.source?.key) && <>
-                        <LocalizedText id='editor-sourceTooltips-source'/>
-                        <Elements.linkTitle fileId={binding.source.key} newTab={true}/>
+                    { value.description }
+                    { isObjectId(value.source?.key) && <>
+                        <LocalizedText id='binding-sourceTooltips'/>
+                        <Elements.linkTitle fileId={value.source.key} newTab={true}/>
                     </>}
                 </div>
             ))}

@@ -1,22 +1,52 @@
 import { useContext, useMemo, useState } from 'react'
-import AbilityGroups from './abilityGroups'
-import PageSelector, { type IPageSelectorData } from '../pageSelector'
+import { Tooltip } from '@mui/material'
 import SpellGroups from '../spell/groups'
+import PageSelector, { type IPageSelectorData } from '../pageSelector'
+import AbilityGroups from './abilityGroups'
+import SourceTooltips, { type SourceEnumType } from './sourceTooltips'
 import AttributesBox from './attributesBox'
 import ProficienciesPage from './proficienciesPage'
 import { Context } from 'components/contexts/file'
 import Elements, { ElementDictionary } from 'components/elements'
 import VariableContext from 'components/contexts/variable'
-import { isDefined } from 'utils'
+import LocalizedText from 'components/controls/localizedText'
+import { keysOf } from 'utils'
+import { useLocalizedEnums } from 'utils/hooks/localization'
 import { useCreatureFacade } from 'utils/hooks/documents'
+import { type EnumTypeKey, type EnumTypeValue } from 'structure/enums'
 import { OptionalAttribute, type SpellLevel } from 'structure/dnd'
 import { RollMethodType, RollType } from 'structure/dice'
 import type CreatureDocument from 'structure/database/files/creature'
+import type { ISourceBinding } from 'types/database/files/creature'
 
 const Pages = {
     'actions': { key: 'render-page-actions' },
     'proficiencies': { key: 'render-page-proficiencies' }
 } as const satisfies Record<string, IPageSelectorData>
+
+type BindingGroupProps<T extends EnumTypeKey> = React.PropsWithRef<{
+    type: SourceEnumType
+    binding: T
+    bindings: Partial<Record<EnumTypeValue<T>, readonly ISourceBinding[]>>
+}>
+
+const BindingGroup = <T extends EnumTypeKey>({ type, binding, bindings }: BindingGroupProps<T>): React.ReactNode => {
+    const options = useLocalizedEnums(binding)
+    return keysOf(bindings).some((key) => bindings[key]!.length > 0) && <div className='flex gap-4'>
+        <LocalizedText className='font-bold no-line-break' id={`binding-${type}-title`}/>
+        { keysOf(bindings).map((key) => {
+            const value = bindings[key]!
+            if (value.length <= 0) {
+                return null
+            }
+            return key === 'generic'
+                ? <>{ value.map((val, i) => val.description.length > 0 && <span key={i}>{val.description}</span>) }</>
+                : <Tooltip key={type} title={<SourceTooltips type={type} binding={key} values={bindings} />}>
+                    <span>{ options[key] }</span>
+                </Tooltip>
+        })}
+    </div>
+}
 
 const CreatureDocumentRenderer: React.FC = () => {
     const [context, dispatch] = useContext(Context)
@@ -24,12 +54,8 @@ const CreatureDocumentRenderer: React.FC = () => {
     const { facade, abilities, spells, variables } = useCreatureFacade(context.file as CreatureDocument)
     const stats = useMemo(() => facade.getStats(), [facade])
     const descriptionToken = useMemo(() => {
-        if (isDefined(context.tokens.description)) {
-            return context.tokens.description
-        } else {
-            return context.file.getTokenizedDescription(ElementDictionary)
-        }
-    }, [context.file, context.tokens.description])
+        return context.file.getTokenizedDescription(ElementDictionary)
+    }, [context.file])
 
     const handleSetExpandedAbilityCharges = (charges: Partial<Record<string, number>>): void => {
         dispatch.setStorage('abilitiesExpendedCharges', charges)
@@ -87,6 +113,12 @@ const CreatureDocumentRenderer: React.FC = () => {
                 { descriptionToken.build() }
                 <Elements.line width='2px'/>
                 <div><Elements.bold>Challenge </Elements.bold>{facade.challengeText}</div>
+                <BindingGroup type='advantage' binding='advantageBinding' bindings={facade.advantages}/>
+                <BindingGroup type='disadvantage' binding='advantageBinding' bindings={facade.disadvantages}/>
+                <BindingGroup type='vulnerability' binding='damageBinding' bindings={facade.vulnerabilities}/>
+                <BindingGroup type='resistance' binding='damageBinding' bindings={facade.resistances}/>
+                <BindingGroup type='damageImmunity' binding='damageBinding' bindings={facade.damageImmunities}/>
+                <BindingGroup type='conditionImmunity' binding='conditionBinding' bindings={facade.conditionImmunities}/>
                 <div><Elements.bold>Speed </Elements.bold>{facade.speedAsText}</div>
                 { Object.keys(facade.senses).length > 0 &&
                     <div><Elements.bold>Senses </Elements.bold>

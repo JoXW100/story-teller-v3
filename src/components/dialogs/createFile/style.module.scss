@@ -110,6 +110,7 @@ $navbarWidth: 35px;
 
     & > .dropdown {
         height: 30px;
+        padding: 3px 10px;
         flex: 1;
     }
 }
@@ -119,11 +120,6 @@ $navbarWidth: 35px;
     margin-top: auto;
     justify-self: flex-end;
     align-self: flex-end;
-}
-
-.dropdownItem {
-    padding: 3px 10px;
-    height: 30px;
 }
 
 .inputArea {

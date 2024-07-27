@@ -6,7 +6,7 @@ import NumberInput from 'components/controls/numericInput'
 import type { LanguageKey } from 'assets'
 import { getRelativeFieldObject, isCalcValue, isRecord } from 'utils'
 import Logger from 'utils/logger'
-import { useLocalizedOptions } from 'utils/hooks/localization'
+import { useLocalizedEnums } from 'utils/hooks/localization'
 import { CalcMode } from 'structure/database'
 import styles from '../style.module.scss'
 
@@ -18,7 +18,7 @@ type CalcComponentParams = React.PropsWithChildren<{
 
 const CalcComponent: React.FC<CalcComponentParams> = ({ field, labelId, labelArgs }) => {
     const [context, dispatch] = useContext(Context)
-    const options = useLocalizedOptions('calc')
+    const options = useLocalizedEnums('calc')
 
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.NumberComponent', 'Data of incorrect type', context.file.data)
@@ -49,7 +49,6 @@ const CalcComponent: React.FC<CalcComponentParams> = ({ field, labelId, labelArg
         <GroupItemComponent className={styles.editOption} labelId={labelId} labelArgs={labelArgs}>
             <DropdownMenu
                 className={styles.dropdown}
-                itemClassName={styles.dropdownItem}
                 values={options}
                 value={value.mode}
                 onChange={handleModeChange}/>

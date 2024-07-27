@@ -275,10 +275,11 @@ abstract class Communication {
         return response
     }
 
-    public static async getSubFiles<T extends DocumentType>(parentId: ObjectId, type: T): Promise<DBResponse<Array<DocumentTypeMap[T]>>> {
+    public static async getSubFiles<T extends DocumentType>(parentId: ObjectId, type: T, sources: ObjectId[] = []): Promise<DBResponse<Array<DocumentTypeMap[T]>>> {
         const response = await this.databaseFetch<IDatabaseFile[]>('getSubFiles', 'GET', {
             parentId: parentId,
-            fileType: type
+            fileType: type,
+            sources: sources
         })
         if (response.success) {
             if (!response.result.every(value => DocumentFactory.validate(value))) {

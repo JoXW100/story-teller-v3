@@ -2,8 +2,8 @@ import { useContext, useMemo } from 'react'
 import Elements, { ElementDictionary } from 'components/elements'
 import LocalizedText from 'components/controls/localizedText'
 import { Context } from 'components/contexts/file'
-import { isDefined } from 'utils'
 import type CharacterFacade from 'structure/database/files/character/facade'
+import styles from '../styles.module.scss'
 
 type CharacterBackgroundPageProps = React.PropsWithRef<{
     facade: CharacterFacade
@@ -12,36 +12,32 @@ type CharacterBackgroundPageProps = React.PropsWithRef<{
 const CharacterBackgroundPage: React.FC<CharacterBackgroundPageProps> = ({ facade }) => {
     const [context] = useContext(Context)
     const descriptionToken = useMemo(() => {
-        if (isDefined(context.tokens.description)) {
-            return context.tokens.description
-        } else {
-            return context.file.getTokenizedDescription(ElementDictionary)
-        }
-    }, [context.file, context.tokens.description])
+        return context.file.getTokenizedDescription(ElementDictionary)
+    }, [context.file])
 
     return (
         <>
             {`${facade.sizeText} ${facade.typeText}, ${facade.alignmentText}`}
             <Elements.line width='2px'/>
-            <div>
+            <div className={styles.iconRow}>
                 <LocalizedText className='font-bold' id='render-race'/>
-                {facade.raceName}
+                <span>{facade.raceName}</span>
             </div>
-            <div>
+            <div className={styles.iconRow}>
                 <LocalizedText className='font-bold' id='render-gender'/>
-                {facade.gender}
+                <span>{facade.gender}</span>
             </div>
-            <div>
+            <div className={styles.iconRow}>
                 <LocalizedText className='font-bold' id='render-age'/>
-                {facade.age}
+                <span>{facade.age}</span>
             </div>
-            <div>
+            <div className={styles.iconRow}>
                 <LocalizedText className='font-bold' id='render-height'/>
-                {facade.height}
+                <span>{facade.height}</span>
             </div>
-            <div>
+            <div className={styles.iconRow}>
                 <LocalizedText className='font-bold' id='render-weight'/>
-                {facade.weight}
+                <span>{facade.weight}</span>
             </div>
             <Elements.line width='2px'/>
             <Elements.h3 underline={false}>Description</Elements.h3>

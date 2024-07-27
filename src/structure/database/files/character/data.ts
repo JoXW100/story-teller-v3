@@ -1,5 +1,5 @@
 import CreatureData from '../creature/data'
-import { asEnum, isEnum, isNumber, isObjectId, isObjectIdOrNull, isRecord, isString, keysOf } from 'utils'
+import { asEnum, asObjectId, isEnum, isNumber, isObjectId, isObjectIdOrNull, isRecord, isString, keysOf } from 'utils'
 import { ClassLevel } from 'structure/dnd'
 import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
@@ -12,9 +12,11 @@ class CharacterData extends CreatureData implements ICharacterData {
     public readonly weight: string
     // Race
     public readonly race: ObjectId | null
+    public readonly subrace: ObjectId | null
     public readonly raceName: string
     // Classes
     public readonly classes: Record<ObjectId, ClassLevel>
+    public readonly subclasses: Record<ObjectId, ObjectId>
     // Other
     public readonly attunementSlots: number
 
@@ -28,14 +30,27 @@ class CharacterData extends CreatureData implements ICharacterData {
         this.race = (data.race as ObjectId | null | undefined) ?? CharacterData.properties.race.value
         if (this.race === null) {
             this.raceName = data.raceName ?? CharacterData.properties.raceName.value
+            this.subrace = asObjectId(data.subrace)
         } else {
             this.raceName = CharacterData.properties.raceName.value
+            this.subrace = CharacterData.properties.subrace.value
         }
         // Classes
         this.classes = CharacterData.properties.classes.value
+        this.subclasses = CharacterData.properties.subclasses.value
         if (data.classes !== undefined) {
             for (const key of keysOf(data.classes)) {
-                this.classes[key] = asEnum(data.classes[key], ClassLevel) ?? ClassLevel.Level1
+                if (isObjectId(key)) {
+                    this.classes[key] = asEnum(data.classes[key], ClassLevel) ?? ClassLevel.Level1
+                }
+            }
+            if (data.subclasses !== undefined) {
+                for (const id of keysOf(data.subclasses)) {
+                    const subclassId = data.subclasses[id]
+                    if (id in this.classes && isObjectId(subclassId)) {
+                        this.subclasses[id] = subclassId
+                    }
+                }
             }
         }
         // Other
@@ -65,6 +80,10 @@ class CharacterData extends CreatureData implements ICharacterData {
             value: null,
             validate: isObjectIdOrNull
         },
+        subrace: {
+            value: null,
+            validate: isObjectIdOrNull
+        },
         raceName: {
             value: '',
             validate: isString
@@ -73,6 +92,11 @@ class CharacterData extends CreatureData implements ICharacterData {
         classes: {
             get value() { return {} },
             validate: (value) => isRecord(value, (key, val) => isObjectId(key) && isEnum(val, ClassLevel)),
+            simplify: (value) => Object.keys(value).length > 0 ? value : null
+        },
+        subclasses: {
+            get value() { return {} },
+            validate: (value) => isRecord(value, (key, val) => isObjectId(key) && isObjectId(val)),
             simplify: (value) => Object.keys(value).length > 0 ? value : null
         },
         // Other

@@ -15,6 +15,7 @@ import { EffectCategory, EffectType } from 'structure/database/effect/common'
 import { type IEffectCondition } from 'types/database/effectCondition'
 import { type IArea, type IAreaCone, type IAreaCube, type IAreaCuboid, type IAreaCylinder, type IAreaLine, type IAreaNone, type IAreaRectangle, type IAreaSphere, type IAreaSquare } from 'types/database/area'
 import { type IDamageEffect, type IEffect, type ITextEffect } from 'types/database/effect'
+import { toRichText } from './stringFormatAbilityImporter'
 
 const castTimeExpr = /([0-9]+)? *([A-z-]+)/
 const durationMatchExpr = /([0-9]+)? *([A-z]+)/g
@@ -421,7 +422,7 @@ function createEffects(res: Open5eSpell): Record<string, IEffect> {
 }
 
 function createDescription(res: Open5eSpell): string {
-    let text = res.desc + '\n'
+    let text = toRichText(res.desc) + '\n'
     if (isString(res.higher_level) && res.higher_level.length > 0) {
         text += `\\space\n\\b{At Higher Levels.}~${res.higher_level}\n`
     }

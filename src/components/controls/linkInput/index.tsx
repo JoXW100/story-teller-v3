@@ -6,11 +6,12 @@ import SelectIcon from '@mui/icons-material/RadioButtonUncheckedSharp'
 import { Context } from 'components/contexts/story'
 import { openDialog } from 'components/dialogs/handler'
 import LocalizedText from 'components/controls/localizedText'
-import { asBooleanString, isEnum, isObjectId, isString } from 'utils'
+import { asBooleanString, isDefined, isEnum, isObjectId, isString } from 'utils'
 import Communication from 'utils/communication'
 import Logger from 'utils/logger'
 import { DocumentType } from 'structure/database'
 import type DatabaseFile from 'structure/database/files'
+import type { ObjectId } from 'types'
 import styles from './styles.module.scss'
 
 interface IComponentPropsBase {
@@ -19,6 +20,7 @@ interface IComponentPropsBase {
     placeholder?: string
     disabled?: boolean
     allowedTypes: readonly DocumentType[]
+    parentFile?: ObjectId
     onChange?: (value: string) => void
     onFileChanged?: (value: DatabaseFile | null) => void
     onAdd?: (value: DatabaseFile) => void
@@ -95,6 +97,7 @@ const LinkInput: React.FC<EditLinkInputComponentProps> = (props) => {
             id: 'linkInput.selectFile',
             storyId: context.story.id,
             allowedTypes: props.allowedTypes,
+            parentFile: props.parentFile,
             sources: [...context.story.sources, context.story.id]
         }).onSelect((file) => {
             props.onChange?.(file.id)
@@ -125,8 +128,14 @@ const LinkInput: React.FC<EditLinkInputComponentProps> = (props) => {
         if (isObjectId(props.value)) {
             Communication.getFileOfTypes(props.value, props.allowedTypes).then((response) => {
                 if (response.success) {
-                    setState((state) => ({ ...state, file: response.result }))
-                    props.onFileChanged?.(response.result)
+                    if (isDefined(props.parentFile) && props.parentFile !== response.result.getParentFile()) {
+                        setState((state) => ({ ...state, file: null }))
+                        props.onFileChanged?.(null)
+                        props.onChange?.('')
+                    } else {
+                        setState((state) => ({ ...state, file: response.result }))
+                        props.onFileChanged?.(response.result)
+                    }
                 } else {
                     openDialog('notice', {
                         id: 'linkInput.getFile',
@@ -164,24 +173,26 @@ const LinkInput: React.FC<EditLinkInputComponentProps> = (props) => {
         }
     }, [props])
 
+    const disabled = context.story === null || props.disabled === true
+
     return (
         <div className={combinedClassName}>
             { (state.file === null || (props.allowText && !isObjectId(props.value)))
                 ? <>
                     <input
                         value={props.value ?? ''}
-                        placeholder={props.placeholder}
+                        placeholder={disabled ? undefined : props.placeholder}
                         onChange={handleChange}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDragEnter={handleDragEnter}
                         onDrop={handleDrop}
                         data={state.highlight ? 'highlight' : undefined}
-                        disabled={context.story === null || props.disabled}
+                        disabled={disabled}
                         error={asBooleanString(isString(props.value) && props.value.length > 0 && (!props.allowText || !(props.validateText !== undefined && props.validateText(props.value))))}/>
                     <Tooltip title={<LocalizedText id='common-select'/>}>
                         <span>
-                            <button className='center-flex fill-height square' disabled={context.story === null || props.disabled} onClick={handleSelect}>
+                            <button className='center-flex fill-height square' disabled={disabled} onClick={handleSelect}>
                                 <SelectIcon className='small-icon'/>
                             </button>
                         </span>
@@ -191,7 +202,7 @@ const LinkInput: React.FC<EditLinkInputComponentProps> = (props) => {
                     <span className='fill center-vertical-flex'>{state.file?.getTitle() ?? '...'}</span>
                     <Tooltip title={<LocalizedText id='common-clear'/>}>
                         <span>
-                            <button className='center-flex fill-height square' disabled={context.story === null || props.disabled} onClick={handleClearClick}>
+                            <button className='center-flex fill-height square' disabled={disabled} onClick={handleClearClick}>
                                 <ClearIcon className='small-icon'/>
                             </button>
                         </span>
@@ -204,7 +215,7 @@ const LinkInput: React.FC<EditLinkInputComponentProps> = (props) => {
                         <button
                             className='center-flex fill-height square'
                             onClick={handleAddClick}
-                            disabled={context.story === null || props.disabled === true || state.file === null || (props.validateAdd !== undefined && !props.validateAdd(state.file))}>
+                            disabled={disabled || state.file === null || (props.validateAdd !== undefined && !props.validateAdd(state.file))}>
                             <AddIcon className='small-icon'/>
                         </button>
                     </span>

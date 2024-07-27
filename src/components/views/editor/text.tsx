@@ -31,11 +31,7 @@ const TextDocumentEditor: React.FC = () => {
                     value={context.file.data.content}
                     className={styles.editTextEditor}
                     context={contentContext}
-                    onMount={(token) => { dispatch.setToken('content', token) }}
-                    onChange={(text, token) => {
-                        dispatch.setData('content', text)
-                        dispatch.setToken('content', token)
-                    }}/>
+                    onChange={(text) => { dispatch.setData('content', text) }}/>
             </GroupComponent>
         </div>
     )

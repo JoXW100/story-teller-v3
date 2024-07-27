@@ -5,6 +5,7 @@ import type { ObjectId } from 'types'
 export interface ISubclassData {
     readonly name: string
     readonly description: string
+    readonly content: string
     readonly parentClass: ObjectId | null
     readonly levels: Record<ClassLevel, IClassLevelData>
     // Spells
@@ -13,7 +14,6 @@ export interface ISubclassData {
     readonly preparationSlotsScaling: OptionalAttribute
     readonly learnedAll: boolean
     readonly learnedSlotsScaling: OptionalAttribute
-    readonly ritualCaster: boolean
 }
 
 export interface ISubclassStorage extends IClassStorage {

@@ -36,7 +36,7 @@ class StoryScript {
                     [/\$\w+/, 'variable'],
                     [/[\{\}\[\]]/, '@brackets'],
                     [/\~/, 'keyword'],
-                    [/\%.*/, 'comment']
+                    [/\%\%.*/, 'comment']
                 ],
                 arguments: [
                     [/((?:^|[\[,])[\n\r\t ]*)(https?:\/\/[^\],]+)/i, ['@default', 'url']],
@@ -103,12 +103,12 @@ class StoryScript {
 
     private static parseLine(line: string, lineNumber: number, token: IToken, markers: MarkerData[]): void {
         let column = 1
-        const splits = line.split(/((?:\w+)|[\\~%$:,\[\]\{\}])/)
+        const splits = line.split(/((?:\w+)|[\\~$:,\[\]\{\}]|%%)/)
         for (const part of splits) {
             if (part.length === 0) {
                 continue
             }
-            if (part === '%') {
+            if (part === '%%') {
                 break // comment
             }
             if (!token.parse(part, lineNumber, column, markers)) {

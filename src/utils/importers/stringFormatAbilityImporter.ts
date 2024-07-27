@@ -7,9 +7,11 @@ import { DieType, parseDieType } from 'structure/dice'
 import { EffectCategory, EffectType } from 'structure/database/effect/common'
 import { AbilityType } from 'structure/database/files/ability/common'
 import type { IEffect } from 'types/database/effect'
-import type { IAbilityAttackDataBase, IAbilityData } from 'types/database/files/ability'
+import type { IAbilityAttackDataBase, IAbilityData, IAbilityFeatureData } from 'types/database/files/ability'
 
-const roll20AbilityExpr = /^(?:([\w ]+): *)?([^\.]+)\. *(?:([a-z ]+): *([+-][0-9]+) *to hit,?.*[a-z ]+([0-9]+(?:\/[0-9]+)?)[^.]+\.,? *([^.]+)[^:]+: *(?:[0-9]+)? *\(([0-9]+)d([0-9]+) *([+-] *[0-9]+)?\) *(\w+)[^.]+. *)?(.*)?/mi
+const roll20AbilityExpr = /^(?:([\w ]+): *)?([^\.]+)\. *(?:([a-z ]+): *([+-][0-9]+) *to hit,?.*[a-z ]+([0-9]+(?:\/[0-9]+)?)[^.]+\.,? *([^.]+)[^:]+: *(?:[0-9]+)? *\(([0-9]+)d([0-9]+) *([+-] *[0-9]+)?\) *(\w+)[^.]+. *)/mi
+const roll20FeatureSimpleExpr = /^(?:([\w ]+): *)?([^\.]+)\. *([\s\S]*)/mi
+const rollTextExpr = /([0-9]+d[0-9]+ *[+-]? *[0-9]+)( *)/ig
 
 function getAbilityType(ability: string): AbilityType {
     switch (ability?.toLowerCase()) {
@@ -53,7 +55,7 @@ function getRange(range: string): { range: number, rangeLong: number } {
     return res
 }
 
-function getAction(action: string, type: AbilityType): ActionType {
+function getAction(action: string): ActionType | null {
     switch (action?.toLowerCase()) {
         case 'none':
             return ActionType.None
@@ -69,14 +71,8 @@ function getAction(action: string, type: AbilityType): ActionType {
         case 'legendary':
             return ActionType.Legendary
         default:
-            return type === AbilityType.Feature
-                ? ActionType.None
-                : ActionType.Action
+            return null
     }
-}
-
-export function isValidAbilityFormat(text: string): boolean {
-    return new RegExp(roll20AbilityExpr).test(text)
 }
 
 function createEffect(damageType: DamageType, text: string, die: DieType, dieCount: number, modifier: number): IEffect {
@@ -116,105 +112,141 @@ function createEffect(damageType: DamageType, text: string, die: DieType, dieCou
     }
 }
 
+export function isValidAbilityFormat(text: string): boolean {
+    return new RegExp(roll20AbilityExpr).test(text)
+}
+
+export function toRichText(text: string): string {
+    text = text.replace(rollTextExpr, (_, match, spaces) => String(spaces ?? '').length > 0
+        ? `\\roll[${match}]~`
+        : `\\roll[${match}]`)
+    text = text.replace(/\n{2,}/g, '\n\\space\n')
+    return text.replace(/[\n\r]/g, '\\n\n')
+}
+
 export function toAbility(text: string): AbilityData | null {
-    const res = new RegExp(roll20AbilityExpr).exec(text)
-    if (res?.[2] === undefined) { return null }
-    const type = getAbilityType(res[3])
-    const ranges = getRange(res[5])
-    const damageType = asEnum(res[10], DamageType) ?? DamageType.None
-    const die = parseDieType(res[8], DieType.None)
-    const dieCount = asNumber(res[7], 1)
-    const modifier = getRollMod(res[9])
-    console.log('toAbility', text, res)
+    let res = roll20AbilityExpr.exec(text)
     let result: IAbilityData
-    switch (type) {
-        case AbilityType.Attack: {
-            const base: IAbilityAttackDataBase = {
-                name: res[2] ?? 'Missing name',
-                description: res[11] ?? '',
-                type: type,
-                action: getAction(res[1], type),
-                condition: {
-                    type: EffectConditionType.Hit,
-                    scaling: { [ScalingType.Constant]: getRollMod(res[4]) }
-                },
-                target: getTargetType(res[6]),
-                notes: '',
-                charges: {},
-                effects: { main: createEffect(damageType, text, die, dieCount, modifier) },
-                modifiers: []
-            }
-            switch (base.target) {
-                case TargetType.None:
-                    result = { ...base, target: base.target, condition: { type: EffectConditionType.None } }
-                    break
-                case TargetType.Touch:
-                    result = { ...base, target: base.target }
-                    break
-                case TargetType.Self:
-                    result = { ...base, target: base.target, area: { type: AreaType.None } }
-                    break
-                case TargetType.Single:
-                    result = { ...base, target: base.target, range: ranges.range }
-                    break
-                case TargetType.Multiple:
-                    result = { ...base, target: base.target, range: ranges.range, count: 1 }
-                    break
-                case TargetType.Area:
-                case TargetType.Point:
-                    result = { ...base, target: base.target, range: ranges.range, area: { type: AreaType.None } }
-                    break
-            }
-        } break
-        case AbilityType.MeleeAttack:
-        case AbilityType.MeleeWeapon:
-            result = {
-                name: res[2] ?? 'Missing name',
-                description: res[11] ?? '',
-                type: type,
-                action: getAction(res[1], type),
-                condition: {
-                    type: EffectConditionType.Hit,
-                    scaling: { [ScalingType.Constant]: getRollMod(res[4]) }
-                },
-                reach: ranges.range,
-                notes: '',
-                charges: {},
-                effects: { main: createEffect(damageType, text, die, dieCount, modifier) },
-                modifiers: []
-            }
-            break
-        case AbilityType.RangedAttack:
-        case AbilityType.RangedWeapon:
-            result = {
-                name: res[2] ?? 'Missing name',
-                description: res[11] ?? '',
-                type: type,
-                action: getAction(res[1], type),
-                condition: {
-                    type: EffectConditionType.Hit,
-                    scaling: { [ScalingType.Constant]: getRollMod(res[4]) }
-                },
-                range: ranges.range,
-                rangeLong: ranges.rangeLong,
-                notes: '',
-                charges: {},
-                effects: { main: createEffect(damageType, text, die, dieCount, modifier) },
-                modifiers: []
-            } satisfies IAbilityData
-            break
-        case AbilityType.Feature:
-        default:
-            result = {
-                name: res[2] ?? 'Missing name',
-                description: res[11] ?? '',
-                type: AbilityType.Feature,
-                action: getAction(res[1], type),
-                notes: '',
-                charges: {},
-                modifiers: []
-            } satisfies IAbilityData
-            break
+    if (res === null) {
+        res = roll20FeatureSimpleExpr.exec(text)
+        if (res === null) {
+            return null
+        }
+        const action = getAction(res[1]) ?? ActionType.None
+        const name = res[2] ?? 'Missing name'
+        const description = toRichText(res[3] ?? '')
+        console.log('toAbility.feature', name, res)
+        result = {
+            name: name,
+            description: description,
+            type: AbilityType.Feature,
+            action: action,
+            notes: '',
+            charges: {},
+            modifiers: []
+        } satisfies IAbilityFeatureData
+    } else {
+        const action = getAction(res[1])
+        const name = res[2] ?? 'Missing name'
+        const type = getAbilityType(res[3])
+        const mod = getRollMod(res[4])
+        const ranges = getRange(res[5])
+        const target = getTargetType(res[6])
+        const dieCount = asNumber(res[7], 1)
+        const die = parseDieType(res[8], DieType.None)
+        const modifier = getRollMod(res[9])
+        const damageType = asEnum(res[10], DamageType, DamageType.None)
+        const description = toRichText(res[11] ?? '')
+        console.log('toAbility.ability', name, res)
+        switch (type) {
+            case AbilityType.Attack: {
+                const base: IAbilityAttackDataBase = {
+                    name: name,
+                    description: description,
+                    type: type,
+                    action: action ?? ActionType.Action,
+                    condition: {
+                        type: EffectConditionType.Hit,
+                        scaling: { [ScalingType.Constant]: mod }
+                    },
+                    target: target,
+                    notes: '',
+                    charges: {},
+                    effects: { main: createEffect(damageType, text, die, dieCount, modifier) },
+                    modifiers: []
+                }
+                switch (base.target) {
+                    case TargetType.None:
+                        result = { ...base, target: base.target, condition: { type: EffectConditionType.None } }
+                        break
+                    case TargetType.Touch:
+                        result = { ...base, target: base.target }
+                        break
+                    case TargetType.Self:
+                        result = { ...base, target: base.target, area: { type: AreaType.None } }
+                        break
+                    case TargetType.Single:
+                        result = { ...base, target: base.target, range: ranges.range }
+                        break
+                    case TargetType.Multiple:
+                        result = { ...base, target: base.target, range: ranges.range, count: 1 }
+                        break
+                    case TargetType.Area:
+                    case TargetType.Point:
+                        result = { ...base, target: base.target, range: ranges.range, area: { type: AreaType.None } }
+                        break
+                }
+            } break
+            case AbilityType.MeleeAttack:
+            case AbilityType.MeleeWeapon:
+                result = {
+                    name: name,
+                    description: description,
+                    type: type,
+                    action: action ?? ActionType.Action,
+                    condition: {
+                        type: EffectConditionType.Hit,
+                        scaling: { [ScalingType.Constant]: mod }
+                    },
+                    reach: ranges.range,
+                    notes: '',
+                    charges: {},
+                    effects: { main: createEffect(damageType, text, die, dieCount, modifier) },
+                    modifiers: []
+                }
+                break
+            case AbilityType.RangedAttack:
+            case AbilityType.RangedWeapon:
+                result = {
+                    name: name,
+                    description: description,
+                    type: type,
+                    action: action ?? ActionType.Action,
+                    condition: {
+                        type: EffectConditionType.Hit,
+                        scaling: { [ScalingType.Constant]: mod }
+                    },
+                    range: ranges.range,
+                    rangeLong: ranges.rangeLong,
+                    notes: '',
+                    charges: {},
+                    effects: { main: createEffect(damageType, text, die, dieCount, modifier) },
+                    modifiers: []
+                } satisfies IAbilityData
+                break
+            case AbilityType.Feature:
+            default:
+                result = {
+                    name: name,
+                    description: description,
+                    type: AbilityType.Feature,
+                    action: action ?? ActionType.None,
+                    notes: '',
+                    charges: {},
+                    modifiers: []
+                } satisfies IAbilityData
+                break
+        }
     }
     Logger.log('toAbility', { file: result, result: res })
     return AbilityDataFactory.create(result)

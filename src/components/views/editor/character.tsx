@@ -9,6 +9,7 @@ import EnumComponent from './components/enum'
 import NumberComponent from './components/number'
 import CalcComponent from './components/calc'
 import SelectionInputComponent from './components/selectionInput'
+import SubclassesInputComponent from './components/subclassesInput'
 import LinkListComponent from './components/linkList'
 import LinkComponent from './components/link'
 import LinkRecordComponent from './components/linkRecord'
@@ -18,15 +19,16 @@ import { OptionalAttribute } from 'structure/dnd'
 import { DocumentType } from 'structure/database'
 import CharacterDocument from 'structure/database/files/character'
 import styles from './style.module.scss'
+import TextEditor from 'components/controls/textEditor'
 
 const CharacterDocumentEditor: React.FC = () => {
-    const [context] = useContext(Context)
+    const [context, dispatch] = useContext(Context)
 
     if (!(context.file instanceof CharacterDocument)) {
         return null
     }
 
-    const [descriptionContext] = context.file.data.createContexts(ElementDictionary)
+    const [descriptionContext, contentContext] = context.file.data.createContexts(ElementDictionary)
     const hasClass = Object.keys(context.file.data.classes).length > 0
 
     return (
@@ -43,7 +45,14 @@ const CharacterDocumentEditor: React.FC = () => {
                     labelId='editor-race'
                     placeholderId='editor-race-placeholder'
                     allowedTypes={[DocumentType.Race]}/>
-                { context.file.data.race === null &&
+                { context.file.data.race !== null &&
+                    <LinkComponent
+                        field='subrace'
+                        labelId='editor-subrace'
+                        placeholderId='editor-subrace-placeholder'
+                        parentFile={context.file.data.race}
+                        allowedTypes={[DocumentType.Subrace]}/>
+                }{ context.file.data.race === null &&
                     <>
                         <TextComponent field='raceName' labelId='editor-raceName'/>
                         <EnumComponent field='size' type='size' labelId='editor-size'/>
@@ -57,7 +66,9 @@ const CharacterDocumentEditor: React.FC = () => {
                     allowedTypes={[DocumentType.Class]}
                     type='enum'
                     enumType='classLevel'
-                    defaultValue={1}/>
+                    defaultValue={1}
+                    fill/>
+                <SubclassesInputComponent data={context.file.data} fill/>
                 <EnumComponent field='alignment' type='alignment' labelId='editor-alignment'/>
                 <TextComponent field='gender' labelId='editor-gender'/>
                 <TextComponent field='age' labelId='editor-age'/>
@@ -145,8 +156,36 @@ const CharacterDocumentEditor: React.FC = () => {
                     fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-advantages'/>} open>
-                <BindingInputComponent field='advantages' labelId='editor-advantages' fill/>
-                <BindingInputComponent field='disadvantages' labelId='editor-disadvantages' fill/>
+                <BindingInputComponent
+                    field='advantages'
+                    type='advantageBinding'
+                    labelId='editor-advantages'
+                    fill/>
+                <BindingInputComponent
+                    field='disadvantages'
+                    type='advantageBinding'
+                    labelId='editor-disadvantages'
+                    fill/>
+                <BindingInputComponent
+                    field='resistances'
+                    type='damageBinding'
+                    labelId='editor-resistances'
+                    fill/>
+                <BindingInputComponent
+                    field='vulnerabilities'
+                    type='damageBinding'
+                    labelId='editor-vulnerabilities'
+                    fill/>
+                <BindingInputComponent
+                    field='damageImmunities'
+                    type='damageBinding'
+                    labelId='editor-damageImmunities'
+                    fill/>
+                <BindingInputComponent
+                    field='conditionImmunities'
+                    type='conditionBinding'
+                    labelId='editor-conditionImmunities'
+                    fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-abilities'/>} open>
                 <LinkListComponent
@@ -174,6 +213,13 @@ const CharacterDocumentEditor: React.FC = () => {
                             optionsType='spellLevel'/>
                     </>
                 }
+            </GroupComponent>
+            <GroupComponent header={<LocalizedText id='editor-header-content'/>} open fill>
+                <TextEditor
+                    value={context.file.data.content}
+                    className={styles.editTextEditor}
+                    context={contentContext}
+                    onChange={(text) => { dispatch.setData('content', text) }}/>
             </GroupComponent>
         </div>
     )

@@ -6,7 +6,7 @@ import EffectRenderer from '../effect'
 import { Context } from 'components/contexts/file'
 import LocalizedText from 'components/controls/localizedText'
 import Elements, { ElementDictionary } from 'components/elements'
-import { asBooleanString, isDefined, keysOf } from 'utils'
+import { asBooleanString, keysOf } from 'utils'
 import { getSpellLevelFromValue, getSpellLevelValue } from 'utils/calculations'
 import { useTranslator } from 'utils/hooks/localization'
 import SpellDataBase from 'structure/database/files/spell/data'
@@ -51,19 +51,14 @@ function getBonus(type: TargetType, bonuses: IBonusGroup): number {
 }
 
 const SpellRenderer: React.FC<SpellRendererProps> = ({ id, data, stats = EmptyCreatureStats, attackBonuses = EmptyBonusGroup, damageBonuses = EmptyBonusGroup }) => {
-    const [context] = useContext(Context)
     const [upcastLevel, setUpcastLevel] = useState(data.level)
     const translator = useTranslator()
     const targetIconTooltips = data.targetIcon !== null ? translator(`icon-${data.targetIcon}`) : null
     const concentrationIconTooltips = translator('render-spell-concentration')
     const ritualIconTooltips = translator('render-spell-ritual')
     const descriptionToken = useMemo(() => {
-        if (id === context.file.id && isDefined(context.tokens.description)) {
-            return context.tokens.description
-        } else {
-            return StoryScript.tokenize(ElementDictionary, data.description, data.createContexts(ElementDictionary)[0]).root
-        }
-    }, [context.file.id, context.tokens.description, data, id])
+        return StoryScript.tokenize(ElementDictionary, data.description, data.createContexts(ElementDictionary)[0]).root
+    }, [data])
 
     useEffect(() => {
         setUpcastLevel(data.level)

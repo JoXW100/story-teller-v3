@@ -7,6 +7,7 @@ import Logger from 'utils/logger'
 import { useLocalizedText } from 'utils/hooks/localization'
 import type { LanguageKey } from 'assets'
 import type { DocumentType } from 'structure/database'
+import type { ObjectId } from 'types'
 import styles from '../style.module.scss'
 
 type LinkComponentParams = React.PropsWithChildren<{
@@ -14,11 +15,12 @@ type LinkComponentParams = React.PropsWithChildren<{
     labelId: LanguageKey
     labelArgs?: any[]
     allowedTypes: readonly DocumentType[]
+    parentFile?: ObjectId
     placeholderId?: LanguageKey
     placeholderArgs?: any[]
 }>
 
-const LinkComponent: React.FC<LinkComponentParams> = ({ field, labelId, labelArgs, allowedTypes, placeholderId, placeholderArgs }) => {
+const LinkComponent: React.FC<LinkComponentParams> = ({ field, labelId, labelArgs, allowedTypes, parentFile, placeholderId, placeholderArgs }) => {
     const [context, dispatch] = useContext(Context)
     const placeholder = useLocalizedText(placeholderId, placeholderArgs)
     if (!isRecord(context.file.data)) {
@@ -53,6 +55,7 @@ const LinkComponent: React.FC<LinkComponentParams> = ({ field, labelId, labelArg
                     value={value ?? ''}
                     placeholder={placeholder}
                     allowedTypes={allowedTypes}
+                    parentFile={parentFile}
                     allowText={false}
                     onChange={handleChange}/>
             </div>

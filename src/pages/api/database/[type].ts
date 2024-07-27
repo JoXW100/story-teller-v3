@@ -143,7 +143,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void>
                     case 'getFiles':
                     { res.status(200).json(await Database.files?.getMultiple(userId, toObjectIdArray(params.fileIds), toEnumArray(params.allowedTypes, DocumentFileType)) ?? failure()); return }
                     case 'getSubFiles':
-                    { res.status(200).json(await Database.files?.getSubFiles(userId, toObjectId(params.parentId), toEnum(params.fileType, DocumentFileType)) ?? failure()); return }
+                    { res.status(200).json(await Database.files?.getSubFiles(userId, toObjectId(params.parentId), toEnum(params.fileType, DocumentFileType), toObjectIdArray(params.sources)) ?? failure()); return }
                     case 'getAbilitiesOfCategory':
                     { res.status(200).json(await Database.files?.getAbilitiesOfCategory(userId, toString(params.category)) ?? failure()); return }
                     case 'getAll':

@@ -5,7 +5,7 @@ import { isKeyOf } from 'utils'
 import { RollMethodType, RollType } from 'structure/dice'
 import { EffectType } from 'structure/database/effect/common'
 import type { Effect } from 'structure/database/effect/factory'
-import { useLocalizedOptions, useLocalizedText } from 'utils/hooks/localization'
+import { useLocalizedEnums, useLocalizedText } from 'utils/hooks/localization'
 import type { IBonusGroup } from 'types/editor'
 import type { IConditionProperties } from 'types/database/condition'
 import styles from './styles.module.scss'
@@ -21,7 +21,7 @@ type EffectRendererProps = React.PropsWithRef<{
 
 const EffectRenderer: React.FC<EffectRendererProps> = ({ data, properties, bonuses, desc, tooltipsId, tooltipsArgs = [] }) => {
     const tooltips = useLocalizedText(tooltipsId, tooltipsArgs)
-    const options = useLocalizedOptions('damageType')
+    const options = useLocalizedEnums('damageType')
     switch (data.type) {
         case EffectType.Text:
             return (

@@ -3,6 +3,7 @@ import type { ObjectId } from 'types'
 export interface IEncounterData {
     readonly name: string
     readonly description: string
+    readonly content: string
     readonly challenge: number
     readonly xp: number
     readonly creatures: Record<ObjectId, number>

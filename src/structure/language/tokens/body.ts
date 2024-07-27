@@ -69,9 +69,6 @@ class BodyToken extends Token {
                 })
                 return true
             }
-            case '%': {
-                return true // Comment
-            }
             default: {
                 if (this.currentToken === null) {
                     if (/^[\t\n\r ]*$/.test(part)) {

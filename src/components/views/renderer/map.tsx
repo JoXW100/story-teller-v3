@@ -3,7 +3,7 @@ import Tooltip from '@mui/material/Tooltip'
 import MapTiles from 'assets/tiles'
 import { Context } from 'components/contexts/file'
 import Elements, { ElementDictionary } from 'components/elements'
-import { asBooleanString, isDefined, isKeyOf } from 'utils'
+import { asBooleanString, isKeyOf } from 'utils'
 import MapDocument from 'structure/database/files/map'
 import { createTile } from 'structure/database/files/map/storage'
 import styles from './styles.module.scss'
@@ -11,12 +11,8 @@ import styles from './styles.module.scss'
 const MapDocumentRenderer: React.FC = () => {
     const [context] = useContext(Context)
     const descriptionToken = useMemo(() => {
-        if (isDefined(context.tokens.description)) {
-            return context.tokens.description
-        } else {
-            return context.file.getTokenizedDescription(ElementDictionary)
-        }
-    }, [context.file, context.tokens.description])
+        return context.file.getTokenizedDescription(ElementDictionary)
+    }, [context.file])
 
     if (!(context.file instanceof MapDocument)) {
         return null

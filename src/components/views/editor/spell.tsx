@@ -129,12 +129,8 @@ const SpellDocumentEditor: React.FC = () => {
                 <TextEditor
                     value={context.file.data.description}
                     className={styles.editTextEditor}
-                    onMount={(token) => { dispatch.setToken('description', token) }}
                     context={descriptionContext}
-                    onChange={(text, token) => {
-                        dispatch.setData('description', text)
-                        dispatch.setToken('description', token)
-                    }}/>
+                    onChange={(text) => { dispatch.setData('description', text) }}/>
             </GroupComponent>
         </div>
     )

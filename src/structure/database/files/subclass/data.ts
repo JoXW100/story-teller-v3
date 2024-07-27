@@ -3,6 +3,7 @@ import { asObjectId, isBoolean, isDefined, isEnum, isObjectIdOrNull, isRecord, i
 import { ClassLevel, OptionalAttribute } from 'structure/dnd'
 import { simplifyObjectProperties, validateObjectProperties } from 'structure/database'
 import EmptyToken from 'structure/language/tokens/empty'
+import StoryScript from 'structure/language/storyscript'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
@@ -13,6 +14,7 @@ import type { TokenContext } from 'types/language'
 class SubclassData implements ISubclassData {
     public readonly name: string
     public readonly description: string
+    public readonly content: string
     public readonly parentClass: ObjectId | null
     public readonly levels: Record<ClassLevel, ClassLevelData>
     // Spells
@@ -21,11 +23,11 @@ class SubclassData implements ISubclassData {
     public readonly preparationAll: boolean
     public readonly learnedAll: boolean
     public readonly learnedSlotsScaling: OptionalAttribute
-    public readonly ritualCaster: boolean
 
     public constructor (data: Simplify<ISubclassData> = {}) {
         this.name = data.name ?? SubclassData.properties.name.value
         this.description = data.description ?? SubclassData.properties.description.value
+        this.content = data.content ?? SubclassData.properties.content.value
         this.parentClass = asObjectId(data.parentClass) ?? SubclassData.properties.parentClass.value
         this.levels = SubclassData.properties.levels.value
         if (data.levels !== undefined) {
@@ -47,7 +49,6 @@ class SubclassData implements ISubclassData {
         } else {
             this.learnedSlotsScaling = data.learnedSlotsScaling ?? SubclassData.properties.learnedSlotsScaling.value
         }
-        this.ritualCaster = data.ritualCaster ?? SubclassData.properties.ritualCaster.value
     }
 
     public static properties: DataPropertyMap<ISubclassData, SubclassData> = {
@@ -56,6 +57,10 @@ class SubclassData implements ISubclassData {
             validate: isString
         },
         description: {
+            value: '',
+            validate: isString
+        },
+        content: {
             value: '',
             validate: isString
         },
@@ -121,19 +126,24 @@ class SubclassData implements ISubclassData {
         learnedSlotsScaling: {
             value: OptionalAttribute.None,
             validate: (value) => isEnum(value, OptionalAttribute)
-        },
-        ritualCaster: {
-            value: false,
-            validate: isBoolean
         }
     }
 
-    public createContexts(elements: ElementDefinitions): [TokenContext] {
-        const descriptionContext: TokenContext = {
+    public createDescriptionContexts(elements: ElementDefinitions): [description: TokenContext] {
+        const descriptionContext = {
             title: new EmptyToken(elements, this.name),
             name: new EmptyToken(elements, this.name)
         }
         return [descriptionContext]
+    }
+
+    public createContexts(elements: ElementDefinitions): [description: TokenContext, content: TokenContext] {
+        const [descriptionContext] = this.createDescriptionContexts(elements)
+        const contentContext: TokenContext = {
+            ...descriptionContext,
+            description: StoryScript.tokenize(elements, this.description, descriptionContext).root
+        }
+        return [descriptionContext, contentContext]
     }
 }
 

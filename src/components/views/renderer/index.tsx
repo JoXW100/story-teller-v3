@@ -2,6 +2,7 @@ import { useState, useContext } from 'react'
 import ZoomInIcon from '@mui/icons-material/ZoomInSharp'
 import ZoomOutIcon from '@mui/icons-material/ZoomOutSharp'
 import { Tooltip } from '@mui/material'
+import { DefaultRenderer, DefaultLinkRenderer } from './default'
 import TextDocumentRenderer from './text'
 import CreatureDocumentRenderer from './creature'
 import CreatureLinkRenderer from './creature/link'
@@ -11,32 +12,36 @@ import AbilityDocumentRenderer from './ability'
 import AbilityLinkRenderer from './ability/link'
 import SpellDocumentRender from './spell'
 import RaceDocumentRenderer from './race'
+import SubraceDocumentRenderer from './subrace'
 import ItemDocumentRenderer from './item'
 import MapDocumentRenderer from './map'
-import DefaultRenderer from './default'
+import ClassRenderer from './class'
+import SubclassRenderer from './subclass'
 import { isKeyOf } from 'utils'
 import { Context } from 'components/contexts/file'
 import LocalizedText from 'components/controls/localizedText'
 import Loading from 'components/controls/loading'
 import { DocumentType } from 'structure/database'
-import type { ObjectId } from 'types'
+import type DatabaseFile from 'structure/database/files'
 import styles from './styles.module.scss'
+
+export type LinkRendererProps = React.PropsWithRef<{ file: DatabaseFile }>
 
 export const DocumentRendererMap = {
     [DocumentType.Ability]: { document: AbilityDocumentRenderer, link: AbilityLinkRenderer },
     [DocumentType.Character]: { document: CharacterDocumentRenderer, link: CreatureLinkRenderer },
-    [DocumentType.Class]: { document: DefaultRenderer, link: DefaultRenderer },
-    [DocumentType.Subclass]: { document: DefaultRenderer, link: DefaultRenderer },
+    [DocumentType.Class]: { document: ClassRenderer, link: DefaultLinkRenderer },
+    [DocumentType.Subclass]: { document: SubclassRenderer, link: DefaultLinkRenderer },
     [DocumentType.Creature]: { document: CreatureDocumentRenderer, link: CreatureLinkRenderer },
-    [DocumentType.Encounter]: { document: EncounterDocumentRenderer, link: DefaultRenderer },
-    [DocumentType.Item]: { document: ItemDocumentRenderer, link: CreatureLinkRenderer },
-    [DocumentType.Map]: { document: MapDocumentRenderer, link: DefaultRenderer },
-    [DocumentType.Modifier]: { document: DefaultRenderer, link: DefaultRenderer },
-    [DocumentType.Race]: { document: RaceDocumentRenderer, link: DefaultRenderer },
-    [DocumentType.Subrace]: { document: DefaultRenderer, link: DefaultRenderer },
-    [DocumentType.Spell]: { document: SpellDocumentRender, link: DefaultRenderer },
-    [DocumentType.Text]: { document: TextDocumentRenderer, link: DefaultRenderer }
-} satisfies Record<DocumentType, { document: React.FC, link: React.FC<{ id: ObjectId, data: any }> }>
+    [DocumentType.Encounter]: { document: EncounterDocumentRenderer, link: DefaultLinkRenderer },
+    [DocumentType.Item]: { document: ItemDocumentRenderer, link: DefaultLinkRenderer },
+    [DocumentType.Map]: { document: MapDocumentRenderer, link: DefaultLinkRenderer },
+    [DocumentType.Modifier]: { document: DefaultRenderer, link: DefaultLinkRenderer },
+    [DocumentType.Race]: { document: RaceDocumentRenderer, link: DefaultLinkRenderer },
+    [DocumentType.Subrace]: { document: SubraceDocumentRenderer, link: DefaultLinkRenderer },
+    [DocumentType.Spell]: { document: SpellDocumentRender, link: DefaultLinkRenderer },
+    [DocumentType.Text]: { document: TextDocumentRenderer, link: DefaultLinkRenderer }
+} satisfies Record<DocumentType, { document: React.FC, link: React.FC<LinkRendererProps> }>
 
 const zoomDelta: number = 10
 

@@ -93,6 +93,10 @@ abstract class DatabaseFile<T extends DocumentFileType = DocumentFileType, S ext
         return JSON.stringify(this)
     }
 
+    public getParentFile(): ObjectId | null {
+        return null
+    }
+
     public abstract getTitle(): string
     public abstract getDescription(): string
     public abstract getTokenizedDescription(elements: ElementDefinitions): IToken

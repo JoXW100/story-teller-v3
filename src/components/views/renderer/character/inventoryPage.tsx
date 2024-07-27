@@ -30,7 +30,7 @@ const CharacterInventoryPage: React.FC<CharacterInventoryPageProps> = ({ facade,
     const [text, setText] = useState<string>('')
     const translator = useTranslator()
     const attunementOptions = useMemo(() => {
-        const options: Record<string, string> = { null: 'None' }
+        const options: Record<ObjectId | 'none', string> = { none: 'None' }
         for (const key of keysOf(items)) {
             const item = items[key]
             if (facade.storage.inventory[key]?.equipped && item.attunement) {
@@ -164,9 +164,8 @@ const CharacterInventoryPage: React.FC<CharacterInventoryPageProps> = ({ facade,
                     <DropdownMenu
                         key={index}
                         className={styles.inventoryAttunementDropdown}
-                        itemClassName={styles.inventoryAttunementDropdownItem}
                         exclude={facade.storage.attunement}
-                        value={facade.storage.attunement[index] ?? null}
+                        value={facade.storage.attunement[index] ?? 'none'}
                         values={attunementOptions}
                         onChange={(value) => { handleAttunementChanged(index, value) }}/>
                 ))}

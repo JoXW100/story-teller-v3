@@ -10,9 +10,11 @@ export interface ICharacterData extends ICreatureData {
     readonly weight: string
     // Race
     readonly race: ObjectId | null
+    readonly subrace: ObjectId | null
     readonly raceName: string
     // Class
     readonly classes: Record<ObjectId, ClassLevel>
+    readonly subclasses: Record<ObjectId, ObjectId>
     // Other
     readonly attunementSlots: number
 }
@@ -23,8 +25,6 @@ export interface IInventoryItemData {
 }
 
 export interface ICharacterStorage extends ICreatureStorage {
-    readonly subrace: ObjectId | null
-    readonly subclasses: Record<ObjectId, ObjectId>
     // the preparation type for each spell for each class
     readonly spellPreparations: Record<ObjectId, Record<ObjectId, SpellPreparationType>>
     readonly preparationsExpendedSlots: Record<ObjectId, Partial<Record<SpellLevel, number>>>

@@ -16,15 +16,16 @@ import { OptionalAttribute } from 'structure/dnd'
 import { DocumentType } from 'structure/database'
 import CreatureDocument from 'structure/database/files/creature'
 import styles from './style.module.scss'
+import TextEditor from 'components/controls/textEditor'
 
 const CreatureDocumentEditor: React.FC = () => {
-    const [context] = useContext(Context)
+    const [context, dispatch] = useContext(Context)
 
     if (!(context.file instanceof CreatureDocument)) {
         return null
     }
 
-    const [descriptionContext] = context.file.data.createContexts(ElementDictionary)
+    const [descriptionContext, contentContext] = context.file.data.createContexts(ElementDictionary)
 
     return (
         <div className={styles.main}>
@@ -69,41 +70,75 @@ const CreatureDocumentEditor: React.FC = () => {
                     type='enum'
                     optionsType='attr'
                     editOptionsType='proficiencyLevel'
-                    labelId='editor-proficiencies-save' />
+                    labelId='editor-proficiencies-save'
+                    fill/>
                 <SelectionInputComponent
                     field='proficienciesSkill'
                     type='enum'
                     optionsType='skill'
                     editOptionsType='proficiencyLevel'
-                    labelId='editor-proficiencies-skill' />
+                    labelId='editor-proficiencies-skill'
+                    fill/>
                 <SelectionInputComponent
                     field='proficienciesLanguage'
                     type='enum'
                     optionsType='language'
                     editOptionsType='proficiencyLevelBasic'
-                    labelId='editor-proficiencies-language' />
+                    labelId='editor-proficiencies-language'
+                    fill/>
                 <SelectionInputComponent
                     field='proficienciesTool'
                     type='enum'
                     optionsType='tool'
                     editOptionsType='proficiencyLevel'
-                    labelId='editor-proficiencies-tool' />
+                    labelId='editor-proficiencies-tool'
+                    fill/>
                 <SelectionInputComponent
                     field='proficienciesArmor'
                     type='enum'
                     optionsType='armor'
                     editOptionsType='proficiencyLevelBasic'
-                    labelId='editor-proficiencies-armor' />
+                    labelId='editor-proficiencies-armor'
+                    fill/>
                 <SelectionInputComponent
                     field='proficienciesWeapon'
                     type='enum'
                     optionsType='weaponTypeValue'
                     editOptionsType='proficiencyLevelBasic'
-                    labelId='editor-proficiencies-weapon' />
+                    labelId='editor-proficiencies-weapon'
+                    fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-advantages'/>} open>
-                <BindingInputComponent field='advantages' labelId='editor-advantages' fill/>
-                <BindingInputComponent field='disadvantages' labelId='editor-disadvantages' fill/>
+                <BindingInputComponent
+                    field='advantages'
+                    type='advantageBinding'
+                    labelId='editor-advantages'
+                    fill/>
+                <BindingInputComponent
+                    field='disadvantages'
+                    type='advantageBinding'
+                    labelId='editor-disadvantages'
+                    fill/>
+                <BindingInputComponent
+                    field='resistances'
+                    type='damageBinding'
+                    labelId='editor-resistances'
+                    fill/>
+                <BindingInputComponent
+                    field='vulnerabilities'
+                    type='damageBinding'
+                    labelId='editor-vulnerabilities'
+                    fill/>
+                <BindingInputComponent
+                    field='damageImmunities'
+                    type='damageBinding'
+                    labelId='editor-damageImmunities'
+                    fill/>
+                <BindingInputComponent
+                    field='conditionImmunities'
+                    type='conditionBinding'
+                    labelId='editor-conditionImmunities'
+                    fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-abilities'/>} open>
                 <LinkListComponent
@@ -123,6 +158,13 @@ const CreatureDocumentEditor: React.FC = () => {
                         <SelectionInputComponent field='spellSlots' type='number' labelId='editor-spellSlots' optionsType='spellLevel'/>
                     </>
                 }
+            </GroupComponent>
+            <GroupComponent header={<LocalizedText id='editor-header-content'/>} open fill>
+                <TextEditor
+                    value={context.file.data.content}
+                    className={styles.editTextEditor}
+                    context={contentContext}
+                    onChange={(text) => { dispatch.setData('content', text) }}/>
             </GroupComponent>
         </div>
     )

@@ -52,7 +52,6 @@ const CreateFileContent: React.FC<CreateContentProps> = ({ callback }) => {
                 <LocalizedText id='dialog-createFile-typePrompt' className='no-line-break'/>
                 <DropdownMenu
                     className={styles.dropdown}
-                    itemClassName={styles.dropdownItem}
                     value={state.type}
                     values={FileOptionMap}
                     onChange={(value) => { setState({ ...state, type: value }) }}/>

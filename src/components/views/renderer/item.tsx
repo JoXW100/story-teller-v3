@@ -2,22 +2,17 @@ import { useContext, useMemo } from 'react'
 import LocalizedText from 'components/controls/localizedText'
 import Elements, { ElementDictionary } from 'components/elements'
 import { Context } from 'components/contexts/file'
-import { isDefined } from 'utils'
-import { useLocalizedOptions, useTranslator } from 'utils/hooks/localization'
+import { useLocalizedEnums, useTranslator } from 'utils/hooks/localization'
 import type { ItemData } from 'structure/database/files/item/factory'
 
 const ItemDocumentRenderer: React.FC = (): React.ReactNode => {
     const [context] = useContext(Context)
     const translator = useTranslator()
-    const options = useLocalizedOptions('rarity')
+    const options = useLocalizedEnums('rarity')
     const data = context.file.data as ItemData
     const descriptionToken = useMemo(() => {
-        if (isDefined(context.tokens.description)) {
-            return context.tokens.description
-        } else {
-            return context.file.getTokenizedDescription(ElementDictionary)
-        }
-    }, [context.file, context.tokens.description])
+        return context.file.getTokenizedDescription(ElementDictionary)
+    }, [context.file])
 
     return <>
         <Elements.h1 underline>{data.name}</Elements.h1>

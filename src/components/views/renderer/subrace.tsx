@@ -1,14 +1,13 @@
 import { useContext, useMemo } from 'react'
 import { Context } from 'components/contexts/file'
 import Elements, { ElementDictionary } from 'components/elements'
-import { useTranslator } from 'utils/hooks/localization'
-import type RaceData from 'structure/database/files/race/data'
+import LocalizedText from 'components/controls/localizedText'
 import StoryScript from 'structure/language/storyscript'
+import type SubraceData from 'structure/database/files/subrace/data'
 
-const RaceDocumentRenderer: React.FC = (): React.ReactNode => {
+const SubraceDocumentRenderer: React.FC = (): React.ReactNode => {
     const [context] = useContext(Context)
-    const translator = useTranslator()
-    const data = context.file.data as RaceData
+    const data = context.file.data as SubraceData
     const [, contentContext] = useMemo(() => data.createContexts(ElementDictionary), [data])
     const descriptionToken = contentContext.description!
     const contentToken = useMemo(() => {
@@ -17,7 +16,11 @@ const RaceDocumentRenderer: React.FC = (): React.ReactNode => {
 
     return <>
         <Elements.h1 underline>{data.name}</Elements.h1>
-        {`${data.getSizeText(translator)} ${data.getTypeText(translator)}`}
+        <LocalizedText className='font-bold' id='render-subraceOf'/>
+        { data.parentRace !== null
+            ? <Elements.linkTitle fileId={data.parentRace} newTab/>
+            : <LocalizedText id='common-missing'/>
+        }
         <Elements.line width='2px'/>
         { descriptionToken.build() }
         <Elements.line width='2px'/>
@@ -25,4 +28,4 @@ const RaceDocumentRenderer: React.FC = (): React.ReactNode => {
     </>
 }
 
-export default RaceDocumentRenderer
+export default SubraceDocumentRenderer

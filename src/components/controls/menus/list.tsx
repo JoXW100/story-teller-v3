@@ -94,8 +94,6 @@ const Component: React.FC<ListTemplateComponentProps<any, any, ListMenuPropsType
 }
 
 const EditComponent: React.FC<ListTemplateComponentProps<any, any, ListMenuPropsType>> = ({ value, values, onUpdate, params }) => {
-    const style = params.itemClassName !== undefined ? `${params.itemClassName} ${styles.input}` : styles.input
-
     const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
         if (params.type === 'number') {
             const value = Number(e.target.value)
@@ -106,9 +104,10 @@ const EditComponent: React.FC<ListTemplateComponentProps<any, any, ListMenuProps
     }
 
     if (params.type === 'enum') {
+        const style = params.itemClassName !== undefined ? `${params.itemClassName} ${styles.dropdown}` : styles.input
         return (
             <DropdownMenu
-                itemClassName={params.itemClassName}
+                className={style}
                 value={value}
                 values={params.options}
                 exclude={values}
@@ -116,6 +115,7 @@ const EditComponent: React.FC<ListTemplateComponentProps<any, any, ListMenuProps
                 disabled={params.disabled}/>
         )
     } else {
+        const style = params.itemClassName !== undefined ? `${params.itemClassName} ${styles.input}` : styles.input
         return (
             <input
                 className={style}

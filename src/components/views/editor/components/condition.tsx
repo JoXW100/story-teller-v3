@@ -10,7 +10,7 @@ import NumberInput from 'components/controls/numericInput'
 import ListTemplateMenu, { type ListTemplateComponentProps } from 'components/controls/menus/template'
 import { isRecord, createField, getRelativeFieldObject, asBooleanString } from 'utils'
 import Logger from 'utils/logger'
-import { useLocalizedOptions } from 'utils/hooks/localization'
+import { useLocalizedEnums } from 'utils/hooks/localization'
 import Condition, { ConditionType, ConditionValueType } from 'structure/database/condition'
 import ConditionFactory from 'structure/database/condition/factory'
 import type { ConditionExplicit, ConditionValue, IConditionProperties } from 'types/database/condition'
@@ -140,7 +140,7 @@ type ConditionControlProps = React.PropsWithoutRef<{
 
 export const ConditionControl: React.FC<ConditionControlProps> = ({ value, field, className, allowEditType = false }) => {
     const [, dispatch] = useContext(Context)
-    const options = useLocalizedOptions('condition')
+    const options = useLocalizedEnums('condition')
 
     const handleInput = (type: ConditionType): void => {
         switch (type) {
@@ -197,24 +197,23 @@ export const ConditionControl: React.FC<ConditionControlProps> = ({ value, field
         })
     }
 
+    console.log('condition', value)
+
     return (
         <div className={className}>
             { allowEditType &&
                 <DropdownMenu
                     className={styles.dropdown}
-                    itemClassName={styles.dropdownItem}
                     values={options}
                     value={value.data.type}
                     onChange={handleInput}/>
-            }
-            { value.data.type === ConditionType.Not &&
+            }{ value.data.type === ConditionType.Not &&
                 <Tooltip title={<LocalizedText id='common-edit'/>}>
                     <button className='center-flex fill-height square' onClick={handleClick}>
                         <EditIcon className='small-icon'/>
                     </button>
                 </Tooltip>
-            }
-            { (value.data.type === ConditionType.Or || value.data.type === ConditionType.Nor || value.data.type === ConditionType.And || value.data.type === ConditionType.Nand) &&
+            }{ (value.data.type === ConditionType.Or || value.data.type === ConditionType.Nor || value.data.type === ConditionType.And || value.data.type === ConditionType.Nand) &&
                 <ListTemplateMenu<Condition, ConditionType, IItemParams>
                     values={value.data.value}
                     defaultValue={ConditionType.Equals}
@@ -224,8 +223,7 @@ export const ConditionControl: React.FC<ConditionControlProps> = ({ value, field
                     EditComponent={ItemListEditComponent}
                     onChange={handleChangeCondition}
                     addLast/>
-            }
-            { (value.data.type === ConditionType.Equals || value.data.type === ConditionType.NotEquals) &&
+            }{ (value.data.type === ConditionType.Equals || value.data.type === ConditionType.NotEquals) &&
                 <ListTemplateMenu<ConditionValue, ConditionEditorValue, IItemParams>
                     values={value.data.value}
                     defaultValue={{ type: ConditionValueType.Constant, value: 0 }}
@@ -235,8 +233,7 @@ export const ConditionControl: React.FC<ConditionControlProps> = ({ value, field
                     EditComponent={ItemListValueEditComponent}
                     onChange={handleChangeConditionValue}
                     addLast/>
-            }
-            { (value.data.type === ConditionType.GreaterEquals || value.data.type === ConditionType.LessEquals) &&
+            }{ (value.data.type === ConditionType.GreaterEquals || value.data.type === ConditionType.LessEquals) &&
                 <>
                     <ItemListValueEditComponent
                         index={0}
@@ -252,8 +249,7 @@ export const ConditionControl: React.FC<ConditionControlProps> = ({ value, field
                         params={{ field: createField(field, value.data.type) }}
                         onUpdate={(value) => { handleChangeSpecificConditionValue(value, 1, 2) }}/>
                 </>
-            }
-            { value.data.type === ConditionType.Range &&
+            }{ value.data.type === ConditionType.Range &&
                 <>
                     <ItemListValueEditComponent
                         index={0}
@@ -284,7 +280,7 @@ export const ConditionControl: React.FC<ConditionControlProps> = ({ value, field
 type ListItemComponentParams = ListTemplateComponentProps<Condition, Condition, IItemParams>
 const ItemListItemComponent: React.FC<ListItemComponentParams> = ({ value, index, params }) => {
     const [, dispatch] = useContext(Context)
-    const options = useLocalizedOptions('condition')
+    const options = useLocalizedEnums('condition')
     const condition = value instanceof Condition ? value : ConditionFactory.create(value)
 
     const handleClick: React.MouseEventHandler<HTMLButtonElement> = () => {
@@ -309,12 +305,11 @@ const ItemListItemComponent: React.FC<ListItemComponentParams> = ({ value, index
 
 type ListEditComponentParams = ListTemplateComponentProps<Condition, ConditionType, IItemParams>
 const ItemListEditComponent: React.FC<ListEditComponentParams> = ({ value, onUpdate }) => {
-    const options = useLocalizedOptions('condition')
+    const options = useLocalizedEnums('condition')
     return (
         <div>
             <DropdownMenu
                 className={styles.dropdown}
-                itemClassName={styles.dropdownItem}
                 value={value}
                 values={options}
                 onChange={onUpdate}/>
@@ -343,7 +338,7 @@ const ItemListValueItemComponent: React.FC<ItemListValueItemComponentParams> = (
 
 type ItemListValueEditComponentParams = ListTemplateComponentProps<ConditionValue, ConditionEditorValue, IItemParams>
 const ItemListValueEditComponent: React.FC<ItemListValueEditComponentParams> = ({ value, onUpdate }) => {
-    const options = useLocalizedOptions('conditionValue')
+    const options = useLocalizedEnums('conditionValue')
     const handleTypeChange = (type: ConditionValueType): void => {
         switch (type) {
             case ConditionValueType.Boolean:
@@ -362,14 +357,12 @@ const ItemListValueEditComponent: React.FC<ItemListValueEditComponentParams> = (
         <div className={styles.editConditionValueEditItem}>
             <DropdownMenu
                 className={styles.dropdown}
-                itemClassName={styles.dropdownItem}
                 value={value.type}
                 values={options}
                 onChange={handleTypeChange}/>
             { value.type === ConditionValueType.Boolean &&
                 <DropdownMenu
                     className={styles.dropdown}
-                    itemClassName={styles.dropdownItem}
                     value={asBooleanString(value.value)}
                     values={{
                         'true': <LocalizedText id='common-true'/>,
@@ -381,7 +374,6 @@ const ItemListValueEditComponent: React.FC<ItemListValueEditComponentParams> = (
             }{ value.type === ConditionValueType.Property &&
                 <DropdownMenu
                     className={styles.dropdown}
-                    itemClassName={styles.dropdownItem}
                     value={value.value}
                     values={PropertyMap}
                     onChange={(val) => { onUpdate({ type: value.type, value: val }) }}/>

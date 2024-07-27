@@ -4,7 +4,7 @@ import { Context } from 'components/contexts/file'
 import ListMenu from 'components/controls/menus/list'
 import { asBooleanString, isNumber, isRecord, isString, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
-import { useLocalizedOptions, useLocalizedText } from 'utils/hooks/localization'
+import { useLocalizedEnums, useLocalizedText } from 'utils/hooks/localization'
 import type { LanguageKey } from 'assets'
 import { getEnumType, type IEnumType, type EnumTypeKey } from 'structure/enums'
 import styles from '../style.module.scss'
@@ -25,7 +25,7 @@ type ListComponentParams = React.PropsWithChildren<{
 const ListComponent: React.FC<ListComponentParams> = ({ field, type, enumType, labelId, labelArgs, placeholderId, placeholderArgs, fill = false, editEnabled = false, allowNegative = false }) => {
     const [context, dispatch] = useContext(Context)
     const placeholder = useLocalizedText(placeholderId, placeholderArgs)
-    const options = useLocalizedOptions(enumType)
+    const options = useLocalizedEnums(enumType)
 
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.LinkListComponent', 'Data of incorrect type', context.file.data)

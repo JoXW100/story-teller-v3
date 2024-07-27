@@ -3,16 +3,17 @@ import { Tooltip } from '@mui/material'
 import ReloadIcon from '@mui/icons-material/CachedSharp'
 import CloseIcon from '@mui/icons-material/CloseSharp'
 import Dialog from '.'
+import { isDefined } from 'utils'
 import Communication from 'utils/communication'
 import Logger from 'utils/logger'
 import Loading from 'components/controls/loading'
 import LocalizedText from 'components/controls/localizedText'
 import SearchBar from 'components/controls/searchBar'
+import Error from 'components/controls/error'
 import type { DocumentType } from 'structure/database'
 import type { DocumentTypeMap } from 'structure/database/files/factory'
 import type { DialogArgs } from 'types/dialog'
 import styles from './style.module.scss'
-import Error from 'components/controls/error'
 
 interface ISelectFileDialogState {
     selected: DocumentTypeMap[DocumentType] | null
@@ -22,7 +23,7 @@ interface ISelectFileDialogState {
     error: string | null
 }
 
-const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, storyId, allowedTypes, sources, callback }) => {
+const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, storyId, allowedTypes, parentFile, sources, callback }) => {
     const [state, setState] = useState<ISelectFileDialogState>({
         selected: null,
         files: [],
@@ -59,8 +60,10 @@ const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, storyId, all
             if (state.loading) {
                 return state
             }
-
-            Communication.getAllFilesOfTypes(storyId, allowedTypes, sources).then((response) => {
+            (isDefined(parentFile)
+                ? Communication.getSubFiles(parentFile, allowedTypes[0], sources)
+                : Communication.getAllFilesOfTypes(storyId, allowedTypes, sources)
+            ).then((response) => {
                 if (response.success) {
                     setState((state) => ({ ...state, files: response.result, loading: false, error: null }))
                 } else {
@@ -73,7 +76,7 @@ const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, storyId, all
 
             return { ...state, files: [], loading: true, error: null }
         })
-    }, [allowedTypes, sources, storyId])
+    }, [allowedTypes, parentFile, sources, storyId])
 
     useEffect(() => {
         loadContent()

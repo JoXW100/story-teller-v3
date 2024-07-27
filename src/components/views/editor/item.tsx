@@ -11,6 +11,7 @@ import BooleanComponent from './components/boolean'
 import EditItemRecordComponent from './components/editItemRecord'
 import LinkListComponent from './components/linkList'
 import SelectionInputComponent from './components/selectionInput'
+import TextareaComponent from './components/textarea'
 import { ElementDictionary } from 'components/elements'
 import { isEnum } from 'utils'
 import ItemDocument from 'structure/database/files/item'
@@ -27,13 +28,14 @@ const ItemDocumentEditor: React.FC = () => {
         return null
     }
 
-    const [descriptionContext] = context.file.data.createContexts(ElementDictionary)
+    const [descriptionContext, contentContext] = context.file.data.createContexts(ElementDictionary)
 
     return (
         <div className={styles.main}>
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
                 <PublishComponent/>
                 <TextComponent field='name' labelId='editor-name'/>
+                <TextareaComponent field='description' labelId='editor-description' languageContext={descriptionContext}/>
                 <EnumComponent field='type' type='itemType' labelId='editor-type'/>
                 { context.file.data.type === ItemType.Armor &&
                     <EnumComponent field='subtype' type='armor' labelId='editor-armorType'/>
@@ -108,16 +110,12 @@ const ItemDocumentEditor: React.FC = () => {
                     allowedTypes={[DocumentType.Modifier]}
                     fill/>
             </GroupComponent>
-            <GroupComponent header={<LocalizedText id='editor-header-description'/>} open fill>
+            <GroupComponent header={<LocalizedText id='editor-header-content'/>} open fill>
                 <TextEditor
-                    value={context.file.data.description}
+                    value={context.file.data.content}
                     className={styles.editTextEditor}
-                    context={descriptionContext}
-                    onMount={(token) => { dispatch.setToken('description', token) }}
-                    onChange={(text, token) => {
-                        dispatch.setData('description', text)
-                        dispatch.setToken('description', token)
-                    }}/>
+                    context={contentContext}
+                    onChange={(text) => { dispatch.setData('content', text) }}/>
             </GroupComponent>
         </div>
     )

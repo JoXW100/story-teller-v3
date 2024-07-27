@@ -12,7 +12,6 @@ import type { EditorPageKeyType } from 'components/views/editor'
 import type DatabaseFile from 'structure/database/files'
 import DocumentFactory from 'structure/database/files/factory'
 import type { ObjectId } from 'types'
-import type { IToken } from 'types/language'
 import type { ContextProvider, DispatchAction, DispatchActionNoData, DispatchActionWithDispatch, ISetFieldData } from 'types/context'
 import type { DBResponse } from 'types/database'
 
@@ -27,11 +26,9 @@ interface FileContextState {
     editorPages: IEditorPageData[]
     loading: boolean
     buffer: RequestBuffer
-    tokens: Record<string, IToken | null>
 }
 
 export interface FileContextDispatch {
-    setToken: (field: string, token: IToken | null) => void
     setData: (field: string, value: any) => void
     setStorage: (field: string, value: any) => void
     setEditorPage: (data: IEditorPageData) => void
@@ -45,7 +42,6 @@ type FileContextAction =
     | DispatchActionNoData<'update'>
     | DispatchActionWithDispatch<'fetchFile', ObjectId, FileContextAction>
     | DispatchAction<'setFile', DBResponse<DatabaseFile>>
-    | DispatchAction<'setToken', { field: string, value: IToken | null }>
     | DispatchActionWithDispatch<'setData', ISetFieldData, FileContextAction>
     | DispatchActionWithDispatch<'setStorage', ISetFieldData, FileContextAction>
     | DispatchActionWithDispatch<'publish', boolean, FileContextAction>
@@ -62,12 +58,10 @@ const defaultContextState = {
     file: null as any,
     editorPages: [],
     loading: false,
-    buffer: new RequestBuffer(),
-    tokens: {}
+    buffer: new RequestBuffer()
 } satisfies FileContextState
 
 const defaultContextDispatch: FileContextDispatch = {
-    setToken() {},
     setData() {},
     setStorage() {},
     setEditorPage() {},
@@ -114,9 +108,6 @@ const reducer: React.Reducer<FileContextState, FileContextAction> = (state, acti
                 })
                 return { ...state, loading: false, file: defaultContextState.file }
             }
-        }
-        case 'setToken': {
-            return { ...state, tokens: { ...state.tokens, [action.data.field]: action.data.value } }
         }
         case 'setData': {
             const data: Record<string, unknown> = { ...state.file.data }
@@ -257,7 +248,6 @@ const FileContext: React.FC<FileContextProps> = ({ children, fileId }) => {
     }, [fileId])
 
     const memoisedDispatch = useMemo<FileContextDispatch>(() => ({
-        setToken(field, value) { dispatch({ type: 'setToken', data: { field: field, value: value } }) },
         setData(field, value) { dispatch({ type: 'setData', data: { field: field, value: value }, dispatch: dispatch }) },
         setStorage(field, value) { dispatch({ type: 'setStorage', data: { field: field, value: value }, dispatch: dispatch }) },
         setEditorPage(data) { dispatch({ type: 'setEditorPage', data: data }) },

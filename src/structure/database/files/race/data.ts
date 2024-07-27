@@ -2,6 +2,7 @@ import { isEnum, isNumber, isObjectId, isRecord, isString } from 'utils'
 import type { TranslationHandler } from 'utils/hooks/localization'
 import { CreatureType, Language, MovementType, ProficiencyLevelBasic, Sense, SizeType } from 'structure/dnd'
 import EmptyToken from 'structure/language/tokens/empty'
+import StoryScript from 'structure/language/storyscript'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
@@ -11,6 +12,7 @@ import type { TokenContext } from 'types/language'
 class RaceData implements IRaceData {
     public readonly name: string
     public readonly description: string
+    public readonly content: string
     public readonly type: CreatureType
     public readonly size: SizeType
     public readonly speed: Partial<Record<MovementType, number>>
@@ -22,6 +24,7 @@ class RaceData implements IRaceData {
     public constructor(data: Simplify<IRaceData>) {
         this.name = data.name ?? RaceData.properties.name.value
         this.description = data.description ?? RaceData.properties.description.value
+        this.content = data.content ?? RaceData.properties.content.value
         this.type = data.type ?? RaceData.properties.type.value
         this.size = data.size ?? RaceData.properties.size.value
         this.speed = data.speed ?? RaceData.properties.speed.value
@@ -51,6 +54,10 @@ class RaceData implements IRaceData {
             validate: isString
         },
         description: {
+            value: '',
+            validate: isString
+        },
+        content: {
             value: '',
             validate: isString
         },
@@ -89,12 +96,21 @@ class RaceData implements IRaceData {
         }
     }
 
-    public createContexts(elements: ElementDefinitions): [TokenContext] {
-        const descriptionContext: TokenContext = {
+    public createDescriptionContexts(elements: ElementDefinitions): [description: TokenContext] {
+        const descriptionContext = {
             title: new EmptyToken(elements, this.name),
             name: new EmptyToken(elements, this.name)
         }
         return [descriptionContext]
+    }
+
+    public createContexts(elements: ElementDefinitions): [description: TokenContext, content: TokenContext] {
+        const [descriptionContext] = this.createDescriptionContexts(elements)
+        const contentContext: TokenContext = {
+            ...descriptionContext,
+            description: StoryScript.tokenize(elements, this.description, descriptionContext).root
+        }
+        return [descriptionContext, contentContext]
     }
 
     public getTypeText(translator: TranslationHandler): string {
