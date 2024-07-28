@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { AbilityToggleRenderer } from '../ability/toggle'
 import type { LanguageKey } from 'assets'
 import LocalizedText from 'components/controls/localizedText'
@@ -15,20 +15,18 @@ interface AbilityCategory {
 }
 
 type AbilityGroupsProps = React.PropsWithRef<{
-    abilities: Record<string, IAbilityData>
     facade: CreatureFacade
+    abilities: Record<string, IAbilityData>
     expendedCharges: Record<string, number>
     setExpendedCharges?: (value: Record<string, number>) => void
 }>
 
-const AbilityGroups: React.FC<AbilityGroupsProps> = ({ abilities, facade, expendedCharges, setExpendedCharges }) => {
-    const [categories, setCategories] = useState<Partial<Record<ActionType, AbilityCategory>>>({})
-    const stats = useMemo(() => facade.getStats(), [facade])
+const AbilityGroups: React.FC<AbilityGroupsProps> = ({ facade, abilities, expendedCharges, setExpendedCharges }) => {
+    const properties = useMemo(() => facade.createProperties(), [facade])
     const attackBonuses = useMemo(() => facade.getAttackBonuses(), [facade])
     const damageBonuses = useMemo(() => facade.getDamageBonuses(), [facade])
-
-    useEffect(() => {
-        const attacks: number = stats.multiAttack
+    const categories = useMemo(() => {
+        const attacks: number = properties.multiAttack
         const categories: Record<ActionType, AbilityCategory> = {
             [ActionType.Action]: {
                 headerId: attacks > 1
@@ -65,24 +63,21 @@ const AbilityGroups: React.FC<AbilityGroupsProps> = ({ abilities, facade, expend
                 categories[ability.action ?? ActionType.Action].content.push(key)
             }
         }
-
-        setCategories(categories)
-    }, [abilities, stats.multiAttack])
+        return categories
+    }, [abilities, properties.multiAttack])
 
     const handleSetExpendedCharges = (value: number, key: string): void => {
         setExpendedCharges?.({ ...expendedCharges, [key]: value })
     }
 
     return keysOf(categories)
-        .map((type) => categories[type]!.content.length > 0 &&
-            <CollapsibleGroup key={type} header={<LocalizedText id={categories[type]!.headerId} args={categories[type]!.headerArgs}/>}>
-                { categories[type]!.content.map((key) => key in abilities && (
+        .map((type) => categories[type].content.length > 0 &&
+            <CollapsibleGroup key={type} header={<LocalizedText id={categories[type].headerId} args={categories[type].headerArgs}/>}>
+                { categories[type].content.map((key) => key in abilities && (
                     <AbilityToggleRenderer
-                        id={key}
                         key={key}
                         data={abilities[key]}
-                        stats={stats}
-                        classLevel={facade.getAbilityClassLevel(key)}
+                        properties={{ ...properties, classLevel: facade.getClassLevel(key) }}
                         attackBonuses={attackBonuses}
                         damageBonuses={damageBonuses}
                         expendedCharges={isNaN(expendedCharges[key]) ? 0 : expendedCharges[key]}

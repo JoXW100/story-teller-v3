@@ -3,7 +3,7 @@ import Logger from 'utils/logger'
 import { OptionalAttribute } from 'structure/dnd'
 import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { IBonusGroup, ICreatureStats } from 'types/editor'
+import type { IBonusGroup, IProperties } from 'types/editor'
 
 export enum DocumentType {
     Ability = 'abi',
@@ -66,10 +66,11 @@ export const DocumentFileType = { ...DocumentType, ...FileType }
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export type DocumentFileType = DocumentType | FileType
 
-export const EmptyCreatureStats: ICreatureStats = {
+export const EmptyProperties: IProperties = {
     level: 0,
     classLevel: 0,
     casterLevel: 0,
+    spellLevel: 0,
     str: 10,
     dex: 10,
     con: 10,
@@ -88,13 +89,12 @@ export const EmptyCreatureStats: ICreatureStats = {
     climbSpeed: 0,
     flySpeed: 0,
     hoverSpeed: 0,
-    swimSpeed: 0
+    swimSpeed: 0,
+    attunedItems: 0
 }
 
 export const EmptyBonusGroup: IBonusGroup = {
     bonus: 0,
-    areaBonus: 0,
-    singleBonus: 0,
     meleeBonus: 0,
     rangedBonus: 0,
     thrownBonus: 0

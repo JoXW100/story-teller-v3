@@ -4,20 +4,19 @@ import type Modifier from '../modifier/modifier'
 import { asNumber, keysOf } from 'utils'
 import { getProficiencyLevelValue } from 'utils/calculations'
 import { type Alignment, type ArmorType, Attribute, type CreatureType, type Language, MovementType, OptionalAttribute, ProficiencyLevel, Sense, type SizeType, type ToolType, type WeaponTypeValue, Skill, type AdvantageBinding, ProficiencyLevelBasic, type DamageBinding, type ConditionBinding, type SpellLevel } from 'structure/dnd'
-import { CalcMode, type CalcValue } from 'structure/database'
+import { CalcMode, EmptyProperties, type CalcValue } from 'structure/database'
 import { type DieType } from 'structure/dice'
 import { Die } from 'structure/dice/die'
 import type { ObjectId } from 'types'
 import type { TranslationHandler } from 'utils/hooks/localization'
-import type { IBonusGroup, ICreatureStats } from 'types/editor'
+import type { IBonusGroup, IProperties } from 'types/editor'
 import type { ICreatureData, ISourceBinding } from 'types/database/files/creature'
-import type { IConditionProperties } from 'types/database/condition'
 
 class CreatureFacade implements ICreatureData {
     public readonly data: CreatureData
     public readonly storage: CreatureStorage
     public readonly modifier: Modifier
-    public readonly properties: Partial<IConditionProperties>
+    public readonly properties: IProperties
     public readonly translator: TranslationHandler
 
     // 0 - none / unarmored / clothing
@@ -32,7 +31,7 @@ class CreatureFacade implements ICreatureData {
     protected shieldLevel: number = 0
     protected armorAC: number = 10
 
-    constructor(data: CreatureData, storage: CreatureStorage, modifier: Modifier, translator: TranslationHandler, properties: Partial<IConditionProperties> = {}) {
+    constructor(data: CreatureData, storage: CreatureStorage, modifier: Modifier, translator: TranslationHandler, properties: IProperties = EmptyProperties) {
         this.data = data
         this.storage = storage
         this.modifier = modifier
@@ -179,12 +178,36 @@ class CreatureFacade implements ICreatureData {
     public get speed(): Partial<Record<MovementType, number>> {
         const result: Partial<Record<MovementType, number>> = {}
         for (const type of Object.values(MovementType)) {
-            const value = this.modifier.speeds[type].call(asNumber(this.data.speed[type], 0), this.properties, this.storage.choices)
+            const value = this[type]
             if (value > 0) {
                 result[type] = value
             }
         }
         return result
+    }
+
+    public get walk(): number {
+        return this.modifier.speeds[MovementType.Walk].call(asNumber(this.data.speed[MovementType.Walk], 0), this.properties, this.storage.choices)
+    }
+
+    public get burrow(): number {
+        return this.modifier.speeds[MovementType.Burrow].call(asNumber(this.data.speed[MovementType.Burrow], 0), this.properties, this.storage.choices)
+    }
+
+    public get climb(): number {
+        return this.modifier.speeds[MovementType.Climb].call(asNumber(this.data.speed[MovementType.Climb], 0), this.properties, this.storage.choices)
+    }
+
+    public get fly(): number {
+        return this.modifier.speeds[MovementType.Fly].call(asNumber(this.data.speed[MovementType.Fly], 0), this.properties, this.storage.choices)
+    }
+
+    public get hover(): number {
+        return this.modifier.speeds[MovementType.Hover].call(asNumber(this.data.speed[MovementType.Hover], 0), this.properties, this.storage.choices)
+    }
+
+    public get swim(): number {
+        return this.modifier.speeds[MovementType.Swim].call(asNumber(this.data.speed[MovementType.Swim], 0), this.properties, this.storage.choices)
     }
 
     public get speedAsText(): string {
@@ -305,19 +328,19 @@ class CreatureFacade implements ICreatureData {
     }
 
     public get spellAttribute(): OptionalAttribute {
-        return this.modifier.spellAttribute.call(this.data.spellAttribute, this.properties, this.storage.choices)
+        return this.data.spellAttribute
     }
 
-    public get spellAttributeValue(): number {
-        return this.getAttributeModifier(this.spellAttribute)
+    public getSpellAttributeValue(attribute?: OptionalAttribute): number {
+        return this.getAttributeModifier(attribute ?? this.spellAttribute)
     }
 
-    public get spellAttackModifier(): number {
-        return this.getAttributeModifier(this.spellAttribute) + this.proficiencyValue
+    public getSpellAttackModifier(attribute?: OptionalAttribute): number {
+        return this.getAttributeModifier(attribute ?? this.spellAttribute) + this.proficiencyValue
     }
 
-    public get spellSaveModifier(): number {
-        return this.getAttributeModifier(this.spellAttribute) + this.proficiencyValue + 8
+    public getSpellSaveModifier(attribute?: OptionalAttribute): number {
+        return this.getAttributeModifier(attribute ?? this.spellAttribute) + this.proficiencyValue + 8
     }
 
     public get spellSlots(): Partial<Record<SpellLevel, number>> {
@@ -395,8 +418,8 @@ class CreatureFacade implements ICreatureData {
             .join(', ')
     }
 
-    public get spells(): ObjectId[] {
-        return this.modifier.spells.call([...this.data.spells], this.properties, this.storage.choices)
+    public get spells(): Record<ObjectId, OptionalAttribute> {
+        return this.modifier.spells.call({ ...this.data.spells }, this.properties, this.storage.choices)
     }
 
     public get abilities(): Array<ObjectId | string> {
@@ -429,6 +452,10 @@ class CreatureFacade implements ICreatureData {
 
     public get attunedItems(): number {
         return 0
+    }
+
+    public get ritualCaster(): boolean {
+        return this.modifier.ritualCaster.call(false, this.properties, this.storage.choices)
     }
 
     public getArmorClassBaseValue(): number {
@@ -517,39 +544,38 @@ class CreatureFacade implements ICreatureData {
         return this.modifier.skills[skill].call(result, this.properties, this.storage.choices)
     }
 
-    public getStats(): ICreatureStats {
-        const speed = this.speed
+    public createProperties(): IProperties {
         return {
+            level: this.level,
+            casterLevel: this.casterLevelValue,
+            classLevel: this.level,
+            spellLevel: 0,
             str: this.str,
             dex: this.dex,
             con: this.con,
             int: this.int,
             wis: this.wis,
             cha: this.cha,
-            spellAttribute: this.spellAttribute,
+            spellAttribute: OptionalAttribute.None,
             proficiency: this.proficiencyValue,
-            level: this.level,
-            classLevel: this.level,
-            casterLevel: this.casterLevelValue,
             multiAttack: this.multiAttack,
             critRange: this.critRange,
             critDieCount: this.critDieCount,
             armorLevel: this.armorLevelValue,
             shieldLevel: this.shieldLevelValue,
-            walkSpeed: speed[MovementType.Walk] ?? 0,
-            burrowSpeed: speed[MovementType.Burrow] ?? 0,
-            climbSpeed: speed[MovementType.Climb] ?? 0,
-            flySpeed: speed[MovementType.Fly] ?? 0,
-            hoverSpeed: speed[MovementType.Hover] ?? 0,
-            swimSpeed: speed[MovementType.Swim] ?? 0
+            walkSpeed: this.walk,
+            burrowSpeed: this.burrow,
+            climbSpeed: this.climb,
+            flySpeed: this.fly,
+            hoverSpeed: this.hover,
+            swimSpeed: this.swim,
+            attunedItems: this.attunedItems
         }
     }
 
     public getAttackBonuses(): IBonusGroup {
         return {
             bonus: this.modifier.abilityAttackBonus.call(0, this.properties, this.storage.choices),
-            areaBonus: 0,
-            singleBonus: 0,
             meleeBonus: this.modifier.abilityMeleeWeaponAttackBonus.call(0, this.properties, this.storage.choices),
             rangedBonus: this.modifier.abilityRangedWeaponAttackBonus.call(0, this.properties, this.storage.choices),
             thrownBonus: this.modifier.abilityThrownWeaponAttackBonus.call(0, this.properties, this.storage.choices)
@@ -559,23 +585,13 @@ class CreatureFacade implements ICreatureData {
     public getDamageBonuses(): IBonusGroup {
         return {
             bonus: this.modifier.abilityDamageBonus.call(0, this.properties, this.storage.choices),
-            areaBonus: 0,
-            singleBonus: 0,
             meleeBonus: this.modifier.abilityMeleeWeaponDamageBonus.call(0, this.properties, this.storage.choices),
             rangedBonus: this.modifier.abilityRangedWeaponDamageBonus.call(0, this.properties, this.storage.choices),
             thrownBonus: this.modifier.abilityThrownWeaponDamageBonus.call(0, this.properties, this.storage.choices)
         } satisfies IBonusGroup
     }
 
-    public createProperties(): IConditionProperties {
-        return {
-            ...this.getStats(),
-            spellLevel: 0,
-            attunedItems: this.attunedItems
-        }
-    }
-
-    public getAbilityClassLevel(key: string): number {
+    public getClassLevel(key: string): number {
         return this.level
     }
 }

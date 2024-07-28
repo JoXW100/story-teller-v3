@@ -2,20 +2,23 @@ import ModifierAddDataBase, { ModifierAddType } from '.'
 import type Modifier from '../modifier'
 import { SourceType } from '../modifier'
 import { createMultipleChoiceData, createDefaultChoiceData, validateChoiceData, simplifyMultipleChoiceData } from '../../../choice'
-import { asObjectId, isNumber, isObjectId, isObjectIdOrNull } from 'utils'
+import { asEnum, asObjectId, isEnum, isNumber, isObjectId, isObjectIdOrNull } from 'utils'
 import { DocumentType } from 'structure/database'
 import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { MultipleChoiceData } from 'types/database/choice'
 import type { IModifierAddSpellData } from 'types/database/files/modifier'
+import { OptionalAttribute } from 'structure/dnd'
 
 class ModifierAddSpellData extends ModifierAddDataBase implements IModifierAddSpellData {
     public override readonly subtype = ModifierAddType.Spell
     public readonly value: MultipleChoiceData<ObjectId | null>
+    public readonly attribute: OptionalAttribute
 
     public constructor(data: Simplify<IModifierAddSpellData>) {
         super(data)
         this.value = createMultipleChoiceData<ObjectId | null>(data.value, asObjectId)
+        this.attribute = asEnum(data.attribute, OptionalAttribute, OptionalAttribute.None)
     }
 
     public static properties: DataPropertyMap<IModifierAddSpellData, ModifierAddSpellData> = {
@@ -29,6 +32,10 @@ class ModifierAddSpellData extends ModifierAddDataBase implements IModifierAddSp
             get value() { return createDefaultChoiceData(null) },
             validate: (value) => validateChoiceData(value, isObjectIdOrNull),
             simplify: (value) => simplifyMultipleChoiceData(value, null)
+        },
+        attribute: {
+            value: OptionalAttribute.None,
+            validate: (value) => isEnum(value, OptionalAttribute)
         }
     }
 
@@ -53,9 +60,9 @@ class ModifierAddSpellData extends ModifierAddDataBase implements IModifierAddSp
         modifier.spells.subscribe({
             key: key,
             data: this,
-            apply: function (value, choices): ObjectId[] {
+            apply: function (value, choices): Record<ObjectId, OptionalAttribute> {
                 const modifier = this.data as ModifierAddSpellData
-                const existing = new Set(value)
+                const result = { ...value }
                 if (modifier.value.isChoice) {
                     const choice: unknown = choices[key]
                     if (!Array.isArray(choice)) {
@@ -68,23 +75,21 @@ class ModifierAddSpellData extends ModifierAddDataBase implements IModifierAddSp
                             if (isNumber(index)) {
                                 const id = modifier.value.value[index]
                                 if (isObjectId(id)) {
-                                    existing.add(id)
+                                    result[id] = modifier.attribute
                                 }
                             }
                         }
                     } else {
                         for (const id of choice) {
                             if (isObjectId(id)) {
-                                existing.add(id)
+                                result[id] = modifier.attribute
                             }
                         }
                     }
-
-                    value = Array.from(existing)
-                } else if (modifier.value.value !== null && !existing.has(modifier.value.value)) {
-                    value.push(modifier.value.value)
+                } else if (modifier.value.value !== null) {
+                    result[modifier.value.value] = modifier.attribute
                 }
-                return value
+                return result
             }
         })
     }

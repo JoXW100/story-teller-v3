@@ -17,7 +17,7 @@ import type { TranslationHandler } from 'utils/hooks/localization'
 import { type ClassLevel, type CreatureType, type Language, type SizeType, ArmorType, MovementType, Sense, SpellLevel, type Attribute, type ProficiencyLevel, type ToolType, type WeaponTypeValue, OptionalAttribute, AdvantageBinding, ProficiencyLevelBasic } from 'structure/dnd'
 import type { ObjectId } from 'types'
 import type { ICharacterData } from 'types/database/files/character'
-import type { IConditionProperties } from 'types/database/condition'
+import type { IProperties } from 'types/editor'
 import type { ISourceBinding } from 'types/database/files/creature'
 
 class CharacterFacade extends CreatureFacade implements ICharacterData {
@@ -29,7 +29,7 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
     public readonly subclassesData: Record<ObjectId, SubclassData>
     public readonly itemsData: Record<ObjectId, ItemData>
 
-    constructor(data: CharacterData, storage: CharacterStorage, modifier: Modifier, translator: TranslationHandler, raceData: RaceData | null = null, subraceData: SubraceData | null = null, classesData: Record<ObjectId, ClassData> = {}, subclassesData: Record<ObjectId, SubclassData> = {}, itemsData: Record<ObjectId, ItemData> = {}, properties: Partial<IConditionProperties> = {}) {
+    constructor(data: CharacterData, storage: CharacterStorage, modifier: Modifier, translator: TranslationHandler, properties?: IProperties, raceData: RaceData | null = null, subraceData: SubraceData | null = null, classesData: Record<ObjectId, ClassData> = {}, subclassesData: Record<ObjectId, SubclassData> = {}, itemsData: Record<ObjectId, ItemData> = {}) {
         super(data, storage, modifier, translator, properties)
         this.data = data
         this.storage = storage
@@ -284,7 +284,7 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
         }
         for (const id of keysOf(this.subclasses)) {
             const subclassData = this.subclassesData[id]
-            const subclassLevel = this.data.classes[subclassData.parentClass!]
+            const subclassLevel = this.data.classes[subclassData.parentFile!]
             for (const level of getPreviousClassLevels(subclassLevel)) {
                 for (const ability of subclassData.levels[level].abilities) {
                     abilities.push(ability)
@@ -362,7 +362,7 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
         return [learnedSlots, preparationSlots, spellSlots, getMaxSpellLevel(...keysOf(spellSlots))]
     }
 
-    public override getAbilityClassLevel(key: string): number {
+    public override getClassLevel(key: string): number {
         const source = this.modifier.findSourceOfType(key, SourceType.Class)
         if (source !== null && isKeyOf(source.key, this.data.classes)) {
             return Number(this.data.classes[source.key])

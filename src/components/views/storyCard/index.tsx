@@ -49,7 +49,7 @@ const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
         e.preventDefault()
         openDialog('confirmation', {
             id: 'deleteStory',
-            headerTextId: 'dialog-confirm-common-header',
+            headerTextId: 'dialog-confirm-deletion-header',
             headerTextArgs: [story.name],
             bodyTextId: 'dialog-confirm-common-body'
         }).onConfirm(handleDeleteConfirmed)

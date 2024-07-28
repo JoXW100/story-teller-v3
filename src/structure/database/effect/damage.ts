@@ -8,8 +8,7 @@ import { simplifyNumberRecord } from 'structure/database'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IDamageEffect } from 'types/database/effect'
-import type { IBonusGroup } from 'types/editor'
-import type { IConditionProperties } from 'types/database/condition'
+import type { IBonusGroup, IProperties } from 'types/editor'
 
 class DamageEffect extends EffectBase implements IDamageEffect {
     public readonly type: EffectType.Damage
@@ -36,19 +35,11 @@ class DamageEffect extends EffectBase implements IDamageEffect {
         this.dieCount = data.dieCount ?? DamageEffect.properties.dieCount.value
     }
 
-    public getModifierValue(stats: Partial<IConditionProperties>, bonuses: IBonusGroup): number {
+    public getModifierValue(stats: Partial<IProperties>, bonuses: IBonusGroup): number {
         let mod: number = 0
         switch (this.category) {
             case EffectCategory.AttackDamage:
                 mod += bonuses.bonus
-                break
-            case EffectCategory.AreaDamage:
-                mod += bonuses.bonus
-                mod += bonuses.areaBonus
-                break
-            case EffectCategory.SingleDamage:
-                mod += bonuses.bonus
-                mod += bonuses.singleBonus
                 break
             case EffectCategory.MeleeDamage:
                 mod += bonuses.bonus
@@ -66,7 +57,7 @@ class DamageEffect extends EffectBase implements IDamageEffect {
         return resolveScaling(this.scaling, stats, true) + mod
     }
 
-    public getDiceRollText(stats: Partial<IConditionProperties>, bonuses: IBonusGroup): string {
+    public getDiceRollText(stats: Partial<IProperties>, bonuses: IBonusGroup): string {
         const mod = this.getModifierValue(stats, bonuses)
         return this.die === DieType.None || this.die === DieType.DX
             ? `d0${mod >= 0 ? '+' : '-'}${Math.abs(mod)}`

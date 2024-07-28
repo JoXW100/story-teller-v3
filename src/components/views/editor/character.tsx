@@ -197,22 +197,20 @@ const CharacterDocumentEditor: React.FC = () => {
                     fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-spells'/>} open>
-                <EnumComponent field='spellAttribute' type='optionalAttr' labelId='editor-spellAttribute'/>
-                { context.file.data.spellAttribute !== OptionalAttribute.None &&
-                    <>
-                        <CalcComponent field='casterLevel' labelId='editor-casterLevel'/>
-                        <LinkListComponent
-                            field='spells'
-                            allowedTypes={[DocumentType.Spell]}
-                            labelId='editor-spells'
-                            fill/>
-                        <SelectionInputComponent
-                            field='spellSlots'
-                            type='number'
-                            labelId='editor-spellSlots'
-                            optionsType='spellLevel'/>
-                    </>
-                }
+                <CalcComponent field='casterLevel' labelId='editor-casterLevel'/>
+                <LinkRecordComponent
+                    field='spells'
+                    labelId='editor-spells'
+                    type='enum'
+                    enumType='optionalAttr'
+                    allowedTypes={[DocumentType.Spell]}
+                    defaultValue={OptionalAttribute.None}
+                    fill/>
+                <SelectionInputComponent
+                    field='spellSlots'
+                    type='number'
+                    labelId='editor-spellSlots'
+                    optionsType='spellLevel'/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-content'/>} open fill>
                 <TextEditor

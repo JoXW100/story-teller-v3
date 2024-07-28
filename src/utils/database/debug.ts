@@ -510,11 +510,11 @@ class DebugHandler {
                 spellSlots[String(i) as SpellLevel] = asNumber(metadata.spellSlots[i], 0)
             }
         }
-        const spells: ObjectId[] = []
+        const spells: Record<ObjectId, OptionalAttribute> = {}
         if (metadata.spells !== undefined) {
             for (const id of metadata.spells) {
                 if (isObjectId(id)) {
-                    spells.push(id)
+                    spells[id] = asEnum(metadata.spellAttribute, OptionalAttribute, OptionalAttribute.None)
                 }
             }
         }
@@ -544,9 +544,9 @@ class DebugHandler {
             name: metadata.name ?? '',
             description: metadata.description ?? '',
             content: content.text ?? '',
-            type: asEnum(metadata.type, CreatureType) ?? CreatureType.None,
-            size: asEnum(metadata.size, SizeType) ?? SizeType.Medium,
-            alignment: asEnum(metadata.alignment, Alignment) ?? Alignment.None,
+            type: asEnum(metadata.type, CreatureType, CreatureType.None),
+            size: asEnum(metadata.size, SizeType, SizeType.Medium),
+            alignment: asEnum(metadata.alignment, Alignment, Alignment.None),
             portrait: metadata.portrait ?? '',
             challenge: asNumber(metadata.challenge),
             xp: asNumber(metadata.xp, 0),
@@ -579,7 +579,7 @@ class DebugHandler {
             vulnerabilities: vulnerabilities,
             damageImmunities: damageImmunities,
             conditionImmunities: conditionImmunities,
-            spellAttribute: asEnum(metadata.spellAttribute, OptionalAttribute) ?? OptionalAttribute.None,
+            spellAttribute: asEnum(metadata.spellAttribute, OptionalAttribute, OptionalAttribute.None),
             casterLevel: this.convertOptionType(metadata.casterLevel),
             spellSlots: spellSlots,
             spells: spells,
@@ -694,15 +694,15 @@ class DebugHandler {
             description: metadata.description ?? '',
             content: content.text ?? '',
             hitDie: this.convertDiceType(metadata.hitDice),
-            subclassLevel: asEnum(String(metadata.subclassLevel ?? 1), ClassLevel) ?? ClassLevel.Level1,
+            subclassLevel: asEnum(String(metadata.subclassLevel ?? 1), ClassLevel, ClassLevel.Level1),
             levels: levels,
             proficienciesSave: {},
             proficienciesTool: {},
             proficienciesArmor: {},
             proficienciesWeapon: {},
-            spellAttribute: asEnum(metadata.spellAttribute, OptionalAttribute) ?? OptionalAttribute.None,
+            spellAttribute: asEnum(metadata.spellAttribute, OptionalAttribute, OptionalAttribute.None),
             preparationAll: metadata.preparationAll ?? false,
-            preparationSlotsScaling: asEnum(metadata.preparationSlotsScaling, OptionalAttribute) ?? OptionalAttribute.None,
+            preparationSlotsScaling: asEnum(metadata.preparationSlotsScaling, OptionalAttribute, OptionalAttribute.None),
             learnedAll: metadata.learnedAll ?? false,
             learnedSlotsScaling: OptionalAttribute.None
         }
@@ -948,7 +948,7 @@ class DebugHandler {
             case EffectCondition.Save:
                 return {
                     type: EffectConditionType.Save,
-                    attribute: asEnum(data.saveAttr, Attribute) ?? Attribute.STR,
+                    attribute: asEnum(data.saveAttr, Attribute, Attribute.STR),
                     scaling: this.toScaling(data.conditionScaling, data.conditionProficiency, data.conditionModifier)
                 }
             case EffectCondition.None:

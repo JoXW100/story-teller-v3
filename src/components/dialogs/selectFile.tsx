@@ -54,7 +54,6 @@ const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, storyId, all
     const sortFiles = (a: (typeof state.files)[number], b: (typeof state.files)[number]): number => {
         return a.getTitle().localeCompare(b.getTitle())
     }
-
     const loadContent = useCallback((): void => {
         setState((state) => {
             if (state.loading) {

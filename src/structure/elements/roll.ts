@@ -6,6 +6,7 @@ import DiceFactory from 'structure/dice/factory'
 export type RollElementParams = React.PropsWithChildren<{
     dice: string
     critRange: number
+    critDieCount: number
     mode: RollMethodType
     type: RollType
     desc: string
@@ -29,6 +30,11 @@ class RollElement extends Element<RollElementParams> {
         },
         'critRange': {
             default: 20,
+            validate: (value) => /^[0-9]+$/.test(value),
+            parse: (value) => parseInt(value)
+        },
+        'critDieCount': {
+            default: 2,
             validate: (value) => /^[0-9]+$/.test(value),
             parse: (value) => parseInt(value)
         },

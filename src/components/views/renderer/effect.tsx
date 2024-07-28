@@ -6,13 +6,12 @@ import { RollMethodType, RollType } from 'structure/dice'
 import { EffectType } from 'structure/database/effect/common'
 import type { Effect } from 'structure/database/effect/factory'
 import { useLocalizedEnums, useLocalizedText } from 'utils/hooks/localization'
-import type { IBonusGroup } from 'types/editor'
-import type { IConditionProperties } from 'types/database/condition'
+import type { IBonusGroup, IProperties } from 'types/editor'
 import styles from './styles.module.scss'
 
 type EffectRendererProps = React.PropsWithRef<{
     data: Effect
-    properties: IConditionProperties
+    properties: IProperties
     bonuses: IBonusGroup
     desc: string
     tooltipsId: LanguageKey
@@ -40,6 +39,7 @@ const EffectRenderer: React.FC<EffectRendererProps> = ({ data, properties, bonus
                         details={null}
                         tooltips={tooltips}
                         critRange={properties.critRange}
+                        critDieCount={properties.critDieCount}
                         mode={RollMethodType.Normal}
                         type={RollType.Damage}>
                         { isKeyOf(data.damageType, Icons) &&
@@ -60,6 +60,7 @@ const EffectRenderer: React.FC<EffectRendererProps> = ({ data, properties, bonus
                         details={null}
                         tooltips={tooltips}
                         critRange={properties.critRange}
+                        critDieCount={properties.critDieCount}
                         mode={RollMethodType.Normal}
                         type={RollType.General}/>
                 </div>

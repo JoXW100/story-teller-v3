@@ -1,13 +1,12 @@
-import Elements, { ElementDictionary } from 'components/elements'
 import { useMemo } from 'react'
 import type { LinkRendererProps } from '..'
-import StoryScript from 'structure/language/storyscript'
-import CreatureDocument from 'structure/database/files/creature'
+import Elements, { ElementDictionary } from 'components/elements'
+import CreatureData from 'structure/database/files/creature/data'
 
 const CreatureLinkRenderer: React.FC<LinkRendererProps> = ({ file }) => {
     const descriptionToken = useMemo(() => {
-        if (file instanceof CreatureDocument) {
-            return StoryScript.tokenize(ElementDictionary, file.data.description).root
+        if (file?.data instanceof CreatureData) {
+            return file.getTokenizedDescription(ElementDictionary)
         }
         return null
     }, [file])
@@ -18,7 +17,7 @@ const CreatureLinkRenderer: React.FC<LinkRendererProps> = ({ file }) => {
 
     return (
         <Elements.align direction='h' weight='1' width='100%'>
-            <div className='no-line-break' style={{ width: '120px', height: '120px' }}>
+            <div className='no-line-break' style={{ width: '100px', height: '100px' }}>
                 <Elements.image href={file.data.portrait} border={false} weight={null} width='100%'/>
             </div>
             <Elements.line width='2px'/>

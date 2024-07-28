@@ -9,7 +9,7 @@ import { RollMethodType, RollType } from 'structure/dice'
 import styles from '../styles.module.scss'
 
 type HealthBoxProps = React.PropsWithRef<{
-    data: CreatureFacade
+    facade: CreatureFacade
 }>
 
 interface HealthBoxState {
@@ -18,7 +18,7 @@ interface HealthBoxState {
     tempInput: string | null
 }
 
-const HealthBox: React.FC<HealthBoxProps> = ({ data }) => {
+const HealthBox: React.FC<HealthBoxProps> = ({ facade }) => {
     const [, dispatch] = useContext(Context)
     const [state, setState] = useState<HealthBoxState>({
         healDamageInput: '',
@@ -31,9 +31,9 @@ const HealthBox: React.FC<HealthBoxProps> = ({ data }) => {
     }
 
     const changeHealth = (value: number): void => {
-        const max = data.healthValue
-        let health = asNumber(data.storage.health, max)
-        let temp = asNumber(data.storage.healthTemp, 0)
+        const max = facade.healthValue
+        let health = asNumber(facade.storage.health, max)
+        let temp = asNumber(facade.storage.healthTemp, 0)
         if (value < 0) {
             const rest = value + temp
             if (rest < 0) {
@@ -54,7 +54,7 @@ const HealthBox: React.FC<HealthBoxProps> = ({ data }) => {
                 dispatch.setStorage('health', health)
             }
         }
-        Beyond20.sendHealthUpdate(data.name, health, max, temp)
+        Beyond20.sendHealthUpdate(facade.name, health, max, temp)
     }
 
     const handleHealClick = (): void => {
@@ -74,7 +74,7 @@ const HealthBox: React.FC<HealthBoxProps> = ({ data }) => {
     }
 
     const handleHPClick = (): void => {
-        setState({ ...state, hpInput: String(asNumber(data.storage.health, data.healthValue)) })
+        setState({ ...state, hpInput: String(asNumber(facade.storage.health, facade.healthValue)) })
     }
 
     const handleHPChanged: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -84,13 +84,13 @@ const HealthBox: React.FC<HealthBoxProps> = ({ data }) => {
     const handleHPFocusLost: React.FocusEventHandler<HTMLInputElement> = (e) => {
         const number = parseInt(e.target.value)
         if (!isNaN(number)) {
-            dispatch.setStorage('health', Math.min(Math.max(number, 0), data.healthValue))
+            dispatch.setStorage('health', Math.min(Math.max(number, 0), facade.healthValue))
         }
         setState({ ...state, hpInput: null })
     }
 
     const handleTempClick = (): void => {
-        setState({ ...state, tempInput: String(asNumber(data.storage.healthTemp, 0)) })
+        setState({ ...state, tempInput: String(asNumber(facade.storage.healthTemp, 0)) })
     }
 
     const handleTempChanged: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -109,16 +109,17 @@ const HealthBox: React.FC<HealthBoxProps> = ({ data }) => {
         <Elements.align direction='h' weight='1' width='100%'>
             <div className={styles.armorBox}>
                 <b>AC</b>
-                <b>{data.acValue}</b>
+                <b>{facade.acValue}</b>
             </div>
             <div className={styles.initiativeBox}>
                 <b>Initiative</b>
                 <Elements.roll
-                    dice={String(data.initiativeValue)}
+                    dice={String(facade.initiativeValue)}
                     desc='Initiative'
                     details={null}
                     tooltips={null}
-                    critRange={20}
+                    critRange={facade.critRange}
+                    critDieCount={facade.critDieCount}
                     mode={RollMethodType.Normal}
                     type={RollType.Initiative}/>
             </div>
@@ -145,13 +146,13 @@ const HealthBox: React.FC<HealthBoxProps> = ({ data }) => {
                     <b>MAX</b>
                     <b>TEMP</b>
                     { state.hpInput === null
-                        ? <span onClick={handleHPClick}>{asNumber(data.storage.health, data.healthValue)}</span>
+                        ? <span onClick={handleHPClick}>{asNumber(facade.storage.health, facade.healthValue)}</span>
                         : <input type='number' autoFocus onChange={handleHPChanged} onBlur={handleHPFocusLost} value={state.hpInput}/>
                     }
                     <b>/</b>
-                    <span>{`${data.healthValue} `}</span>
+                    <span>{`${facade.healthValue} `}</span>
                     { state.tempInput === null
-                        ? <span onClick={handleTempClick}>{asNumber(data.storage.healthTemp, -1) < 0 ? '-' : asNumber(data.storage.healthTemp)}</span>
+                        ? <span onClick={handleTempClick}>{asNumber(facade.storage.healthTemp, -1) < 0 ? '-' : asNumber(facade.storage.healthTemp)}</span>
                         : <input type='number' autoFocus onChange={handleTempChanged} onBlur={handleTempFocusLost} value={state.tempInput}/>
                     }
 

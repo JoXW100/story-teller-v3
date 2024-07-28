@@ -17,8 +17,8 @@ const SubraceDocumentRenderer: React.FC = (): React.ReactNode => {
     return <>
         <Elements.h1 underline>{data.name}</Elements.h1>
         <LocalizedText className='font-bold' id='render-subraceOf'/>
-        { data.parentRace !== null
-            ? <Elements.linkTitle fileId={data.parentRace} newTab/>
+        { data.parentFile !== null
+            ? <Elements.linkTitle fileId={data.parentFile} newTab/>
             : <LocalizedText id='common-missing'/>
         }
         <Elements.line width='2px'/>

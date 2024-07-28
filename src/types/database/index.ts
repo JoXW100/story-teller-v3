@@ -48,6 +48,10 @@ export interface IDataProperty<T, U extends T = T> {
     readonly simplify?: (value: T) => unknown | null
 }
 
+export interface ISubFile {
+    readonly parentFile: ObjectId | null
+}
+
 export type DataPropertyMap<T, U extends T = T> = { readonly [K in keyof T]: IDataProperty<T[K], U[K]> }
 
 export interface IDatabaseFactory<T extends object, U extends T = T> {

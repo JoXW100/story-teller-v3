@@ -95,7 +95,7 @@ const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type,
         <GroupItemComponent className={styles.editList} data={asBooleanString(fill)} labelId={labelId} labelArgs={labelArgs}>
             { type === 'text' &&
                 <LinkRecordMenu
-                    itemClassName={styles.editSelectionItem}
+                    itemClassName={styles.itemRecordItem}
                     editClassName={styles.editRecordItem}
                     type={type}
                     value={value as Record<ObjectId, string>}
@@ -106,7 +106,7 @@ const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type,
             }
             { type === 'number' &&
                 <LinkRecordMenu
-                    itemClassName={styles.editSelectionItem}
+                    itemClassName={styles.itemRecordItem}
                     editClassName={styles.editRecordItem}
                     type={type}
                     value={value as Record<ObjectId, number>}
@@ -117,7 +117,7 @@ const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type,
             }
             { type === 'enum' &&
                 <LinkRecordMenu
-                    itemClassName={styles.editSelectionItem}
+                    itemClassName={styles.itemRecordItem}
                     editClassName={styles.editRecordItem}
                     type={type}
                     value={value as Record<ObjectId, string>}
@@ -130,7 +130,7 @@ const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type,
             { type === 'edit' &&
                 <LinkRecordMenu
                     type="button"
-                    itemClassName={styles.editRecordItem}
+                    itemClassName={styles.itemRecordItem}
                     editClassName={styles.editRecordItem}
                     buttonContent={<EditIcon className='small-icon'/>}
                     value={value as Record<ObjectId, object>}

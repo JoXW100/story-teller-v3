@@ -129,12 +129,15 @@ function ItemComponent({ index, params }: ListTemplateComponentProps<string | nu
 
     return (
         <div className={params.itemClassName} error={asBooleanString(file === null)}>
-            <span>{ file !== null ? file.getTitle() : 'Error' }</span>
+            <b>{ file !== null ? file.getTitle() : 'Error' }</b>
             { (params.type === 'text' || params.type === 'number') &&
                 <input type={params.type} value={String(value)} onChange={handleChange}/>
             }
             { params.type === 'enum' &&
-                <DropdownMenu value={String(value)} values={params.options} onChange={handleValueChanged}/>
+                <DropdownMenu
+                    value={String(value)}
+                    values={params.options}
+                    onChange={handleValueChanged}/>
             }
             { params.type === 'button' &&
                 <Tooltip title={params.buttonTooltips}>

@@ -12,7 +12,7 @@ interface ContextMenuState {
 
 const getDepthHeight = (row: ContextRowData): { height: number, depth: number } => {
     return row.content?.reduce((pre, cur, index) => {
-        if ('content' in cur) {
+        if ('content' in cur && Array.isArray(cur.content)) {
             const { height, depth } = getDepthHeight(cur)
             return {
                 height: Math.max(height + index, pre.height),

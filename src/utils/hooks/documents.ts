@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
+import { useTranslator, type TranslationHandler } from './localization'
 import Communication from 'utils/communication'
 import { asObjectId, isObjectId, keysOf } from 'utils'
 import Logger from 'utils/logger'
 import { getPreviousClassLevels } from 'utils/calculations'
 import { toAbility } from 'utils/importers/stringFormatAbilityImporter'
 import { OptionalAttribute, PreparedSpellPreparationType, type SpellPreparationType } from 'structure/dnd'
-import { DocumentType } from 'structure/database'
+import { DocumentType, EmptyProperties } from 'structure/database'
 import Modifier, { SourceType } from 'structure/database/files/modifier/modifier'
 import CreatureFacade from 'structure/database/files/creature/facade'
 import CharacterFacade from 'structure/database/files/character/facade'
@@ -20,8 +21,7 @@ import type RaceDocument from 'structure/database/files/race'
 import type SubraceDocument from 'structure/database/files/subrace'
 import type { ItemData } from 'structure/database/files/item/factory'
 import type { ObjectId } from 'types'
-import type { IConditionProperties } from 'types/database/condition'
-import { useTranslator, type TranslationHandler } from './localization'
+import type { IProperties } from 'types/editor'
 
 interface ICreatureFacadeState {
     facade: CreatureFacade
@@ -100,17 +100,18 @@ async function fetchAbilities(ids: Record<string, ObjectId | string>, abilities:
     return fetchIds.size
 }
 
-async function fetchSpells(ids: ObjectId[]): Promise<Record<ObjectId, SpellData>> {
-    const spells: Record<ObjectId, SpellData> = {}
+async function fetchSpells(spells: Record<ObjectId, OptionalAttribute>): Promise<Record<ObjectId, SpellData>> {
+    const result: Record<ObjectId, SpellData> = {}
+    const ids = keysOf(spells)
     if (ids.length > 0) {
         const spellsResponse = await Communication.getFilesOfTypes(ids, [DocumentType.Spell])
         if (spellsResponse.success) {
             for (const spellDocument of Object.values(spellsResponse.result)) {
-                spells[spellDocument.id] = spellDocument.data
+                result[spellDocument.id] = spellDocument.data
             }
         }
     }
-    return spells
+    return result
 }
 
 async function fetchCreatureData(creature: CreatureDocument, current: ICreatureFacadeState, translator: TranslationHandler): Promise<ICreatureFacadeState> {
@@ -123,7 +124,7 @@ async function fetchCreatureData(creature: CreatureDocument, current: ICreatureF
     }
 
     const abilities: Record<ObjectId | string, AbilityData> = {}
-    let properties: Partial<IConditionProperties> = {}
+    let properties: IProperties = EmptyProperties
     for (let depth = 0; depth < 100; depth++) {
         // Find new abilities to fetch
         const facade = new CreatureFacade(creature.data, creature.storage, modifier, translator, properties)
@@ -159,7 +160,7 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
     let subrace: SubraceDocument | null = null
     if (subraceId !== null) {
         const subraceResponse = await Communication.getFileOfTypes(subraceId, [DocumentType.Subrace])
-        if (subraceResponse.success && subraceResponse.result.data.parentRace === race!.id) {
+        if (subraceResponse.success && subraceResponse.result.data.parentFile === race!.id) {
             subrace = subraceResponse.result
         }
     }
@@ -187,7 +188,7 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
         const subclassesResponse = await Communication.getFilesOfTypes(subclassIds, [DocumentType.Subclass])
         if (subclassesResponse.success) {
             for (const subclassDocument of Object.values(subclassesResponse.result)) {
-                if (subclassDocument.data.parentClass !== null && subclassDocument.data.parentClass in classes) {
+                if (subclassDocument.data.parentFile !== null && subclassDocument.data.parentFile in classes) {
                     subclasses[subclassDocument.id] = subclassDocument.data
                 }
             }
@@ -260,10 +261,10 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
 
     for (const subclassId of keysOf(subclasses)) {
         const subclassData = subclasses[subclassId]
-        if (subclassData.parentClass === null) {
+        if (subclassData.parentFile === null) {
             continue
         }
-        for (const level of getPreviousClassLevels(character.data.classes[subclassData.parentClass])) {
+        for (const level of getPreviousClassLevels(character.data.classes[subclassData.parentFile])) {
             const levelData = subclassData.levels[level]
             for (const id of levelData.modifiers) {
                 const key = `subclass.${subclassId}.${level}.${id}`
@@ -296,29 +297,28 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
         }
     }
 
-    let properties: Partial<IConditionProperties> = {}
+    let properties: IProperties = EmptyProperties
     await fetchModifiers(initialModifierIds, modifier)
 
     // Start ability/modifier fetch loop
     for (let depth = 0; depth < 100; depth++) {
         // Find new abilities to fetch
-        const facade = new CharacterFacade(character.data, character.storage, modifier, translator, race?.data, subrace?.data, classes, subclasses, items, properties)
+        const facade = new CharacterFacade(character.data, character.storage, modifier, translator, properties, race?.data, subrace?.data, classes, subclasses, items)
         properties = facade.createProperties()
         const abilityIds = modifier.abilities.call(initialAbilityIds, properties, character.storage.choices)
 
         if (await fetchAbilities(abilityIds, abilities, modifier) <= 0) {
             // No more abilities to fetch, complete by fetching spells
-            const initialSpellIds: ObjectId[] = []
-            if (facade.spellAttribute !== OptionalAttribute.None) {
-                for (const id of character.data.spells) {
-                    initialSpellIds.push(id)
-                }
+            const initialSpellIds: Record<ObjectId, OptionalAttribute> = {}
+            for (const id of keysOf(character.data.spells)) {
+                initialSpellIds[id] = character.data.spells[id]
             }
 
             for (const classId of classIds) {
-                if (facade.getClassSpellAttribute(classId) !== OptionalAttribute.None && classId in facade.storage.spellPreparations) {
+                const attribute = facade.getClassSpellAttribute(classId)
+                if (attribute !== OptionalAttribute.None && classId in facade.storage.spellPreparations) {
                     for (const id of keysOf(facade.storage.spellPreparations[classId])) {
-                        initialSpellIds.push(id)
+                        initialSpellIds[id] = attribute
                         modifier.addSource(id, SourceType.Class, classId)
                     }
                 }

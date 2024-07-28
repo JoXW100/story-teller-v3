@@ -11,7 +11,7 @@ class SubraceData implements ISubraceData {
     public readonly name: string
     public readonly description: string
     public readonly content: string
-    public readonly parentRace: ObjectId | null
+    public readonly parentFile: ObjectId | null
     // Abilities
     public readonly abilities: Array<ObjectId | string>
     // Modifiers
@@ -21,7 +21,7 @@ class SubraceData implements ISubraceData {
         this.name = data.name ?? SubraceData.properties.name.value
         this.description = data.description ?? SubraceData.properties.description.value
         this.content = data.content ?? SubraceData.properties.content.value
-        this.parentRace = asObjectId(data.parentRace) ?? SubraceData.properties.parentRace.value
+        this.parentFile = asObjectId(data.parentFile) ?? SubraceData.properties.parentFile.value
         // Abilities
         this.abilities = SubraceData.properties.abilities.value
         if (Array.isArray(data.abilities)) {
@@ -53,7 +53,7 @@ class SubraceData implements ISubraceData {
             value: '',
             validate: isString
         },
-        parentRace: {
+        parentFile: {
             value: null,
             validate: isObjectIdOrNull
         },

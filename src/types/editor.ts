@@ -1,34 +1,34 @@
 import type { OptionalAttribute } from 'structure/dnd'
 
-export interface ICreatureStats {
-    level: number
-    classLevel: number
-    casterLevel: number
-    str: number
-    dex: number
-    con: number
-    int: number
-    wis: number
-    cha: number
-    spellAttribute: OptionalAttribute
-    proficiency: number
-    critRange: number
-    critDieCount: number
-    multiAttack: number
-    armorLevel: number // 0 = None, 1 = Light, 2 = Medium, 3 = Heavy
-    shieldLevel: number
-    walkSpeed: number
-    burrowSpeed: number
-    climbSpeed: number
-    flySpeed: number
-    hoverSpeed: number
-    swimSpeed: number
+export interface IProperties {
+    readonly level: number
+    readonly classLevel: number
+    readonly casterLevel: number
+    readonly spellLevel: number
+    readonly str: number
+    readonly dex: number
+    readonly con: number
+    readonly int: number
+    readonly wis: number
+    readonly cha: number
+    readonly spellAttribute: OptionalAttribute
+    readonly proficiency: number
+    readonly critRange: number
+    readonly critDieCount: number
+    readonly multiAttack: number
+    readonly armorLevel: number // 0 = None, 1 = Light, 2 = Medium, 3 = Heavy
+    readonly shieldLevel: number
+    readonly walkSpeed: number
+    readonly burrowSpeed: number
+    readonly climbSpeed: number
+    readonly flySpeed: number
+    readonly hoverSpeed: number
+    readonly swimSpeed: number
+    readonly attunedItems: number
 }
 
 export interface IBonusGroup {
     readonly bonus: number
-    readonly areaBonus: number
-    readonly singleBonus: number
     readonly meleeBonus: number
     readonly rangedBonus: number
     readonly thrownBonus: number

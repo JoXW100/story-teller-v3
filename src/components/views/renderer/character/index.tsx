@@ -19,6 +19,9 @@ import { useCharacterFacade } from 'utils/hooks/documents'
 import { RollMethodType, RollType } from 'structure/dice'
 import type CharacterDocument from 'structure/database/files/character'
 import styles from '../styles.module.scss'
+import { asNumber, keysOf } from 'utils'
+import { RestType } from 'structure/dnd'
+import { openDialog } from 'components/dialogs/handler'
 
 const Pages = {
     'actions': { key: 'render-page-actions' },
@@ -37,6 +40,42 @@ const CharacterDocumentRenderer: React.FC = () => {
         dispatch.setStorage('abilitiesExpendedCharges', charges)
     }
 
+    const handleShortRest = (): void => {
+        openDialog('confirmation', {
+            id: 'confirmation-shortRest',
+            headerTextId: 'dialog-confirm-shortRest-header',
+            bodyTextId: 'dialog-confirm-shortRest-body'
+        }).onConfirm(() => {
+            const result: Record<string, number> = {}
+            for (const key of keysOf(facade.storage.abilitiesExpendedCharges)) {
+                const properties = { ...facade.properties, classLevel: facade.getClassLevel(key) }
+                const reset = abilities[key]?.evaluateCharges(properties)?.chargesReset
+                if (reset !== RestType.ShortRest) {
+                    result[key] = asNumber(facade.storage.abilitiesExpendedCharges[key], 0)
+                }
+            }
+            dispatch.setStorage('abilitiesExpendedCharges', result)
+        })
+    }
+
+    const handleLongRest = (): void => {
+        openDialog('confirmation', {
+            id: 'confirmation-shortRest',
+            headerTextId: 'dialog-confirm-longRest-header',
+            bodyTextId: 'dialog-confirm-longRest-body'
+        }).onConfirm(() => {
+            const result: Record<string, number> = {}
+            for (const key of keysOf(facade.storage.abilitiesExpendedCharges)) {
+                const properties = { ...facade.properties, classLevel: facade.getClassLevel(key) }
+                const reset = abilities[key]?.evaluateCharges(properties)?.chargesReset
+                if (reset !== RestType.ShortRest && reset !== RestType.LongRest) {
+                    result[key] = asNumber(facade.storage.abilitiesExpendedCharges[key], 0)
+                }
+            }
+            dispatch.setStorage('abilitiesExpendedCharges', result)
+        })
+    }
+
     return <VariableContext variables={variables}>
         <Elements.align direction='h' weight='1' width='100%'>
             <Elements.block weight='1' width='calc(50% - 1px)'>
@@ -53,19 +92,19 @@ const CharacterDocumentRenderer: React.FC = () => {
                     </div>
                     <div className={styles.restPanel}>
                         <Tooltip title={<LocalizedText id='render-shortRest'/>}>
-                            <button className='circular-center square small-icon' >
+                            <button className='circular-center square small-icon' onClick={handleShortRest}>
                                 <Icon className='square fill' icon='camp'/>
                             </button>
                         </Tooltip>
                         <Tooltip title={<LocalizedText id='render-longRest'/>}>
-                            <button className='circular-center square small-icon'>
+                            <button className='circular-center square small-icon' onClick={handleLongRest}>
                                 <Icon className='square fill' icon='night'/>
                             </button>
                         </Tooltip>
                     </div>
                 </div>
                 <Elements.line width='2px'/>
-                <AttributesBox data={facade}/>
+                <AttributesBox facade={facade}/>
                 <Elements.space/>
                 <Elements.align direction='h' weight='1' width='100%'>
                     <div className={styles.proficiencyBox}>
@@ -75,7 +114,8 @@ const CharacterDocumentRenderer: React.FC = () => {
                             desc='Proficiency Check'
                             details={null}
                             tooltips={null}
-                            critRange={20}
+                            critRange={facade.critRange}
+                            critDieCount={facade.critDieCount}
                             mode={RollMethodType.Normal}
                             type={RollType.Check}/>
                     </div>
@@ -97,7 +137,7 @@ const CharacterDocumentRenderer: React.FC = () => {
             </Elements.block>
             <Elements.line width='2px'/>
             <Elements.block weight='1' width={null}>
-                <HealthBox data={facade}/>
+                <HealthBox facade={facade}/>
                 <Elements.space/>
                 <PageSelector pages={Pages} selected={page} setSelected={setPage}/>
                 <Elements.line width='2px'/>

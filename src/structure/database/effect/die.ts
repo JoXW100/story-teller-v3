@@ -8,7 +8,7 @@ import { simplifyNumberRecord } from 'structure/database'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IDieEffect } from 'types/database/effect'
-import type { IConditionProperties } from 'types/database/condition'
+import type { IProperties } from 'types/editor'
 
 class DieEffect extends EffectBase implements IDieEffect {
     public readonly type: EffectType.Die
@@ -31,11 +31,11 @@ class DieEffect extends EffectBase implements IDieEffect {
         this.dieCount = data.dieCount ?? DieEffect.properties.dieCount.value
     }
 
-    public getModifierValue(stats: Partial<IConditionProperties>): number {
+    public getModifierValue(stats: Partial<IProperties>): number {
         return resolveScaling(this.scaling, stats, true)
     }
 
-    public getDiceRollText(stats: Partial<IConditionProperties>): string {
+    public getDiceRollText(stats: Partial<IProperties>): string {
         const mod = this.getModifierValue(stats)
         return this.die === DieType.None || this.die === DieType.DX
             ? `d0${mod >= 0 ? '+' : '-'}${Math.abs(mod)}`

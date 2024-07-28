@@ -1,5 +1,4 @@
 import { useContext, useMemo } from 'react'
-import { DefaultLinkRenderer } from './default'
 import { AbilityRenderer } from './ability'
 import { Context } from 'components/contexts/file'
 import Elements, { ElementDictionary } from 'components/elements'
@@ -28,20 +27,23 @@ const LevelRender: React.FC<LevelRendererProps> = ({ classData, level }) => {
             <LocalizedText id='render-class-level' args={[level]}/>
         </Elements.h2>
         { level === classData.subclassLevel &&
-            <div className={styles.rendererBox} data='true'>
-                <Elements.h3 underline={false}>
+            <div className={styles.rendererBox}>
+                <Elements.h4 underline={false}>
                     <LocalizedText id='render-class-subclass'/>
-                </Elements.h3>
+                </Elements.h4>
                 <LocalizedText id='render-class-subclass-body'/>
             </div>
         }{ keysOf(abilities).map((key) =>
-            <div key={key} className={styles.rendererBox} data='true'>
+            <div key={key} className={styles.rendererBox}>
                 <AbilityRenderer data={abilities[key]} open/>
             </div>
         )}
         { modifiers.map((modifier, i) => modifier !== null &&
-            <div key={i} className={styles.rendererBox} data='true'>
-                <DefaultLinkRenderer key={i} file={modifier}/>
+            <div key={i} className={styles.rendererBox}>
+                <Elements.h4 underline={false}>
+                    {modifier.getTitle()}
+                </Elements.h4>
+                { modifier.getTokenizedDescription(ElementDictionary).build() }
             </div>
         )}
     </>

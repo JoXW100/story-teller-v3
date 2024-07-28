@@ -7,7 +7,7 @@ import { RestType, ScalingType } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { IChargesData } from 'types/database/charges'
 import type { DataPropertyMap } from 'types/database'
-import type { IConditionProperties } from 'types/database/condition'
+import type { IProperties } from 'types/editor'
 
 class ChargesData implements IChargesData {
     public readonly condition: Condition
@@ -27,7 +27,7 @@ class ChargesData implements IChargesData {
         }
     }
 
-    public getCharges(stats: Partial<IConditionProperties> = {}): number {
+    public getCharges(stats: Partial<IProperties> = {}): number {
         return resolveScaling(this.charges, stats)
     }
 

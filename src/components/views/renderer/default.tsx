@@ -5,14 +5,19 @@ import Elements, { ElementDictionary } from 'components/elements'
 
 export const DefaultRenderer: React.FC = () => {
     const [context] = useContext(Context)
-    return <DefaultLinkRenderer file={context.file}/>
+    const description = useMemo(() => context.file.getTokenizedDescription(ElementDictionary), [context.file])
+
+    return <>
+        <Elements.h1 underline={false}>{context.file.getTitle()}</Elements.h1>
+        { description.build() }
+    </>
 }
 
 export const DefaultLinkRenderer: React.FC<LinkRendererProps> = ({ file }) => {
     const description = useMemo(() => file.getTokenizedDescription(ElementDictionary), [file])
 
     return <>
-        <Elements.h3 underline={false}>{file.getTitle()}</Elements.h3>
+        <Elements.h4 underline={false}>{file.getTitle()}</Elements.h4>
         { description.build() }
     </>
 }

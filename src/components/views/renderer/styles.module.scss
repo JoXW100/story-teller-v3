@@ -604,6 +604,8 @@ $size: $iconSmallSize;
 }
 
 .dropdown {
+    display: flex;
+    align-items: center;
     font: inherit;
     font-size: small;
     height: $size !important;

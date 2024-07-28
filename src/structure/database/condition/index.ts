@@ -1,4 +1,5 @@
-import type { ICondition, ConditionValue, ConditionData, IConditionProperties } from 'types/database/condition'
+import type { ICondition, ConditionValue, ConditionData } from 'types/database/condition'
+import type { IProperties } from 'types/editor'
 import { isBoolean, getRelativeFieldObject } from 'utils'
 
 export enum ConditionType {
@@ -39,7 +40,7 @@ class Condition implements ICondition {
         this.data = data
     }
 
-    public evaluate(data: Partial<IConditionProperties>, choices: Record<string, unknown> = {}): boolean {
+    public evaluate(data: Partial<IProperties>, choices: Record<string, unknown> = {}): boolean {
         switch (this.data.type) {
             case ConditionType.None: {
                 return this.data.value === undefined ||
@@ -153,7 +154,7 @@ class Condition implements ICondition {
         return JSON.stringify(this.simplify())
     }
 
-    private static valueOf(value: ConditionValue, data: Partial<IConditionProperties>): string | number | boolean | null {
+    private static valueOf(value: ConditionValue, data: Partial<IProperties>): string | number | boolean | null {
         switch (typeof value) {
             case 'boolean':
             case 'number':

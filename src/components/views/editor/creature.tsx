@@ -17,6 +17,7 @@ import { DocumentType } from 'structure/database'
 import CreatureDocument from 'structure/database/files/creature'
 import styles from './style.module.scss'
 import TextEditor from 'components/controls/textEditor'
+import LinkRecordComponent from './components/linkRecord'
 
 const CreatureDocumentEditor: React.FC = () => {
     const [context, dispatch] = useContext(Context)
@@ -151,13 +152,21 @@ const CreatureDocumentEditor: React.FC = () => {
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-spells'/>} open>
                 <EnumComponent field='spellAttribute' type='optionalAttr' labelId='editor-spellAttribute'/>
-                { context.file.data.spellAttribute !== OptionalAttribute.None &&
-                    <>
-                        <CalcComponent field='casterLevel' labelId='editor-casterLevel'/>
-                        <LinkListComponent field='spells' allowedTypes={[DocumentType.Spell]} labelId='editor-spells' allowText/>
-                        <SelectionInputComponent field='spellSlots' type='number' labelId='editor-spellSlots' optionsType='spellLevel'/>
-                    </>
-                }
+                <CalcComponent field='casterLevel' labelId='editor-casterLevel'/>
+                <LinkRecordComponent
+                    field='spells'
+                    labelId='editor-spells'
+                    type='enum'
+                    enumType='optionalAttr'
+                    allowedTypes={[DocumentType.Spell]}
+                    defaultValue={OptionalAttribute.None}
+                    fill/>
+                <SelectionInputComponent
+                    field='spellSlots'
+                    type='number'
+                    labelId='editor-spellSlots'
+                    optionsType='spellLevel'
+                    fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-content'/>} open fill>
                 <TextEditor

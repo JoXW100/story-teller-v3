@@ -11,7 +11,7 @@ import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IItemDataBase } from 'types/database/files/item'
 import type { TokenContext } from 'types/language'
-import type { IConditionProperties } from 'types/database/condition'
+import type { IProperties } from 'types/editor'
 
 abstract class ItemDataBase implements IItemDataBase {
     public abstract readonly type: ItemType
@@ -125,7 +125,7 @@ abstract class ItemDataBase implements IItemDataBase {
         return null
     }
 
-    public evaluateNumCharges(data: Partial<IConditionProperties>, choices?: Record<string, unknown>): number {
+    public evaluateNumCharges(data: Partial<IProperties>, choices?: Record<string, unknown>): number {
         for (const key of keysOf(this.charges)) {
             const value = this.charges[key]
             if (value.condition.evaluate(data, choices)) {

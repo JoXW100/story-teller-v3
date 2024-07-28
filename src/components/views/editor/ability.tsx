@@ -143,7 +143,7 @@ const AbilityDocumentEditor: React.FC = () => {
                     value={context.file.data.description}
                     className={styles.editTextEditor}
                     context={descriptionContext}
-                    onChange={(text) => { dispatch.setData('content', text) }}/>
+                    onChange={(text) => { dispatch.setData('description', text) }}/>
             </GroupComponent>
         </div>
     )

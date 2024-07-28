@@ -6,7 +6,7 @@ import { resolveScaling } from 'utils/calculations'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IEffectConditionHit } from 'types/database/effectCondition'
-import type { IConditionProperties } from 'types/database/condition'
+import type { IProperties } from 'types/editor'
 
 class EffectConditionHit extends EffectConditionBase implements IEffectConditionHit {
     public readonly type: EffectConditionType.Hit
@@ -25,7 +25,7 @@ class EffectConditionHit extends EffectConditionBase implements IEffectCondition
         }
     }
 
-    public getModifierValue(stats: Partial<IConditionProperties>): number {
+    public getModifierValue(stats: IProperties): number {
         return resolveScaling(this.scaling, stats)
     }
 

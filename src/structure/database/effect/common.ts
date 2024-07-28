@@ -7,8 +7,6 @@ export enum EffectType {
 export enum EffectCategory {
     Uncategorized = 'uncategorized',
     AttackDamage = 'attack',
-    AreaDamage = 'area',
-    SingleDamage = 'target',
     MeleeDamage = 'melee',
     ThrownDamage = 'thrown',
     RangedDamage = 'ranged',

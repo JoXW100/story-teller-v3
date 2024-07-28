@@ -135,7 +135,6 @@ export function toAbility(text: string): AbilityData | null {
         const action = getAction(res[1]) ?? ActionType.None
         const name = res[2] ?? 'Missing name'
         const description = toRichText(res[3] ?? '')
-        console.log('toAbility.feature', name, res)
         result = {
             name: name,
             description: description,
@@ -157,7 +156,6 @@ export function toAbility(text: string): AbilityData | null {
         const modifier = getRollMod(res[9])
         const damageType = asEnum(res[10], DamageType, DamageType.None)
         const description = toRichText(res[11] ?? '')
-        console.log('toAbility.ability', name, res)
         switch (type) {
             case AbilityType.Attack: {
                 const base: IAbilityAttackDataBase = {

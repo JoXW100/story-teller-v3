@@ -1,22 +1,17 @@
 import type Condition from 'structure/database/condition'
 import type { ConditionType } from 'structure/database/condition'
-import type { ICreatureStats } from 'types/editor'
-
-export interface IConditionProperties extends ICreatureStats {
-    spellLevel: number
-    attunedItems: number
-}
+import type { IProperties } from 'types/editor'
 
 export type ConditionValue = string | number | boolean | null | ConditionExplicit
 export type ConditionExplicit = {
-    property: keyof IConditionProperties
+    property: keyof IProperties
 } | {
     value: string | number | boolean | null
 }
 
 export type ConditionData = {
     type: ConditionType.None
-    value?: boolean | ((parameters: Partial<IConditionProperties>, choices: Record<string, unknown>) => boolean)
+    value?: boolean | ((properties: Partial<IProperties>, choices: Record<string, unknown>) => boolean)
 } | {
     type: ConditionType.Equals | ConditionType.NotEquals | ConditionType.GreaterEquals | ConditionType.LessEquals | ConditionType.Range
     value: ConditionValue[]

@@ -28,7 +28,7 @@ class SubraceDocument extends DatabaseFile<DocumentType.Subrace, ISubraceStorage
     }
 
     public override getParentFile(): ObjectId | null {
-        return this.data.parentRace
+        return this.data.parentFile
     }
 }
 

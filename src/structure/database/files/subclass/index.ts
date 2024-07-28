@@ -28,7 +28,7 @@ class SubclassDocument extends DatabaseFile<DocumentType.Subclass, ISubclassStor
     }
 
     public override getParentFile(): ObjectId | null {
-        return this.data.parentClass
+        return this.data.parentFile
     }
 }
 

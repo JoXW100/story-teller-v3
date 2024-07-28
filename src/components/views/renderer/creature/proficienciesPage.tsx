@@ -58,7 +58,8 @@ const ProficienciesPage = ({ facade }: DataProps): JSX.Element => {
                                 desc={`${skillOptions[skill]} Check`}
                                 details={null}
                                 tooltips={`Roll ${skillOptions[skill]} Check`}
-                                critRange={20}
+                                critRange={facade.critRange}
+                                critDieCount={facade.critDieCount}
                                 mode={RollMethodType.Normal}
                                 type={RollType.Check}/>
                         </div>

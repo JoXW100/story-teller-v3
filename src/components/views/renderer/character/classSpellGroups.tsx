@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import SpellGroups from '../spell/groups'
+import SpellGroups from '../creature/spellGroups'
 import PageSelector, { type IPageSelectorData } from '../pageSelector'
 import type { FileContextDispatch } from 'components/contexts/file'
 import Elements from 'components/elements'
@@ -10,7 +10,7 @@ import type CharacterFacade from 'structure/database/files/character/facade'
 import type { SpellData } from 'structure/database/files/spell/factory'
 import { RollMethodType, RollType } from 'structure/dice'
 import type { ObjectId } from 'types'
-import type { ICreatureStats } from 'types/editor'
+import type { IProperties } from 'types/editor'
 
 type ClassSpellGroupsProps = React.PropsWithRef<{
     facade: CharacterFacade
@@ -23,7 +23,7 @@ const ClassSpellGroups: React.FC<ClassSpellGroupsProps> = ({ facade, spells, set
     const options = useLocalizedEnums('optionalAttr')
     const pages = useMemo(() => {
         const pages: Record<ObjectId | 'none', IPageSelectorData> = {} as any
-        if (facade.spellAttribute !== OptionalAttribute.None || keysOf(facade.spells).length > 0) {
+        if (keysOf(facade.spells).length > 0) {
             pages.none = { key: 'render-spells' }
         }
         for (const classId of keysOf(facade.classes)) {
@@ -52,7 +52,7 @@ const ClassSpellGroups: React.FC<ClassSpellGroupsProps> = ({ facade, spells, set
                 }
             }
         } else {
-            for (const id of facade.spells) {
+            for (const id of keysOf(facade.spells)) {
                 if (id in spells) {
                     preparedSpells[id] = spells[id]
                 }
@@ -74,11 +74,11 @@ const ClassSpellGroups: React.FC<ClassSpellGroupsProps> = ({ facade, spells, set
             return facade.storage.spellsExpendedSlots
         }
     }, [facade.storage.preparationsExpendedSlots, facade.storage.spellsExpendedSlots, selectedClass])
-    const modifiedStats = useMemo<ICreatureStats>(() => {
+    const modifiedStats = useMemo<IProperties>(() => {
         if (selectedClass !== null) {
-            return { ...facade.getStats(), casterLevel: Number(facade.classes[selectedClass]), spellAttribute: facade.getClassSpellAttribute(selectedClass) }
+            return { ...facade.properties, casterLevel: Number(facade.classes[selectedClass]), spellAttribute: facade.getClassSpellAttribute(selectedClass) }
         } else {
-            return facade.getStats()
+            return facade.properties
         }
     }, [selectedClass, facade])
 
@@ -118,48 +118,55 @@ const ClassSpellGroups: React.FC<ClassSpellGroupsProps> = ({ facade, spells, set
                     <Elements.line width='2px'/>
                 </>
             }
-            <Elements.align direction='h' weight='1' width='100%'>
-                <Elements.align direction='h' weight='2' width='100%'>
-                    <Elements.h2 underline={false}> Spells: </Elements.h2>
+            { modifiedStats.spellAttribute !== OptionalAttribute.None &&
+                <Elements.align direction='h' weight='1' width='100%'>
+                    <Elements.align direction='h' weight='2' width='100%'>
+                        <Elements.h2 underline={false}> Spells: </Elements.h2>
+                    </Elements.align>
+                    <Elements.align direction='vc' weight='1.5' width='100%'>
+                        <Elements.b>Spellcasting Attribute</Elements.b>
+                        <Elements.b>{options[modifiedStats.spellAttribute]}</Elements.b>
+                    </Elements.align>
+                    <Elements.align direction='vc' weight='1' width='100%'>
+                        <Elements.b>Spell Modifier</Elements.b>
+                        <Elements.roll
+                            dice={String(facade.getAttributeModifier(modifiedStats.spellAttribute))}
+                            desc='Spell Modifier'
+                            details={null}
+                            tooltips={null}
+                            critRange={facade.critRange}
+                            critDieCount={facade.critDieCount}
+                            mode={RollMethodType.Normal}
+                            type={RollType.General}/>
+                    </Elements.align>
+                    <Elements.space/>
+                    <Elements.align direction='vc' weight='1' width='100%'>
+                        <Elements.b>Spell Attack</Elements.b>
+                        <Elements.roll
+                            dice={String(facade.getSpellAttackModifier(modifiedStats.spellAttribute))}
+                            desc='Spell Attack'
+                            details={null}
+                            tooltips={null}
+                            critRange={facade.critRange}
+                            critDieCount={facade.critDieCount}
+                            mode={RollMethodType.Normal}
+                            type={RollType.Attack}/>
+                    </Elements.align>
+                    <Elements.space/>
+                    <Elements.align direction='vc' weight='1' width='100%'>
+                        <Elements.bold>Spell Save</Elements.bold>
+                        <Elements.save
+                            value={facade.getSpellSaveModifier(modifiedStats.spellAttribute)}
+                            type={null}
+                            tooltips={null}/>
+                    </Elements.align>
                 </Elements.align>
-                <Elements.align direction='vc' weight='2' width='100%'>
-                    <Elements.b>Spellcasting Attribute</Elements.b>
-                    <Elements.b>{options[modifiedStats.spellAttribute]}</Elements.b>
-                </Elements.align>
-                <Elements.align direction='vc' weight='1' width='100%'>
-                    <Elements.b>Spell Modifier</Elements.b>
-                    <Elements.roll
-                        dice={String(facade.getAttributeModifier(modifiedStats.spellAttribute))}
-                        desc='Spell Modifier'
-                        details={null}
-                        tooltips={null}
-                        critRange={20}
-                        mode={RollMethodType.Normal}
-                        type={RollType.General}/>
-                </Elements.align>
-                <Elements.space/>
-                <Elements.align direction='vc' weight='1' width='100%'>
-                    <Elements.b>Spell Attack</Elements.b>
-                    <Elements.roll
-                        dice={String(facade.spellAttackModifier)}
-                        desc='Spell Attack'
-                        details={null}
-                        tooltips={null}
-                        critRange={20}
-                        mode={RollMethodType.Normal}
-                        type={RollType.Attack}/>
-                </Elements.align>
-                <Elements.space/>
-                <Elements.align direction='vc' weight='1' width='100%'>
-                    <Elements.bold>Spell Save</Elements.bold>
-                    <Elements.save value={facade.spellSaveModifier} type={null} tooltips={null}/>
-                </Elements.align>
-            </Elements.align>
+            }
             <SpellGroups
+                facade={facade}
                 spells={preparedSpells}
                 spellSlots={spellSlots}
                 expendedSlots={expendedSlots}
-                stats={modifiedStats}
                 setExpendedSlots={handleSetExpendedSlots}/>
         </>
     )

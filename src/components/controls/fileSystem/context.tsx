@@ -222,7 +222,7 @@ const FileSystemContext: React.FC<FileSystemContextProps> = ({ children, fileId 
         openDeleteFileMenu(file) {
             openDialog('confirmation', {
                 id: 'deleteFile',
-                headerTextId: 'dialog-confirm-common-header',
+                headerTextId: 'dialog-confirm-deletion-header',
                 headerTextArgs: [`${file.name}.${file.type}`],
                 bodyTextId: 'dialog-confirm-common-body'
             }).onConfirm(() => {

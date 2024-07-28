@@ -535,7 +535,7 @@ class FileCollection {
                         _storyId: sources.length > 0
                             ? { $in: sources }
                             : undefined,
-                        'data.parentClass': String(parentId)
+                        'data.parentFile': String(parentId)
                     } satisfies KeysOfTwo<IDatabaseFile, object>
                 },
                 ...this.getSubscribedFilter(userId),

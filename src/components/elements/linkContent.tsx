@@ -1,12 +1,11 @@
 import Link from 'next/link'
 import Loading from 'components/controls/loading'
 import LocalizedText from 'components/controls/localizedText'
-import { DocumentRendererMap } from 'components/views/renderer'
+import { DocumentRendererMap, type LinkRendererProps } from 'components/views/renderer'
 import { isKeyOf, keysOf } from 'utils'
 import Navigation from 'utils/navigation'
 import { useFileOfType } from 'utils/hooks/files'
 import LinkContentElement, { type LinkContentElementParams } from 'structure/elements/linkContent'
-import type { ObjectId } from 'types'
 import styles from './styles.module.scss'
 
 const AllowedTypes = keysOf(DocumentRendererMap)
@@ -19,7 +18,7 @@ const LinkContentComponent: React.FC<LinkContentElementParams> = ({ fileId, bord
         return <LocalizedText className={styles.error} id='common-error'/>
     }
 
-    const Renderer: React.FC<{ id: ObjectId, data: any }> = isKeyOf(file.type, DocumentRendererMap)
+    const Renderer: React.FC<LinkRendererProps> = isKeyOf(file.type, DocumentRendererMap)
         ? DocumentRendererMap[file.type].link
         : () => null
 
@@ -27,7 +26,7 @@ const LinkContentComponent: React.FC<LinkContentElementParams> = ({ fileId, bord
         <Loading loaded={!loading}>
             <Link href={Navigation.fileURL(file.id, file.storyId)} className={styles.linkContent} target={target} rel={rel} passHref>
                 <div data={String(border)}>
-                    <Renderer id={file.id} data={file.data}/>
+                    <Renderer file={file}/>
                 </div>
             </Link>
         </Loading>

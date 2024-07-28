@@ -5,21 +5,20 @@ import AbilityRange from './range'
 import Elements, { ElementDictionary } from 'components/elements'
 import { Context } from 'components/contexts/file'
 import { keysOf } from 'utils'
-import { EmptyBonusGroup, EmptyCreatureStats } from 'structure/database'
+import { useLocalizedText } from 'utils/hooks/localization'
+import { EmptyBonusGroup, EmptyProperties } from 'structure/database'
 import { AbilityType } from 'structure/database/files/ability/common'
 import type { AbilityData } from 'structure/database/files/ability/factory'
 import { EffectConditionType } from 'structure/database/effectCondition'
 import { RollMethodType, RollType } from 'structure/dice'
 import StoryScript from 'structure/language/storyscript'
-import type { IBonusGroup, ICreatureStats } from 'types/editor'
-import type { IConditionProperties } from 'types/database/condition'
+import type { IBonusGroup, IProperties } from 'types/editor'
 import styles from '../styles.module.scss'
-import { useLocalizedText } from 'utils/hooks/localization'
 
 type AbilityRendererProps = React.PropsWithRef<{
     data: AbilityData
     open?: boolean
-    stats?: ICreatureStats
+    properties?: IProperties
     classLevel?: number
     attackBonuses?: IBonusGroup
     damageBonuses?: IBonusGroup
@@ -43,30 +42,23 @@ function getBonus(type: AbilityType, bonuses: IBonusGroup): number {
     }
 }
 
-export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ data, open = false, stats = EmptyCreatureStats, classLevel = 0, attackBonuses = EmptyBonusGroup, damageBonuses = EmptyBonusGroup, expendedCharges, setExpendedCharges }) => {
+export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ data, open = false, properties = EmptyProperties, attackBonuses = EmptyBonusGroup, damageBonuses = EmptyBonusGroup, expendedCharges, setExpendedCharges }) => {
     const typeText = useLocalizedText(`enum-abilityType-${data.type}`)
     const descriptionToken = useMemo(() => {
         return StoryScript.tokenize(ElementDictionary, data.description, data.createContexts(ElementDictionary)[0]).root
     }, [data])
-
-    const properties: IConditionProperties = {
-        ...stats,
-        attunedItems: 0,
-        classLevel: classLevel,
-        spellLevel: 0
-    }
 
     switch (data.type) {
         case AbilityType.Skill:
             return <>
                 <Elements.align direction='h' weight='1' width='100%'>
                     <Elements.block width='50%' weight={null}>
-                        <Elements.h3 underline={false}>{data.name}</Elements.h3>
+                        <Elements.h4 underline={false}>{data.name}</Elements.h4>
                         <Elements.newline/>
                         {typeText}
                         <Elements.newline/>
                         <ChargesRenderer
-                            charges={data.evaluateNumCharges(properties)}
+                            charges={data.evaluateCharges(properties)?.getCharges(properties) ?? 0}
                             expended={expendedCharges}
                             setExpended={setExpendedCharges}/>
                     </Elements.block>
@@ -99,12 +91,12 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ data, open = f
             return <>
                 <Elements.align direction='h' weight='1' width='100%'>
                     <Elements.block width='50%' weight={null}>
-                        <Elements.h3 underline={false}>{data.name}</Elements.h3>
+                        <Elements.b>{data.name}</Elements.b>
                         <Elements.newline/>
                         {typeText}
                         <Elements.newline/>
                         <ChargesRenderer
-                            charges={data.evaluateNumCharges(properties)}
+                            charges={data.evaluateCharges(properties)?.getCharges(properties) ?? 0}
                             expended={expendedCharges}
                             setExpended={setExpendedCharges}/>
                     </Elements.block>
@@ -119,7 +111,8 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ data, open = f
                                     desc={`${data.name} Attack`}
                                     details={null}
                                     tooltips={`Roll ${data.name} Attack`}
-                                    critRange={stats.critRange}
+                                    critRange={properties.critRange}
+                                    critDieCount={properties.critDieCount}
                                     mode={RollMethodType.Normal}
                                     type={RollType.Attack}/>
                             </div>
@@ -161,10 +154,10 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ data, open = f
         default:
             return <>
                 <Elements.align direction='hc' width='100%' weight='1'>
-                    <Elements.h3 underline={false}>{data.name}</Elements.h3>
+                    <Elements.b>{data.name}</Elements.b>
                     <Elements.fill/>
                     <ChargesRenderer
-                        charges={data.evaluateNumCharges(properties)}
+                        charges={data.evaluateCharges(properties)?.getCharges(properties) ?? 0}
                         expended={expendedCharges}
                         setExpended={setExpendedCharges}/>
                 </Elements.align>

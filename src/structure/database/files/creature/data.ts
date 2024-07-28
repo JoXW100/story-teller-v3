@@ -64,7 +64,7 @@ class CreatureData implements ICreatureData {
     public readonly spellAttribute: OptionalAttribute
     public readonly casterLevel: CalcValue
     public readonly spellSlots: Partial<Record<SpellLevel, number>>
-    public readonly spells: ObjectId[]
+    public readonly spells: Record<ObjectId, OptionalAttribute>
     public readonly ritualCaster: boolean
     // Other
     public readonly abilities: Array<ObjectId | string>
@@ -196,28 +196,23 @@ class CreatureData implements ICreatureData {
             }
         }
         // Spells
-        this.spellAttribute = data.spellAttribute ?? CreatureData.properties.spellAttribute.value
-        if (this.spellAttribute !== OptionalAttribute.None) {
-            this.casterLevel = createCalcValue(data.casterLevel)
-            this.spellSlots = CreatureData.properties.spellSlots.value
-            if (data.spellSlots !== undefined) {
-                for (const level of keysOf(data.spellSlots)) {
-                    this.spellSlots[level] = asNumber(data.spellSlots[level], 0)
-                }
+        this.spellAttribute = asEnum(data.spellAttribute, OptionalAttribute, OptionalAttribute.None)
+        this.casterLevel = createCalcValue(data.casterLevel)
+        this.spellSlots = CreatureData.properties.spellSlots.value
+        if (data.spellSlots !== undefined) {
+            for (const level of keysOf(data.spellSlots)) {
+                this.spellSlots[level] = asNumber(data.spellSlots[level], 0)
             }
-            this.spells = CreatureData.properties.spells.value
-            if (Array.isArray(data.spells)) {
-                for (const id of data.spells) {
-                    this.spells.push(id as ObjectId)
-                }
-            }
-            this.ritualCaster = data.ritualCaster ?? CreatureData.properties.ritualCaster.value
-        } else {
-            this.casterLevel = CreatureData.properties.casterLevel.value
-            this.spellSlots = CreatureData.properties.spellSlots.value
-            this.spells = CreatureData.properties.spells.value
-            this.ritualCaster = CreatureData.properties.ritualCaster.value
         }
+        this.spells = CreatureData.properties.spells.value
+        if (data.spells !== undefined) {
+            for (const id of keysOf(data.spells)) {
+                if (isObjectId(id)) {
+                    this.spells[id] = asEnum(data.spells[id], OptionalAttribute, OptionalAttribute.None)
+                }
+            }
+        }
+        this.ritualCaster = data.ritualCaster ?? CreatureData.properties.ritualCaster.value
         // Other
         this.abilities = CreatureData.properties.abilities.value
         if (Array.isArray(data.abilities)) {
@@ -423,9 +418,9 @@ class CreatureData implements ICreatureData {
             validate: (value) => isRecord(value, (key, val) => isEnum(key, SpellLevel) && isNumber(val))
         },
         spells: {
-            get value() { return [] },
-            validate: (value) => Array.isArray(value) && value.every(isObjectId),
-            simplify: (value) => value.length > 0 ? value : null
+            get value() { return {} },
+            validate: (value) => isRecord(value, (key, val) => isObjectId(key) && isEnum(val, OptionalAttribute)),
+            simplify: (value) => Object.keys(value).length > 0 ? value : null
         },
         ritualCaster: {
             value: false,

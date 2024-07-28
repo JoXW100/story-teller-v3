@@ -18,11 +18,11 @@ const ItemDocumentRenderer: React.FC = (): React.ReactNode => {
         <Elements.h1 underline>{data.name}</Elements.h1>
         {`${data.getCategoryText(translator)}, ${options[data.rarity]} `}
         { data.attunement &&
-            <LocalizedText id='renderer-item-requiresAttunement'/>
+            <LocalizedText id='render-item-requiresAttunement'/>
         }
         <Elements.line width='2px'/>
         <Elements.h3 underline={false}>
-            <LocalizedText id='renderer-item-description'/>
+            <LocalizedText id='render-item-description'/>
         </Elements.h3>
         { descriptionToken.build() }
     </>

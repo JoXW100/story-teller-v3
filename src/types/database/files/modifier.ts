@@ -5,7 +5,7 @@ import type { ModifierAddType } from 'structure/database/files/modifier/add'
 import type { ModifierBonusType } from 'structure/database/files/modifier/bonus'
 import type { ModifierSetType } from 'structure/database/files/modifier/set'
 import type { ModifierVariableType, OperationType } from 'structure/database/files/modifier/variable'
-import type { AdvantageBinding, ConditionBinding, Language, OptionalAttribute, ProficiencyLevelBasic, DamageBinding, Sense, SizeType, Attribute, Skill, ToolType, ProficiencyLevel, ArmorType, WeaponTypeValue, MovementType, ScalingType } from 'structure/dnd'
+import type { AdvantageBinding, ConditionBinding, Language, ProficiencyLevelBasic, DamageBinding, Sense, SizeType, Attribute, Skill, ToolType, ProficiencyLevel, ArmorType, WeaponTypeValue, MovementType, ScalingType, OptionalAttribute } from 'structure/dnd'
 import type { ICondition } from 'types/database/condition'
 import type { ObjectId } from 'types'
 
@@ -89,6 +89,7 @@ export interface IModifierAddLinkedData extends IModifierAddDataBase {
 export interface IModifierAddSpellData extends IModifierAddDataBase {
     readonly subtype: ModifierAddType.Spell
     readonly value: MultipleChoiceData<ObjectId | null>
+    readonly attribute: OptionalAttribute
 }
 
 export interface IModifierAddAdvantageData extends IModifierAddDataBase {
@@ -214,15 +215,15 @@ export interface IModifierSetDataBase extends IModifierDataBase {
     readonly subtype: ModifierSetType
 }
 
-export interface IModifierSetSpellAttributeData extends IModifierSetDataBase {
-    readonly subtype: ModifierSetType.SpellAttribute
-    readonly value: SingleChoiceData<OptionalAttribute>
-}
-
 export interface IModifierSetArmorClassBaseData extends IModifierSetDataBase {
     readonly subtype: ModifierSetType.ArmorClassBase
     readonly values: Partial<Record<ScalingType, number>>
     readonly maxValues: Partial<Record<ScalingType, number>>
+}
+
+export interface IModifierSetRitualCasterData extends IModifierSetDataBase {
+    readonly subtype: ModifierSetType.RitualCaster
+    readonly value: boolean
 }
 
 export interface IModifierSetSizeData extends IModifierSetDataBase {
@@ -279,11 +280,11 @@ export interface IModifierSetWeaponProficiencyData extends IModifierSetDataBase 
 }
 
 export type IModifierSetData = IModifierSetSenseData | IModifierSetSpeedData |
-IModifierSetSizeData | IModifierSetSpellAttributeData |
-IModifierSetSaveProficiencyData | IModifierSetSkillProficiencyData |
-IModifierSetToolProficiencyData | IModifierSetLanguageProficiencyData |
-IModifierSetArmorProficiencyData | IModifierSetWeaponProficiencyData |
-IModifierSetArmorClassBaseData
+IModifierSetSizeData | IModifierSetSaveProficiencyData |
+IModifierSetSkillProficiencyData | IModifierSetToolProficiencyData |
+IModifierSetLanguageProficiencyData | IModifierSetArmorProficiencyData |
+IModifierSetWeaponProficiencyData | IModifierSetArmorClassBaseData |
+IModifierSetRitualCasterData
 
 export interface IModifierVariableDataBase extends IModifierDataBase {
     readonly type: ModifierType.Variable

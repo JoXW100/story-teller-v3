@@ -15,7 +15,7 @@ class SubclassData implements ISubclassData {
     public readonly name: string
     public readonly description: string
     public readonly content: string
-    public readonly parentClass: ObjectId | null
+    public readonly parentFile: ObjectId | null
     public readonly levels: Record<ClassLevel, ClassLevelData>
     // Spells
     public readonly spellAttribute: OptionalAttribute
@@ -28,7 +28,7 @@ class SubclassData implements ISubclassData {
         this.name = data.name ?? SubclassData.properties.name.value
         this.description = data.description ?? SubclassData.properties.description.value
         this.content = data.content ?? SubclassData.properties.content.value
-        this.parentClass = asObjectId(data.parentClass) ?? SubclassData.properties.parentClass.value
+        this.parentFile = asObjectId(data.parentFile) ?? SubclassData.properties.parentFile.value
         this.levels = SubclassData.properties.levels.value
         if (data.levels !== undefined) {
             for (const level of keysOf(data.levels)) {
@@ -64,7 +64,7 @@ class SubclassData implements ISubclassData {
             value: '',
             validate: isString
         },
-        parentClass: {
+        parentFile: {
             value: null,
             validate: isObjectIdOrNull
         },

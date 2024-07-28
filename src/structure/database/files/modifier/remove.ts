@@ -21,7 +21,7 @@ export const ModifierRemoveDataFactory: IDatabaseFactory<IModifierRemoveData, Mo
     simplify: function (data: IModifierRemoveData): Simplify<ModifierRemoveData> {
         return simplifyObjectProperties(data, this.properties(data))
     },
-    properties: function (data: unknown): DataPropertyMap<IModifierRemoveData, ModifierRemoveData> {
+    properties: function (): DataPropertyMap<IModifierRemoveData, ModifierRemoveData> {
         return ModifierRemoveData.properties
     }
 }

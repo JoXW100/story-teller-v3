@@ -1,13 +1,12 @@
 import { AdvantageBinding, Attribute, type OptionalAttribute, ProficiencyLevel, ScalingType, Skill, SpellLevel, type ClassLevel } from 'structure/dnd'
-import type { IConditionProperties } from 'types/database/condition'
-import type { ICreatureStats } from 'types/editor'
+import type { IProperties } from 'types/editor'
 import { asEnum, asNumber, keysOf } from 'utils'
 
-export function getAttributeModifier(stats: Partial<ICreatureStats>, attr: Attribute): number {
+export function getAttributeModifier(stats: Partial<IProperties>, attr: Attribute): number {
     return Math.ceil((asNumber(stats[attr], 10) - 11) / 2.0)
 }
 
-export function getScalingValue(scaling: ScalingType | OptionalAttribute, stats: Partial<IConditionProperties>): number {
+export function getScalingValue(scaling: ScalingType | OptionalAttribute, stats: Partial<IProperties>): number {
     switch (scaling) {
         case ScalingType.Constant:
             return 1
@@ -47,7 +46,7 @@ export function getScalingValue(scaling: ScalingType | OptionalAttribute, stats:
     }
 }
 
-export function resolveScaling(scaling: Partial<Record<ScalingType, number>>, stats: Partial<IConditionProperties>, required: boolean = false): number {
+export function resolveScaling(scaling: Partial<Record<ScalingType, number>>, stats: Partial<IProperties>, required: boolean = false): number {
     let sum: number = 0
     let flag: boolean = required
     for (const type of keysOf(scaling)) {

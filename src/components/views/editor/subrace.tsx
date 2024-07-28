@@ -29,7 +29,7 @@ const SubraceDocumentEditor: React.FC = () => {
                 <PublishComponent/>
                 <TextComponent field='name' labelId='editor-name'/>
                 <TextareaComponent field='description' labelId='editor-description' languageContext={descriptionContext}/>
-                <LinkComponent field='parentRace' labelId='editor-parentRace' allowedTypes={[DocumentType.Race]}/>
+                <LinkComponent field='parentFile' labelId='editor-parentRace' allowedTypes={[DocumentType.Race]}/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-modifiers'/>} open>
                 <LinkListComponent

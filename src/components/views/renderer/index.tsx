@@ -11,6 +11,7 @@ import EncounterDocumentRenderer from './encounter'
 import AbilityDocumentRenderer from './ability'
 import AbilityLinkRenderer from './ability/link'
 import SpellDocumentRender from './spell'
+import SpellLinkRenderer from './spell/link'
 import RaceDocumentRenderer from './race'
 import SubraceDocumentRenderer from './subrace'
 import ItemDocumentRenderer from './item'
@@ -27,7 +28,7 @@ import styles from './styles.module.scss'
 
 export type LinkRendererProps = React.PropsWithRef<{ file: DatabaseFile }>
 
-export const DocumentRendererMap = {
+export const DocumentRendererMap: Record<DocumentType, { document: React.FC, link: React.FC<LinkRendererProps> }> = {
     [DocumentType.Ability]: { document: AbilityDocumentRenderer, link: AbilityLinkRenderer },
     [DocumentType.Character]: { document: CharacterDocumentRenderer, link: CreatureLinkRenderer },
     [DocumentType.Class]: { document: ClassRenderer, link: DefaultLinkRenderer },
@@ -39,9 +40,9 @@ export const DocumentRendererMap = {
     [DocumentType.Modifier]: { document: DefaultRenderer, link: DefaultLinkRenderer },
     [DocumentType.Race]: { document: RaceDocumentRenderer, link: DefaultLinkRenderer },
     [DocumentType.Subrace]: { document: SubraceDocumentRenderer, link: DefaultLinkRenderer },
-    [DocumentType.Spell]: { document: SpellDocumentRender, link: DefaultLinkRenderer },
+    [DocumentType.Spell]: { document: SpellDocumentRender, link: SpellLinkRenderer },
     [DocumentType.Text]: { document: TextDocumentRenderer, link: DefaultLinkRenderer }
-} satisfies Record<DocumentType, { document: React.FC, link: React.FC<LinkRendererProps> }>
+}
 
 const zoomDelta: number = 10
 

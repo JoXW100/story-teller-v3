@@ -13,7 +13,8 @@ import Logger from 'utils/logger'
 import { useLocalizedEnums } from 'utils/hooks/localization'
 import Condition, { ConditionType, ConditionValueType } from 'structure/database/condition'
 import ConditionFactory from 'structure/database/condition/factory'
-import type { ConditionExplicit, ConditionValue, IConditionProperties } from 'types/database/condition'
+import type { ConditionExplicit, ConditionValue } from 'types/database/condition'
+import type { IProperties } from 'types/editor'
 import styles from '../style.module.scss'
 
 type ConditionComponentParams = React.PropsWithoutRef<{
@@ -23,7 +24,7 @@ type ConditionComponentParams = React.PropsWithoutRef<{
     deps?: string[]
 }>
 
-const PropertyMap: Record<keyof IConditionProperties, React.ReactNode> = {
+const PropertyMap: Record<keyof IProperties, React.ReactNode> = {
     level: <LocalizedText id='editor-properties-level' />,
     casterLevel: <LocalizedText id='editor-properties-casterLevel' />,
     classLevel: <LocalizedText id='editor-properties-classLevel' />,
@@ -196,8 +197,6 @@ export const ConditionControl: React.FC<ConditionControlProps> = ({ value, field
             name: options[value.data.type]
         })
     }
-
-    console.log('condition', value)
 
     return (
         <div className={className}>

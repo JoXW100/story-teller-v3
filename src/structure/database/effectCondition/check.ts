@@ -4,9 +4,9 @@ import { simplifyNumberRecord } from '..'
 import { asNumber, isEnum, isNumber, isRecord, keysOf } from 'utils'
 import { resolveScaling } from 'utils/calculations'
 import type { Simplify } from 'types'
+import type { IProperties } from 'types/editor'
 import type { DataPropertyMap } from 'types/database'
 import type { IEffectConditionCheck } from 'types/database/effectCondition'
-import type { IConditionProperties } from 'types/database/condition'
 
 export class EffectConditionCheck extends EffectConditionBase implements IEffectConditionCheck {
     public readonly type: EffectConditionType.Check
@@ -27,7 +27,7 @@ export class EffectConditionCheck extends EffectConditionBase implements IEffect
         }
     }
 
-    public getModifierValue(stats: Partial<IConditionProperties>): number {
+    public getModifierValue(stats: Partial<IProperties>): number {
         return 8 + resolveScaling(this.scaling, stats)
     }
 

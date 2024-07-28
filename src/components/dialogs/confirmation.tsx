@@ -29,7 +29,7 @@ const ConfirmationDialog: React.FC<DialogArgs<'confirmation'>> = ({ id, headerTe
                 </div>
                 { bodyTextId !== undefined &&
                     <div className={styles.dialogBody}>
-                        <LocalizedText id={bodyTextId} args={bodyTextArgs}/>
+                        <LocalizedText id={bodyTextId} args={bodyTextArgs} className='center-flex fill padding-medium'/>
                     </div>
                 }
                 <div className={styles.dialogButtonGroup}>

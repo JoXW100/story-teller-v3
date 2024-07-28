@@ -1,12 +1,11 @@
+import type { ISubFile } from '..'
 import type { IClassLevelData, IClassStorage } from './class'
 import type { ClassLevel, OptionalAttribute } from 'structure/dnd'
-import type { ObjectId } from 'types'
 
-export interface ISubclassData {
+export interface ISubclassData extends ISubFile {
     readonly name: string
     readonly description: string
     readonly content: string
-    readonly parentClass: ObjectId | null
     readonly levels: Record<ClassLevel, IClassLevelData>
     // Spells
     readonly spellAttribute: OptionalAttribute

@@ -122,7 +122,7 @@ export const ModifierChoiceEnumItem: React.FC<ModifierChoiceEnumItemProps> = ({ 
     return isNumber(data.numChoices) && data.numChoices > 1
         ? <ListMenu
             type='enum'
-            className={styles.dropdown}
+            itemClassName={styles.dropdown}
             values={value}
             defaultValue={keysOf(options).find(x => !value.includes(x)) ?? 0}
             options={options}
@@ -181,7 +181,7 @@ export const ModifierChoiceValueItem: React.FC<ModifierChoiceValueItemProps> = (
     return isNumber(data.numChoices) && data.numChoices > 1
         ? <ListMenu
             type='enum'
-            className={styles.dropdown}
+            itemClassName={styles.dropdown}
             values={value}
             defaultValue={keysOf(options).find(x => !value.includes(x)) ?? 0}
             options={options}
@@ -224,7 +224,7 @@ export const ModifierSelectDocumentItem: React.FC<ModifierChoiceDocumentItemProp
 
     return isNumber(data.numChoices) && data.numChoices > 1
         ? <LinkListMenu
-            className={styles.dropdown}
+            itemClassName={styles.dropdown}
             values={value}
             allowedTypes={data.allowedTypes}
             onChange={handleChange}
@@ -285,7 +285,7 @@ export const ModifierOptionsDocumentItem: React.FC<ModifierChoiceDocumentItemPro
     return isNumber(data.numChoices) && data.numChoices > 1
         ? <ListMenu
             type='enum'
-            className={styles.dropdown}
+            itemClassName={styles.dropdown}
             values={value}
             defaultValue={keysOf(options).find(x => !value.includes(x)) ?? 0}
             options={options}
@@ -351,7 +351,7 @@ export const ModifierChoiceLinkedItem: React.FC<ModifierChoiceExternalItemProps>
     return isNumber(data.numChoices) && data.numChoices > 1
         ? <ListMenu
             type='enum'
-            className={styles.dropdown}
+            itemClassName={styles.dropdown}
             values={value}
             defaultValue={keysOf(options).find(x => !value.includes(x))!}
             options={options}

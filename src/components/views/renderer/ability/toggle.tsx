@@ -3,16 +3,13 @@ import { AbilityRenderer } from '.'
 import { asBooleanString } from 'utils'
 import AbilityDataBase from 'structure/database/files/ability/data'
 import AbilityDataFactory, { type AbilityData } from 'structure/database/files/ability/factory'
-import type { ObjectId } from 'types'
 import type { IAbilityData } from 'types/database/files/ability'
-import type { IBonusGroup, ICreatureStats } from 'types/editor'
+import type { IBonusGroup, IProperties } from 'types/editor'
 import styles from '../styles.module.scss'
 
 type AbilityLinkRendererProps = React.PropsWithRef<{
-    id: ObjectId | string
     data: IAbilityData
-    stats?: ICreatureStats
-    classLevel?: number
+    properties: IProperties
     attackBonuses?: IBonusGroup
     damageBonuses?: IBonusGroup
     expendedCharges?: number
@@ -20,7 +17,7 @@ type AbilityLinkRendererProps = React.PropsWithRef<{
     startCollapsed?: boolean
 }>
 
-export const AbilityToggleRenderer: React.FC<AbilityLinkRendererProps> = ({ id, data, stats, classLevel, attackBonuses, damageBonuses, startCollapsed = false, expendedCharges, setExpendedCharges }) => {
+export const AbilityToggleRenderer: React.FC<AbilityLinkRendererProps> = ({ data, properties, attackBonuses, damageBonuses, startCollapsed = false, expendedCharges, setExpendedCharges }) => {
     const [open, setOpen] = useState(!startCollapsed)
 
     const ability = useMemo(() =>
@@ -39,10 +36,8 @@ export const AbilityToggleRenderer: React.FC<AbilityLinkRendererProps> = ({ id, 
             data={asBooleanString(open)}
             onClick={handleClick}>
             <AbilityRenderer
-                id={id}
                 data={ability}
-                stats={stats}
-                classLevel={classLevel}
+                properties={properties}
                 attackBonuses={attackBonuses}
                 damageBonuses={damageBonuses}
                 open={open}

@@ -72,7 +72,10 @@ const ModifierDocumentEditor: React.FC = () => {
                         { data.subtype === ModifierAddType.Ability &&
                             <ChoiceComponent field={createField(field, 'value')} type='abilityObjectId' allowMultipleChoices fill/>
                         }{ data.subtype === ModifierAddType.Spell &&
-                            <ChoiceComponent field={createField(field, 'value')} type='spellObjectId' allowMultipleChoices fill/>
+                            <>
+                                <ChoiceComponent field={createField(field, 'value')} type='spellObjectId' allowMultipleChoices fill/>
+                                <EnumComponent field={createField(field, 'attribute')} type='optionalAttr' labelId='editor-spellAttribute'/>
+                            </>
                         }{ data.subtype === ModifierAddType.Linked &&
                             <>
                                 <TextComponent field={createField(field, 'category')} labelId='editor-category'/>
@@ -139,9 +142,7 @@ const ModifierDocumentEditor: React.FC = () => {
                 }{ data.type === ModifierType.Set &&
                     <>
                         <EnumComponent field={createField(field, 'subtype')} type='modifierSetType' labelId='editor-subtype' />
-                        { data.subtype === ModifierSetType.SpellAttribute &&
-                            <ChoiceComponent field={createField(field, 'value')} type='spellAttribute' fill/>
-                        }{ data.subtype === ModifierSetType.Size &&
+                        { data.subtype === ModifierSetType.Size &&
                             <ChoiceComponent field={createField(field, 'value')} type='size' fill/>
                         }{ data.subtype === ModifierSetType.Speed &&
                             <>

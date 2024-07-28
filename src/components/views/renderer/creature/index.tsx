@@ -1,6 +1,6 @@
 import { useContext, useMemo, useState } from 'react'
 import { Tooltip } from '@mui/material'
-import SpellGroups from '../spell/groups'
+import SpellGroups from './spellGroups'
 import PageSelector, { type IPageSelectorData } from '../pageSelector'
 import AbilityGroups from './abilityGroups'
 import SourceTooltips, { type SourceEnumType } from './sourceTooltips'
@@ -13,10 +13,10 @@ import LocalizedText from 'components/controls/localizedText'
 import { keysOf } from 'utils'
 import { useLocalizedEnums } from 'utils/hooks/localization'
 import { useCreatureFacade } from 'utils/hooks/documents'
-import { type EnumTypeKey, type EnumTypeValue } from 'structure/enums'
-import { OptionalAttribute, type SpellLevel } from 'structure/dnd'
 import { RollMethodType, RollType } from 'structure/dice'
 import type CreatureDocument from 'structure/database/files/creature'
+import type { EnumTypeKey, EnumTypeValue } from 'structure/enums'
+import { OptionalAttribute, type SpellLevel } from 'structure/dnd'
 import type { ISourceBinding } from 'types/database/files/creature'
 
 const Pages = {
@@ -52,7 +52,6 @@ const CreatureDocumentRenderer: React.FC = () => {
     const [context, dispatch] = useContext(Context)
     const [page, setPage] = useState<keyof typeof Pages>('actions')
     const { facade, abilities, spells, variables } = useCreatureFacade(context.file as CreatureDocument)
-    const stats = useMemo(() => facade.getStats(), [facade])
     const descriptionToken = useMemo(() => {
         return context.file.getTokenizedDescription(ElementDictionary)
     }, [context.file])
@@ -81,7 +80,8 @@ const CreatureDocumentRenderer: React.FC = () => {
                         desc='Health'
                         details={null}
                         tooltips={null}
-                        critRange={20}
+                        critRange={facade.critRange}
+                        critDieCount={facade.critDieCount}
                         mode={RollMethodType.Normal}
                         type={RollType.Health}/>
                 </div>
@@ -92,7 +92,8 @@ const CreatureDocumentRenderer: React.FC = () => {
                         desc='Initiative'
                         details={null}
                         tooltips="Roll Initiative"
-                        critRange={20}
+                        critRange={facade.critRange}
+                        critDieCount={facade.critDieCount}
                         mode={RollMethodType.Normal}
                         type={RollType.Initiative}/>
                 </div>
@@ -102,12 +103,13 @@ const CreatureDocumentRenderer: React.FC = () => {
                         desc='Proficiency'
                         details={null}
                         tooltips="Roll Proficiency Check"
-                        critRange={20}
+                        critRange={facade.critRange}
+                        critDieCount={facade.critDieCount}
                         mode={RollMethodType.Normal}
                         type={RollType.Check}/>
                 </div>
                 <Elements.line width='2px'/>
-                <AttributesBox data={facade}/>
+                <AttributesBox facade={facade}/>
                 <Elements.line width='2px'/>
                 <Elements.h2 underline={false}>Description</Elements.h2>
                 { descriptionToken.build() }
@@ -137,8 +139,8 @@ const CreatureDocumentRenderer: React.FC = () => {
                 <div>
                     { page === 'actions' &&
                         <AbilityGroups
-                            abilities={abilities}
                             facade={facade}
+                            abilities={abilities}
                             expendedCharges={facade.storage.abilitiesExpendedCharges}
                             setExpendedCharges={handleSetExpandedAbilityCharges}/>
                     }
@@ -152,17 +154,22 @@ const CreatureDocumentRenderer: React.FC = () => {
             <>
                 <Elements.line width='3px'/>
                 <Elements.align direction='h' weight='1' width='100%'>
-                    <Elements.align direction='h' weight='3.6' width='100%'>
+                    <Elements.align direction='h' weight='2' width='100%'>
                         <Elements.h2 underline={false}> Spells: </Elements.h2>
+                    </Elements.align>
+                    <Elements.align direction='vc' weight='1.5' width='100%'>
+                        <Elements.bold>Spellcasting Attribute</Elements.bold>
+                        { facade.translator(`enum-optionalAttr-${facade.spellAttribute}`) }
                     </Elements.align>
                     <Elements.align direction='vc' weight='1' width='100%'>
                         <Elements.b>Spell Modifier</Elements.b>
                         <Elements.roll
-                            dice={String(facade.spellAttributeValue)}
+                            dice={String(facade.getSpellAttributeValue())}
                             desc='Spell Modifier'
                             details={null}
                             tooltips={null}
-                            critRange={20}
+                            critRange={facade.critRange}
+                            critDieCount={facade.critDieCount}
                             mode={RollMethodType.Normal}
                             type={RollType.General}/>
                     </Elements.align>
@@ -170,24 +177,25 @@ const CreatureDocumentRenderer: React.FC = () => {
                     <Elements.align direction='vc' weight='1' width='100%'>
                         <Elements.b>Spell Attack</Elements.b>
                         <Elements.roll
-                            dice={String(facade.spellAttackModifier)}
+                            dice={String(facade.getSpellAttackModifier())}
                             desc='Spell Attack'
                             details={null}
                             tooltips={null}
-                            critRange={20}
+                            critRange={facade.critRange}
+                            critDieCount={facade.critDieCount}
                             mode={RollMethodType.Normal}
                             type={RollType.Attack}/>
                     </Elements.align>
                     <Elements.space/>
                     <Elements.align direction='vc' weight='1' width='100%'>
                         <Elements.bold>Spell Save</Elements.bold>
-                        <Elements.save value={facade.spellSaveModifier} type={null} tooltips={null}/>
+                        <Elements.save value={facade.getSpellSaveModifier()} type={null} tooltips={null}/>
                     </Elements.align>
                 </Elements.align>
                 <SpellGroups
+                    facade={facade}
                     spells={spells}
                     spellSlots={facade.spellSlots}
-                    stats={stats}
                     expendedSlots={facade.storage.spellsExpendedSlots}
                     setExpendedSlots={handleSetExpandedSpellSlots}/>
             </>

@@ -4,8 +4,8 @@ import type { DataPropertyMap } from 'types/database'
 import type { IModifierSetDataBase } from 'types/database/files/modifier'
 
 export enum ModifierSetType {
-    SpellAttribute = 'spellAttribute',
     ArmorClassBase = 'acBase',
+    RitualCaster = 'ritualCaster',
     Size = 'size',
     Speed = 'speed',
     Sense = 'sense',

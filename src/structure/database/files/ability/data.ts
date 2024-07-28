@@ -8,7 +8,7 @@ import type ChargesData from 'structure/database/charges'
 import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IAbilityDataBase } from 'types/database/files/ability'
-import type { IConditionProperties } from 'types/database/condition'
+import type { IProperties } from 'types/editor'
 import type { TokenContext } from 'types/language'
 
 abstract class AbilityDataBase implements IAbilityDataBase {
@@ -76,14 +76,14 @@ abstract class AbilityDataBase implements IAbilityDataBase {
         }
     }
 
-    public evaluateNumCharges(data: Partial<IConditionProperties>, choices?: Record<string, unknown>): number {
+    public evaluateCharges(properties: Partial<IProperties>, choices?: Record<string, unknown>): ChargesData | null {
         for (const key of keysOf(this.charges)) {
             const value = this.charges[key]
-            if (value.condition.evaluate(data, choices)) {
-                return value.getCharges(data)
+            if (value.condition.evaluate(properties, choices)) {
+                return value
             }
         }
-        return 0
+        return null
     }
 
     public createContexts(elements: ElementDefinitions): [TokenContext] {

@@ -1,24 +1,24 @@
 import React, { useMemo } from 'react'
-import { SpellToggleRenderer } from '.'
 import ChargesRenderer from '../charges'
+import SpellToggleRenderer from '../spell/toggle'
 import Elements from 'components/elements'
 import { keysOf } from 'utils'
 import { useLocalizedEnums } from 'utils/hooks/localization'
-import { SpellLevel } from 'structure/dnd'
-import { EmptyCreatureStats } from 'structure/database'
+import { OptionalAttribute, SpellLevel } from 'structure/dnd'
+import type CreatureFacade from 'structure/database/files/creature/facade'
 import type { ObjectId } from 'types'
-import type { ICreatureStats } from 'types/editor'
 import type { ISpellData } from 'types/database/files/spell'
 
 type SpellGroupsProps = React.PropsWithRef<{
+    facade: CreatureFacade
     spells: Record<ObjectId, ISpellData>
     spellSlots: Partial<Record<SpellLevel, number>>
     expendedSlots: Partial<Record<SpellLevel, number>>
-    stats?: ICreatureStats
     setExpendedSlots?: (value: Partial<Record<SpellLevel, number>>) => void
 }>
 
-const SpellGroups: React.FC<SpellGroupsProps> = ({ spells, spellSlots, expendedSlots, stats = EmptyCreatureStats, setExpendedSlots }) => {
+const SpellGroups: React.FC<SpellGroupsProps> = ({ facade, spells, spellSlots, expendedSlots, setExpendedSlots }) => {
+    const stats = useMemo(() => facade.createProperties(), [facade])
     const options = useLocalizedEnums('spellLevel')
     const categories = useMemo(() => {
         const categories: Partial<Record<SpellLevel, Array<keyof typeof spells>>> = {}
@@ -31,15 +31,14 @@ const SpellGroups: React.FC<SpellGroupsProps> = ({ spells, spellSlots, expendedS
         }
         return categories
     }, [spellSlots, spells])
+    const attributes = facade.spells
 
     return (
         <>
             { keysOf(categories).map(level => (
                 <React.Fragment key={level}>
                     <Elements.row>
-                        <Elements.b>
-                            { options[level] }
-                        </Elements.b>
+                        <Elements.b>{ options[level] }</Elements.b>
                         { level !== SpellLevel.Cantrip &&
                             <ChargesRenderer
                                 charges={spellSlots[level] ?? 0}
@@ -49,7 +48,11 @@ const SpellGroups: React.FC<SpellGroupsProps> = ({ spells, spellSlots, expendedS
                     </Elements.row>
                     <Elements.space/>
                     { categories[level]?.map((id) =>
-                        <SpellToggleRenderer key={id} id={id} data={spells[id]} stats={stats} startCollapsed/>
+                        <SpellToggleRenderer
+                            key={id}
+                            data={spells[id]}
+                            properties={{ ...stats, spellAttribute: attributes[id] ?? OptionalAttribute.None }}
+                            startCollapsed/>
                     )}
                     <Elements.space/>
                 </React.Fragment>

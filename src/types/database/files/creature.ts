@@ -58,7 +58,7 @@ export interface ICreatureData {
     // Spells
     readonly spellAttribute: OptionalAttribute
     readonly casterLevel: CalcValue
-    readonly spells: ObjectId[]
+    readonly spells: Record<ObjectId, OptionalAttribute>
     readonly spellSlots: Partial<Record<SpellLevel, number>>
     readonly ritualCaster: boolean
     // Abilities

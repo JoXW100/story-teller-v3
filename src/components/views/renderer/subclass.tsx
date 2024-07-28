@@ -52,8 +52,8 @@ const SubclassRenderer: React.FC = () => {
     return <>
         <Elements.h1 underline>{context.file.getTitle()}</Elements.h1>
         <LocalizedText className='font-bold' id='render-subclassOf'/>
-        { data.parentClass !== null
-            ? <Elements.linkTitle fileId={data.parentClass} newTab/>
+        { data.parentFile !== null
+            ? <Elements.linkTitle fileId={data.parentFile} newTab/>
             : <LocalizedText id='common-missing'/>
         }
         <Elements.line width='2px'/>

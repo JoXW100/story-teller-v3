@@ -44,37 +44,29 @@ const SettingsView: React.FC<SettingsViewParams> = ({ returnPath }) => {
             <AppBar headerId="settings-header" iconId="settings" handleBack={handleBack}/>
             <div className={styles.container}>
                 <LocalizedText className='center-vertical-flex' id='settings-language'/>
-                <span>
-                    <DropdownMenu
-                        value={context.language}
-                        values={createLanguageOptions()}
-                        onChange={(value) => { dispatch.setOption('language', value) }}
-                    />
-                </span>
+                <DropdownMenu
+                    value={context.language}
+                    values={createLanguageOptions()}
+                    onChange={(value) => { dispatch.setOption('language', value) }}/>
 
                 <LocalizedText className='center-vertical-flex' id='settings-viewMode'/>
-                <span>
-                    <DropdownMenu
-                        value={context.viewMode}
-                        values={options}
-                        onChange={(value) => { dispatch.setOption('viewMode', value) }}
-                    />
-                </span>
+                <DropdownMenu
+                    value={context.viewMode}
+                    values={options}
+                    onChange={(value) => { dispatch.setOption('viewMode', value) }}/>
 
                 <LocalizedText className='center-vertical-flex' id='settings-enableColorFileByType'/>
                 <span>
                     <Checkbox
                         value={context.enableColorFileByType}
-                        onChange={(value) => { dispatch.setOption('enableColorFileByType', value) }}
-                    />
+                        onChange={(value) => { dispatch.setOption('enableColorFileByType', value) }}/>
                 </span>
 
                 <LocalizedText className='center-vertical-flex' id='settings-enableEditorWordWrap'/>
                 <span>
                     <Checkbox
                         value={context.enableEditorWordWrap}
-                        onChange={(value) => { dispatch.setOption('enableEditorWordWrap', value) }}
-                    />
+                        onChange={(value) => { dispatch.setOption('enableEditorWordWrap', value) }}/>
                 </span>
             </div>
         </div>

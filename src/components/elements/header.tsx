@@ -25,8 +25,17 @@ export const Header3Component: React.FC<HeaderElementParams> = ({ children, unde
     )
 }
 
+export const Header4Component: React.FC<HeaderElementParams> = ({ children, underline }) => {
+    return (
+        <div className={styles.header4} data={String(underline)}>
+            { children }
+        </div>
+    )
+}
+
 export const element = {
     'h1': new HeaderElement(({ key, ...props }) => <Header1Component key={key} {...props}/>),
     'h2': new HeaderElement(({ key, ...props }) => <Header2Component key={key} {...props}/>),
-    'h3': new HeaderElement(({ key, ...props }) => <Header3Component key={key} {...props}/>)
+    'h3': new HeaderElement(({ key, ...props }) => <Header3Component key={key} {...props}/>),
+    'h4': new HeaderElement(({ key, ...props }) => <Header4Component key={key} {...props}/>)
 }

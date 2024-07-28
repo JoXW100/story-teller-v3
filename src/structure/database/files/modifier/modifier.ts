@@ -4,14 +4,14 @@ import Condition, { ConditionType } from 'structure/database/condition'
 import { Skill, Attribute, type AdvantageBinding, type ConditionBinding, type Language, MovementType, type OptionalAttribute, type ProficiencyLevelBasic, type DamageBinding, Sense, type SizeType, type ProficiencyLevel, type ToolType, type ArmorType, type WeaponTypeValue } from 'structure/dnd'
 import type { ObjectId } from 'types'
 import type { IEditorChoiceData } from 'types/database/choice'
-import type { IConditionProperties } from 'types/database/condition'
 import type { ISourceBinding } from 'types/database/files/creature'
+import type { IProperties } from 'types/editor'
 import type { ModifierData } from './factory'
 
 export interface IModifierEventHandler<T, D = ModifierData> {
     key: string
     data: D
-    apply: (value: T, choices: Record<string, unknown>, properties: Partial<IConditionProperties>, variables: Record<string, unknown>) => T
+    apply: (value: T, choices: Record<string, unknown>, properties: Partial<IProperties>, variables: Record<string, unknown>) => T
 }
 
 export enum SourceType {
@@ -43,7 +43,7 @@ export class ModifierEvent<T> {
         this.properties = properties
     }
 
-    public call(value: T, properties: Partial<IConditionProperties>, choices: Record<string, unknown>): T {
+    public call(value: T, properties: Partial<IProperties>, choices: Record<string, unknown>): T {
         const variables: Record<string, unknown> = {}
         for (const handler of Object.values(this.subscribers)) {
             const cond = this.properties.conditions[handler.key]
@@ -77,6 +77,7 @@ class Modifier {
     public readonly abilityThrownWeaponDamageBonus = new ModifierEvent<number>(this.properties)
     public readonly abilityChargesBonus = new ModifierEvent<number>(this.properties)
     public readonly ac = new ModifierEvent<number>(this.properties)
+    public readonly ritualCaster = new ModifierEvent<boolean>(this.properties)
     public readonly health = new ModifierEvent<number>(this.properties)
 
     public readonly abilityScores: Record<Attribute, ModifierEvent<number>> = {
@@ -139,14 +140,13 @@ class Modifier {
     public readonly spellSave = new ModifierEvent<number>(this.properties)
     public readonly abilities = new ModifierEvent<Record<string, string | ObjectId>>(this.properties)
     public readonly modifiers = new ModifierEvent<Record<string, ObjectId>>(this.properties)
-    public readonly spells = new ModifierEvent<ObjectId[]>(this.properties)
+    public readonly spells = new ModifierEvent<Record<ObjectId, OptionalAttribute>>(this.properties)
     public readonly advantages = new ModifierEvent<Partial<Record<AdvantageBinding, readonly ISourceBinding[]>>>(this.properties)
     public readonly disadvantages = new ModifierEvent<Partial<Record<AdvantageBinding, readonly ISourceBinding[]>>>(this.properties)
     public readonly resistances = new ModifierEvent<Partial<Record<DamageBinding, readonly ISourceBinding[]>>>(this.properties)
     public readonly vulnerabilities = new ModifierEvent<Partial<Record<DamageBinding, readonly ISourceBinding[]>>>(this.properties)
     public readonly damageImmunities = new ModifierEvent<Partial<Record<DamageBinding, readonly ISourceBinding[]>>>(this.properties)
     public readonly conditionImmunities = new ModifierEvent<Partial<Record<ConditionBinding, readonly ISourceBinding[]>>>(this.properties)
-    public readonly spellAttribute = new ModifierEvent<OptionalAttribute>(this.properties)
     public readonly size = new ModifierEvent<SizeType>(this.properties)
     public readonly proficienciesSave = new ModifierEvent<Partial<Record<Attribute, ProficiencyLevel>>>(this.properties)
     public readonly proficienciesSkill = new ModifierEvent<Partial<Record<Skill, ProficiencyLevel>>>(this.properties)

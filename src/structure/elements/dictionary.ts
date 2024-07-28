@@ -44,6 +44,7 @@ export const ElementDefinitionDictionary = {
     'h1': header,
     'h2': header,
     'h3': header,
+    'h4': header,
     'icon': new IconElement(),
     'image': new ImageElement(),
     'item': new ItemElement(),
