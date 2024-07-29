@@ -763,7 +763,7 @@ class DebugHandler {
                     damageType: DamageType.None,
                     damageScaling: {},
                     damageDie: DieType.None,
-                    damageDieCount: 0,
+                    damageDieCount: {},
                     hitScaling: {},
                     effects: {},
                     reach: 0
@@ -777,7 +777,7 @@ class DebugHandler {
                     damageType: DamageType.None,
                     damageScaling: {},
                     damageDie: DieType.None,
-                    damageDieCount: 0,
+                    damageDieCount: {},
                     hitScaling: {},
                     effects: {},
                     range: 0,
@@ -792,7 +792,7 @@ class DebugHandler {
                     damageType: DamageType.None,
                     damageScaling: {},
                     damageDie: DieType.None,
-                    damageDieCount: 0,
+                    damageDieCount: {},
                     hitScaling: {},
                     effects: {},
                     reach: 0,
@@ -997,7 +997,7 @@ class DebugHandler {
                     damageType: effect.damageType,
                     scaling: this.toScaling(effect.scaling, effect.proficiency, effect.modifier), // TODO: scalingModifiers not converted
                     die: this.convertDiceType(effect.dice),
-                    dieCount: asNumber(effect.diceNum, 1),
+                    dieCount: { [ScalingType.Constant]: asNumber(effect.diceNum, 1) },
                     condition: {}
                 }
             }

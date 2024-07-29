@@ -1,6 +1,6 @@
 import type { IconType } from 'assets/icons'
 import AbilityAttackDataBase from '.'
-import { isNumber } from 'utils'
+import { isNumber, nullifyEmptyRecord } from 'utils'
 import { TargetType } from 'structure/dnd'
 import AreaFactory, { type Area } from 'structure/database/area/factory'
 import EffectConditionFactory, { type EffectCondition } from 'structure/database/effectCondition/factory'
@@ -47,12 +47,12 @@ class AbilityAttackAreaData extends AbilityAttackDataBase implements IAbilityAtt
         area: {
             get value() { return AreaFactory.create({}) },
             validate: AreaFactory.validate,
-            simplify: AreaFactory.simplify
+            simplify: (value) => nullifyEmptyRecord(AreaFactory.simplify(value))
         },
         condition: {
             get value() { return EffectConditionFactory.create({}) },
             validate: EffectConditionFactory.validate,
-            simplify: EffectConditionFactory.simplify
+            simplify: (value) => nullifyEmptyRecord(EffectConditionFactory.simplify(value))
         }
     }
 }

@@ -33,19 +33,18 @@ const ClassSpellGroups: React.FC<ClassSpellGroupsProps> = ({ facade, spells, set
         }
         return pages
     }, [facade])
+    const preparations = useMemo(() => facade.getSpellPreparations(), [facade])
     const preparedSpells = useMemo(() => {
         const preparedSpells: Record<ObjectId, SpellData> = {}
         if (selectedClass !== null) {
-            const classPreparations = facade.storage.spellPreparations[selectedClass] ?? {}
+            const classPreparations = preparations[selectedClass] ?? {}
             for (const key of keysOf(classPreparations)) {
                 const preparation = classPreparations[key]
                 switch (preparation) {
                     case SpellPreparationType.None:
                     case SpellPreparationType.Learned:
                         break
-                    case SpellPreparationType.FreeCantrip:
                     case SpellPreparationType.AlwaysPrepared:
-                    case SpellPreparationType.Cantrip:
                     case SpellPreparationType.Prepared:
                         preparedSpells[key] = spells[key]
                         break
@@ -59,7 +58,7 @@ const ClassSpellGroups: React.FC<ClassSpellGroupsProps> = ({ facade, spells, set
             }
         }
         return preparedSpells
-    }, [facade.spells, facade.storage.spellPreparations, selectedClass, spells])
+    }, [facade, preparations, selectedClass, spells])
     const spellSlots = useMemo(() => {
         if (selectedClass !== null) {
             return facade.getClassSpellSlots(selectedClass)

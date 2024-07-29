@@ -9,15 +9,18 @@ import { isEnum, isRecord } from 'utils'
 import type { Simplify } from 'types'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
 import type { IItemWondrousItemData, IItemData } from 'types/database/files/item'
+import ItemToolData from './tool'
 
-export type ItemData = ItemWondrousItemData | ItemArmorData | ItemWeaponData |
-ItemConsumableData | ItemOtherData
+export type ItemData = ItemWondrousItemData | ItemArmorData | ItemToolData |
+ItemWeaponData | ItemConsumableData | ItemOtherData
 
 const ItemDataFactory: IDatabaseFactory<IItemData, ItemData> = {
     create: function (data: Simplify<IItemData> = {}): ItemData {
         switch (data.type) {
             case ItemType.Armor:
                 return new ItemArmorData(data)
+            case ItemType.Tool:
+                return new ItemToolData(data)
             case ItemType.Weapon:
                 return ItemWeaponDataFactory.create(data)
             default:
@@ -42,6 +45,8 @@ const ItemDataFactory: IDatabaseFactory<IItemData, ItemData> = {
                 return ItemWondrousItemData.properties
             case ItemType.Armor:
                 return ItemArmorData.properties
+            case ItemType.Tool:
+                return ItemToolData.properties
             case ItemType.Weapon:
                 return ItemWeaponDataFactory.properties(data)
             case ItemType.Consumable:

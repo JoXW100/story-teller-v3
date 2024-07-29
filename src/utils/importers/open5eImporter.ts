@@ -1,4 +1,4 @@
-import { asEnum, asNumber, capitalizeFirstLetter, isString } from 'utils'
+import { asEnum, asNumber, capitalizeFirstLetter, isString, keysOf } from 'utils'
 import Communication from 'utils/communication'
 import Logger from 'utils/logger'
 import { getSpellLevelFromValue } from 'utils/calculations'
@@ -352,7 +352,7 @@ function createEffects(res: Open5eSpell): Record<string, IEffect> {
             damageType: damageType,
             scaling: {},
             die: effectDie,
-            dieCount: effectDieNum
+            dieCount: { [ScalingType.Constant]: effectDieNum }
         } satisfies IDamageEffect
     }
     if (effects.main.type === EffectType.Damage && isString(res.higher_level) && res.higher_level.length > 0) {
@@ -369,7 +369,7 @@ function createEffects(res: Open5eSpell): Record<string, IEffect> {
             let prevLevel = 0
             let prevKey: keyof typeof effects = 'main'
             let prevDie: DieType = effects.main.die
-            let prevDieCount: number = effects.main.dieCount
+            let prevDieCount: number = effects.main.dieCount[ScalingType.Constant]!
             while ((hit = expr.exec(res.higher_level)) != null) {
                 const level = asNumber(hit[1])
                 const higherDie = parseDieType(hit[3], DieType.None)
@@ -378,7 +378,7 @@ function createEffects(res: Open5eSpell): Record<string, IEffect> {
                     effects[prevKey] = {
                         ...effects.main,
                         die: prevDie,
-                        dieCount: prevDieCount,
+                        dieCount: { [ScalingType.Constant]: prevDieCount },
                         condition: prevLevel > 0
                             ? { range: [prevLevel, { property: 'casterLevel' }, level - 1] }
                             : { leq: [{ property: 'casterLevel' }, level - 1] }
@@ -394,24 +394,24 @@ function createEffects(res: Open5eSpell): Record<string, IEffect> {
                 effects[prevKey] = {
                     ...effects.main,
                     die: prevDie,
-                    dieCount: prevDieCount,
+                    dieCount: { [ScalingType.Constant]: prevDieCount },
                     condition: { geq: [{ property: 'casterLevel' }, prevLevel] }
                 }
             } else if (res.higher_level.toLowerCase().includes('for each slot level')) {
                 const die = parseDieType(increaseMatch[3], DieType.None)
                 const dieCount = asNumber(increaseMatch[2], 0)
+                const initialCount = effects.main.dieCount[ScalingType.Constant] ?? 0
 
-                effects.main = {
-                    ...effects.main,
-                    condition: { leq: [{ property: 'spellLevel' }, res.level_int] }
-                }
-
-                for (let i = res.level_int + 1; i <= 9; i++) {
-                    effects[i] = {
-                        ...effects.main,
-                        die: die,
-                        dieCount: effects.main.dieCount + dieCount * (i - res.level_int),
-                        condition: { eq: [{ property: 'spellLevel' }, i] }
+                for (const key of keysOf(effects)) {
+                    if (effects[key].type !== EffectType.Text) {
+                        effects[key] = {
+                            ...effects[key],
+                            die: die,
+                            dieCount: {
+                                [ScalingType.Constant]: initialCount - dieCount * res.level_int,
+                                [ScalingType.SpellLevel]: dieCount
+                            }
+                        }
                     }
                 }
             }

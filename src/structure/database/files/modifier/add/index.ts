@@ -7,6 +7,7 @@ import type { DataPropertyMap } from 'types/database'
 export enum ModifierAddType {
     Linked = 'linked',
     Ability = 'ability',
+    ClassSpell = 'classSpell',
     Spell = 'spell',
     Advantage = 'advantage',
     Disadvantage = 'disadvantage',

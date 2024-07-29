@@ -1,6 +1,6 @@
 import { AbilityType } from './common'
 import AbilityDataBase from './data'
-import { isNumber, isRecord } from 'utils'
+import { isNumber, isRecord, nullifyEmptyRecord } from 'utils'
 import EffectFactory, { simplifyEffectRecord, type Effect } from 'structure/database/effect/factory'
 import EffectConditionFactory, { type EffectCondition } from 'structure/database/effectCondition/factory'
 import type { Simplify } from 'types'
@@ -45,7 +45,7 @@ class AbilityThrownAttackData extends AbilityDataBase implements IAbilityThrownA
         condition: {
             get value() { return EffectConditionFactory.create({}) },
             validate: EffectConditionFactory.validate,
-            simplify: EffectConditionFactory.simplify
+            simplify: (value) => nullifyEmptyRecord(EffectConditionFactory.simplify(value))
         },
         reach: {
             value: 0,

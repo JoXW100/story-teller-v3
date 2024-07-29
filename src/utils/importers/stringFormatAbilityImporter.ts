@@ -90,7 +90,7 @@ function createEffect(damageType: DamageType, text: string, die: DieType, dieCou
                 damageType: damageType,
                 scaling: { [ScalingType.Constant]: modifier },
                 die: die,
-                dieCount: dieCount,
+                dieCount: { [ScalingType.Constant]: dieCount },
                 condition: {}
             } satisfies IEffect
         case EffectType.Die:
@@ -99,7 +99,7 @@ function createEffect(damageType: DamageType, text: string, die: DieType, dieCou
                 label: 'Roll',
                 scaling: { [ScalingType.Constant]: modifier },
                 die: die,
-                dieCount: dieCount,
+                dieCount: { [ScalingType.Constant]: dieCount },
                 condition: {}
             } satisfies IEffect
         case EffectType.Text:
@@ -120,8 +120,7 @@ export function toRichText(text: string): string {
     text = text.replace(rollTextExpr, (_, match, spaces) => String(spaces ?? '').length > 0
         ? `\\roll[${match}]~`
         : `\\roll[${match}]`)
-    text = text.replace(/\n{2,}/g, '\n\\space\n')
-    return text.replace(/[\n\r]/g, '\\n\n')
+    return text.replace(/\n{2,}/g, '\n\\space\n')
 }
 
 export function toAbility(text: string): AbilityData | null {

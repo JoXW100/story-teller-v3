@@ -14,7 +14,7 @@ import ItemArmorData from '../item/armor'
 import { asNumber, isKeyOf, keysOf } from 'utils'
 import { getMaxProficiencyLevel, getMaxSpellLevel, getPreviousClassLevels } from 'utils/calculations'
 import type { TranslationHandler } from 'utils/hooks/localization'
-import { type ClassLevel, type CreatureType, type Language, type SizeType, ArmorType, MovementType, Sense, SpellLevel, type Attribute, type ProficiencyLevel, type ToolType, type WeaponTypeValue, OptionalAttribute, AdvantageBinding, ProficiencyLevelBasic } from 'structure/dnd'
+import { type ClassLevel, type CreatureType, type Language, type SizeType, ArmorType, MovementType, Sense, SpellLevel, type Attribute, type ProficiencyLevel, type ToolType, type WeaponTypeValue, OptionalAttribute, AdvantageBinding, ProficiencyLevelBasic, type SpellPreparationType } from 'structure/dnd'
 import type { ObjectId } from 'types'
 import type { ICharacterData } from 'types/database/files/character'
 import type { IProperties } from 'types/editor'
@@ -261,6 +261,7 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
         return this.spellSlots[SpellLevel.Cantrip] ?? 0
     }
 
+    /*
     public override get abilities(): Array<ObjectId | string> {
         const abilities: Array<ObjectId | string> = [...this.data.abilities]
         if (this.raceData !== null) {
@@ -293,6 +294,11 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
         }
         return abilities
     }
+
+    public get spells(): Record<ObjectId, OptionalAttribute> {
+        return this.modifier.spells.call({ ...this.data.spells }, this.properties, this.storage.choices)
+    }
+    */
 
     public get attunementSlots(): number {
         return this.modifier.attunementSlots.call(this.data.attunementSlots, this.properties, this.storage.choices)
@@ -365,7 +371,7 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
     public override getClassLevel(key: string): number {
         const source = this.modifier.findSourceOfType(key, SourceType.Class)
         if (source !== null && isKeyOf(source.key, this.data.classes)) {
-            return Number(this.data.classes[source.key])
+            return asNumber(this.data.classes[source.key], 0)
         }
         return 0
     }
@@ -377,7 +383,7 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
         const classLevel = this.classes[classId]
         const classData = this.classesData[classId]
         const levels = getPreviousClassLevels(classLevel)
-        const subclassData = classId in this.subclasses && Number(classLevel) >= Number(classData.subclassLevel)
+        const subclassData = classId in this.subclasses && asNumber(classLevel, 0) >= asNumber(classData.subclassLevel, 0)
             ? this.subclassesData[this.subclasses[classId]] ?? null
             : null
         const result: ClassLevelData[] = []
@@ -388,6 +394,10 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
             }
         }
         return result
+    }
+
+    public getSpellPreparations(): Record<ObjectId, Record<ObjectId, SpellPreparationType>> {
+        return this.modifier.classSpells.call({ ...this.storage.spellPreparations }, this.properties, this.storage.choices)
     }
 }
 

@@ -13,6 +13,8 @@ import { DocumentType } from 'structure/database'
 import type DatabaseFile from 'structure/database/files'
 import type { ObjectId } from 'types'
 import styles from './styles.module.scss'
+import Link from 'next/link'
+import Navigation from 'utils/navigation'
 
 interface IComponentPropsBase {
     className?: string
@@ -199,7 +201,11 @@ const LinkInput: React.FC<EditLinkInputComponentProps> = (props) => {
                     </Tooltip>
                 </>
                 : <>
-                    <span className='fill center-vertical-flex'>{state.file?.getTitle() ?? '...'}</span>
+                    <Link href={Navigation.fileURL(state.file.id)}>
+                        <span className='fill center-vertical-flex'>
+                            {state.file.getTitle()}
+                        </span>
+                    </Link>
                     <Tooltip title={<LocalizedText id='common-clear'/>}>
                         <span>
                             <button className='center-flex fill-height square' disabled={disabled} onClick={handleClearClick}>

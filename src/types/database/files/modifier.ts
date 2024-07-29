@@ -92,6 +92,12 @@ export interface IModifierAddSpellData extends IModifierAddDataBase {
     readonly attribute: OptionalAttribute
 }
 
+export interface IModifierAddClassSpellData extends IModifierAddDataBase {
+    readonly subtype: ModifierAddType.ClassSpell
+    readonly value: MultipleChoiceData<ObjectId | null>
+    readonly target: ObjectId | null
+}
+
 export interface IModifierAddAdvantageData extends IModifierAddDataBase {
     readonly subtype: ModifierAddType.Advantage
     readonly binding: SingleChoiceData<AdvantageBinding>
@@ -132,7 +138,7 @@ export type IModifierAddData = IModifierAddAbilityData | IModifierAddSpellData |
 IModifierAddAdvantageData | IModifierAddDisadvantageData |
 IModifierAddResistanceData | IModifierAddVulnerabilityData |
 IModifierAddDamageImmunityData | IModifierAddConditionImmunityData |
-IModifierAddLinkedData
+IModifierAddLinkedData | IModifierAddClassSpellData
 
 export interface IModifierRemoveData extends IModifierDataBase {
     readonly type: ModifierType.Remove

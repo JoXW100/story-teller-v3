@@ -38,6 +38,7 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
         }
         return pages
     }, [facade])
+    const preparations = useMemo(() => facade.getSpellPreparations(), [facade])
     const [knownCantrips, knownSpells, preparedSpells, numKnownCantrips, numKnownSpells, numPreparedSpells] = useMemo(() => {
         const knownCantrips: Record<ObjectId, SpellData> = {}
         const knownSpells: Record<ObjectId, SpellData> = {}
@@ -46,37 +47,41 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
         let numKnownSpells: number = 0
         let numPreparedSpells: number = 0
         if (selectedClass !== null) {
-            const classPreparations = facade.storage.spellPreparations[selectedClass] ?? {}
+            const classPreparations = preparations[selectedClass] ?? {}
             for (const key of keysOf(classPreparations)) {
                 const preparation = classPreparations[key]
-                switch (preparation) {
-                    case SpellPreparationType.None:
-                        break
-                    case SpellPreparationType.AlwaysPrepared:
-                        preparedSpells[key] = spells[key]
-                        break
-                    case SpellPreparationType.FreeCantrip:
-                        knownCantrips[key] = spells[key]
-                        break
-                    case SpellPreparationType.Cantrip:
-                        knownCantrips[key] = spells[key]
-                        numKnownCantrips++
-                        break
-                    case SpellPreparationType.Learned:
-                        knownSpells[key] = spells[key]
-                        numKnownSpells++
-                        break
-                    case SpellPreparationType.Prepared:
-                        preparedSpells[key] = spells[key]
-                        knownSpells[key] = spells[key]
-                        numPreparedSpells++
-                        numKnownSpells++
-                        break
+                if (key in spells) {
+                    switch (preparation) {
+                        case SpellPreparationType.None:
+                            break
+                        case SpellPreparationType.AlwaysPrepared:
+                            if (spells[key].level === SpellLevel.Cantrip) {
+                                knownCantrips[key] = spells[key]
+                            } else {
+                                knownSpells[key] = spells[key]
+                            }
+                            break
+                        case SpellPreparationType.Learned:
+                            if (spells[key].level === SpellLevel.Cantrip) {
+                                knownCantrips[key] = spells[key]
+                                numKnownCantrips++
+                            } else {
+                                knownSpells[key] = spells[key]
+                                numKnownSpells++
+                            }
+                            break
+                        case SpellPreparationType.Prepared:
+                            preparedSpells[key] = spells[key]
+                            knownSpells[key] = spells[key]
+                            numPreparedSpells++
+                            numKnownSpells++
+                            break
+                    }
                 }
             }
         }
         return [knownCantrips, knownSpells, preparedSpells, numKnownCantrips, numKnownSpells, numPreparedSpells]
-    }, [facade.storage.spellPreparations, selectedClass, spells])
+    }, [preparations, selectedClass, spells])
     const [learnedSlots, preparationSlots, spellSlots, maxSpellLevels] = useMemo(() => {
         if (selectedClass === null) {
             return [0, 0, {}, SpellLevel.Cantrip]
@@ -98,11 +103,11 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
     }, [facade.classes, pages])
 
     const getValidatedPrepared = (): Record<ObjectId, Record<ObjectId, SpellPreparationType>> => {
-        const preparations: Record<ObjectId, Record<ObjectId, SpellPreparationType>> = {}
+        const result: Record<ObjectId, Record<ObjectId, SpellPreparationType>> = {}
         for (const classId of keysOf(facade.classes)) {
             if (classId in facade.storage.spellPreparations) {
                 const classPreparations = facade.storage.spellPreparations[classId]
-                const value: Record<ObjectId, SpellPreparationType> = preparations[classId] = {}
+                const value: Record<ObjectId, SpellPreparationType> = result[classId] = {}
                 for (const preparedId of keysOf(classPreparations)) {
                     if (preparedId in spells) {
                         value[preparedId] = classPreparations[preparedId]
@@ -110,7 +115,7 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
                 }
             }
         }
-        return preparations
+        return result
     }
 
     const handleRemoveSpell = (spellId: ObjectId): void => {
@@ -124,7 +129,7 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
 
     const handleRemovePrepared = (spellId: ObjectId): void => {
         if (selectedClass !== null && selectedClass in facade.storage.spellPreparations &&
-            facade.storage.spellPreparations[selectedClass][spellId] === SpellPreparationType.Prepared) {
+            preparations[selectedClass][spellId] === SpellPreparationType.Prepared) {
             const prepared = getValidatedPrepared()
             prepared[selectedClass] = { ...(prepared[selectedClass] ?? {}), [spellId]: SpellPreparationType.Learned }
             setStorage('spellPreparations', prepared)
@@ -140,13 +145,11 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
     }
 
     const handleAddClick = (value: DatabaseFile | null): void => {
-        if (selectedClass !== null && value instanceof SpellDocument) {
-            const prepared = getValidatedPrepared()
+        if (selectedClass !== null && value instanceof SpellDocument && !(value.id in preparations)) {
+            const prepared = facade.storage.spellPreparations
             prepared[selectedClass] = {
                 ...(prepared[selectedClass] ?? {}),
-                [value.id]: value.data.level === SpellLevel.Cantrip
-                    ? SpellPreparationType.Cantrip
-                    : SpellPreparationType.Learned
+                [value.id]: SpellPreparationType.Learned
             }
             setStorage('spellPreparations', prepared)
         }
@@ -154,8 +157,8 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
     }
 
     const handleValidateAdd = (value: DatabaseFile): boolean => {
-        return selectedClass !== null && (!(selectedClass in facade.storage.spellPreparations) || (
-            value instanceof SpellDocument && !(value.id in facade.storage.spellPreparations[selectedClass]) &&
+        return selectedClass !== null && (!(selectedClass in preparations) || (
+            value instanceof SpellDocument && !(value.id in preparations[selectedClass]) &&
                 getSpellLevelValue(value.data.level) <= getSpellLevelValue(maxSpellLevels) && (
                 (value.data.level !== SpellLevel.Cantrip && numKnownSpells < learnedSlots) ||
                 (value.data.level === SpellLevel.Cantrip && numKnownCantrips < (spellSlots[SpellLevel.Cantrip] ?? 0))
@@ -177,22 +180,22 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
                         spells={knownSpells}
                         maxLevel={maxSpellLevels}
                         validate={(id) => knownSpells[id].levelValue <= getSpellLevelValue(maxSpellLevels)}
-                        removeIsDisabled={(id) => facade.storage.spellPreparations[selectedClass][id] !== SpellPreparationType.Learned}
-                        prepareIsDisabled={(id) => facade.storage.spellPreparations[selectedClass][id] !== SpellPreparationType.Learned}
+                        removeIsDisabled={(id) => preparations[selectedClass][id] !== SpellPreparationType.Learned}
+                        prepareIsDisabled={(id) => preparations[selectedClass][id] !== SpellPreparationType.Learned}
                         handleRemove={handleRemoveSpell}
                         handlePrepare={handlePrepare}/>
                     <SpellList
                         header={<LocalizedText id='render-spellList-cantrips' args={[numKnownCantrips, spellSlots[SpellLevel.Cantrip] ?? 0]}/>}
                         spells={knownCantrips}
                         validate={(id) => spells[id].level === SpellLevel.Cantrip}
-                        removeIsDisabled={(id) => id in facade.spells}
+                        removeIsDisabled={(id) => id in facade.spells || preparations[id][selectedClass] === SpellPreparationType.AlwaysPrepared}
                         handleRemove={handleRemoveSpell}/>
                     <SpellList
                         header={<LocalizedText id='render-spellList-preparedSpells' args={[numPreparedSpells, preparationSlots]}/>}
                         spells={preparedSpells}
                         maxLevel={maxSpellLevels}
                         validate={(id) => spells[id].levelValue <= getSpellLevelValue(maxSpellLevels) && spells[id].level !== SpellLevel.Cantrip}
-                        removeIsDisabled={(id) => id in facade.spells}
+                        removeIsDisabled={(id) => id in facade.spells || preparations[id][selectedClass] === SpellPreparationType.AlwaysPrepared}
                         handleRemove={handleRemovePrepared}/>
                     <CollapsibleGroup header={<LocalizedText id='render-spellPage-addSpell'/>}>
                         <div className={styles.modifierChoice}>

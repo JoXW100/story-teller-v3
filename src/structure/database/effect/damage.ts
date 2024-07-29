@@ -1,6 +1,6 @@
 import EffectBase from '.'
 import { EffectCategory, EffectType } from './common'
-import { asNumber, isEnum, isNumber, isRecord, keysOf } from 'utils'
+import { asEnum, asNumber, isEnum, isNumber, isRecord, keysOf } from 'utils'
 import { resolveScaling } from 'utils/calculations'
 import { DamageType, ScalingType } from 'structure/dnd'
 import { DieType } from 'structure/dice'
@@ -11,18 +11,17 @@ import type { IDamageEffect } from 'types/database/effect'
 import type { IBonusGroup, IProperties } from 'types/editor'
 
 class DamageEffect extends EffectBase implements IDamageEffect {
-    public readonly type: EffectType.Damage
+    public readonly type = EffectType.Damage
     public readonly category: EffectCategory
     public readonly damageType: DamageType
     public readonly scaling: Partial<Record<ScalingType, number>>
     public readonly die: DieType
-    public readonly dieCount: number
+    public readonly dieCount: Partial<Record<ScalingType, number>>
 
     public constructor(data: Simplify<IDamageEffect>) {
         super(data)
-        this.type = data.type ?? DamageEffect.properties.type.value
-        this.category = data.category ?? DamageEffect.properties.category.value
-        this.damageType = data.damageType ?? DamageEffect.properties.damageType.value
+        this.category = asEnum(data.category, EffectCategory, DamageEffect.properties.category.value)
+        this.damageType = asEnum(data.damageType, DamageType, DamageEffect.properties.damageType.value)
         this.scaling = DamageEffect.properties.scaling.value
         if (data.scaling !== undefined) {
             for (const type of keysOf(data.scaling)) {
@@ -32,7 +31,14 @@ class DamageEffect extends EffectBase implements IDamageEffect {
             }
         }
         this.die = data.die ?? DamageEffect.properties.die.value
-        this.dieCount = data.dieCount ?? DamageEffect.properties.dieCount.value
+        this.dieCount = DamageEffect.properties.dieCount.value
+        if (data.dieCount !== undefined) {
+            for (const type of keysOf(data.dieCount)) {
+                if (isEnum(type, ScalingType)) {
+                    this.dieCount[type] = asNumber(data.dieCount[type], 0)
+                }
+            }
+        }
     }
 
     public getModifierValue(stats: Partial<IProperties>, bonuses: IBonusGroup): number {
@@ -57,11 +63,16 @@ class DamageEffect extends EffectBase implements IDamageEffect {
         return resolveScaling(this.scaling, stats, true) + mod
     }
 
+    public getDieCountValue(stats: Partial<IProperties>): number {
+        return resolveScaling(this.dieCount, stats)
+    }
+
     public getDiceRollText(stats: Partial<IProperties>, bonuses: IBonusGroup): string {
         const mod = this.getModifierValue(stats, bonuses)
+        const count = this.getDieCountValue(stats)
         return this.die === DieType.None || this.die === DieType.DX
             ? `d0${mod >= 0 ? '+' : '-'}${Math.abs(mod)}`
-            : `${this.dieCount}${this.die}${mod >= 0 ? '+' : '-'}${Math.abs(mod)}`
+            : `${count}${this.die}${mod >= 0 ? '+' : '-'}${Math.abs(mod)}`
     }
 
     public static properties: DataPropertyMap<IDamageEffect, DamageEffect> = {
@@ -89,8 +100,9 @@ class DamageEffect extends EffectBase implements IDamageEffect {
             validate: (value) => isEnum(value, DieType)
         },
         dieCount: {
-            value: 1,
-            validate: isNumber
+            get value() { return {} },
+            validate: (value) => isRecord(value, (key, val) => isEnum(key, ScalingType) && isNumber(val)),
+            simplify: simplifyNumberRecord
         }
     }
 }

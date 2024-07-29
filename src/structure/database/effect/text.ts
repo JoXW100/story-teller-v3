@@ -5,12 +5,11 @@ import type { DataPropertyMap } from 'types/database'
 import type { ITextEffect } from 'types/database/effect'
 
 class TextEffect extends EffectBase implements ITextEffect {
-    public readonly type: EffectType.Text
+    public readonly type = EffectType.Text
     public readonly text: string
 
     public constructor(data: Partial<ITextEffect>) {
         super(data)
-        this.type = data.type ?? TextEffect.properties.type.value
         this.text = data.text ?? TextEffect.properties.text.value
     }
 

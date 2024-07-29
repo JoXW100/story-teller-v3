@@ -11,16 +11,14 @@ import DieEffect from './die'
 export type Effect = TextEffect | DamageEffect | DieEffect
 
 export function simplifyEffectRecord(value: Record<string, IEffect>): Record<string, unknown> | null {
-    if (Object.keys(value).length === 0) {
-        return null
-    }
-
+    let flag = false
     const result: Record<string, unknown> = {}
     for (const key of Object.keys(value)) {
+        flag = true
         result[key] = EffectFactory.simplify(value[key])
     }
 
-    return result
+    return flag ? result : null
 }
 
 export function isInstanceOfEffect(value: unknown): value is Effect {

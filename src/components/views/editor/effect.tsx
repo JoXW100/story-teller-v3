@@ -5,14 +5,13 @@ import LocalizedText from 'components/controls/localizedText'
 import TextComponent from './components/text'
 import EnumComponent from './components/enum'
 import NavigationComponent from './components/navigation'
-import NumberComponent from './components/number'
+import SelectionInputComponent from './components/selectionInput'
 import ConditionComponent from './components/condition'
 import { createField, getRelativeFieldObject } from 'utils'
 import { EffectType } from 'structure/database/effect/common'
 import { isInstanceOfEffect } from 'structure/database/effect/factory'
 import { DieType } from 'structure/dice'
 import styles from './style.module.scss'
-import SelectionInputComponent from './components/selectionInput'
 
 const EffectEditor: React.FC = () => {
     const [context] = useContext(Context)
@@ -56,9 +55,12 @@ const EffectEditor: React.FC = () => {
                             type='die'
                             labelId='editor-die'/>
                         { data.die !== DieType.None &&
-                            <NumberComponent
+                            <SelectionInputComponent
                                 field={createField(field, 'dieCount')}
-                                labelId='editor-dieCount'/>
+                                type='number'
+                                optionsType='scaling'
+                                labelId='editor-dieCount'
+                                fill/>
                         }
 
                     </>
@@ -75,9 +77,12 @@ const EffectEditor: React.FC = () => {
                             type='die'
                             labelId='editor-die'/>
                         { data.die !== DieType.None &&
-                            <NumberComponent
+                            <SelectionInputComponent
                                 field={createField(field, 'dieCount')}
-                                labelId='editor-dieCount'/>
+                                type='number'
+                                optionsType='scaling'
+                                labelId='editor-dieCount'
+                                fill/>
                         }
                     </>
                 }

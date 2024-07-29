@@ -1,5 +1,5 @@
 import SpellDataBase from './data'
-import { isNumber } from 'utils'
+import { isNumber, nullifyEmptyRecord } from 'utils'
 import { TargetType } from 'structure/dnd'
 import EffectConditionFactory, { type EffectCondition } from 'structure/database/effectCondition/factory'
 import type { Simplify } from 'types'
@@ -37,7 +37,7 @@ class SpellSingleData extends SpellDataBase implements ISpellSingleData {
         condition: {
             get value() { return EffectConditionFactory.create() },
             validate: EffectConditionFactory.validate,
-            simplify: EffectConditionFactory.simplify
+            simplify: (value) => nullifyEmptyRecord(EffectConditionFactory.simplify(value))
         }
     }
 }

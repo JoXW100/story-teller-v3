@@ -1,5 +1,6 @@
 import type { IconType } from 'assets/icons'
 import SpellDataBase from './data'
+import { nullifyEmptyRecord } from 'utils'
 import { TargetType } from 'structure/dnd'
 import EffectConditionFactory, { type EffectCondition } from 'structure/database/effectCondition/factory'
 import AreaFactory, { type Area } from 'structure/database/area/factory'
@@ -42,12 +43,12 @@ class SpellSelfData extends SpellDataBase implements ISpellSelfData {
         area: {
             get value() { return AreaFactory.create({}) },
             validate: AreaFactory.validate,
-            simplify: AreaFactory.simplify
+            simplify: (value) => nullifyEmptyRecord(AreaFactory.simplify(value))
         },
         condition: {
             get value() { return EffectConditionFactory.create({}) },
             validate: EffectConditionFactory.validate,
-            simplify: EffectConditionFactory.simplify
+            simplify: (value) => nullifyEmptyRecord(EffectConditionFactory.simplify(value))
         }
     }
 }

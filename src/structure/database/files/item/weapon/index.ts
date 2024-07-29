@@ -1,5 +1,5 @@
 import ItemDataBase from '../data'
-import { asNumber, isEnum, isNumber, isRecord, isString, keysOf } from 'utils'
+import { asEnum, asNumber, isEnum, isNumber, isRecord, isString, keysOf } from 'utils'
 import type { TranslationHandler } from 'utils/hooks/localization'
 import { DamageType, ItemType, ScalingType, type WeaponType } from 'structure/dnd'
 import { DieType } from 'structure/dice'
@@ -17,7 +17,7 @@ abstract class ItemWeaponDataBase extends ItemDataBase implements IItemWeaponDat
     public readonly damageType: DamageType
     public readonly damageScaling: Partial<Record<ScalingType, number>>
     public readonly damageDie: DieType
-    public readonly damageDieCount: number
+    public readonly damageDieCount: Partial<Record<ScalingType, number>>
     // Hit
     public readonly hitScaling: Partial<Record<ScalingType, number>>
     // Other
@@ -26,7 +26,7 @@ abstract class ItemWeaponDataBase extends ItemDataBase implements IItemWeaponDat
     public constructor(data: Simplify<IItemWeaponDataBase>) {
         super(data)
         this.notes = data.notes ?? ItemWeaponDataBase.properties.notes.value
-        this.damageType = data.damageType ?? ItemWeaponDataBase.properties.damageType.value
+        this.damageType = asEnum(data.damageType, DamageType, ItemWeaponDataBase.properties.damageType.value)
         this.damageScaling = ItemWeaponDataBase.properties.damageScaling.value
         if (data.damageScaling !== undefined) {
             for (const type of keysOf(data.damageScaling)) {
@@ -35,8 +35,15 @@ abstract class ItemWeaponDataBase extends ItemDataBase implements IItemWeaponDat
                 }
             }
         }
-        this.damageDie = data.damageDie ?? ItemWeaponDataBase.properties.damageDie.value
-        this.damageDieCount = data.damageDieCount ?? ItemWeaponDataBase.properties.damageDieCount.value
+        this.damageDie = asEnum(data.damageDie, DieType, ItemWeaponDataBase.properties.damageDie.value)
+        this.damageDieCount = ItemWeaponDataBase.properties.damageDieCount.value
+        if (data.damageDieCount !== undefined) {
+            for (const type of keysOf(data.damageDieCount)) {
+                if (isEnum(type, ScalingType)) {
+                    this.damageDieCount[type] = asNumber(data.damageDieCount[type], 0)
+                }
+            }
+        }
         // Hit
         this.hitScaling = ItemWeaponDataBase.properties.hitScaling.value
         if (data.hitScaling !== undefined) {
@@ -89,8 +96,9 @@ abstract class ItemWeaponDataBase extends ItemDataBase implements IItemWeaponDat
             validate: (value) => isEnum(value, DieType)
         },
         damageDieCount: {
-            value: 1,
-            validate: isNumber
+            get value() { return {} },
+            validate: (value) => isRecord(value, (key, val) => isEnum(key, ScalingType) && isNumber(val)),
+            simplify: simplifyNumberRecord
         },
         // Hit
         hitScaling: {

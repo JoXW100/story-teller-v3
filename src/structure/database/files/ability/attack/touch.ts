@@ -1,4 +1,5 @@
 import AbilityAttackDataBase from '.'
+import { nullifyEmptyRecord } from 'utils'
 import { TargetType } from 'structure/dnd'
 import EffectConditionFactory, { type EffectCondition } from 'structure/database/effectCondition/factory'
 import type { Simplify } from 'types'
@@ -28,7 +29,7 @@ class AbilityAttackTouchData extends AbilityAttackDataBase implements IAbilityAt
         condition: {
             get value() { return EffectConditionFactory.create({}) },
             validate: EffectConditionFactory.validate,
-            simplify: EffectConditionFactory.simplify
+            simplify: (value) => nullifyEmptyRecord(EffectConditionFactory.simplify(value))
         }
     }
 }

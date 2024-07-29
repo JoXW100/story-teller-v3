@@ -1,6 +1,6 @@
 import type { IEffect } from '../effect'
 import type { DieType } from 'structure/dice'
-import type { ArmorType, DamageType, ItemType, MeleeWeaponType, RangedWeaponType, Rarity, ScalingType, ThrownWeaponType, WeaponType } from 'structure/dnd'
+import type { ArmorType, DamageType, ItemType, MeleeWeaponType, RangedWeaponType, Rarity, ScalingType, ThrownWeaponType, ToolType, WeaponType } from 'structure/dnd'
 import type { ObjectId } from 'types'
 import type { IChargesData } from '../charges'
 
@@ -30,6 +30,11 @@ export interface IItemArmorData extends IItemDataBase {
     readonly disadvantageStealth: boolean
 }
 
+export interface IItemToolData extends IItemDataBase {
+    readonly type: ItemType.Tool
+    readonly subtype: ToolType
+}
+
 export interface IItemWeaponDataBase extends IItemDataBase {
     readonly type: ItemType.Weapon
     readonly subtype: WeaponType
@@ -38,7 +43,7 @@ export interface IItemWeaponDataBase extends IItemDataBase {
     readonly damageType: DamageType
     readonly damageScaling: Partial<Record<ScalingType, number>>
     readonly damageDie: DieType
-    readonly damageDieCount: number
+    readonly damageDieCount: Partial<Record<ScalingType, number>>
     // Hit
     readonly hitScaling: Partial<Record<ScalingType, number>>
     // Other
@@ -75,8 +80,8 @@ export interface IItemOtherData extends IItemDataBase {
     readonly type: ItemType.Other
 }
 
-export type IItemData = IItemArmorData | IItemWeaponData | IItemConsumableData |
-IItemWondrousItemData | IItemOtherData
+export type IItemData = IItemArmorData | IItemToolData | IItemWeaponData |
+IItemConsumableData | IItemWondrousItemData | IItemOtherData
 
 export interface IItemStorage {
 

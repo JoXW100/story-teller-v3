@@ -16,18 +16,18 @@ export interface ITextEffect extends IEffectBase {
 
 export interface IDieEffect extends IEffectBase {
     readonly type: EffectType.Die
-    readonly scaling: Partial<Record<ScalingType, number>>
+    readonly scaling: Partial<Record<ScalingType, number>> // Flat Modifier
     readonly die: DieType
-    readonly dieCount: number
+    readonly dieCount: Partial<Record<ScalingType, number>> // Die Count Modifier
 }
 
 export interface IDamageEffect extends IEffectBase {
     readonly type: EffectType.Damage
     readonly category: EffectCategory
     readonly damageType: DamageType
-    readonly scaling: Partial<Record<ScalingType, number>>
+    readonly scaling: Partial<Record<ScalingType, number>> // Flat Modifier
     readonly die: DieType
-    readonly dieCount: number
+    readonly dieCount: Partial<Record<ScalingType, number>> // Die Count Modifier
 }
 
 export type IEffect = ITextEffect | IDieEffect | IDamageEffect

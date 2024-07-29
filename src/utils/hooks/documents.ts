@@ -314,10 +314,11 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
                 initialSpellIds[id] = character.data.spells[id]
             }
 
+            const preparations = facade.getSpellPreparations()
             for (const classId of classIds) {
                 const attribute = facade.getClassSpellAttribute(classId)
-                if (attribute !== OptionalAttribute.None && classId in facade.storage.spellPreparations) {
-                    for (const id of keysOf(facade.storage.spellPreparations[classId])) {
+                if (attribute !== OptionalAttribute.None && classId in preparations) {
+                    for (const id of keysOf(preparations[classId])) {
                         initialSpellIds[id] = attribute
                         modifier.addSource(id, SourceType.Class, classId)
                     }

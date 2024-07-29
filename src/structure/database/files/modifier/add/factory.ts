@@ -1,4 +1,5 @@
 import { ModifierAddType } from '.'
+import ModifierAddFeatData from './linked'
 import ModifierAddAbilityData from './ability'
 import ModifierAddSpellData from './spell'
 import ModifierAddAdvantageData from './advantage'
@@ -7,18 +8,18 @@ import ModifierAddResistanceData from './resistance'
 import ModifierAddVulnerabilityData from './vulnerability'
 import ModifierAddDamageImmunityData from './damageImmunity'
 import ModifierAddConditionImmunityData from './conditionImmunity'
+import ModifierAddClassSpellData from './classSpell'
 import { isEnum, isRecord } from 'utils'
 import { simplifyObjectProperties, validateObjectProperties, hasObjectProperties } from 'structure/database'
 import type { Simplify } from 'types'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
 import type { IModifierAddAbilityData, IModifierAddData } from 'types/database/files/modifier'
-import ModifierAddFeatData from './linked'
 
 export type ModifierAddData = ModifierAddAbilityData | ModifierAddSpellData |
 ModifierAddAdvantageData | ModifierAddDisadvantageData |
 ModifierAddResistanceData | ModifierAddVulnerabilityData |
 ModifierAddDamageImmunityData | ModifierAddConditionImmunityData |
-ModifierAddFeatData
+ModifierAddFeatData | ModifierAddClassSpellData
 
 const ModifierAddDataFactory = {
     create: function (data: Simplify<IModifierAddData> = {}): ModifierAddData {
@@ -27,6 +28,8 @@ const ModifierAddDataFactory = {
                 return new ModifierAddFeatData(data)
             case ModifierAddType.Spell:
                 return new ModifierAddSpellData(data)
+            case ModifierAddType.ClassSpell:
+                return new ModifierAddClassSpellData(data)
             case ModifierAddType.Advantage:
                 return new ModifierAddAdvantageData(data)
             case ModifierAddType.Disadvantage:
@@ -62,6 +65,8 @@ const ModifierAddDataFactory = {
                 return ModifierAddFeatData.properties
             case ModifierAddType.Spell:
                 return ModifierAddSpellData.properties
+            case ModifierAddType.ClassSpell:
+                return ModifierAddClassSpellData.properties
             case ModifierAddType.Advantage:
                 return ModifierAddAdvantageData.properties
             case ModifierAddType.Disadvantage:

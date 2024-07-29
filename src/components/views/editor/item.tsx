@@ -39,14 +39,15 @@ const ItemDocumentEditor: React.FC = () => {
                 <EnumComponent field='type' type='itemType' labelId='editor-type'/>
                 { context.file.data.type === ItemType.Armor &&
                     <EnumComponent field='subtype' type='armor' labelId='editor-armorType'/>
-                }
-                { context.file.data.type === ItemType.Weapon &&
+                }{ context.file.data.type === ItemType.Tool &&
+                    <EnumComponent field='subtype' type='tool' labelId='editor-toolType'/>
+                }{ context.file.data.type === ItemType.Weapon &&
                     <EnumComponent field='subtype' type='weaponType' labelId='editor-weaponType'/>
                 }
                 <EnumComponent field='rarity' type='rarity' labelId='editor-rarity'/>
                 <BooleanComponent field='attunement' labelId='editor-attunement'/>
-                <NumberComponent field='weight' labelId='editor-weight'/>
-                <NumberComponent field='cost' labelId='editor-cost'/>
+                <NumberComponent field='weight' labelId='editor-weight' allowDecimal/>
+                <NumberComponent field='cost' labelId='editor-cost' allowDecimal/>
                 { context.file.data.type === ItemType.Weapon &&
                     <TextComponent field='notes' labelId='editor-notes'/>
                 }

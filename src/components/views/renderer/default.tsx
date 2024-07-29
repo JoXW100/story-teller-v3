@@ -8,7 +8,7 @@ export const DefaultRenderer: React.FC = () => {
     const description = useMemo(() => context.file.getTokenizedDescription(ElementDictionary), [context.file])
 
     return <>
-        <Elements.h1 underline={false}>{context.file.getTitle()}</Elements.h1>
+        <Elements.h1 underline>{context.file.getTitle()}</Elements.h1>
         { description.build() }
     </>
 }

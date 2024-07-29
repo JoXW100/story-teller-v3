@@ -141,10 +141,11 @@ export enum AreaType {
 }
 
 export enum ItemType {
+    WondrousItem = 'wondrousItem',
     Armor = 'armor',
+    Tool = 'tool',
     Weapon = 'weapon',
     Consumable = 'consumable',
-    WondrousItem = 'wondrousItem',
     Other = 'other'
 }
 
@@ -356,45 +357,73 @@ export const WeaponCategoryType = {
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export type WeaponCategoryType = WeaponType | WeaponTypeCategory
 
-export enum ToolType {
+export enum ArtisansTools {
     AlchemistsSupplies = 'alchemistsSupplies',
-    Bagpipes = 'bagpipes',
     BrewersSupplies = 'brewersSupplies',
     CalligraphersSupplies = 'calligraphersSupplies',
     CarpentersTools = 'carpentersTools',
     CartographersTools = 'cartographersTools',
     CobblersTools = 'cobblersTools',
     CooksUtensils = 'cooksUtensils',
+    GlassblowersTools = 'glassblowersTools',
+    JewelersTools = 'jewelersTools',
+    LeatherworkersTools = 'leatherworkersTools',
+    MasonsTools = 'masonsTools',
+    PaintersSupplies = 'paintersSupplies',
+    PottersTools = 'pottersTools',
+    SmithsTools = 'smithsTools',
+    TinkersTools = 'tinkersTools',
+    WeaversTools = 'weaversTools',
+    WoodcarversTools = 'woodcarversTools'
+}
+
+export enum GamingSet {
     DiceSet = 'diceSet',
-    DisguiseKit = 'disguiseKit',
+    DragonchessSet = 'dragonchessSet',
+    PlayingCardSet = 'playingCardSet',
+    ThreeDragonAnteSet = 'threeDragonAnteSet'
+}
+
+export enum MusicalInstrument {
+    Bagpipes = 'bagpipes',
     Drum = 'drum',
     Dulcimer = 'dulcimer',
     Flute = 'flute',
-    ForgeryKit = 'forgeryKit',
-    GlassblowersTools = 'glassblowersTools',
-    HerbalismKit = 'herbalismKit',
     Horn = 'horn',
-    JewelersTools = 'jewelersTools',
-    LeatherworkersTools = 'leatherworkersTools',
     Lute = 'lute',
     Lyre = 'lyre',
-    MasonsTools = 'masonsTools',
-    NavigatorsTools = 'navigatorsTools',
-    PaintersSupplies = 'paintersSupplies',
     PanFlute = 'panFlute',
-    PlayingCardSet = 'playingCardSet',
-    PoisonersKit = 'poisonersKit',
-    PottersTools = 'pottersTools',
     Shawm = 'shawm',
-    SmithsTools = 'smithsTools',
+    Viol = 'viol'
+}
+
+export enum MiscellaneousTools {
+    DisguiseKit = 'disguiseKit',
+    ForgeryKit = 'forgeryKit',
+    HerbalismKit = 'herbalismKit',
+    NavigatorsTools = 'navigatorsTools',
+    PoisonersKit = 'poisonersKit',
     ThievesTools = 'thievesTools',
-    TinkersTools = 'tinkersTools',
     VehiclesLand = 'vehiclesLand',
     VehiclesWater = 'vehiclesWater',
-    Viol = 'viol',
-    WeaversTools = 'weaversTools',
-    WoodcarversTools = 'woodcarversTools',
 }
+
+export enum ToolCategory {
+    All = 'all',
+    ArtisansTools = 'artisansTools',
+    GamingSets = 'gamingSets',
+    MusicalInstruments = 'musicalInstruments'
+}
+
+export const ToolType = {
+    ...ToolCategory,
+    ...ArtisansTools,
+    ...GamingSet,
+    ...MusicalInstrument,
+    ...MiscellaneousTools
+}
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export type ToolType = ToolCategory | ArtisansTools | GamingSet | MusicalInstrument | MiscellaneousTools
 
 export enum Language {
     All = 'all',
@@ -553,9 +582,7 @@ export enum SpellPreparationType {
     None = 'none',
     AlwaysPrepared = 'always',
     Prepared = 'prepared',
-    Learned = 'learned',
-    Cantrip = 'cantrip',
-    FreeCantrip = 'freeCantrip'
+    Learned = 'learned'
 }
 
 export enum SpellLevel {
@@ -595,6 +622,5 @@ export enum ClassLevel {
 }
 
 export const PreparedSpellPreparationType = new Set<SpellPreparationType>([
-    SpellPreparationType.Prepared, SpellPreparationType.AlwaysPrepared,
-    SpellPreparationType.Cantrip, SpellPreparationType.FreeCantrip
+    SpellPreparationType.Prepared, SpellPreparationType.AlwaysPrepared
 ])

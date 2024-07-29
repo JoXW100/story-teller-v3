@@ -78,13 +78,15 @@ abstract class Navigation {
                 storyId = match[2]
             }
         }
+        if (page === 'view') {
+            return new URL(`${location.origin}/${page}/${String(fileId)}`)
+        }
         if (storyId === null) {
             return new URL(location.origin + this.StoryPath)
         }
         if (fileId === null) {
             return this.storyURL(storyId)
         }
-        if (page === 'view') { return new URL(`${location.origin}/${page}/${String(fileId)}`) }
         return new URL(location.origin + this.filePath(fileId, storyId) + location.search)
     }
 

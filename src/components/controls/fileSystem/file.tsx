@@ -10,7 +10,6 @@ import { openContext } from '../contextMenu'
 import { Context as FileSystemContext } from './context'
 import IconMap, { type IconParams } from 'assets/icons'
 import { Context as AppContext } from 'components/contexts/app'
-import { asObjectId } from 'utils'
 import Navigation from 'utils/navigation'
 import { type DocumentFileType, DocumentType } from 'structure/database'
 import type { IFileStructure } from 'types/database'
@@ -76,7 +75,7 @@ const File: React.FC<FileProps> = ({ file }) => {
 
     const handleClick: React.MouseEventHandler<HTMLDivElement> = (): void => {
         if (!isSelected && !state.inEditMode) {
-            void router.push(Navigation.fileURL(file.id, asObjectId(router.query?.storyId)))
+            void router.push(Navigation.fileURL(file.id))
         }
     }
 

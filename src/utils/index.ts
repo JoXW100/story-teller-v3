@@ -122,6 +122,10 @@ export function isRecordOrNull<T = unknown>(value: unknown, validate?: (key: str
     return value === null || isRecord(value, validate)
 }
 
+export function nullifyEmptyRecord<T extends Record<any, any>>(value: T): T | null {
+    return Object.keys(value).length > 0 ? value : null
+}
+
 /**
  * Validates that the given value is an object id
  * @param value The value to verify

@@ -1,7 +1,7 @@
 import type ModifierDocument from '.'
 import { keysOf } from 'utils'
 import Condition, { ConditionType } from 'structure/database/condition'
-import { Skill, Attribute, type AdvantageBinding, type ConditionBinding, type Language, MovementType, type OptionalAttribute, type ProficiencyLevelBasic, type DamageBinding, Sense, type SizeType, type ProficiencyLevel, type ToolType, type ArmorType, type WeaponTypeValue } from 'structure/dnd'
+import { Skill, Attribute, type AdvantageBinding, type ConditionBinding, type Language, MovementType, type OptionalAttribute, type ProficiencyLevelBasic, type DamageBinding, Sense, type SizeType, type ProficiencyLevel, type ToolType, type ArmorType, type WeaponTypeValue, type SpellPreparationType } from 'structure/dnd'
 import type { ObjectId } from 'types'
 import type { IEditorChoiceData } from 'types/database/choice'
 import type { ISourceBinding } from 'types/database/files/creature'
@@ -141,6 +141,7 @@ class Modifier {
     public readonly abilities = new ModifierEvent<Record<string, string | ObjectId>>(this.properties)
     public readonly modifiers = new ModifierEvent<Record<string, ObjectId>>(this.properties)
     public readonly spells = new ModifierEvent<Record<ObjectId, OptionalAttribute>>(this.properties)
+    public readonly classSpells = new ModifierEvent<Record<ObjectId, Record<ObjectId, SpellPreparationType>>>(this.properties)
     public readonly advantages = new ModifierEvent<Partial<Record<AdvantageBinding, readonly ISourceBinding[]>>>(this.properties)
     public readonly disadvantages = new ModifierEvent<Partial<Record<AdvantageBinding, readonly ISourceBinding[]>>>(this.properties)
     public readonly resistances = new ModifierEvent<Partial<Record<DamageBinding, readonly ISourceBinding[]>>>(this.properties)

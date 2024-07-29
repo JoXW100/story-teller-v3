@@ -32,6 +32,7 @@ function isModifierData(data: unknown): data is ModifierData {
 }
 
 const AllowedTypes = [DocumentType.Modifier] as const
+const AllowedClassTypes = [DocumentType.Class] as const
 const ModifierDocumentEditor: React.FC = () => {
     const [context, dispatch] = useContext(Context)
     const page = context.editorPages[context.editorPages.length - 1]
@@ -75,6 +76,11 @@ const ModifierDocumentEditor: React.FC = () => {
                             <>
                                 <ChoiceComponent field={createField(field, 'value')} type='spellObjectId' allowMultipleChoices fill/>
                                 <EnumComponent field={createField(field, 'attribute')} type='optionalAttr' labelId='editor-spellAttribute'/>
+                            </>
+                        }{ data.subtype === ModifierAddType.ClassSpell &&
+                            <>
+                                <ChoiceComponent field={createField(field, 'value')} type='spellObjectId' allowMultipleChoices fill/>
+                                <LinkComponent field={createField(field, 'target')} allowedTypes={AllowedClassTypes} labelId='editor-target' placeholderId='editor-classes-placeholder'/>
                             </>
                         }{ data.subtype === ModifierAddType.Linked &&
                             <>
