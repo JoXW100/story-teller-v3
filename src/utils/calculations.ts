@@ -1,6 +1,6 @@
 import { AdvantageBinding, Attribute, type OptionalAttribute, ProficiencyLevel, ScalingType, Skill, SpellLevel, type ClassLevel } from 'structure/dnd'
 import type { IProperties } from 'types/editor'
-import { asNumber, keysOf } from 'utils'
+import { asEnum, asNumber, keysOf } from 'utils'
 
 export function getAttributeModifier(stats: Partial<IProperties>, attr: Attribute): number {
     return Math.ceil((asNumber(stats[attr], 10) - 11) / 2.0)
@@ -13,7 +13,7 @@ export function getScalingValue(scaling: ScalingType | OptionalAttribute, proper
         case ScalingType.Proficiency:
             return properties.proficiency ?? 2
         case ScalingType.Finesse:
-            return Math.max(properties.dexModifier ?? 0, properties.strModifier ?? 0)
+            return Math.max(getScalingValue(ScalingType.STR, properties), getScalingValue(ScalingType.DEX, properties))
         case ScalingType.SpellModifier: {
             if (properties.spellAttribute !== undefined) {
                 return getScalingValue(properties.spellAttribute, properties)
@@ -27,7 +27,8 @@ export function getScalingValue(scaling: ScalingType | OptionalAttribute, proper
         case ScalingType.INT:
         case ScalingType.WIS:
         case ScalingType.CHA: {
-            return properties[`${scaling}Modifier`] ?? 0
+            const attribute = asEnum(scaling, Attribute)
+            return (attribute != null) ? getAttributeModifier(properties, attribute) : 0
         }
         case ScalingType.Level:
         case ScalingType.ClassLevel:

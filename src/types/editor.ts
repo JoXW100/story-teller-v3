@@ -11,12 +11,6 @@ export interface IProperties {
     readonly int: number
     readonly wis: number
     readonly cha: number
-    readonly strModifier: number
-    readonly dexModifier: number
-    readonly conModifier: number
-    readonly intModifier: number
-    readonly wisModifier: number
-    readonly chaModifier: number
     readonly spellAttribute: OptionalAttribute
     readonly proficiency: number
     readonly critRange: number
