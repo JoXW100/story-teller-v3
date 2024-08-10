@@ -1,5 +1,5 @@
 import { Element } from '.'
-import { isEnum } from 'utils'
+import { isEnum, isIntString } from 'utils'
 import { RollMethodType, RollType } from 'structure/dice'
 import DiceFactory from 'structure/dice/factory'
 
@@ -15,7 +15,7 @@ export type RollElementParams = React.PropsWithChildren<{
 }>
 
 class RollElement extends Element<RollElementParams> {
-    public static readonly simplifyDiceMatcher = /^ *[+-]? *[0-9]+$/
+    public static readonly SimplifyDiceMatcher = /^ *[+-]? *[0-9]+$/
     public readonly name = 'roll'
     public readonly defaultParam = 'dice'
     public readonly params = {
@@ -30,12 +30,12 @@ class RollElement extends Element<RollElementParams> {
         },
         'critRange': {
             default: 20,
-            validate: (value) => /^[0-9]+$/.test(value),
+            validate: isIntString,
             parse: (value) => parseInt(value)
         },
         'critDieCount': {
             default: 2,
-            validate: (value) => /^[0-9]+$/.test(value),
+            validate: isIntString,
             parse: (value) => parseInt(value)
         },
         'mode': {

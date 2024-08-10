@@ -24,6 +24,7 @@ export function getFileIcon(type: DocumentFileType): React.FC<IconParams> {
         case DocumentType.Ability:
             return IconMap.ability
         case DocumentType.Character:
+        case DocumentType.NPC:
             return IconMap.character
         case DocumentType.Class:
         case DocumentType.Subclass:

@@ -25,7 +25,10 @@ const ChargesEditor: React.FC = () => {
         <div className={styles.main}>
             <NavigationComponent/>
             <GroupComponent header={<LocalizedText id='editor-header-charges'/>} open>
-                <EnumComponent field={createField(field, 'chargesReset')} type='restType' labelId='editor-chargesReset' />
+                <EnumComponent
+                    field={createField(field, 'chargesReset')}
+                    type='restType'
+                    labelId='editor-chargesReset' />
                 <SelectionInputComponent
                     field={createField(field, 'charges')}
                     type='number'
@@ -34,7 +37,9 @@ const ChargesEditor: React.FC = () => {
                     fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-condition'/>} open>
-                <ConditionComponent field={createField(field, 'condition')} labelId='editor-header-condition' />
+                <ConditionComponent
+                    field={createField(field, 'condition')}
+                    labelId='editor-header-condition' />
             </GroupComponent>
         </div>
     )

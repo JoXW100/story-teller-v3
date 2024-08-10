@@ -21,6 +21,7 @@ import styles from '../style.module.scss'
 export const DefaultChoiceValueMap = {
     'number': 0,
     'string': '',
+    'modifierObjectId': null,
     'abilityObjectId': null,
     'spellObjectId': null,
     'advantageBinding': AdvantageBinding.Generic,
@@ -47,6 +48,7 @@ type ChoiceComponentParams = React.PropsWithoutRef<{
     fill?: boolean
 }>
 
+const ModifierAllowedTypes = [DocumentType.Modifier]
 const AbilityAllowedTypes = [DocumentType.Ability]
 const SpellAllowedTypes = [DocumentType.Spell]
 
@@ -105,6 +107,10 @@ const ChoiceComponent: React.FC<ChoiceComponentParams> = ({ field, type, allowMu
             { type === 'string' && (value.isChoice
                 ? <ListComponent field={`${field}.value`} labelId='editor-options' type='string' fill={fill}/>
                 : <TextComponent field={`${field}.value`} labelId='editor-value'/>
+            )}
+            { type === 'modifierObjectId' && (value.isChoice
+                ? <LinkListComponent field={`${field}.value`} labelId='editor-options' allowedTypes={ModifierAllowedTypes} fill={fill}/>
+                : <LinkComponent field={`${field}.value`} labelId='editor-value' allowedTypes={ModifierAllowedTypes}/>
             )}
             { type === 'abilityObjectId' && (value.isChoice
                 ? <LinkListComponent field={`${field}.value`} labelId='editor-options' allowedTypes={AbilityAllowedTypes} fill={fill}/>

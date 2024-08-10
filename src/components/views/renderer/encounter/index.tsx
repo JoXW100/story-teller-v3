@@ -128,7 +128,7 @@ const EncounterDocumentRenderer: React.FC = (): React.ReactNode => {
 
     return <>
         <Elements.h1 underline>{encounter.data.name}</Elements.h1>
-        <Elements.align direction='h' weight='1' width='100%'>
+        <Elements.align direction='h' weight={null} width={null}>
             <button className={styles.encounterButton} onClick={handleReset}>
                 Reset
             </button>
@@ -151,7 +151,7 @@ const EncounterDocumentRenderer: React.FC = (): React.ReactNode => {
         <Elements.space/>
         <div><Elements.b>Challenge: </Elements.b>{encounter.data.challengeText}</div>
         <Elements.line width='2px'/>
-        <Elements.align direction='v' weight='1' width='100%'>
+        <Elements.align direction='v' weight={null} width={null}>
             <Loading loaded={!loading}>
                 { hasUngrouped &&
                     <div className={styles.encounterCardHolder}>

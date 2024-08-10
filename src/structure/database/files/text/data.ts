@@ -34,8 +34,8 @@ class TextData implements ITextData {
 
     public createDescriptionContexts(elements: ElementDefinitions): [description: TokenContext] {
         const descriptionContext = {
-            title: new EmptyToken(elements, this.title),
-            name: new EmptyToken(elements, this.title)
+            title: new EmptyToken(this.title),
+            name: new EmptyToken(this.title)
         }
         return [descriptionContext]
     }

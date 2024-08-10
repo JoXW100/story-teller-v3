@@ -1,11 +1,13 @@
+import ModifierDataFactory, { type ModifierData } from '../modifier/factory'
+import ModifierAddModifierData from '../modifier/add/modifier'
 import type { AbilityType } from './common'
 import { isEnum, isObjectId, isRecord, isString, keysOf } from 'utils'
 import { ActionType } from 'structure/dnd'
+import { EmptyProperties } from 'structure/database'
 import EmptyToken from 'structure/language/tokens/empty'
-import type { ElementDefinitions } from 'structure/elements/dictionary'
 import ChargesDataFactory, { simplifyChargesDataRecord } from 'structure/database/charges/factory'
 import type ChargesData from 'structure/database/charges'
-import type { ObjectId, Simplify } from 'types'
+import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IAbilityDataBase } from 'types/database/files/ability'
 import type { IProperties } from 'types/editor'
@@ -20,7 +22,7 @@ abstract class AbilityDataBase implements IAbilityDataBase {
     // Charges
     public readonly charges: Record<string, ChargesData>
     // Modifiers
-    public readonly modifiers: ObjectId[]
+    public readonly modifiers: ModifierData[]
 
     public constructor(data: Simplify<IAbilityDataBase>) {
         this.name = data.name ?? AbilityDataBase.properties.name.value
@@ -37,9 +39,12 @@ abstract class AbilityDataBase implements IAbilityDataBase {
         // Modifiers
         this.modifiers = AbilityDataBase.properties.modifiers.value
         if (Array.isArray(data.modifiers)) {
-            for (const modifier of data.modifiers) {
-                if (isObjectId(modifier)) {
-                    this.modifiers.push(modifier)
+            for (const value of data.modifiers) {
+                if (isObjectId(value)) {
+                    this.modifiers.push(new ModifierAddModifierData({ name: value, value: { value: value } }))
+                    console.log('modifiers.added modifier', value)
+                } else {
+                    this.modifiers.push(ModifierDataFactory.create(value))
                 }
             }
         }
@@ -71,7 +76,7 @@ abstract class AbilityDataBase implements IAbilityDataBase {
         // Modifiers
         modifiers: {
             get value() { return [] },
-            validate: (value) => Array.isArray(value) && value.every(isObjectId),
+            validate: (value) => Array.isArray(value) && value.every(ModifierDataFactory.validate),
             simplify: (value) => value.length > 0 ? value : null
         }
     }
@@ -86,10 +91,13 @@ abstract class AbilityDataBase implements IAbilityDataBase {
         return null
     }
 
-    public createContexts(elements: ElementDefinitions): [TokenContext] {
+    public createContexts(properties: IProperties = EmptyProperties): [TokenContext] {
         const descriptionContext: TokenContext = {
-            title: new EmptyToken(elements, this.name),
-            name: new EmptyToken(elements, this.name)
+            title: new EmptyToken(this.name),
+            name: new EmptyToken(this.name)
+        }
+        for (const property of keysOf(properties)) {
+            descriptionContext[property] = new EmptyToken(String(properties[property]))
         }
         return [descriptionContext]
     }

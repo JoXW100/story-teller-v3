@@ -45,8 +45,8 @@ abstract class ModifierDataBase implements IModifierDataBase {
 
     public createContexts(elements: ElementDefinitions): [TokenContext] {
         const descriptionContext = {
-            title: new EmptyToken(elements, this.name),
-            name: new EmptyToken(elements, this.name)
+            title: new EmptyToken(this.name),
+            name: new EmptyToken(this.name)
         }
         return [descriptionContext]
     }

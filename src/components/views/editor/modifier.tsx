@@ -26,6 +26,7 @@ import ModifierDataBase from 'structure/database/files/modifier/data'
 import type { ModifierData } from 'structure/database/files/modifier/factory'
 import ModifierDataFactory from 'structure/database/files/modifier/factory'
 import styles from './style.module.scss'
+import ModifiersInputComponent from './components/modifiersInput'
 
 function isModifierData(data: unknown): data is ModifierData {
     return data instanceof ModifierDataBase
@@ -36,7 +37,7 @@ const AllowedClassTypes = [DocumentType.Class] as const
 const ModifierDocumentEditor: React.FC = () => {
     const [context, dispatch] = useContext(Context)
     const page = context.editorPages[context.editorPages.length - 1]
-    const field = page?.root
+    const field: string | undefined = page?.root
     let data
     if (field === 'data') {
         data = context.file.data
@@ -70,7 +71,9 @@ const ModifierDocumentEditor: React.FC = () => {
                 { data.type === ModifierType.Add &&
                     <>
                         <EnumComponent field={createField(field, 'subtype')} type='modifierAddType' labelId='editor-subtype'/>
-                        { data.subtype === ModifierAddType.Ability &&
+                        { data.subtype === ModifierAddType.Modifier &&
+                            <ChoiceComponent field={createField(field, 'value')} type='modifierObjectId' allowMultipleChoices fill/>
+                        }{ data.subtype === ModifierAddType.Ability &&
                             <ChoiceComponent field={createField(field, 'value')} type='abilityObjectId' allowMultipleChoices fill/>
                         }{ data.subtype === ModifierAddType.Spell &&
                             <>
@@ -105,7 +108,11 @@ const ModifierDocumentEditor: React.FC = () => {
                         }
                     </>
                 }{ data.type === ModifierType.Remove &&
-                    <LinkComponent field={createField(field, 'source')} labelId='editor-source' placeholderId='editor-modifier-placeholder' allowedTypes={AllowedTypes}/>
+                    <LinkComponent
+                        field={createField(field, 'source')}
+                        labelId='editor-source'
+                        placeholderId='editor-modifier-placeholder'
+                        allowedTypes={AllowedTypes}/>
                 }{ data.type === ModifierType.Bonus &&
                     <>
                         <EnumComponent field={createField(field, 'subtype')} type='modifierBonusType' labelId='editor-subtype' />
@@ -250,12 +257,7 @@ const ModifierDocumentEditor: React.FC = () => {
                         }
                     </>
                 }{ data.type === ModifierType.Group &&
-                    <EditItemRecordComponent
-                        field={createField(field, 'modifiers')}
-                        labelId='editor-modifiers'
-                        defaultValue={ModifierDataFactory.create()}
-                        page={DocumentType.Modifier}
-                        fill/>
+                    <ModifiersInputComponent field={createField(field, 'modifiers')} fill/>
                 }
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-condition'/>} open>

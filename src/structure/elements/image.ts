@@ -1,5 +1,5 @@
 import { Element } from '.'
-import { isURLString } from 'utils'
+import { isURLString, isFloatString, isCSSValueString } from 'utils'
 
 export type ImageElementParams = React.PropsWithoutRef<{
     href: string
@@ -24,13 +24,13 @@ class ImageElement extends Element<ImageElementParams> {
         },
         'weight': {
             default: null,
-            validate: (value) => /^([0-9]*\.)?[0-9]+$/.test(value.trim()),
+            validate: isFloatString,
             parse: (value) => value
         },
         'width': {
             default: null,
-            validate: (value) => /^([0-9]*\.)?[0-9]+(px|cm|em|in|%|)$/.test(value.trim()),
-            parse: (value) => value.trim()
+            validate: isCSSValueString,
+            parse: (value) => value
         }
     } satisfies Element<ImageElementParams>['params']
 }

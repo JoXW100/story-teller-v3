@@ -1,3 +1,4 @@
+import { isIntString } from 'utils'
 import { Element } from '.'
 
 export type SaveElementParams = React.PropsWithChildren<{
@@ -12,8 +13,8 @@ class SaveElement extends Element<SaveElementParams> {
     public readonly params = {
         'value': {
             default: 0,
-            validate: (value) => /^[0-9]+$/.test(value),
-            parse: (value) => parseInt(value)
+            validate: isIntString,
+            parse: (value) => Number(value)
         },
         'type': {
             default: null,

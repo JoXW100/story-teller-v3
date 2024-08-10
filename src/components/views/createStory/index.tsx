@@ -327,12 +327,12 @@ const CreateStoryView: React.FC<CreateStoryViewProps> = ({ storyId = null }) => 
 const StoryComponent: React.FC<{ story?: DatabaseStory }> = ({ story }) => {
     return (
         <Tooltip title={story?.description}>
-            <div className={styles.storyItem}>
+            <span className={styles.storyItem}>
                 <span>{story?.name ?? <LocalizedText id='common-missing'/>}</span>
                 { story !== undefined && story.flags.includes(FlagType.Official) &&
                     <LocalizedText id='create-story-official'/>
                 }
-            </div>
+            </span>
         </Tooltip>
     )
 }

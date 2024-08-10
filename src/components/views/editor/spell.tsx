@@ -2,7 +2,6 @@ import { useContext } from 'react'
 import TextEditor from 'components/controls/textEditor'
 import LocalizedText from 'components/controls/localizedText'
 import { Context } from 'components/contexts/file'
-import { ElementDictionary } from 'components/elements'
 import PublishComponent from './components/publish'
 import GroupComponent from './components/group'
 import TextComponent from './components/text'
@@ -23,7 +22,7 @@ const SpellDocumentEditor: React.FC = () => {
         return null
     }
 
-    const [descriptionContext] = context.file.data.createContexts(ElementDictionary)
+    const [descriptionContext] = context.file.data.createContexts()
 
     return (
         <div className={styles.main}>

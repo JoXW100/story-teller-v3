@@ -1,13 +1,12 @@
 import type { LevelModifyType } from 'structure/database/files/class/levelData'
 import type { DieType } from 'structure/dice'
 import type { ArmorType, Attribute, ClassLevel, OptionalAttribute, ProficiencyLevel, ProficiencyLevelBasic, SpellLevel, ToolType, WeaponTypeValue } from 'structure/dnd'
-import type { ObjectId } from 'types'
+import type { IModifierData } from './modifier'
 
 export interface IClassLevelData {
-    // Abilities
-    readonly abilities: Array<ObjectId | string>
     // Modifiers
-    readonly modifiers: ObjectId[]
+    readonly abilities?: string[]
+    readonly modifiers: IModifierData[]
     // Spells
     readonly type: LevelModifyType
     readonly spellAttribute: OptionalAttribute

@@ -9,6 +9,7 @@ import type { ISpellData, ISpellStorage } from './spell'
 import type { IItemData, IItemStorage } from './item'
 import type { IMapData, IMapStorage } from './map'
 import type { IModifierData, IModifierStorage } from './modifier'
+import type { INPCData, INPCStorage } from './npc'
 import type { IRaceData, IRaceStorage } from './race'
 import type { ISubraceData, ISubraceStorage } from './subrace'
 import type { ITextData, ITextStorage } from './text'
@@ -23,6 +24,7 @@ export interface DocumentIDataMap {
     [DocumentType.Item]: IItemData
     [DocumentType.Map]: IMapData
     [DocumentType.Modifier]: IModifierData
+    [DocumentType.NPC]: INPCData
     [DocumentType.Race]: IRaceData
     [DocumentType.Subrace]: ISubraceData
     [DocumentType.Spell]: ISpellData
@@ -40,6 +42,7 @@ export interface DocumentIStorageMap {
     [DocumentType.Item]: IItemStorage
     [DocumentType.Map]: IMapStorage
     [DocumentType.Modifier]: IModifierStorage
+    [DocumentType.NPC]: INPCStorage
     [DocumentType.Race]: IRaceStorage
     [DocumentType.Subrace]: ISubraceStorage
     [DocumentType.Spell]: ISpellStorage

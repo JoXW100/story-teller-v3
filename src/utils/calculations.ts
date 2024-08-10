@@ -1,22 +1,22 @@
 import { AdvantageBinding, Attribute, type OptionalAttribute, ProficiencyLevel, ScalingType, Skill, SpellLevel, type ClassLevel } from 'structure/dnd'
 import type { IProperties } from 'types/editor'
-import { asEnum, asNumber, keysOf } from 'utils'
+import { asNumber, keysOf } from 'utils'
 
 export function getAttributeModifier(stats: Partial<IProperties>, attr: Attribute): number {
     return Math.ceil((asNumber(stats[attr], 10) - 11) / 2.0)
 }
 
-export function getScalingValue(scaling: ScalingType | OptionalAttribute, stats: Partial<IProperties>): number {
+export function getScalingValue(scaling: ScalingType | OptionalAttribute, properties: Partial<IProperties>): number {
     switch (scaling) {
         case ScalingType.Constant:
             return 1
         case ScalingType.Proficiency:
-            return stats.proficiency ?? 2
+            return properties.proficiency ?? 2
         case ScalingType.Finesse:
-            return Math.max(getScalingValue(ScalingType.DEX, stats), getScalingValue(ScalingType.STR, stats))
+            return Math.max(properties.dexModifier ?? 0, properties.strModifier ?? 0)
         case ScalingType.SpellModifier: {
-            if (stats.spellAttribute !== undefined) {
-                return getScalingValue(stats.spellAttribute, stats)
+            if (properties.spellAttribute !== undefined) {
+                return getScalingValue(properties.spellAttribute, properties)
             } else {
                 return 0
             }
@@ -27,8 +27,7 @@ export function getScalingValue(scaling: ScalingType | OptionalAttribute, stats:
         case ScalingType.INT:
         case ScalingType.WIS:
         case ScalingType.CHA: {
-            const attribute = asEnum(scaling, Attribute)
-            return (attribute != null) ? getAttributeModifier(stats, attribute) : 0
+            return properties[`${scaling}Modifier`] ?? 0
         }
         case ScalingType.Level:
         case ScalingType.ClassLevel:
@@ -40,7 +39,7 @@ export function getScalingValue(scaling: ScalingType | OptionalAttribute, stats:
         case ScalingType.FlySpeed:
         case ScalingType.HoverSpeed:
         case ScalingType.SwimSpeed:
-            return stats[scaling] ?? 0
+            return properties[scaling] ?? 0
         default:
             return 0
     }
@@ -117,6 +116,10 @@ export function getPreviousClassLevels(level: ClassLevel): ClassLevel[] {
         value.push(String(i) as ClassLevel)
     }
     return value
+}
+
+export function getProficiencyBonusFromLevel(level: number): number {
+    return Math.floor((level + 7) / 4)
 }
 
 const MaxProficiencyLevel: ProficiencyLevel = ProficiencyLevel.Expert

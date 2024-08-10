@@ -16,7 +16,7 @@ const RollComponent: React.FC<RollElementParams> = ({ children, dice, critRange,
     const [, dispatch] = useContext(Context)
     const [context] = useContext(FileContext)
     const [diceObject, text] = useMemo(() => {
-        const flag = RollElement.simplifyDiceMatcher.test(dice)
+        const flag = RollElement.SimplifyDiceMatcher.test(dice)
         let die: DiceBase | null = flag
             ? DiceFactory.parse(`1d20+${dice}`)
             : DiceFactory.parse(dice)

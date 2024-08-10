@@ -1,13 +1,14 @@
 import type { IconType } from 'assets/icons'
-import { asEnum, isBoolean, isEnum, isNumber, isRecord, isString } from 'utils'
+import { asEnum, isBoolean, isEnum, isNumber, isRecord, isString, keysOf } from 'utils'
 import { getSpellLevelValue } from 'utils/calculations'
 import type { TranslationHandler } from 'utils/hooks/localization'
 import { CastingTime, Duration, MagicSchool, SpellLevel, type TargetType } from 'structure/dnd'
 import type { EffectCondition } from 'structure/database/effectCondition/factory'
 import EmptyToken from 'structure/language/tokens/empty'
 import EffectFactory, { type Effect, simplifyEffectRecord } from 'structure/database/effect/factory'
-import type { ElementDefinitions } from 'structure/elements/dictionary'
+import { EmptyProperties } from 'structure/database'
 import type { Simplify } from 'types'
+import type { IProperties } from 'types/editor'
 import type { DataPropertyMap } from 'types/database'
 import type { ISpellDataBase } from 'types/database/files/spell'
 import type { TokenContext } from 'types/language'
@@ -215,10 +216,13 @@ abstract class SpellDataBase implements ISpellDataBase {
         }
     }
 
-    public createContexts(elements: ElementDefinitions): [TokenContext] {
+    public createContexts(properties: IProperties = EmptyProperties): [TokenContext] {
         const descriptionContext: TokenContext = {
-            title: new EmptyToken(elements, this.name),
-            name: new EmptyToken(elements, this.name)
+            title: new EmptyToken(this.name),
+            name: new EmptyToken(this.name)
+        }
+        for (const property of keysOf(properties)) {
+            descriptionContext[property] = new EmptyToken(String(properties[property]))
         }
         return [descriptionContext]
     }

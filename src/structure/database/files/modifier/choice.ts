@@ -3,6 +3,7 @@ import { ModifierAddType } from './add'
 import { ModifierType } from './common'
 import ModifierDataBase from './data'
 import type Modifier from './modifier'
+import { SourceType } from './modifier'
 import { isNumber, isRecord, isString, keysOf } from 'utils'
 import { hasObjectProperties, simplifyObjectProperties, validateObjectProperties } from 'structure/database'
 import Condition, { ConditionType } from 'structure/database/condition'
@@ -71,6 +72,7 @@ class ModifierChoiceData extends ModifierDataBase implements IModifierChoiceData
                     }
                 })
             ]
+            modifier.addSource(innerKey, SourceType.Modifier, key)
             modifier.addCondition(
                 new Condition({ type: ConditionType.And, value: conditions }),
                 innerKey

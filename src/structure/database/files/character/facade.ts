@@ -7,12 +7,12 @@ import type SubclassData from '../subclass/data'
 import type Modifier from '../modifier/modifier'
 import type { ItemData } from '../item/factory'
 import CreatureFacade from '../creature/facade'
-import { LevelModifyType } from '../class/levelData'
+import { LevelModifyType, resolveAggregateClassDataSpellInfo } from '../class/levelData'
 import type ClassLevelData from '../class/levelData'
 import { SourceType } from '../modifier/modifier'
 import ItemArmorData from '../item/armor'
 import { asNumber, isKeyOf, keysOf } from 'utils'
-import { getMaxProficiencyLevel, getMaxSpellLevel, getPreviousClassLevels } from 'utils/calculations'
+import { getMaxProficiencyLevel, getPreviousClassLevels } from 'utils/calculations'
 import type { TranslationHandler } from 'utils/hooks/localization'
 import { type ClassLevel, type CreatureType, type Language, type SizeType, ArmorType, MovementType, Sense, SpellLevel, type Attribute, type ProficiencyLevel, type ToolType, type WeaponTypeValue, OptionalAttribute, AdvantageBinding, ProficiencyLevelBasic, type SpellPreparationType } from 'structure/dnd'
 import type { ObjectId } from 'types'
@@ -340,32 +340,14 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
         return result
     }
 
-    public getClassSpellSlotInfo(classId: ObjectId): [number, number, Partial<Record<SpellLevel, number>>, SpellLevel] {
-        let learnedSlots = 0
-        let preparationSlots = 0
-        let spellSlots: Partial<Record<SpellLevel, number>> = {}
-        for (const levelData of this.getClassLevelData(classId)) {
-            switch (levelData.type) {
-                case LevelModifyType.Add:
-                    learnedSlots += levelData.learnedSlots
-                    preparationSlots += levelData.preparationSlots
-                    for (const spellLevel of keysOf(levelData.spellSlots)) {
-                        spellSlots[spellLevel] = (spellSlots[spellLevel] ?? 0) + (levelData.spellSlots[spellLevel] ?? 0)
-                    }
-                    break
-                case LevelModifyType.Replace:
-                    learnedSlots = levelData.learnedSlots
-                    preparationSlots = levelData.preparationSlots
-                    spellSlots = { ...levelData.spellSlots }
-                    break
-            }
-        }
+    public getClassSpellSlotInfo(classId: ObjectId): [learnedSlots: number, preparationSlots: number, spellSlots: Partial<Record<SpellLevel, number>>, maxSpellLevel: SpellLevel] {
+        let [learnedSlots, preparationSlots, spellSlots, maxSpellLevel] = resolveAggregateClassDataSpellInfo(this.getClassLevelData(classId))
         if (classId in this.classesData) {
             const classData = this.classesData[classId]
             learnedSlots += this.getAttributeModifier(classData.learnedSlotsScaling)
             preparationSlots += this.getAttributeModifier(classData.preparationSlotsScaling)
         }
-        return [learnedSlots, preparationSlots, spellSlots, getMaxSpellLevel(...keysOf(spellSlots))]
+        return [learnedSlots, preparationSlots, spellSlots, maxSpellLevel]
     }
 
     public override getClassLevel(key: string): number {

@@ -1,8 +1,9 @@
 import type Modifier from './modifier'
 import ModifierDataBase from './data'
 import { ModifierType } from './common'
-import ModifierDataFactory, { type ModifierData, simplifyModifierDataRecord } from './factory'
-import { isRecord, isString, keysOf } from 'utils'
+import { SourceType } from './modifier'
+import ModifierDataFactory, { type ModifierData } from './factory'
+import { isRecord, keysOf } from 'utils'
 import Condition, { ConditionType } from 'structure/database/condition'
 import ConditionFactory, { simplifyCondition } from 'structure/database/condition/factory'
 import { hasObjectProperties, validateObjectProperties, simplifyObjectProperties } from 'structure/database'
@@ -31,28 +32,30 @@ export const ModifierGroupDataFactory: IDatabaseFactory<IModifierGroupData, Modi
 class ModifierGroupData extends ModifierDataBase implements IModifierGroupData {
     public override readonly type = ModifierType.Group
     public readonly condition: Condition
-    public readonly modifiers: Record<string, ModifierData>
+    public readonly modifiers: ModifierData[]
 
     public constructor(data: Simplify<IModifierGroupData>) {
         super(data)
         this.condition = ConditionFactory.create(data.condition)
         this.modifiers = ModifierGroupData.properties.modifiers.value
-        if (data.modifiers !== undefined) {
+        if (Array.isArray(data.modifiers)) {
+            for (const modifier of data.modifiers) {
+                this.modifiers.push(ModifierDataFactory.create(modifier))
+            }
+        } else if (isRecord(data.modifiers)) {
             for (const name of keysOf(data.modifiers)) {
                 const modifier = data.modifiers[name]
                 if (modifier !== undefined) {
-                    this.modifiers[name] = ModifierDataFactory.create(modifier)
+                    this.modifiers.push(ModifierDataFactory.create(modifier))
                 }
             }
         }
     }
 
     public override apply(modifier: Modifier, key: string): void {
-        const modifierKeys = keysOf(this.modifiers)
-        for (let i = 0; i < modifierKeys.length; i++) {
-            const name = modifierKeys[i]
-            const source = this.modifiers[name]
-            const innerKey = `${key}.${name}`
+        for (let i = 0; i < this.modifiers.length; i++) {
+            const source = this.modifiers[i]
+            const innerKey = `${key}.${i}`
             source.apply(modifier, innerKey)
             const conditions: Condition[] = [
                 this.condition,
@@ -64,6 +67,7 @@ class ModifierGroupData extends ModifierDataBase implements IModifierGroupData {
                     }
                 })
             ]
+            modifier.addSource(innerKey, SourceType.Modifier, key)
             modifier.addCondition(
                 new Condition({ type: ConditionType.And, value: conditions }),
                 innerKey
@@ -84,9 +88,9 @@ class ModifierGroupData extends ModifierDataBase implements IModifierGroupData {
             simplify: simplifyCondition
         },
         modifiers: {
-            get value() { return {} },
-            validate: (value) => isRecord(value, (key, val) => isString(key) && ModifierDataFactory.validate(val)),
-            simplify: simplifyModifierDataRecord
+            get value() { return [] },
+            validate: (value) => Array.isArray(value) && value.every(ModifierDataFactory.validate),
+            simplify: (value) => value.length > 0 ? value : null
         }
     }
 }

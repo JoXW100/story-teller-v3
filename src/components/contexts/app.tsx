@@ -20,10 +20,9 @@ interface AppContextState {
     hideRolls: boolean
 }
 
-type OptionField = 'language' | 'viewMode' | 'enableColorFileByType' | 'enableEditorWordWrap' | 'hideRolls'
+type OptionField = 'language' | 'palette' | 'viewMode' | 'enableColorFileByType' | 'enableEditorWordWrap' | 'hideRolls'
 
 interface AppContextDispatch {
-    setLanguage: (language: string) => void
     setOption: (field: OptionField, value: any) => void
 }
 
@@ -47,7 +46,6 @@ const defaultContextState = {
 } satisfies AppContextState
 
 const defaultContextDispatch: AppContextDispatch = {
-    setLanguage: () => {},
     setOption: () => {}
 }
 
@@ -57,6 +55,7 @@ export const Context = React.createContext<AppContextProvider>([
 ])
 
 const setPalette = (palette: keyof typeof Palettes): void => {
+    console.log('setPalette', palette)
     if (typeof window !== 'undefined') {
         keysOf(Palettes[palette]).forEach((color) => {
             const value: string = Palettes[palette][color]
@@ -85,7 +84,13 @@ const reducer: React.Reducer<AppContextState, AppContextAction> = (state, action
             return state
         }
         case 'setOption': {
+            console.log('setOption', action.data)
             switch (action.data.field) {
+                case 'palette': {
+                    const value = asKeyOf(action.data.value, Palettes, defaultContextState.palette)
+                    Storage.setString('palette', value)
+                    return { ...state, palette: value }
+                }
                 case 'language': {
                     const value = asKeyOf(action.data.value, TextData, defaultContextState.language)
                     Storage.setString('language', value)
@@ -136,7 +141,6 @@ const AppContext: React.FC<React.PropsWithChildren> = ({ children }) => {
     }, [state.language])
 
     const memoisedDispatch = useMemo<AppContextDispatch>(() => ({
-        setLanguage(language) { dispatch({ type: 'setLanguage', data: language }) },
         setOption(field, value) { dispatch({ type: 'setOption', data: { field: field, value: value } }) }
     }), [dispatch])
 

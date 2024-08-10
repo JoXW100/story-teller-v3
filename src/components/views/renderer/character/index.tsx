@@ -15,13 +15,13 @@ import VariableContext from 'components/contexts/variable'
 import Elements from 'components/elements'
 import LocalizedText from 'components/controls/localizedText'
 import Icon from 'components/controls/icon'
+import { openDialog } from 'components/dialogs/handler'
+import { asNumber, keysOf } from 'utils'
 import { useCharacterFacade } from 'utils/hooks/documents'
+import { RestType } from 'structure/dnd'
 import { RollMethodType, RollType } from 'structure/dice'
 import type CharacterDocument from 'structure/database/files/character'
 import styles from '../styles.module.scss'
-import { asNumber, keysOf } from 'utils'
-import { RestType } from 'structure/dnd'
-import { openDialog } from 'components/dialogs/handler'
 
 const Pages = {
     'actions': { key: 'render-page-actions' },
@@ -77,18 +77,24 @@ const CharacterDocumentRenderer: React.FC = () => {
     }
 
     return <VariableContext variables={variables}>
-        <Elements.align direction='h' weight='1' width='100%'>
-            <Elements.block weight='1' width='calc(50% - 1px)'>
+        <Elements.align direction='h' weight={null} width={null}>
+            <Elements.block weight='1' width={null}>
                 <div className={styles.namePlate}>
-                    <div className='no-line-break'>
-                        <Elements.image href={facade.portrait} border={false} weight={null} width={null}/>
-                    </div>
+                    <Tooltip title={<Elements.image href={facade.portrait} border weight={null} width={null}/>}>
+                        <div className='no-line-break square'>
+                            <Elements.image href={facade.portrait} border={false} weight={null} width={null}/>
+                        </div>
+                    </Tooltip>
                     <div>
                         <Elements.h2 underline={false}>{facade.name}</Elements.h2>
                         <Tooltip title={facade.className}>
-                            <div className='no-line-break'>{facade.namePlateText}</div>
+                            <div className='no-line-break'>
+                                {facade.namePlateText}
+                            </div>
                         </Tooltip>
-                        <div className='no-line-break'><LocalizedText id='render-level' args={[facade.level]}/></div>
+                        <div className='no-line-break'>
+                            <LocalizedText id='render-level' args={[facade.level]}/>
+                        </div>
                     </div>
                     <div className={styles.restPanel}>
                         <Tooltip title={<LocalizedText id='render-shortRest'/>}>
@@ -106,7 +112,7 @@ const CharacterDocumentRenderer: React.FC = () => {
                 <Elements.line width='2px'/>
                 <AttributesBox facade={facade}/>
                 <Elements.space/>
-                <Elements.align direction='h' weight='1' width='100%'>
+                <Elements.align direction='h' weight={null} width={null}>
                     <div className={styles.proficiencyBox}>
                         <b>PROF</b>
                         <Elements.roll

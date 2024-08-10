@@ -12,7 +12,7 @@ class VariableElement extends Element<VariableElementParams> {
     public readonly params = {
         'name': {
             validate: (value) => value.length > 0,
-            parse: (value) => value.trim()
+            parse: (value) => value
         },
         'fallback': {
             default: null,

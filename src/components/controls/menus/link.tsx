@@ -1,13 +1,15 @@
 import { useMemo } from 'react'
+import Link from 'next/link'
 import LinkInput from '../../controls/linkInput'
 import ListTemplateMenu, { type ListTemplateComponentProps } from './template'
-import { asBooleanString, isObjectId } from 'utils'
+import { asBooleanString, isDefined, isObjectId } from 'utils'
 import { useFilesOfType } from 'utils/hooks/files'
 import Logger from 'utils/logger'
 import type { DocumentType } from 'structure/database'
 import type { DocumentTypeMap } from 'structure/database/files/factory'
 import type DatabaseFile from 'structure/database/files'
 import type { ObjectId } from 'types'
+import Navigation from 'utils/navigation'
 
 interface ListMenuPropsBase<T> {
     className?: string
@@ -104,7 +106,12 @@ const Component: React.FC<ListTemplateComponentProps<string, string, LinkListMen
         : value
     return (
         <div className={itemClassName} error={asBooleanString(!valid)}>
-            <b>{name}</b>
+            { isDefined(file)
+                ? <Link href={Navigation.fileURL(file.id, file?.storyId)}>
+                    <b>{name}</b>
+                </Link>
+                : <b>{name}</b>
+            }
         </div>
     )
 }

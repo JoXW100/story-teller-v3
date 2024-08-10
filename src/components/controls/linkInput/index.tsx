@@ -201,7 +201,7 @@ const LinkInput: React.FC<EditLinkInputComponentProps> = (props) => {
                     </Tooltip>
                 </>
                 : <>
-                    <Link href={Navigation.fileURL(state.file.id)}>
+                    <Link href={Navigation.fileURL(state.file.id, state.file.storyId)}>
                         <span className='fill center-vertical-flex'>
                             {state.file.getTitle()}
                         </span>

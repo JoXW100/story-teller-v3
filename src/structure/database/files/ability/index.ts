@@ -17,7 +17,7 @@ class AbilityDocument extends DatabaseFile<DocumentType.Ability, IAbilityStorage
     }
 
     public override getTokenizedDescription(elements: ElementDefinitions): IToken {
-        const [description] = this.data.createContexts(elements)
+        const [description] = this.data.createContexts()
         return StoryScript.tokenize(elements, this.data.description, description).root
     }
 

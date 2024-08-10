@@ -18,7 +18,7 @@ class FolderFile extends DatabaseFile<FileType.Folder, IFolderStorage, IFolderDa
     }
 
     public override getTokenizedDescription(elements: ElementDefinitions): IToken {
-        return new EmptyToken(elements)
+        return new EmptyToken(this.getDescription())
     }
 
     public override getDataFactory(): IDatabaseFactory<IFolderData, FolderData> {

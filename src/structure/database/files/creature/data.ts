@@ -436,8 +436,8 @@ class CreatureData implements ICreatureData {
 
     public createDescriptionContexts(elements: ElementDefinitions): [description: TokenContext] {
         const descriptionContext = {
-            title: new EmptyToken(elements, this.name),
-            name: new EmptyToken(elements, this.name)
+            title: new EmptyToken(this.name),
+            name: new EmptyToken(this.name)
         }
         return [descriptionContext]
     }

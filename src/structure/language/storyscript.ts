@@ -1,19 +1,95 @@
 import BodyToken from './tokens/body'
-import { keysOf } from 'utils'
-import type { IToken, MonacoType, MonacoEditor, MarkerData, TokenizedResult, CompletionItemProvider, HoverProvider, TokenContext } from 'types/language'
+import { isDefined, keysOf } from 'utils'
+import type { IToken, MonacoType, MonacoEditor, MarkerData, CompletionItemProvider, HoverProvider, TokenContext, MonacoDisposable, MonarchLanguage, ITokenizedResult } from 'types/language'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
+import Tokenizer from './tokenizer'
 
 class StoryScript {
+    private isRegistered = false
     private readonly tokenHolder: { token: IToken | null } = { token: null }
     private readonly elements: ElementDefinitions
+    private readonly disposable: MonacoDisposable[] = []
 
     public constructor(elements: ElementDefinitions) {
         this.elements = elements
     }
 
     public register(monaco: MonacoType): void {
+        if (this.isRegistered) {
+            return
+        }
+
+        this.isRegistered = true
         monaco.languages.register({ id: 'storyscript' })
-        monaco.languages.setMonarchTokensProvider('storyscript', {
+        this.disposable.push(monaco.languages.setMonarchTokensProvider('storyscript', this.createMonarchTokensProvider()))
+        this.disposable.push(monaco.languages.registerCompletionItemProvider('storyscript', this.createCompletionItemProvider(monaco)))
+        this.disposable.push(monaco.languages.registerHoverProvider('storyscript', this.createHoverProvider(monaco)))
+        // monaco.languages.registerDefinitionProvider('storyscript', {
+        //     provideDefinition(model, position, token) {
+        //         // const word = model.getWordAtPosition(position)
+        //         // console.log('definition', word)
+        //         // TODO: LINK TO KEYWORD DEFINITION
+        //         return undefined
+        //     }
+        // })
+        monaco.editor.defineTheme('storyscript-default', {
+            base: 'vs',
+            inherit: true,
+            rules: [
+                { token: 'keyword', foreground: '#FF6600' },
+                { token: 'comment', foreground: '#999999' },
+                { token: 'equation', foreground: '#5b9138' },
+                { token: 'key', foreground: '#009966' },
+                { token: 'value', foreground: '#006699' },
+                { token: 'string', foreground: '#009966' },
+                { token: 'variable', foreground: '#006699' },
+                { token: 'param-brackets', foreground: '#fcba03' },
+                { token: 'body-brackets', foreground: '#e303fc' }
+            ],
+            colors: { }
+        })
+    }
+
+    public dispose(): void {
+        for (const disposable of this.disposable) {
+            disposable.dispose()
+        }
+        this.isRegistered = false
+    }
+
+    public applyMarkers(editor: MonacoEditor, monaco: MonacoType, data?: ITokenizedResult, context?: TokenContext): void {
+        const model = editor.getModel()
+        if (model === null) {
+            return
+        }
+
+        if (data !== undefined) {
+            this.tokenHolder.token = data.root
+            monaco.editor.setModelMarkers(model, 'owner', data.markers as MarkerData[])
+        } else {
+            const result = StoryScript.tokenize(this.elements, editor.getValue(), context)
+            this.tokenHolder.token = result.root
+            monaco.editor.setModelMarkers(model, 'owner', result.markers as MarkerData[])
+        }
+    }
+
+    public get token(): IToken | null {
+        return this.tokenHolder.token
+    }
+
+    public static tokenize(elements: ElementDefinitions, text: string, context?: TokenContext): ITokenizedResult {
+        const root = new BodyToken(1, 1, context)
+        const tokenizer = new Tokenizer(elements, text)
+        root.parse(tokenizer, true)
+
+        return {
+            root: root,
+            markers: tokenizer.markers
+        }
+    }
+
+    private createMonarchTokensProvider(): MonarchLanguage {
+        return {
             keywords: keysOf(this.elements).map(k => `\\${k}`),
             brackets: [
                 { open: '[', close: ']', token: 'param-brackets' },
@@ -27,6 +103,11 @@ class StoryScript {
                         token: '@brackets',
                         switchTo: 'arguments'
                     }],
+                    [/\%\%.*/, 'comment'],
+                    [/\%/, {
+                        token: 'equation',
+                        switchTo: 'equation'
+                    }],
                     [/\\\w+/, {
                         cases: {
                             '@keywords': 'keyword',
@@ -35,107 +116,27 @@ class StoryScript {
                     }],
                     [/\$\w+/, 'variable'],
                     [/[\{\}\[\]]/, '@brackets'],
-                    [/\~/, 'keyword'],
-                    [/\%\%.*/, 'comment']
+                    [/\~/, 'keyword']
                 ],
                 arguments: [
-                    [/((?:^|[\[,])[\n\r\t ]*)(https?:\/\/[^\],]+)/i, ['@default', 'url']],
-                    [/((?:^|[\[,])[\n\r\t ]*)(\w+)(:)/, ['@default', 'key', '@default']],
-                    [/((?:^|[\[,])[\n\r\t ]*)([^,:\]\n\t]+[\n\r\t ]*)/, ['@default', 'value']],
+                    [/\$\w+/, 'variable'],
+                    [/((?:^|[\[,])\s*)(https?:\/\/[^\],]+)/i, ['@default', 'url']],
+                    [/((?:^|[\[,])\s*)(\w+)(:)/, ['@default', 'key', '@default']],
+                    [/((?:^|[\[,])\s*)([^,:\]\s]+\s*)/, ['@default', 'value']],
                     [/\]/, {
                         token: '@brackets',
                         switchTo: 'root'
                     }]
+                ],
+                equation: [
+                    [/\$\w+/, 'variable'],
+                    [/[0-9\+\-\*\/\s]+/, 'equation'],
+                    [/\%/, {
+                        token: 'equation',
+                        switchTo: 'root'
+                    }]
                 ]
             }
-        })
-        monaco.editor.defineTheme('storyscript-default', {
-            base: 'vs',
-            inherit: true,
-            rules: [
-                { token: 'keyword', foreground: '#FF6600' },
-                { token: 'comment', foreground: '#999999' },
-                { token: 'key', foreground: '#009966' },
-                { token: 'value', foreground: '#006699' },
-                { token: 'string', foreground: '#009966' },
-                { token: 'variable', foreground: '#006699' },
-                { token: 'param-brackets', foreground: '#fcba03' },
-                { token: 'body-brackets', foreground: '#e303fc' }
-            ],
-            colors: { }
-        })
-        monaco.languages.registerCompletionItemProvider('storyscript', this.createCompletionItemProvider(monaco))
-        monaco.languages.registerHoverProvider('storyscript', this.createHoverProvider(monaco))
-        monaco.languages.registerDefinitionProvider('storyscript', {
-            provideDefinition(model, position, token) {
-                // const word = model.getWordAtPosition(position)
-                // console.log('definition', word)
-                // TODO: LINK TO KEYWORD DEFINITION
-                return undefined
-            }
-        })
-    }
-
-    public applyMarkers(editor: MonacoEditor, monaco: MonacoType, data?: TokenizedResult, context?: TokenContext): IToken | null {
-        const model = editor.getModel()
-        if (model === null) {
-            return this.tokenHolder.token
-        }
-
-        if (data !== undefined) {
-            this.tokenHolder.token = data.root
-            monaco.editor.setModelMarkers(model, 'owner', data.markers)
-        } else {
-            const root = new BodyToken(this.elements, 1, 1, context)
-            const markers: MarkerData[] = []
-            const numLines = model.getLineCount()
-            for (let i = 1; i <= numLines; i++) {
-                const line = model.getLineContent(i)
-                StoryScript.parseLine(line, i, root, markers)
-            }
-            this.tokenHolder.token = root.complete(numLines, model.getLineContent(numLines).length, markers)
-
-            monaco.editor.setModelMarkers(model, 'owner', markers)
-        }
-
-        return this.tokenHolder.token
-    }
-
-    private static parseLine(line: string, lineNumber: number, token: IToken, markers: MarkerData[]): void {
-        let column = 1
-        const splits = line.split(/((?:\w+)|[\\~$:,\[\]\{\}]|%%)/)
-        for (const part of splits) {
-            if (part.length === 0) {
-                continue
-            }
-            if (part === '%%') {
-                break // comment
-            }
-            if (!token.parse(part, lineNumber, column, markers)) {
-                markers.push({
-                    startLineNumber: lineNumber,
-                    endLineNumber: lineNumber,
-                    startColumn: column,
-                    endColumn: column,
-                    message: `Unexpected '${part}'`,
-                    severity: 8
-                })
-            }
-            column += part.length
-        }
-    }
-
-    public static tokenize(elements: ElementDefinitions, text: string, context?: TokenContext): TokenizedResult {
-        const root = new BodyToken(elements, 1, 1, context)
-        const markers: MarkerData[] = []
-        const lines = text.split(/[\n\r]+/)
-        for (let i = 0; i < lines.length; i++) {
-            this.parseLine(lines[i], i + 1, root, markers)
-        }
-
-        return {
-            root: root.complete(lines.length, lines[lines.length - 1].length, markers),
-            markers: markers
         }
     }
 
@@ -157,9 +158,9 @@ class StoryScript {
         const tokenHolder = this.tokenHolder
         return {
             provideHover: function (model, position, token) {
-                if (tokenHolder.token !== null) {
+                if (isDefined(tokenHolder.token)) {
                     const match = tokenHolder.token.findTokenAt(position)
-                    if (match === null || match.length < 1) {
+                    if (match.length < 1) {
                         return undefined
                     }
 

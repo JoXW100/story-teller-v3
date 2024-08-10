@@ -1,8 +1,8 @@
 import type { IEffect } from '../effect'
+import type { IChargesData } from '../charges'
+import type { IModifierData } from './modifier'
 import type { DieType } from 'structure/dice'
 import type { ArmorType, DamageType, ItemType, MeleeWeaponType, RangedWeaponType, Rarity, ScalingType, ThrownWeaponType, ToolType, WeaponType } from 'structure/dnd'
-import type { ObjectId } from 'types'
-import type { IChargesData } from '../charges'
 
 export interface IItemDataBase {
     readonly name: string
@@ -16,7 +16,7 @@ export interface IItemDataBase {
     // Charges
     readonly charges: Record<string, IChargesData>
     // Modifiers
-    readonly modifiers: ObjectId[]
+    readonly modifiers: IModifierData[]
 }
 
 export interface IItemWondrousItemData extends IItemDataBase {

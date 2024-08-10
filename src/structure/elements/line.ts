@@ -1,4 +1,5 @@
 import { Element } from '.'
+import { isCSSValueString } from 'utils'
 
 export type LineElementParams = React.PropsWithoutRef<{
     width: string
@@ -11,7 +12,7 @@ class LineElement extends Element<LineElementParams> {
     public readonly params = {
         'width': {
             default: '2px',
-            validate: (value) => /^([0-9]*\.)?[0-9]+(px|cm|em|in|%|)$/.test(value.trim()),
+            validate: isCSSValueString,
             parse: (value) => value
         }
     } satisfies Element<LineElementParams>['params']

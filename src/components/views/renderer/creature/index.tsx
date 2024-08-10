@@ -65,12 +65,16 @@ const CreatureDocumentRenderer: React.FC = () => {
     }
 
     return <VariableContext variables={variables}>
-        <Elements.align direction='h' weight='1' width='100%'>
-            <Elements.block weight='1' width='100%'>
+        <Elements.align direction='h' weight={null} width={null}>
+            <Elements.block weight='1' width={null}>
                 <Elements.h1 underline={false}>{facade.name}</Elements.h1>
-                {`${facade.sizeText} ${facade.typeText}, ${facade.alignmentText}`}
+                <div className='no-line-break'>
+                    {`${facade.sizeText} ${facade.typeText}, ${facade.alignmentText}`}
+                </div>
                 <Elements.line width='2px'/>
-                <Elements.image href={facade.portrait} border={false} weight={null} width={null}/>
+                <div className='no-line-break square'>
+                    <Elements.image href={facade.portrait} border={false} weight={null} width={null}/>
+                </div>
                 <Elements.line width='2px'/>
                 <div><Elements.bold>Armor Class </Elements.bold>{facade.acValue}</div>
                 <div><Elements.bold>Hit Points </Elements.bold>
@@ -133,7 +137,7 @@ const CreatureDocumentRenderer: React.FC = () => {
                 <div><Elements.bold>Passive Insight: </Elements.bold>{facade.passiveInsightValue}</div>
             </Elements.block>
             <Elements.line width='2px'/>
-            <Elements.block weight='1' width='100%'>
+            <Elements.block weight='1' width={null}>
                 <PageSelector pages={Pages} selected={page} setSelected={setPage}/>
                 <Elements.line width='2px'/>
                 <div>
@@ -153,15 +157,15 @@ const CreatureDocumentRenderer: React.FC = () => {
         { (Object.keys(spells).length > 0 || facade.spellAttribute !== OptionalAttribute.None) &&
             <>
                 <Elements.line width='3px'/>
-                <Elements.align direction='h' weight='1' width='100%'>
-                    <Elements.align direction='h' weight='2' width='100%'>
+                <Elements.align direction='h' weight='1' width={null}>
+                    <Elements.align direction='h' weight='2' width={null}>
                         <Elements.h2 underline={false}> Spells: </Elements.h2>
                     </Elements.align>
-                    <Elements.align direction='vc' weight='1.5' width='100%'>
+                    <Elements.align direction='vc' weight='1.5' width={null}>
                         <Elements.bold>Spellcasting Attribute</Elements.bold>
                         { facade.translator(`enum-optionalAttr-${facade.spellAttribute}`) }
                     </Elements.align>
-                    <Elements.align direction='vc' weight='1' width='100%'>
+                    <Elements.align direction='vc' weight='1' width={null}>
                         <Elements.b>Spell Modifier</Elements.b>
                         <Elements.roll
                             dice={String(facade.getSpellAttributeValue())}
@@ -174,7 +178,7 @@ const CreatureDocumentRenderer: React.FC = () => {
                             type={RollType.General}/>
                     </Elements.align>
                     <Elements.space/>
-                    <Elements.align direction='vc' weight='1' width='100%'>
+                    <Elements.align direction='vc' weight='1' width={null}>
                         <Elements.b>Spell Attack</Elements.b>
                         <Elements.roll
                             dice={String(facade.getSpellAttackModifier())}
@@ -187,7 +191,7 @@ const CreatureDocumentRenderer: React.FC = () => {
                             type={RollType.Attack}/>
                     </Elements.align>
                     <Elements.space/>
-                    <Elements.align direction='vc' weight='1' width='100%'>
+                    <Elements.align direction='vc' weight='1' width={null}>
                         <Elements.bold>Spell Save</Elements.bold>
                         <Elements.save value={facade.getSpellSaveModifier()} type={null} tooltips={null}/>
                     </Elements.align>

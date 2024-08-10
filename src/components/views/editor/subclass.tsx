@@ -34,8 +34,15 @@ const SubclassDocumentEditor: React.FC = () => {
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
                 <PublishComponent/>
                 <TextComponent field='name' labelId='editor-name'/>
-                <TextareaComponent field='description' labelId='editor-description' languageContext={descriptionContext}/>
-                <LinkComponent field='parentFile' labelId='editor-parentClass' allowedTypes={[DocumentType.Class]}/>
+                <TextareaComponent
+                    field='description'
+                    labelId='editor-description'
+                    languageContext={descriptionContext}/>
+                <LinkComponent
+                    field='parentFile'
+                    labelId='editor-parentClass'
+                    placeholderId='editor-classes-placeholder'
+                    allowedTypes={[DocumentType.Class]}/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-levels'/>} open>
                 { Object.values(ClassLevel).map((level) => (

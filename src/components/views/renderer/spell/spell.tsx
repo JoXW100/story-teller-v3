@@ -30,8 +30,8 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ data, properties, attackB
     const concentrationIconTooltips = translator('render-spell-concentration')
     const ritualIconTooltips = translator('render-spell-ritual')
     const descriptionToken = useMemo(() => {
-        return StoryScript.tokenize(ElementDictionary, data.description, data.createContexts(ElementDictionary)[0]).root
-    }, [data])
+        return StoryScript.tokenize(ElementDictionary, data.description, data.createContexts(properties)[0]).root
+    }, [data, properties])
     const modifiedProperties: IProperties = { ...properties, spellLevel: asNumber(upcastLevel, 0) }
 
     useEffect(() => {
@@ -51,8 +51,8 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ data, properties, attackB
     }
 
     return <>
-        <Elements.align direction='h' width='100%' weight='1'>
-            <Elements.align direction='v' width='100%' weight='1.5'>
+        <Elements.align direction='h' width={null} weight='1'>
+            <Elements.align direction='v' width={null} weight='1.5'>
                 <Elements.b>{data.name}</Elements.b>
                 { data.allowUpcast
                     ? <div className={styles.upcastGroup}>
@@ -83,7 +83,7 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ data, properties, attackB
                 <Elements.b>School</Elements.b>
                 <span>{data.getSchoolNameText(translator)}</span>
             </Elements.align>
-            <Elements.align direction='v' width='100%' weight='1'>
+            <Elements.align direction='v' width={null} weight='1'>
                 <div><Elements.b>Casting</Elements.b>
                     { data.componentVerbal &&
                         <Tooltip title={<LocalizedText id='render-spell-verbal'/>}>
@@ -115,7 +115,7 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ data, properties, attackB
                     }
                 </div>
             </Elements.align>
-            <Elements.align direction='v' width='100%' weight='1'>
+            <Elements.align direction='v' width={null} weight='1'>
                 <div>
                     <LocalizedText id='render-range-area' className='font-bold'/>
                     { data.targetIcon !== null &&
@@ -132,7 +132,7 @@ const SpellRenderer: React.FC<SpellRendererProps> = ({ data, properties, attackB
                     </>
                 }
             </Elements.align>
-            <Elements.align direction='v' width='100%' weight='1.2'>
+            <Elements.align direction='v' width={null} weight='1.2'>
                 <div className={styles.iconRow}>
                     <div>
                         <Elements.b>HIT/DC </Elements.b>

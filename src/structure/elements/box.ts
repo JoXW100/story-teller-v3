@@ -1,3 +1,4 @@
+import { isCSSValueString, isFloatString } from 'utils'
 import { Element } from '.'
 
 export type BoxElementParams = React.PropsWithChildren<{
@@ -23,13 +24,13 @@ class BoxElement extends Element<BoxElementParams> {
         },
         'weight': {
             default: null,
-            validate: (value) => /^([0-9]*\.)?[0-9]+$/.test(value.trim()),
+            validate: isFloatString,
             parse: (value) => value
         },
         'width': {
             default: null,
-            validate: (value) => /^([0-9]*\.)?[0-9]+(px|cm|em|in|%|)$/.test(value.trim()),
-            parse: (value) => value.trim()
+            validate: isCSSValueString,
+            parse: (value) => value
         }
     } satisfies Element<BoxElementParams>['params']
 }

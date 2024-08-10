@@ -168,7 +168,7 @@
     width: 100%;
     height: fit-content;
 
-    &[border=true] {
+    &[data=true] {
         @include colorBorder(second);
         border: 2px solid;
     }

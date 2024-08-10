@@ -16,7 +16,7 @@ type AttributesBoxParams = React.PropsWithRef<{
 const AttributesBox: React.FC<AttributesBoxParams> = ({ facade }) => {
     const options = useLocalizedEnums('attr')
     return (
-        <Elements.align direction='h' weight='1' width='100%'>
+        <Elements.align direction='h' weight={null} width={null}>
             { Object.values(Attribute).map((attr, index) => (
                 <div className={styles.attributeBox} key={index}>
                     <Elements.bold>{options[attr]}</Elements.bold>

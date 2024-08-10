@@ -7,7 +7,7 @@ export interface IElementParam<T> {
     parse: (value: string) => T
 }
 
-export interface IElement<T = any> {
+export interface IElement<T extends Record<string, any> = any> {
     readonly name: string
     readonly defaultParam: keyof T | null
     readonly params: { [K in keyof T]: IElementParam<T[K]> }
@@ -15,7 +15,7 @@ export interface IElement<T = any> {
     readonly create: (params: T, key?: string, children?: React.ReactNode) => React.ReactNode
 }
 
-export abstract class Element<T = Record<string, any>> implements IElement<T> {
+export abstract class Element<T extends Record<string, any> = any> implements IElement<T> {
     public abstract readonly name: string
     public abstract readonly defaultParam: keyof T | null
     public abstract readonly params: { [K in keyof T]: IElementParam<T[K]> }
@@ -26,7 +26,7 @@ export abstract class Element<T = Record<string, any>> implements IElement<T> {
     }
 
     public parse(token: CommandToken, key?: string): React.ReactNode {
-        const texts = token.params?.getKeyValues() ?? {}
+        const texts = token.params?.value ?? {}
         const params = this.getValidatedParams(texts)
 
         if (params === null) {

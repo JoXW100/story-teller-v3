@@ -47,15 +47,15 @@ const TextEditor: React.FC<TextEditorProps> = ({ value, script = new StoryScript
                 state.script.register(monaco)
             }}
             onMount={(editor, monaco) => {
-                const token = state.script.applyMarkers(editor, monaco, undefined, context)
+                state.script.applyMarkers(editor, monaco, undefined, context)
                 editor.layout()
                 setState(state => ({ ...state, editor: editor, monaco: monaco }))
-                onMount?.(token)
+                onMount?.(state.script.token)
             }}
             onChange={(text) => {
                 if (state.editor !== null && state.monaco !== null) {
-                    const token = state.script.applyMarkers(state.editor, state.monaco, undefined, context)
-                    onChange?.(text ?? '', token)
+                    state.script.applyMarkers(state.editor, state.monaco, undefined, context)
+                    onChange?.(text ?? '', state.script.token)
                 }
             }}/>
     )

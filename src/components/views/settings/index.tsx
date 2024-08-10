@@ -1,13 +1,12 @@
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
+import { TextData } from 'assets'
 import { useRouter } from 'next/router'
+import Palettes from 'assets/palettes'
 import AppBar from 'components/controls/appBar'
 import LocalizedText from 'components/controls/localizedText'
 import DropdownMenu from 'components/controls/dropdownMenu'
 import { Context } from 'components/contexts/app'
 import Checkbox from 'components/controls/checkbox'
-import Icon from 'components/controls/icon'
-import { type LanguageType, TextData } from 'assets'
-import type { IconType } from 'assets/icons'
 import { keysOf } from 'utils'
 import Navigation from 'utils/navigation'
 import { useLocalizedEnums } from 'utils/hooks/localization'
@@ -17,23 +16,24 @@ interface SettingsViewParams {
     returnPath?: string
 }
 
-function createLanguageOptions(): Record<LanguageType, React.ReactNode> {
-    const options: Partial<Record<LanguageType, React.ReactNode>> = {}
-    for (const lang of keysOf(TextData)) {
-        options[lang] = (
-            <span className='fill flex-row gap-5'>
-                <Icon className='small-icon' icon={TextData[lang].icon as IconType}/>
-                <span className='fill center-vertical-flex'>{ TextData[lang].language }</span>
-            </span>
-        )
-    }
-    return options as Record<LanguageType, React.ReactNode>
-}
-
 const SettingsView: React.FC<SettingsViewParams> = ({ returnPath }) => {
     const [context, dispatch] = useContext(Context)
-    const options = useLocalizedEnums('viewMode')
     const router = useRouter()
+    const viewModeOptions = useLocalizedEnums('viewMode')
+    const paletteOptions = useMemo(() => {
+        const result: Partial<Record<keyof typeof Palettes, React.ReactNode>> = {}
+        for (const key of keysOf(Palettes)) {
+            result[key] = context.localization.values[`palette-${key}`]
+        }
+        return result
+    }, [context.localization.values])
+    const languageOptions = useMemo(() => {
+        const result: Partial<Record<keyof typeof TextData, React.ReactNode>> = {}
+        for (const lang of keysOf(TextData)) {
+            result[lang] = TextData[lang].language
+        }
+        return result
+    }, [])
 
     const handleBack = (): void => {
         void router.push(Navigation.pageURL(returnPath))
@@ -46,14 +46,20 @@ const SettingsView: React.FC<SettingsViewParams> = ({ returnPath }) => {
                 <LocalizedText className='center-vertical-flex' id='settings-language'/>
                 <DropdownMenu
                     value={context.language}
-                    values={createLanguageOptions()}
+                    values={languageOptions}
                     onChange={(value) => { dispatch.setOption('language', value) }}/>
 
                 <LocalizedText className='center-vertical-flex' id='settings-viewMode'/>
                 <DropdownMenu
                     value={context.viewMode}
-                    values={options}
+                    values={viewModeOptions}
                     onChange={(value) => { dispatch.setOption('viewMode', value) }}/>
+
+                <LocalizedText className='center-vertical-flex' id='settings-palette'/>
+                <DropdownMenu
+                    value={context.palette}
+                    values={paletteOptions}
+                    onChange={(value) => { dispatch.setOption('palette', value) }}/>
 
                 <LocalizedText className='center-vertical-flex' id='settings-enableColorFileByType'/>
                 <span>

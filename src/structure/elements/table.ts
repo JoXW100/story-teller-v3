@@ -1,8 +1,9 @@
+import { Element } from '.'
+import type { ElementDefinitions } from './dictionary'
+import { isFloatString, isCSSValueString } from 'utils'
 import CommandToken from 'structure/language/tokens/command'
 import BodyToken from 'structure/language/tokens/body'
 import VariableToken from 'structure/language/tokens/variable'
-import type { ElementDefinitions } from './dictionary'
-import { Element } from '.'
 
 export type TableElementParams = React.PropsWithoutRef<{
     color: string | null
@@ -30,22 +31,22 @@ class TableElement extends Element<TableElementParams> {
             parse: (value) => value === 'true'
         },
         'weight': {
-            default: null,
-            validate: (value) => /^([0-9]*\.)?[0-9]+$/.test(value.trim()),
+            default: '1',
+            validate: isFloatString,
             parse: (value) => value
         },
         'width': {
             default: null,
-            validate: (value) => /^([0-9]*\.)?[0-9]+(px|cm|em|in|%|)$/.test(value.trim()),
-            parse: (value) => value.trim()
+            validate: isCSSValueString,
+            parse: (value) => value
         }
     } satisfies Element<TableElementParams>['params']
 
     private static getTokens(token: BodyToken): CommandToken[] | null {
         const tokens: CommandToken[] = []
-        for (const subToken of token.subTokens) {
+        for (const subToken of token.children) {
             if (subToken instanceof CommandToken) {
-                if (subToken.value === null || !TableElement.ValidSubElements.has(subToken.value)) {
+                if (subToken.keyword === null || !TableElement.ValidSubElements.has(subToken.keyword)) {
                     return null
                 }
                 tokens.push(subToken)
@@ -76,7 +77,7 @@ class TableElement extends Element<TableElementParams> {
         const content: Exclude<ReturnType<typeof this.getContent>, null> = { th: [], tc: [] }
         for (let i = 0; i < subTokens.length; i++) {
             const subToken = subTokens[i]
-            if (subToken.value !== null && TableElement.ValidHeaderElements.has(subToken.value)) {
+            if (subToken.keyword !== null && TableElement.ValidHeaderElements.has(subToken.keyword)) {
                 content.th.push(subToken.build(String(i)))
             } else {
                 content.tc.push(subToken.build(String(i)))
@@ -87,7 +88,7 @@ class TableElement extends Element<TableElementParams> {
     }
 
     public override parse(token: CommandToken, key?: string): React.ReactNode {
-        const texts = token.params?.getKeyValues() ?? {}
+        const texts = token.params?.value ?? {}
         const params = this.getValidatedParams(texts)
         if (params === null) {
             return null

@@ -10,7 +10,7 @@ class SetElement extends Element<SetElementParams> {
     public readonly params = {
         'name': {
             validate: (value) => value.length > 0,
-            parse: (value) => value.trim()
+            parse: (value) => value
         }
     } satisfies Element<SetElementParams>['params']
 }

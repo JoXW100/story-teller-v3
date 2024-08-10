@@ -10,11 +10,8 @@ class HeaderElement extends Element<HeaderElementParams> {
     public readonly params = {
         'underline': {
             default: false,
-            validate: (value) => {
-                const x = value.trim()
-                return x === 'true' || x === 'false'
-            },
-            parse: (value) => value.trim() === 'true'
+            validate: (value) => value === 'true' || value === 'false',
+            parse: (value) => value === 'true'
         }
     } satisfies Element<HeaderElementParams>['params']
 }

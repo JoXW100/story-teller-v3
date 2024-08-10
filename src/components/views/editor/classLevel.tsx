@@ -3,12 +3,11 @@ import { Context } from 'components/contexts/file'
 import GroupComponent from './components/group'
 import LocalizedText from 'components/controls/localizedText'
 import EnumComponent from './components/enum'
-import LinkListComponent from './components/linkList'
 import SelectionInputComponent from './components/selectionInput'
 import NumberComponent from './components/number'
 import NavigationComponent from './components/navigation'
+import ModifiersInputComponent from './components/modifiersInput'
 import { createField, getRelativeFieldObject } from 'utils'
-import { DocumentType } from 'structure/database'
 import ClassLevelData from 'structure/database/files/class/levelData'
 import { OptionalAttribute } from 'structure/dnd'
 import styles from './style.module.scss'
@@ -28,20 +27,8 @@ const ClassLevelEditor: React.FC = () => {
         <div className={styles.main}>
             <NavigationComponent/>
             <GroupComponent header={<LocalizedText id='editor-header-modifiers'/>} open>
-                <LinkListComponent
+                <ModifiersInputComponent
                     field={createField(field, 'modifiers')}
-                    labelId='editor-modifiers'
-                    placeholderId='editor-modifiers-placeholder'
-                    allowedTypes={[DocumentType.Modifier]}
-                    fill/>
-            </GroupComponent>
-            <GroupComponent header={<LocalizedText id='editor-header-abilities'/>} open>
-                <LinkListComponent
-                    field={createField(field, 'abilities')}
-                    allowedTypes={[DocumentType.Ability]}
-                    labelId='editor-abilities'
-                    placeholderId='editor-abilities-placeholder'
-                    allowText
                     fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-spells'/>} open>

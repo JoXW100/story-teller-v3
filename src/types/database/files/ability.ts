@@ -1,8 +1,8 @@
-import type { AbilityType } from 'structure/database/files/ability/common'
-import type { ActionType, TargetType } from 'structure/dnd'
 import type { IChargesData } from '../charges'
 import type { IArea } from '../area'
-import type { ObjectId } from 'types'
+import type { IModifierData } from './modifier'
+import type { AbilityType } from 'structure/database/files/ability/common'
+import type { ActionType, TargetType } from 'structure/dnd'
 import type { IEffect } from 'types/database/effect'
 import type { IEffectCondition, IEffectConditionNone } from 'types/database/effectCondition'
 
@@ -15,7 +15,7 @@ export interface IAbilityDataBase {
     // Charges
     readonly charges: Record<string, IChargesData>
     // Modifiers
-    readonly modifiers: ObjectId[]
+    readonly modifiers: IModifierData[]
 }
 
 export interface IAbilityFeatureData extends IAbilityDataBase {

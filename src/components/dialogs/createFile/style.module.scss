@@ -83,6 +83,7 @@ $navbarWidth: 35px;
     display: flex;
     height: 35px;
     width: 100%;
+    font-size: small;
 
     & > span {
         @include fontNoLineBreak();
@@ -93,7 +94,6 @@ $navbarWidth: 35px;
     & > input {
         @include colorBackground(input);
         font: inherit;
-        font-size: small;
         border: none;
         margin: 0;
         padding-left: 10px;
@@ -107,12 +107,6 @@ $navbarWidth: 35px;
         flex: 1;
         font: inherit;
     }
-
-    & > .dropdown {
-        height: 30px;
-        padding: 3px 10px;
-        flex: 1;
-    }
 }
 
 .inputRowLast {
@@ -120,6 +114,12 @@ $navbarWidth: 35px;
     margin-top: auto;
     justify-self: flex-end;
     align-self: flex-end;
+}
+
+.dropdown {
+    height: 30px;
+    padding-left: 10px;
+    flex: 1;
 }
 
 .inputArea {

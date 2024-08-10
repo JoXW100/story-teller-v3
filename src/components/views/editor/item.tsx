@@ -9,13 +9,12 @@ import NumberComponent from './components/number'
 import EnumComponent from './components/enum'
 import BooleanComponent from './components/boolean'
 import EditItemRecordComponent from './components/editItemRecord'
-import LinkListComponent from './components/linkList'
 import SelectionInputComponent from './components/selectionInput'
 import TextareaComponent from './components/textarea'
+import ModifiersInputComponent from './components/modifiersInput'
 import { ElementDictionary } from 'components/elements'
 import { isEnum } from 'utils'
 import ItemDocument from 'structure/database/files/item'
-import { DocumentType } from 'structure/database'
 import { ItemType, MeleeWeaponType, RangedWeaponType, ThrownWeaponType } from 'structure/dnd'
 import EffectFactory from 'structure/database/effect/factory'
 import styles from './style.module.scss'
@@ -104,12 +103,7 @@ const ItemDocumentEditor: React.FC = () => {
                     page='charges'/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-modifiers'/>} open>
-                <LinkListComponent
-                    field='modifiers'
-                    labelId='editor-modifiers'
-                    placeholderId='editor-modifiers-placeholder'
-                    allowedTypes={[DocumentType.Modifier]}
-                    fill/>
+                <ModifiersInputComponent field='modifiers' fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-content'/>} open fill>
                 <TextEditor

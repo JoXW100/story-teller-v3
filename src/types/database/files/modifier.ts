@@ -75,6 +75,11 @@ export interface IModifierAddDataBase extends IModifierDataBase {
     readonly subtype: ModifierAddType
 }
 
+export interface IModifierAddModifierData extends IModifierAddDataBase {
+    readonly subtype: ModifierAddType.Modifier
+    readonly value: MultipleChoiceData<ObjectId | null>
+}
+
 export interface IModifierAddAbilityData extends IModifierAddDataBase {
     readonly subtype: ModifierAddType.Ability
     readonly value: MultipleChoiceData<ObjectId | null>
@@ -134,7 +139,8 @@ export interface IModifierAddConditionImmunityData extends IModifierAddDataBase 
     readonly notes: string
 }
 
-export type IModifierAddData = IModifierAddAbilityData | IModifierAddSpellData |
+export type IModifierAddData = IModifierAddModifierData |
+IModifierAddAbilityData | IModifierAddSpellData |
 IModifierAddAdvantageData | IModifierAddDisadvantageData |
 IModifierAddResistanceData | IModifierAddVulnerabilityData |
 IModifierAddDamageImmunityData | IModifierAddConditionImmunityData |
@@ -314,7 +320,7 @@ IModifierVariableNumberData
 
 export interface IModifierGroupData extends IModifierDataBase {
     readonly type: ModifierType.Group
-    readonly modifiers: Record<string, IModifierData>
+    readonly modifiers: IModifierData[]
 }
 
 export type IModifierData = IModifierAddData | IModifierBonusData |

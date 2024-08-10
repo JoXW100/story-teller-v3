@@ -502,6 +502,7 @@ export const ModifierChoiceItem: React.FC<ModifierChoiceItemProps> = ({ facade, 
             break
         case 'spell':
         case 'ability':
+        case 'modifier':
             content = <ModifierChoiceDocumentItem facade={facade} choiceKey={choiceKey} data={data}/>
             break
         case 'value':

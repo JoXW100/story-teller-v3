@@ -1,5 +1,5 @@
+import type { IModifierData } from './modifier'
 import type { CreatureType, Language, MovementType, ProficiencyLevelBasic, Sense, SizeType } from 'structure/dnd'
-import type { ObjectId } from 'types'
 
 export interface IRaceData {
     readonly name: string
@@ -10,8 +10,8 @@ export interface IRaceData {
     readonly speed: Partial<Record<MovementType, number>>
     readonly senses: Partial<Record<Sense, number>>
     readonly languages: Partial<Record<Language, ProficiencyLevelBasic>>
-    readonly abilities: Array<ObjectId | string>
-    readonly modifiers: ObjectId[]
+    readonly modifiers: IModifierData[]
+    readonly abilities?: string[]
 }
 
 export interface IRaceStorage {

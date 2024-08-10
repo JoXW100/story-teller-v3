@@ -1,5 +1,6 @@
 import { useMemo, type CSSProperties } from 'react'
 import ImageElement, { type ImageElementParams } from 'structure/elements/image'
+import { asBooleanString } from 'utils'
 import styles from './styles.module.scss'
 
 const ImageComponent: React.FC<ImageElementParams> = ({ href = '', border, weight, width }) => {
@@ -19,7 +20,7 @@ const ImageComponent: React.FC<ImageElementParams> = ({ href = '', border, weigh
         <div
             className={styles.image}
             style={style}
-            data={String(border)}>
+            data={asBooleanString(border)}>
             <img src={href.length > 0 ? href : '/defaultImage.jpg'} alt='Missing image'/>
         </div>
     )

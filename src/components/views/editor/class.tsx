@@ -34,7 +34,10 @@ const ClassDocumentEditor: React.FC = () => {
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
                 <PublishComponent/>
                 <TextComponent field='name' labelId='editor-name'/>
-                <TextareaComponent field='description' labelId='editor-description' languageContext={descriptionContext}/>
+                <TextareaComponent
+                    field='description'
+                    labelId='editor-description'
+                    languageContext={descriptionContext}/>
                 <EnumComponent field='hitDie' labelId='editor-hitDie' type='die'/>
                 <EnumComponent field='subclassLevel' labelId='editor-subclassLevel' type='classLevel'/>
             </GroupComponent>
@@ -42,7 +45,10 @@ const ClassDocumentEditor: React.FC = () => {
                 { Object.values(ClassLevel).map((level) => (
                     <GroupItemComponent key={level} labelId='empty' labelArgs={[options[level]]}>
                         <span>
-                            <EditItemButtonComponent pageKey='classLevel' root={`levels.${level}`} name={options[level]} />
+                            <EditItemButtonComponent
+                                pageKey='classLevel'
+                                root={`levels.${level}`}
+                                name={options[level]} />
                         </span>
                     </GroupItemComponent>
                 )) }

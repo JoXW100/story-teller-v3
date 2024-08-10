@@ -1,6 +1,11 @@
-import { isEnum, isNumber, isObjectId, isRecord, isString } from 'utils'
+import type { ModifierData } from '../modifier/factory'
+import ModifierDataFactory from '../modifier/factory'
+import ModifierAddAbilityData from '../modifier/add/ability'
+import ModifierAddModifierData from '../modifier/add/modifier'
+import { isEnum, isNumber, isObjectId, isRecord, keysOf } from 'utils'
+import { getMaxSpellLevel } from 'utils/calculations'
 import { OptionalAttribute, SpellLevel } from 'structure/dnd'
-import type { ObjectId, Simplify } from 'types'
+import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IClassLevelData } from 'types/database/files/class'
 
@@ -9,14 +14,36 @@ export enum LevelModifyType {
     Add = 'add'
 }
 
+export function resolveAggregateClassDataSpellInfo(data: ClassLevelData[]): [learnedSlots: number, preparationSlots: number, spellSlots: Partial<Record<SpellLevel, number>>, maxSpellLevel: SpellLevel] {
+    let learnedSlots = 0
+    let preparationSlots = 0
+    let spellSlots: Partial<Record<SpellLevel, number>> = {}
+    for (const levelData of data) {
+        switch (levelData.type) {
+            case LevelModifyType.Add:
+                learnedSlots += levelData.learnedSlots
+                preparationSlots += levelData.preparationSlots
+                for (const spellLevel of keysOf(levelData.spellSlots)) {
+                    spellSlots[spellLevel] = (spellSlots[spellLevel] ?? 0) + (levelData.spellSlots[spellLevel] ?? 0)
+                }
+                break
+            case LevelModifyType.Replace:
+                learnedSlots = levelData.learnedSlots
+                preparationSlots = levelData.preparationSlots
+                spellSlots = { ...levelData.spellSlots }
+                break
+        }
+    }
+    return [learnedSlots, preparationSlots, spellSlots, getMaxSpellLevel(...keysOf(spellSlots))]
+}
+
 class ClassLevelData implements IClassLevelData {
     public readonly spellAttribute: OptionalAttribute
     public readonly type: LevelModifyType
     public readonly spellSlots: Partial<Record<SpellLevel, number>>
     public readonly preparationSlots: number
     public readonly learnedSlots: number
-    public readonly abilities: Array<string | ObjectId>
-    public readonly modifiers: ObjectId[]
+    public readonly modifiers: ModifierData[]
 
     constructor(data: Simplify<IClassLevelData> = {}) {
         this.spellAttribute = data.spellAttribute ?? ClassLevelData.properties.spellAttribute.value
@@ -31,17 +58,22 @@ class ClassLevelData implements IClassLevelData {
             this.preparationSlots = ClassLevelData.properties.preparationSlots.value
             this.learnedSlots = ClassLevelData.properties.learnedSlots.value
         }
-        this.abilities = ClassLevelData.properties.abilities.value
-        if (Array.isArray(data.abilities)) {
-            for (const id of data.abilities) {
-                this.abilities.push(id as string)
-            }
-        }
         this.modifiers = ClassLevelData.properties.modifiers.value
         if (Array.isArray(data.modifiers)) {
-            for (const modifier of data.modifiers) {
-                if (isObjectId(modifier)) {
-                    this.modifiers.push(modifier)
+            for (const value of data.modifiers) {
+                if (isObjectId(value)) {
+                    this.modifiers.push(new ModifierAddModifierData({ name: value, value: { value: value } }))
+                    console.log('modifiers.added modifier', value)
+                } else {
+                    this.modifiers.push(ModifierDataFactory.create(value))
+                }
+            }
+        }
+        if (Array.isArray(data.abilities)) {
+            for (const value of data.abilities) {
+                if (isObjectId(value)) {
+                    this.modifiers.push(new ModifierAddAbilityData({ name: value, value: { value: value } }))
+                    console.log('modifiers.added ability', value)
                 }
             }
         }
@@ -69,14 +101,9 @@ class ClassLevelData implements IClassLevelData {
             value: 0,
             validate: isNumber
         },
-        abilities: {
-            get value() { return [] },
-            validate: (value) => Array.isArray(value) && value.every(isString),
-            simplify: (value) => value.length > 0 ? value : null
-        },
         modifiers: {
             get value() { return [] },
-            validate: (value) => Array.isArray(value) && value.every(isObjectId),
+            validate: (value) => Array.isArray(value) && value.every(ModifierDataFactory.validate),
             simplify: (value) => value.length > 0 ? value : null
         }
     }

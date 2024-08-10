@@ -24,7 +24,7 @@ const LinkContentComponent: React.FC<LinkContentElementParams> = ({ fileId, bord
 
     return (
         <Loading loaded={!loading}>
-            <Link href={Navigation.fileURL(file.id)} className={styles.linkContent} target={target} rel={rel} passHref>
+            <Link href={Navigation.fileURL(file.id, file.storyId)} className={styles.linkContent} target={target} rel={rel} passHref>
                 <div data={String(border)}>
                     <Renderer file={file}/>
                 </div>

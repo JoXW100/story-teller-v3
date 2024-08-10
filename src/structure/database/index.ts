@@ -17,6 +17,7 @@ export enum DocumentType {
     Item = 'ite',
     Map = 'map',
     Modifier = 'mod',
+    NPC = 'npc',
     Spell = 'spe',
     Text = 'txt'
 }
@@ -77,6 +78,12 @@ export const EmptyProperties: IProperties = {
     int: 10,
     wis: 10,
     cha: 10,
+    strModifier: 0,
+    dexModifier: 0,
+    conModifier: 0,
+    intModifier: 0,
+    wisModifier: 0,
+    chaModifier: 0,
     spellAttribute: OptionalAttribute.None,
     proficiency: 2,
     critRange: 20,

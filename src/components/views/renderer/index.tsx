@@ -5,7 +5,7 @@ import { Tooltip } from '@mui/material'
 import { DefaultRenderer, DefaultLinkRenderer } from './default'
 import TextDocumentRenderer from './text'
 import CreatureDocumentRenderer from './creature'
-import CreatureLinkRenderer from './creature/link'
+import PortraitLinkRenderer from './portraitLink'
 import CharacterDocumentRenderer from './character'
 import EncounterDocumentRenderer from './encounter'
 import AbilityDocumentRenderer from './ability'
@@ -16,6 +16,7 @@ import RaceDocumentRenderer from './race'
 import SubraceDocumentRenderer from './subrace'
 import ItemDocumentRenderer from './item'
 import MapDocumentRenderer from './map'
+import NPCDocumentRenderer from './npc'
 import ClassRenderer from './class'
 import SubclassRenderer from './subclass'
 import { isKeyOf } from 'utils'
@@ -30,14 +31,15 @@ export type LinkRendererProps = React.PropsWithRef<{ file: DatabaseFile }>
 
 export const DocumentRendererMap: Record<DocumentType, { document: React.FC, link: React.FC<LinkRendererProps> }> = {
     [DocumentType.Ability]: { document: AbilityDocumentRenderer, link: AbilityLinkRenderer },
-    [DocumentType.Character]: { document: CharacterDocumentRenderer, link: CreatureLinkRenderer },
+    [DocumentType.Character]: { document: CharacterDocumentRenderer, link: PortraitLinkRenderer },
     [DocumentType.Class]: { document: ClassRenderer, link: DefaultLinkRenderer },
     [DocumentType.Subclass]: { document: SubclassRenderer, link: DefaultLinkRenderer },
-    [DocumentType.Creature]: { document: CreatureDocumentRenderer, link: CreatureLinkRenderer },
+    [DocumentType.Creature]: { document: CreatureDocumentRenderer, link: PortraitLinkRenderer },
     [DocumentType.Encounter]: { document: EncounterDocumentRenderer, link: DefaultLinkRenderer },
     [DocumentType.Item]: { document: ItemDocumentRenderer, link: DefaultLinkRenderer },
     [DocumentType.Map]: { document: MapDocumentRenderer, link: DefaultLinkRenderer },
     [DocumentType.Modifier]: { document: DefaultRenderer, link: DefaultLinkRenderer },
+    [DocumentType.NPC]: { document: NPCDocumentRenderer, link: PortraitLinkRenderer },
     [DocumentType.Race]: { document: RaceDocumentRenderer, link: DefaultLinkRenderer },
     [DocumentType.Subrace]: { document: SubraceDocumentRenderer, link: DefaultLinkRenderer },
     [DocumentType.Spell]: { document: SpellDocumentRender, link: SpellLinkRenderer },

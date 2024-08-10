@@ -1,10 +1,11 @@
 import type React from 'react'
 import { Element } from '.'
+import { isCSSValueString, isFloatString } from 'utils'
 
 export type AlignElementParams = React.PropsWithChildren<{
     direction: string
-    weight: string | number
-    width: string
+    weight: string | number | null
+    width: string | null
 }>
 
 class AlignElement extends Element<AlignElementParams> {
@@ -15,7 +16,7 @@ class AlignElement extends Element<AlignElementParams> {
         'direction': {
             default: 'h',
             validate: (value) => {
-                const parts = value.trim().split('')
+                const parts = value.split('')
                 const found = new Set<string>()
                 for (const part of parts) {
                     if (found.has(part) || !AlignElement.Directions.has(part)) {
@@ -29,12 +30,12 @@ class AlignElement extends Element<AlignElementParams> {
         },
         'weight': {
             default: '1',
-            validate: (value) => /^([0-9]*\.)?[0-9]+$/.test(value),
+            validate: isFloatString,
             parse: (value) => value
         },
         'width': {
-            default: '100%',
-            validate: (value) => /^([0-9]*\.)?[0-9]+(px|cm|em|in|%|)$/.test(value),
+            default: null,
+            validate: isCSSValueString,
             parse: (value) => value
         }
     } satisfies Element<AlignElementParams>['params']

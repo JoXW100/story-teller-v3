@@ -9,17 +9,18 @@ import ModifierAddVulnerabilityData from './vulnerability'
 import ModifierAddDamageImmunityData from './damageImmunity'
 import ModifierAddConditionImmunityData from './conditionImmunity'
 import ModifierAddClassSpellData from './classSpell'
+import ModifierAddModifierData from './modifier'
 import { isEnum, isRecord } from 'utils'
 import { simplifyObjectProperties, validateObjectProperties, hasObjectProperties } from 'structure/database'
 import type { Simplify } from 'types'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
-import type { IModifierAddAbilityData, IModifierAddData } from 'types/database/files/modifier'
+import type { IModifierAddData, IModifierAddModifierData } from 'types/database/files/modifier'
 
 export type ModifierAddData = ModifierAddAbilityData | ModifierAddSpellData |
 ModifierAddAdvantageData | ModifierAddDisadvantageData |
 ModifierAddResistanceData | ModifierAddVulnerabilityData |
 ModifierAddDamageImmunityData | ModifierAddConditionImmunityData |
-ModifierAddFeatData | ModifierAddClassSpellData
+ModifierAddFeatData | ModifierAddClassSpellData | ModifierAddModifierData
 
 const ModifierAddDataFactory = {
     create: function (data: Simplify<IModifierAddData> = {}): ModifierAddData {
@@ -43,8 +44,10 @@ const ModifierAddDataFactory = {
             case ModifierAddType.ConditionImmunity:
                 return new ModifierAddConditionImmunityData(data)
             case ModifierAddType.Ability:
+                return new ModifierAddAbilityData(data)
+            case ModifierAddType.Modifier:
             default:
-                return new ModifierAddAbilityData(data as Simplify<IModifierAddAbilityData>)
+                return new ModifierAddModifierData(data as Simplify<IModifierAddModifierData>)
         }
     },
     is: function (data: unknown): data is IModifierAddData {
@@ -59,7 +62,7 @@ const ModifierAddDataFactory = {
     properties: function (data: unknown): DataPropertyMap<IModifierAddData, ModifierAddData> {
         const type = isRecord(data) && isEnum(data.subtype, ModifierAddType)
             ? data.subtype
-            : ModifierAddType.Ability
+            : ModifierAddType.Modifier
         switch (type) {
             case ModifierAddType.Linked:
                 return ModifierAddFeatData.properties
@@ -81,6 +84,8 @@ const ModifierAddDataFactory = {
                 return ModifierAddConditionImmunityData.properties
             case ModifierAddType.Ability:
                 return ModifierAddAbilityData.properties
+            case ModifierAddType.Modifier:
+                return ModifierAddModifierData.properties
         }
     }
 } satisfies IDatabaseFactory<IModifierAddData, ModifierAddData>

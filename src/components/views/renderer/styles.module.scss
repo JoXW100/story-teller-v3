@@ -717,9 +717,9 @@ $size: $iconSmallSize;
 .namePlate {
     display: grid;
     grid-template-columns: 60px 1fr auto;
-    grid-template-rows: 60px 1fr;
-    gap: 3px;
+    gap: 5px;
     width: 100%;
+    flex: 1;
     overflow: hidden;
 }
 
@@ -767,5 +767,24 @@ $size: $iconSmallSize;
         & > * {
             pointer-events: none;
         }
+    }
+}
+
+.classSpellTable {
+    flex: 1;
+    width: 100%;
+    background: colorInGroup(document, border);
+
+    td {
+        @include colorBackground(document);
+        padding: 2px;
+        text-align: center;
+    }
+
+    th {
+        @include colorBackground(main);
+        padding: 2px;
+        font-weight: bold;
+        text-align: center;
     }
 }

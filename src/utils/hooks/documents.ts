@@ -85,14 +85,15 @@ async function fetchAbilities(ids: Record<string, ObjectId | string>, abilities:
 
     const abilitiesFetchResult = await Communication.getFilesOfTypes(Array.from(fetchIds), [DocumentType.Ability])
     if (abilitiesFetchResult.success) {
-        const modifierIds: Record<string, ObjectId> = {}
         for (const abilityDocument of Object.values(abilitiesFetchResult.result)) {
             abilities[abilityDocument.id] = abilityDocument.data
-            for (const id of abilityDocument.data.modifiers) {
-                modifierIds[`${abilityDocument.id}.${id}`] = id
+            for (let i = 0; i < abilityDocument.data.modifiers.length; i++) {
+                const value = abilityDocument.data.modifiers[i]
+                const key = `${abilityDocument.id}.${i}`
+                value.apply(modifier, key)
+                modifier.addSource(key, SourceType.Ability, abilityDocument.id)
             }
         }
-        await fetchModifiers(modifierIds, modifier)
     } else {
         return 0
     }
@@ -208,36 +209,25 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
 
     const abilities: Record<ObjectId | string, AbilityData> = {}
     // Fetch initial ids from race and classes
-    const initialModifierIds: Record<string, ObjectId> = {}
     const initialAbilityIds: Record<string, ObjectId | string> = {}
     for (let i = 0; i < character.data.abilities.length; i++) {
         const id = character.data.abilities[i]
         initialAbilityIds[asObjectId(id) ?? String(i)] = id
     }
     if (race !== null) {
-        for (const id of race.data.modifiers) {
-            const key = `race.${id}`
-            initialModifierIds[key] = id
-            modifier.addSource(key, SourceType.Race, raceId!)
-        }
-        for (let i = 0; i < race.data.abilities.length; i++) {
-            const id = race.data.abilities[i]
-            const key = `race.${id}.${asObjectId(id) ?? String(i)}`
-            initialAbilityIds[key] = id
+        for (let i = 0; i < race.data.modifiers.length; i++) {
+            const value = race.data.modifiers[i]
+            const key = `race.${i}`
+            value.apply(modifier, key)
             modifier.addSource(key, SourceType.Race, raceId!)
         }
     }
     if (subrace !== null) {
-        for (const id of subrace.data.modifiers) {
-            const key = `subrace.${id}`
-            initialModifierIds[key] = id
-            modifier.addSource(key, SourceType.Subrace, raceId!)
-        }
-        for (let i = 0; i < subrace.data.abilities.length; i++) {
-            const id = subrace.data.abilities[i]
-            const key = `subrace.${asObjectId(id) ?? String(i)}`
-            initialAbilityIds[key] = id
-            modifier.addSource(key, SourceType.Subrace, raceId!)
+        for (let i = 0; i < subrace.data.modifiers.length; i++) {
+            const value = subrace.data.modifiers[i]
+            const key = `subrace.${i}`
+            value.apply(modifier, key)
+            modifier.addSource(key, SourceType.Subrace, subraceId!)
         }
     }
 
@@ -245,15 +235,10 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
         const classData = classes[classId]
         for (const level of getPreviousClassLevels(character.data.classes[classId])) {
             const levelData = classData.levels[level]
-            for (const id of levelData.modifiers) {
-                const key = `class.${classId}.${level}.${id}`
-                initialModifierIds[key] = id
-                modifier.addSource(key, SourceType.Class, classId)
-            }
-            for (let i = 0; i < levelData.abilities.length; i++) {
-                const id = levelData.abilities[i]
-                const key = `class.${classId}.${asObjectId(id) ?? String(i)}`
-                initialAbilityIds[key] = id
+            for (let i = 0; i < levelData.modifiers.length; i++) {
+                const value = levelData.modifiers[i]
+                const key = `class.${classId}.${level}.${i}`
+                value.apply(modifier, key)
                 modifier.addSource(key, SourceType.Class, classId)
             }
         }
@@ -266,15 +251,10 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
         }
         for (const level of getPreviousClassLevels(character.data.classes[subclassData.parentFile])) {
             const levelData = subclassData.levels[level]
-            for (const id of levelData.modifiers) {
-                const key = `subclass.${subclassId}.${level}.${id}`
-                initialModifierIds[key] = id
-                modifier.addSource(key, SourceType.Subclass, subclassId)
-            }
-            for (let i = 0; i < levelData.abilities.length; i++) {
-                const id = levelData.abilities[i]
-                const key = `subclass.${subclassId}.${asObjectId(id) ?? String(i)}`
-                initialAbilityIds[key] = id
+            for (let i = 0; i < levelData.modifiers.length; i++) {
+                const value = levelData.modifiers[i]
+                const key = `subclass.${subclassId}.${level}.${i}`
+                value.apply(modifier, key)
                 modifier.addSource(key, SourceType.Subclass, subclassId)
             }
         }
@@ -283,22 +263,16 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
     for (const itemId of keysOf(items)) {
         const itemData = items[itemId]
         if (character.storage.inventory[itemId]?.equipped && (!itemData.attunement || character.storage.attunement.includes(itemId))) {
-            for (const id of itemData.modifiers) {
-                const key = `item.${id}`
-                initialModifierIds[key] = id
-                modifier.addSource(key, SourceType.Item, itemId)
-            }
-            const ability = itemData.createAbility()
-            if (ability !== null) {
-                const key = `itemAbility.${itemId}`
-                abilities[key] = ability
+            for (let i = 0; i < itemData.modifiers.length; i++) {
+                const value = itemData.modifiers[i]
+                const key = `item.${itemId}.${i}`
+                value.apply(modifier, key)
                 modifier.addSource(key, SourceType.Item, itemId)
             }
         }
     }
 
     let properties: IProperties = EmptyProperties
-    await fetchModifiers(initialModifierIds, modifier)
 
     // Start ability/modifier fetch loop
     for (let depth = 0; depth < 100; depth++) {
@@ -306,6 +280,8 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
         const facade = new CharacterFacade(character.data, character.storage, modifier, translator, properties, race?.data, subrace?.data, classes, subclasses, items)
         properties = facade.createProperties()
         const abilityIds = modifier.abilities.call(initialAbilityIds, properties, character.storage.choices)
+        const modifierIds = modifier.modifiers.call({}, properties, character.storage.choices)
+        await fetchModifiers(modifierIds, modifier)
 
         if (await fetchAbilities(abilityIds, abilities, modifier) <= 0) {
             // No more abilities to fetch, complete by fetching spells

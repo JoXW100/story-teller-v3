@@ -14,12 +14,12 @@ import LinkListComponent from './components/linkList'
 import LinkComponent from './components/link'
 import LinkRecordComponent from './components/linkRecord'
 import BindingInputComponent from './components/bindingInput'
+import TextEditor from 'components/controls/textEditor'
 import { ElementDictionary } from 'components/elements'
 import { OptionalAttribute } from 'structure/dnd'
 import { DocumentType } from 'structure/database'
 import CharacterDocument from 'structure/database/files/character'
 import styles from './style.module.scss'
-import TextEditor from 'components/controls/textEditor'
 
 const CharacterDocumentEditor: React.FC = () => {
     const [context, dispatch] = useContext(Context)
@@ -36,7 +36,10 @@ const CharacterDocumentEditor: React.FC = () => {
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
                 <PublishComponent/>
                 <TextComponent field='name' labelId='editor-name'/>
-                <TextareaComponent field='description' labelId='editor-description' languageContext={descriptionContext}/>
+                <TextareaComponent
+                    field='description'
+                    labelId='editor-description'
+                    languageContext={descriptionContext}/>
                 <TextComponent field='portrait' labelId='editor-portrait'/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-info'/>} open>
@@ -63,10 +66,10 @@ const CharacterDocumentEditor: React.FC = () => {
                     field='classes'
                     labelId='editor-classes'
                     placeholderId='editor-classes-placeholder'
-                    allowedTypes={[DocumentType.Class]}
                     type='enum'
                     enumType='classLevel'
                     defaultValue={1}
+                    allowedTypes={[DocumentType.Class]}
                     fill/>
                 <SubclassesInputComponent data={context.file.data} fill/>
                 <EnumComponent field='alignment' type='alignment' labelId='editor-alignment'/>

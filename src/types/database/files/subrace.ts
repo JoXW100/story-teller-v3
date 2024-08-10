@@ -1,15 +1,15 @@
 import type { ISubFile } from '..'
 import type { IClassStorage } from './class'
-import type { ObjectId } from 'types'
+import type { IModifierData } from './modifier'
 
 export interface ISubraceData extends ISubFile {
     readonly name: string
     readonly description: string
     readonly content: string
-    // Abilities
-    readonly abilities: Array<ObjectId | string>
+
+    readonly abilities?: string[]
     // Modifiers
-    readonly modifiers: ObjectId[]
+    readonly modifiers: IModifierData[]
 }
 
 export interface ISubraceStorage extends IClassStorage {

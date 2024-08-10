@@ -1,20 +1,26 @@
 import Token from '.'
-import type { editor } from 'monaco-editor'
-import type { ElementDefinitions } from 'structure/elements/dictionary'
+import type Tokenizer from '../tokenizer'
 
 class EmptyToken extends Token {
-    private readonly value: React.ReactNode
+    public readonly value: string
 
-    public constructor(elements: ElementDefinitions, value: React.ReactNode = null) {
-        super(elements, 0, 0)
+    public constructor(value: string, startLineNumber?: number, startColumn?: number) {
+        super(startLineNumber, startColumn)
         this.value = value
     }
 
-    public parse(part: string, line: number, column: number, markers: editor.IMarkerData[]): boolean {
-        return false
+    public override get isEmpty(): boolean {
+        return true
     }
 
-    public build(id?: string | undefined): React.ReactNode {
+    public parse(tokenizer: Tokenizer): void {
+    }
+
+    public build(): React.ReactNode {
+        return this.value
+    }
+
+    public override getText(): string {
         return this.value
     }
 }

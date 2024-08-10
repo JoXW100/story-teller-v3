@@ -16,6 +16,7 @@ import EffectEditor from './effect'
 import ConditionEditor from './condition'
 import ChargesEditor from './charges'
 import EncounterDocumentEditor from './encounter'
+import NPCDocumentEditor from './npc'
 import { Context } from 'components/contexts/file'
 import { isKeyOf } from 'utils'
 import { DocumentType } from 'structure/database'
@@ -29,6 +30,7 @@ export const DocumentEditorMap = {
     [DocumentType.Item]: ItemDocumentEditor,
     [DocumentType.Map]: MapDocumentEditor,
     [DocumentType.Modifier]: ModifierDocumentEditor,
+    [DocumentType.NPC]: NPCDocumentEditor,
     [DocumentType.Race]: RaceDocumentEditor,
     [DocumentType.Subrace]: SubraceDocumentEditor,
     [DocumentType.Spell]: SpellDocumentEditor,
@@ -39,7 +41,7 @@ export const DocumentEditorMap = {
     'conditionInner': ConditionEditor,
     'condition': ConditionEditor,
     'charges': ChargesEditor,
-    'none': () => null
+    'none': null
 }
 
 export type EditorPageKeyType = keyof typeof DocumentEditorMap
@@ -57,7 +59,7 @@ const Editor: React.FC = () => {
         })
     }, [context.file.type, title, dispatch])
 
-    const Component = DocumentEditorMap[key]
+    const Component = DocumentEditorMap[key] ?? DocumentEditorMap[context.file.type as keyof typeof DocumentEditorMap] ?? (() => null)
     return <Component/>
 }
 

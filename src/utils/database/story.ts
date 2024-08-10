@@ -98,7 +98,7 @@ class StoryCollection {
                 return failure('Database failed to acknowledge')
             }
 
-            const response = await files.add(userId, result.insertedId, null, FileType.Root, '', {})
+            const response = await files.add(userId, result.insertedId, null, FileType.Root, '_root', {})
             if (response.success) {
                 Logger.log('story.add', result.insertedId, name)
                 return success(String(result.insertedId))

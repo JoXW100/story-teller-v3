@@ -1,4 +1,7 @@
 import type { AbilityData } from '../ability/factory'
+import type { ModifierData } from '../modifier/factory'
+import ModifierDataFactory from '../modifier/factory'
+import ModifierAddModifierData from '../modifier/add/modifier'
 import { isBoolean, isEnum, isNumber, isObjectId, isRecord, isString, keysOf } from 'utils'
 import type { TranslationHandler } from 'utils/hooks/localization'
 import type ChargesData from 'structure/database/charges'
@@ -7,7 +10,7 @@ import { type ItemType, Rarity } from 'structure/dnd'
 import EmptyToken from 'structure/language/tokens/empty'
 import StoryScript from 'structure/language/storyscript'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
-import type { ObjectId, Simplify } from 'types'
+import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IItemDataBase } from 'types/database/files/item'
 import type { TokenContext } from 'types/language'
@@ -25,7 +28,7 @@ abstract class ItemDataBase implements IItemDataBase {
     // Charges
     public readonly charges: Record<string, ChargesData>
     // Modifiers
-    readonly modifiers: ObjectId[]
+    public readonly modifiers: ModifierData[]
 
     public constructor(data: Simplify<IItemDataBase>) {
         this.name = data.name ?? ItemDataBase.properties.name.value
@@ -45,9 +48,12 @@ abstract class ItemDataBase implements IItemDataBase {
         // Modifiers
         this.modifiers = ItemDataBase.properties.modifiers.value
         if (Array.isArray(data.modifiers)) {
-            for (const modifier of data.modifiers) {
-                if (isObjectId(modifier)) {
-                    this.modifiers.push(modifier)
+            for (const value of data.modifiers) {
+                if (isObjectId(value)) {
+                    this.modifiers.push(new ModifierAddModifierData({ name: value, value: { value: value } }))
+                    console.log('modifiers.added modifier', value)
+                } else {
+                    this.modifiers.push(ModifierDataFactory.create(value))
                 }
             }
         }
@@ -99,15 +105,15 @@ abstract class ItemDataBase implements IItemDataBase {
         // Modifiers
         modifiers: {
             get value() { return [] },
-            validate: (value) => Array.isArray(value) && value.every(isObjectId),
+            validate: (value) => Array.isArray(value) && value.every(ModifierDataFactory.validate),
             simplify: (value) => value.length > 0 ? value : null
         }
     }
 
     public createDescriptionContexts(elements: ElementDefinitions): [description: TokenContext] {
         const descriptionContext = {
-            title: new EmptyToken(elements, this.name),
-            name: new EmptyToken(elements, this.name)
+            title: new EmptyToken(this.name),
+            name: new EmptyToken(this.name)
         }
         return [descriptionContext]
     }

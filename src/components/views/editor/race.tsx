@@ -7,12 +7,11 @@ import LocalizedText from 'components/controls/localizedText'
 import TextComponent from './components/text'
 import EnumComponent from './components/enum'
 import SelectionInputComponent from './components/selectionInput'
-import LinkListComponent from './components/linkList'
+import TextareaComponent from './components/textarea'
+import ModifiersInputComponent from './components/modifiersInput'
 import { ElementDictionary } from 'components/elements'
-import { DocumentType } from 'structure/database'
 import RaceDocument from 'structure/database/files/race'
 import styles from './style.module.scss'
-import TextareaComponent from './components/textarea'
 
 const RaceDocumentEditor: React.FC = () => {
     const [context, dispatch] = useContext(Context)
@@ -49,21 +48,7 @@ const RaceDocumentEditor: React.FC = () => {
                     labelId='editor-proficiencies-language' />
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-modifiers'/>} open>
-                <LinkListComponent
-                    field='modifiers'
-                    labelId='editor-modifiers'
-                    placeholderId='editor-modifiers-placeholder'
-                    allowedTypes={[DocumentType.Modifier]}
-                    fill/>
-            </GroupComponent>
-            <GroupComponent header={<LocalizedText id='editor-header-abilities'/>} open>
-                <LinkListComponent
-                    field='abilities'
-                    labelId='editor-abilities'
-                    placeholderId='editor-abilities-placeholder'
-                    allowedTypes={[DocumentType.Ability]}
-                    allowText
-                    fill/>
+                <ModifiersInputComponent field='modifiers' fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-content'/>} open fill>
                 <TextEditor

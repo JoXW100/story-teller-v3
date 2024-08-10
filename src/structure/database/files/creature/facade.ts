@@ -2,7 +2,7 @@ import type CreatureData from './data'
 import type CreatureStorage from './storage'
 import type Modifier from '../modifier/modifier'
 import { asNumber, keysOf } from 'utils'
-import { getProficiencyLevelValue } from 'utils/calculations'
+import { getProficiencyBonusFromLevel, getProficiencyLevelValue } from 'utils/calculations'
 import { type Alignment, type ArmorType, Attribute, type CreatureType, type Language, MovementType, OptionalAttribute, ProficiencyLevel, Sense, type SizeType, type ToolType, type WeaponTypeValue, Skill, type AdvantageBinding, ProficiencyLevelBasic, type DamageBinding, type ConditionBinding, type SpellLevel } from 'structure/dnd'
 import { CalcMode, EmptyProperties, type CalcValue } from 'structure/database'
 import { type DieType } from 'structure/dice'
@@ -137,9 +137,9 @@ class CreatureFacade implements ICreatureData {
             case CalcMode.Override:
                 return this.proficiency.value ?? 0
             case CalcMode.Auto:
-                return Math.floor((this.level + 7) / 4)
+                return getProficiencyBonusFromLevel(this.level)
             case CalcMode.Modify:
-                return Math.floor((this.level + 7) / 4) + (this.proficiency.value ?? 0)
+                return getProficiencyBonusFromLevel(this.level) + (this.proficiency.value ?? 0)
         }
     }
 
@@ -556,6 +556,12 @@ class CreatureFacade implements ICreatureData {
             int: this.int,
             wis: this.wis,
             cha: this.cha,
+            strModifier: this.getAttributeModifier(OptionalAttribute.STR),
+            dexModifier: this.getAttributeModifier(OptionalAttribute.DEX),
+            conModifier: this.getAttributeModifier(OptionalAttribute.CON),
+            intModifier: this.getAttributeModifier(OptionalAttribute.INT),
+            wisModifier: this.getAttributeModifier(OptionalAttribute.WIS),
+            chaModifier: this.getAttributeModifier(OptionalAttribute.CHA),
             spellAttribute: OptionalAttribute.None,
             proficiency: this.proficiencyValue,
             multiAttack: this.multiAttack,

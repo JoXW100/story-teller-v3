@@ -45,13 +45,13 @@ function getBonus(type: AbilityType, bonuses: IBonusGroup): number {
 export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ data, open = false, properties = EmptyProperties, attackBonuses = EmptyBonusGroup, damageBonuses = EmptyBonusGroup, expendedCharges, setExpendedCharges }) => {
     const typeText = useLocalizedText(`enum-abilityType-${data.type}`)
     const descriptionToken = useMemo(() => {
-        return StoryScript.tokenize(ElementDictionary, data.description, data.createContexts(ElementDictionary)[0]).root
-    }, [data])
+        return StoryScript.tokenize(ElementDictionary, data.description, data.createContexts(properties)[0]).root
+    }, [data, properties])
 
     switch (data.type) {
         case AbilityType.Skill:
             return <>
-                <Elements.align direction='h' weight='1' width='100%'>
+                <Elements.align direction='h' weight={null} width={null}>
                     <Elements.block width='50%' weight={null}>
                         <Elements.h4 underline={false}>{data.name}</Elements.h4>
                         <Elements.newline/>
@@ -89,7 +89,7 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ data, open = f
         case AbilityType.RangedWeapon:
         case AbilityType.ThrownWeapon:
             return <>
-                <Elements.align direction='h' weight='1' width='100%'>
+                <Elements.align direction='h' weight={null} width={null}>
                     <Elements.block width='50%' weight={null}>
                         <Elements.b>{data.name}</Elements.b>
                         <Elements.newline/>
@@ -149,12 +149,23 @@ export const AbilityRenderer: React.FC<AbilityRendererProps> = ({ data, open = f
                     { descriptionToken.build() }
                 </>}
             </>
-        case AbilityType.Feature:
         case AbilityType.Custom:
+            return <>
+                <Elements.align direction='hc' weight={null} width={null}>
+                    <Elements.h4 underline={false}>{`${data.category}: ${data.name}`}</Elements.h4>
+                    <Elements.fill/>
+                    <ChargesRenderer
+                        charges={data.evaluateCharges(properties)?.getCharges(properties) ?? 0}
+                        expended={expendedCharges}
+                        setExpended={setExpendedCharges}/>
+                </Elements.align>
+                { open && descriptionToken.build() }
+            </>
+        case AbilityType.Feature:
         default:
             return <>
-                <Elements.align direction='hc' width='100%' weight='1'>
-                    <Elements.b>{data.name}</Elements.b>
+                <Elements.align direction='hc' weight={null} width={null}>
+                    <Elements.h4 underline={false}>{data.name}</Elements.h4>
                     <Elements.fill/>
                     <ChargesRenderer
                         charges={data.evaluateCharges(properties)?.getCharges(properties) ?? 0}

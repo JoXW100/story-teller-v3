@@ -16,6 +16,7 @@ import EncounterDataFactory from 'structure/database/files/encounter/factory'
 import ItemDataFactory from 'structure/database/files/item/factory'
 import RaceDataFactory from 'structure/database/files/race/factory'
 import SpellDataFactory from 'structure/database/files/spell/factory'
+import NPCDataFactory from 'structure/database/files/npc/factory'
 import { LevelModifyType } from 'structure/database/files/class/levelData'
 import { EffectConditionType } from 'structure/database/effectCondition'
 import { EffectCategory, EffectType } from 'structure/database/effect/common'
@@ -47,6 +48,7 @@ import type { IEffect } from 'types/database/effect'
 import type { IAbilityDataBase, IAbilityData } from 'types/database/files/ability'
 import type { IAbilityMetadata } from 'types/old/files/ability'
 import type { IChargesData } from 'types/database/charges'
+import type { INPCData } from 'types/database/files/npc'
 import type IOldEffect from 'types/old/files/iEffect'
 import type ICreatureActionData from 'types/old/files/iConditionalHitEffect'
 
@@ -76,6 +78,9 @@ class DebugHandler {
     }
 
     async run(data: Record<string, unknown>): Promise<DBResponse<boolean>> {
+        if (process.env.NODE_ENV !== 'development') {
+            return fail('Debug not enabled')
+        }
         await this.clear('files', 'backup')
         await this.clear('stories', 'backup')
         await this.clear('files', 'temp')
@@ -165,43 +170,15 @@ class DebugHandler {
                     continue
                 case FileType.Character:
                     if ((file.metadata as ICharacterMetadata).simple === true) {
-                        const data = file.metadata as ICharacterMetadata
-                        let text = ''
-                        if (data.portrait !== undefined && data.portrait.length > 0) {
-                            text += `\\image[${data.portrait}, width: 30%]\n`
-                        }
-                        if (data.appearance !== undefined && data.appearance.length > 0) {
-                            text += `\\h2{Appearance}\n${data.appearance}\n`
-                        }
-                        if (data.occupation !== undefined && data.occupation.length > 0) {
-                            text += `\\h2{Occupation }\n${data.occupation}\n`
-                        }
-                        if (data.history !== undefined && data.history.length > 0) {
-                            text += `\\h2{History}\n${data.history}\n`
-                        }
-                        if (data.notes !== undefined && data.notes.length > 0) {
-                            text += `\\h2{Notes}\n${data.notes}\n`
-                        }
-                        if (data.description !== undefined && data.description.length > 0) {
-                            text += '\\h2{Description}\n$description\n'
-                        }
-                        if (text.length > 0 && file.content.text !== undefined && file.content.text.length > 0) {
-                            text += '\\h2{Content}\n'
-                            text += file.content.text
-                        }
                         conversions.push({
                             _id: file._id,
                             _userId: file._userId,
                             _storyId: file._storyId,
                             _holderId: file._holderId ?? null,
-                            type: DocumentFileType.Text,
+                            type: DocumentFileType.NPC,
                             name: file.content.name,
                             flags: asBoolean(file.content.public) ? [FlagType.Public] : [],
-                            data: {
-                                title: file.metadata.name ?? '',
-                                description: file.metadata.description ?? '',
-                                content: text
-                            },
+                            data: NPCDataFactory.simplify(this.toNPCData(file.metadata, file.content)),
                             dateCreated: file.dateCreated,
                             dateUpdated: file.dateUpdated
                         })
@@ -544,10 +521,10 @@ class DebugHandler {
             name: metadata.name ?? '',
             description: metadata.description ?? '',
             content: content.text ?? '',
+            portrait: metadata.portrait ?? '',
             type: asEnum(metadata.type, CreatureType, CreatureType.None),
             size: asEnum(metadata.size, SizeType, SizeType.Medium),
             alignment: asEnum(metadata.alignment, Alignment, Alignment.None),
-            portrait: metadata.portrait ?? '',
             challenge: asNumber(metadata.challenge),
             xp: asNumber(metadata.xp, 0),
             level: asNumber(metadata.level, 0),
@@ -622,13 +599,11 @@ class DebugHandler {
         if (metadata.notes !== undefined && metadata.notes.length > 0) {
             text += `\\h2{Notes}\n${metadata.notes}\n`
         }
-        if (text.length > 0) {
-            text += '\\h2{Description}\n'
+        if (text.length > 0 && (content.text ?? '').length > 0) {
+            text += `\\h2{Content}\n${content.text}`
         }
-        text += metadata.description ?? ''
         return {
-            ...this.toCreatureData(metadata, content),
-            description: text,
+            ...this.toCreatureData(metadata, { ...content, text: text }),
             gender: this.convertGender(metadata.gender),
             age: metadata.age ?? '',
             height: metadata.height ?? '',
@@ -639,6 +614,36 @@ class DebugHandler {
             classes: classes,
             subclasses: {},
             attunementSlots: 3
+        }
+    }
+
+    private toNPCData(metadata: ICharacterMetadata, content: IFileContent): INPCData {
+        let text = ''
+        if (metadata.appearance !== undefined && metadata.appearance.length > 0) {
+            text += `\\h2{Appearance}\n${metadata.appearance}\n`
+        }
+        if (metadata.history !== undefined && metadata.history.length > 0) {
+            text += `\\h2{History}\n${metadata.history}\n`
+        }
+        if (metadata.notes !== undefined && metadata.notes.length > 0) {
+            text += `\\h2{Notes}\n${metadata.notes}\n`
+        }
+        if (text.length > 0 && (content.text ?? '').length > 0) {
+            text += `\\h2{Content}\n${content.text}`
+        }
+        return {
+            name: metadata.name ?? '',
+            description: metadata.description ?? '',
+            content: text,
+            portrait: metadata.portrait ?? '',
+            type: asEnum(metadata.type, CreatureType, CreatureType.None),
+            size: asEnum(metadata.size, SizeType, SizeType.Medium),
+            alignment: asEnum(metadata.alignment, Alignment, Alignment.None),
+            race: metadata.raceName ?? '',
+            gender: this.convertGender(metadata.gender),
+            age: metadata.age ?? '',
+            height: metadata.height ?? '',
+            weight: metadata.weight ?? ''
         }
     }
 
@@ -680,7 +685,6 @@ class DebugHandler {
                 }
             }
             levels[level] = {
-                abilities: [],
                 modifiers: [],
                 type: LevelModifyType.Replace,
                 spellAttribute: OptionalAttribute.None,
@@ -839,7 +843,6 @@ class DebugHandler {
             speed: speed,
             senses: senses,
             languages: languages,
-            abilities: [],
             modifiers: []
         }
     }

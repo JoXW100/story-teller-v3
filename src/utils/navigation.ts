@@ -1,5 +1,5 @@
-import { type ObjectId } from 'types'
-import { isObjectId } from 'utils'
+import { asObjectId } from 'utils'
+import type { ObjectId } from 'types'
 
 abstract class Navigation {
     public static readonly LoginAPI: string = '/api/auth/login'
@@ -68,26 +68,23 @@ abstract class Navigation {
         return this.storyPath(storyId) + '/' + String(fileId)
     }
 
-    public static fileURL(fileId: ObjectId | null, storyId: ObjectId | null = null): URL {
-        let page = 'story'
-        if (storyId == null) {
-            const expr = /\/([A-z]+)\/([^/?]+)/i
-            const match = expr.exec(location.pathname)
-            if (match != null && isObjectId(match[2])) {
-                page = match[1]
-                storyId = match[2]
-            }
-        }
+    public static fileURL(fileId: ObjectId, storyId: ObjectId | null = null): URL {
+        const parts = location.pathname.split('/')
+        const page = parts[1]
         if (page === 'view') {
-            return new URL(`${location.origin}/${page}/${String(fileId)}`)
+            return this.viewURL(fileId)
         }
-        if (storyId === null) {
-            return new URL(location.origin + this.StoryPath)
+
+        const currentStoryId = asObjectId(parts[2])
+        if (currentStoryId === null) {
+            return this.homeURL()
         }
-        if (fileId === null) {
-            return this.storyURL(storyId)
+
+        if (storyId !== null && storyId !== currentStoryId) {
+            return this.viewURL(fileId)
         }
-        return new URL(location.origin + this.filePath(fileId, storyId) + location.search)
+
+        return new URL(location.origin + this.filePath(fileId, storyId ?? currentStoryId) + location.search)
     }
 
     public static editURL(edit: boolean): URL {

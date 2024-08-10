@@ -7,7 +7,7 @@ import GroupComponent from './components/group'
 import LocalizedText from 'components/controls/localizedText'
 import TextComponent from './components/text'
 import LinkComponent from './components/link'
-import LinkListComponent from './components/linkList'
+import ModifiersInputComponent from './components/modifiersInput'
 import TextareaComponent from './components/textarea'
 import { DocumentType } from 'structure/database'
 import SubraceDocument from 'structure/database/files/subrace'
@@ -28,25 +28,18 @@ const SubraceDocumentEditor: React.FC = () => {
             <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
                 <PublishComponent/>
                 <TextComponent field='name' labelId='editor-name'/>
-                <TextareaComponent field='description' labelId='editor-description' languageContext={descriptionContext}/>
-                <LinkComponent field='parentFile' labelId='editor-parentRace' allowedTypes={[DocumentType.Race]}/>
+                <TextareaComponent
+                    field='description'
+                    labelId='editor-description'
+                    languageContext={descriptionContext}/>
+                <LinkComponent
+                    field='parentFile'
+                    labelId='editor-parentRace'
+                    placeholderId='editor-race-placeholder'
+                    allowedTypes={[DocumentType.Race]}/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-modifiers'/>} open>
-                <LinkListComponent
-                    field='modifiers'
-                    labelId='editor-modifiers'
-                    placeholderId='editor-modifiers-placeholder'
-                    allowedTypes={[DocumentType.Modifier]}
-                    fill/>
-            </GroupComponent>
-            <GroupComponent header={<LocalizedText id='editor-header-abilities'/>} open>
-                <LinkListComponent
-                    field='abilities'
-                    labelId='editor-abilities'
-                    placeholderId='editor-abilities-placeholder'
-                    allowedTypes={[DocumentType.Ability]}
-                    allowText
-                    fill/>
+                <ModifiersInputComponent field='modifiers' fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-content'/>} open fill>
                 <TextEditor

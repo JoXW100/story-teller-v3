@@ -77,6 +77,10 @@ export function isNumberOrNull(value: unknown, allowNaN: boolean = false): value
     return value === null || isNumber(value, allowNaN)
 }
 
+export function isNumeric(value: unknown): boolean {
+    return !isNaN(Number(value))
+}
+
 export function asNumber(value: unknown): number
 export function asNumber<O>(value: unknown, other: O): number | O
 export function asNumber<O>(value: unknown, other: O | number = NaN): number | O {
@@ -208,6 +212,9 @@ export function capitalizeFirstLetter(string: string): string {
 }
 
 export function getRelativeFieldObject(field: string, data: Record<string, unknown>): { key: string, relative: Record<string, unknown> } | null {
+    if (!isString(field) || !isRecord(data)) {
+        return null
+    }
     const keys = field.split('.')
     let relativeData: Record<string, unknown> = data
     for (let i = 0; i < keys.length - 1; i++) {

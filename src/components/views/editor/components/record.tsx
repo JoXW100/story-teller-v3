@@ -133,7 +133,7 @@ const RecordItemComponent: React.FC<RecordItemComponentParams> = ({ itemKey, val
                     onChange={update}/>
             }
             { !params.allowKeyChange && params.inputType === 'enum' && optionType !== null &&
-                options[asEnum(value, optionType.enum) ?? optionType.default]
+                asEnum(value, optionType.enum, optionType.default)
             }
             { params.valueType === 'text' &&
                 <input

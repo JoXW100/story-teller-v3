@@ -1,10 +1,14 @@
+import ModifierDataFactory from '../modifier/factory'
+import type { ModifierData } from '../modifier/factory'
+import ModifierAddAbilityData from '../modifier/add/ability'
+import ModifierAddModifierData from '../modifier/add/modifier'
 import { isEnum, isNumber, isObjectId, isRecord, isString } from 'utils'
 import type { TranslationHandler } from 'utils/hooks/localization'
 import { CreatureType, Language, MovementType, ProficiencyLevelBasic, Sense, SizeType } from 'structure/dnd'
 import EmptyToken from 'structure/language/tokens/empty'
 import StoryScript from 'structure/language/storyscript'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
-import type { ObjectId, Simplify } from 'types'
+import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IRaceData } from 'types/database/files/race'
 import type { TokenContext } from 'types/language'
@@ -18,8 +22,7 @@ class RaceData implements IRaceData {
     public readonly speed: Partial<Record<MovementType, number>>
     public readonly senses: Partial<Record<Sense, number>>
     public readonly languages: Partial<Record<Language, ProficiencyLevelBasic>>
-    public readonly abilities: Array<ObjectId | string>
-    public readonly modifiers: ObjectId[]
+    public readonly modifiers: ModifierData[]
 
     public constructor(data: Simplify<IRaceData>) {
         this.name = data.name ?? RaceData.properties.name.value
@@ -31,18 +34,22 @@ class RaceData implements IRaceData {
         this.senses = data.senses ?? RaceData.properties.senses.value
         this.languages = data.languages ?? RaceData.properties.languages.value
         // Other
-        this.abilities = RaceData.properties.abilities.value
-        if (Array.isArray(data.abilities)) {
-            for (const id of data.abilities) {
-                this.abilities.push(id as string)
-            }
-        }
-
         this.modifiers = RaceData.properties.modifiers.value
         if (Array.isArray(data.modifiers)) {
-            for (const modifier of data.modifiers) {
-                if (isObjectId(modifier)) {
-                    this.modifiers.push(modifier)
+            for (const value of data.modifiers) {
+                if (isObjectId(value)) {
+                    this.modifiers.push(new ModifierAddModifierData({ name: value, value: { value: value } }))
+                    console.log('modifiers.added modifier', value)
+                } else {
+                    this.modifiers.push(ModifierDataFactory.create(value))
+                }
+            }
+        }
+        if (Array.isArray(data.abilities)) {
+            for (const value of data.abilities) {
+                if (isObjectId(value)) {
+                    this.modifiers.push(new ModifierAddAbilityData({ name: value, value: { value: value } }))
+                    console.log('modifiers.added ability', value)
                 }
             }
         }
@@ -84,22 +91,17 @@ class RaceData implements IRaceData {
             validate: (value) => isRecord(value, (key, value) => isEnum(key, Language) && isEnum(value, ProficiencyLevelBasic)),
             simplify: (value) => Object.values(value).some((value) => value !== ProficiencyLevelBasic.None) ? value : null
         },
-        abilities: {
-            get value() { return [] },
-            validate: (value) => Array.isArray(value) && value.every(isString),
-            simplify: (value) => value.length > 0 ? value : null
-        },
         modifiers: {
             get value() { return [] },
-            validate: (value) => Array.isArray(value) && value.every(isObjectId),
+            validate: (value) => Array.isArray(value) && value.every(ModifierDataFactory.validate),
             simplify: (value) => value.length > 0 ? value : null
         }
     }
 
     public createDescriptionContexts(elements: ElementDefinitions): [description: TokenContext] {
         const descriptionContext = {
-            title: new EmptyToken(elements, this.name),
-            name: new EmptyToken(elements, this.name)
+            title: new EmptyToken(this.name),
+            name: new EmptyToken(this.name)
         }
         return [descriptionContext]
     }

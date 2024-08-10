@@ -1,57 +1,51 @@
-import { keysOf } from 'utils'
+import type Tokenizer from '../tokenizer'
 import Token from '.'
-import type { IToken, MonacoType, CompletionItem, MarkerData, MonacoModel, MarkdownString } from 'types/language'
+import { keysOf } from 'utils'
+import type { ValueOf } from 'types'
+import type { CompletionItem, MarkdownString, MonacoModel, MonacoType } from 'types/language'
+import EmptyToken from './empty'
 
 class VariableToken extends Token {
-    public override consumePart: boolean = true
-    protected text: string = ''
+    private static readonly WordExpr = /^\w+$/i
+    private text: string = ''
 
     public get value(): string {
         return this.text
     }
 
-    public getContent(): IToken | null {
+    public override get isEmpty(): boolean {
+        return this.value.length === 0
+    }
+
+    public parse(tokenizer: Tokenizer): void {
+        const token = tokenizer.next()
+        if (token === null) {
+            this.finalize(tokenizer, 'Unexpected end of text, missing command keyword')
+            return
+        }
+
+        const value = token.content.trim()
+        if (!VariableToken.WordExpr.test(value)) {
+            tokenizer.addMarker(`Invalid variable name: '${value}'`, token)
+        } else if (!(value in this.context)) {
+            tokenizer.addMarker(`Undefined variable: '${value}'`, token)
+        } else {
+            this.text = value
+        }
+
+        this.finalize(tokenizer)
+    }
+
+    public build(key?: string | undefined): React.ReactNode {
+        return this.getContent()?.build(key)
+    }
+
+    public getContent(): ValueOf<typeof this.context> | null {
         return this.context[this.text] ?? null
     }
 
-    public override get isEmpty(): boolean {
-        return this.text.length === 0 || !(this.text in this.context)
-    }
-
-    public override parse(part: string, line: number, column: number, markers: MarkerData[]): boolean {
-        if (this.text.length > 0) {
-            return false
-        }
-
-        this.text = part
-        this._lineEnd = line
-        this._columnEnd = column
-
-        if (!/^\w+$/.test(this.text)) {
-            markers.push({
-                startLineNumber: line,
-                endLineNumber: line,
-                startColumn: column,
-                endColumn: column + part.length,
-                message: `Invalid variable name: '${this.text}'`,
-                severity: 8
-            })
-        } else if (!(this.text in this.context)) {
-            markers.push({
-                startLineNumber: line,
-                endLineNumber: line,
-                startColumn: column,
-                endColumn: column + part.length,
-                message: `Undefined variable: '${this.text}'`,
-                severity: 8
-            })
-        }
-
-        return false // always parse just one word
-    }
-
-    public override build(id?: string | undefined): React.ReactNode {
-        return this.getContent()?.build(id)
+    public override getText(): string | null {
+        return this.getContent()?.getText() ?? null
     }
 
     public override getHoverText(model: MonacoModel): MarkdownString[] {
@@ -62,12 +56,9 @@ class VariableToken extends Token {
                     value: `'${this.text}' -> `
                 }]
             }
-            const value = model.getValueInRange({
-                startLineNumber: token.lineStart,
-                startColumn: token.columnStart + 1,
-                endLineNumber: token.lineEnd,
-                endColumn: token.columnEnd
-            })
+            const value = token instanceof EmptyToken
+                ? token.value
+                : model.getValueInRange(token)
 
             return [{
                 value: `variable: '${this.text}' = ${value}`

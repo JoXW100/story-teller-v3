@@ -8,6 +8,7 @@ import EncounterDataFactory, { EncounterStorageFactory } from './encounter/facto
 import ItemDocument from './item'
 import MapDocument from './map'
 import ModifierDocument from './modifier'
+import NPCDocument from './npc'
 import RaceDocument from './race'
 import SubraceDocument from './subrace'
 import SpellDocument from './spell'
@@ -27,6 +28,7 @@ import ItemDataFactory, { type ItemData } from './item/factory'
 import SubraceDataFactory from './subrace/factory'
 import MapDataFactory, { MapStorageFactory } from './map/factory'
 import ModifierDataFactory from './modifier/factory'
+import NPCDataFactory from './npc/factory'
 import TextDataFactory from './text/factory'
 import FolderDataFactory from './folder/factory'
 import type ClassData from './class/data'
@@ -35,6 +37,7 @@ import type RaceData from './race/data'
 import type SubraceData from './subrace/data'
 import type MapData from './map/data'
 import type { ModifierData } from './modifier/factory'
+import type NPCData from './npc/data'
 import type CharacterData from './character/data'
 import type CreatureData from './creature/data'
 import type FolderData from './folder/data'
@@ -57,6 +60,7 @@ export interface DocumentDataMap {
     [DocumentType.Item]: ItemData
     [DocumentType.Map]: MapData
     [DocumentType.Modifier]: ModifierData
+    [DocumentType.NPC]: NPCData
     [DocumentType.Race]: RaceData
     [DocumentType.Subrace]: SubraceData
     [DocumentType.Spell]: SpellData
@@ -74,6 +78,7 @@ export interface DocumentStorageMap {
     [DocumentType.Item]: DocumentIStorageMap[DocumentType.Item]
     [DocumentType.Map]: MapStorage
     [DocumentType.Modifier]: DocumentIStorageMap[DocumentType.Modifier]
+    [DocumentType.NPC]: DocumentIStorageMap[DocumentType.NPC]
     [DocumentType.Race]: DocumentIStorageMap[DocumentType.Race]
     [DocumentType.Subrace]: DocumentIStorageMap[DocumentType.Subrace]
     [DocumentType.Spell]: DocumentIStorageMap[DocumentType.Spell]
@@ -91,6 +96,7 @@ export interface DocumentTypeMap {
     [DocumentType.Item]: ItemDocument
     [DocumentType.Map]: MapDocument
     [DocumentType.Modifier]: ModifierDocument
+    [DocumentType.NPC]: NPCDocument
     [DocumentType.Race]: RaceDocument
     [DocumentType.Subrace]: SubraceDocument
     [DocumentType.Spell]: SpellDocument
@@ -142,6 +148,8 @@ const DocumentFactory: IDocumentFactory = {
                 return new MapDocument({ ...data, type: data.type, data: MapDataFactory.create(data.data), storage: MapStorageFactory.create(data.storage) })
             case DocumentType.Modifier:
                 return new ModifierDocument({ ...data, type: data.type, data: ModifierDataFactory.create(data.data) })
+            case DocumentType.NPC:
+                return new NPCDocument({ ...data, type: data.type, data: NPCDataFactory.create(data.data) })
             case DocumentType.Text:
                 return new TextDocument({ ...data, type: data.type, data: TextDataFactory.create(data.data) })
             case FileType.Folder:
@@ -199,6 +207,8 @@ const DocumentFactory: IDocumentFactory = {
                 return ItemDataFactory
             case DocumentType.Modifier:
                 return ModifierDataFactory
+            case DocumentType.NPC:
+                return NPCDataFactory
             case DocumentType.Text:
                 return TextDataFactory
             case FileType.Folder:

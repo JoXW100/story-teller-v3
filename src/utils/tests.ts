@@ -14,7 +14,7 @@ export function expectTypeToBe<A>(value: unknown, validator: (val: unknown) => v
     return result
 }
 
-export function expectInstanceOf<T, C extends new (...args: any[]) => T>(value: T, constructor: C): value is InstanceType<C> {
+export function expectInstanceOf<T, C extends abstract new (...args: any) => T>(value: T, constructor: C): value is InstanceType<C> {
     expect(value).toBeInstanceOf(constructor)
     return value instanceof constructor
 }

@@ -96,9 +96,8 @@ const HomeView: React.FC = () => {
                     </Tooltip>
                 }
                 { process.env.NODE_ENV === 'development' &&
-                    <Tooltip title={<LocalizedText className={styles.headerButtonTooltips} id='home-debug'/>}>
-                        <button className={styles.headerButton} onClick={handleDebugClick}>
-                            <LocalizedText className='no-line-break label-xl mobile-hide' id='home-debug'/>
+                    <Tooltip title={<LocalizedText id='home-debug'/>}>
+                        <button className='square' onClick={handleDebugClick}>
                             <DebugIcon/>
                         </button>
                     </Tooltip>

@@ -38,7 +38,7 @@ export interface IEditorValueChoiceData extends IEditorChoiceDataBase {
 }
 
 export interface IEditorDocumentChoiceData extends IEditorChoiceDataBase {
-    readonly type: 'ability' | 'spell'
+    readonly type: 'ability' | 'spell' | 'modifier'
     readonly allowedTypes: readonly DocumentType[]
     readonly value: Array<ObjectId | null>
 }

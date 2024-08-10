@@ -9,7 +9,7 @@ const SpellClosedRenderer: React.FC<SpellRendererProps> = ({ data }) => {
     const concentrationIconTooltips = translator('render-spell-concentration')
     const ritualIconTooltips = translator('render-spell-ritual')
     return (
-        <Elements.align direction='h' width='100%' weight='1'>
+        <Elements.align direction='h' width={null} weight={null}>
             <div className={styles.iconRow} style={{ flex: '1.5' }}>
                 <Elements.b>{data.name}</Elements.b>
                 { data.concentration &&

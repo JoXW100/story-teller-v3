@@ -88,7 +88,7 @@ const EncounterCardRenderer: React.FC<EncounterCardProps> = ({ id, encounter, cr
             <div className={styles.encounterCardToken} data={asBooleanString(count > 0)}>
                 { Number(id.substring(id.lastIndexOf('.') + 1)) + 1 }
             </div>
-            <Link id='drag-handle' href={Navigation.fileURL(creature.id)} rel='noopener noreferrer' target="_blank" draggable={false}>
+            <Link id='drag-handle' href={Navigation.fileURL(creature.id, creature.storyId)} rel='noopener noreferrer' target="_blank" draggable={false}>
                 <button className={styles.encounterCardHeader} onDragStart={handleDragStart}>
                     {facade.name}
                 </button>

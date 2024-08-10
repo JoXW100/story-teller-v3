@@ -106,7 +106,7 @@ const HealthBox: React.FC<HealthBoxProps> = ({ facade }) => {
     }
 
     return (
-        <Elements.align direction='h' weight='1' width='100%'>
+        <Elements.align direction='h' weight={null} width={null}>
             <div className={styles.armorBox}>
                 <b>AC</b>
                 <b>{facade.acValue}</b>

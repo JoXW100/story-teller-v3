@@ -16,7 +16,7 @@ class BlockElement extends Element<BlockElementParams> {
             parse: (value) => value
         },
         'width': {
-            default: '100%',
+            default: null,
             validate: isCSSValueString,
             parse: (value) => value
         }

@@ -118,15 +118,15 @@ const ClassSpellGroups: React.FC<ClassSpellGroupsProps> = ({ facade, spells, set
                 </>
             }
             { modifiedStats.spellAttribute !== OptionalAttribute.None &&
-                <Elements.align direction='h' weight='1' width='100%'>
-                    <Elements.align direction='h' weight='2' width='100%'>
+                <Elements.align direction='h' weight='1' width={null}>
+                    <Elements.align direction='h' weight='2' width={null}>
                         <Elements.h2 underline={false}> Spells: </Elements.h2>
                     </Elements.align>
-                    <Elements.align direction='vc' weight='1.5' width='100%'>
+                    <Elements.align direction='vc' weight='1.5' width={null}>
                         <Elements.b>Spellcasting Attribute</Elements.b>
                         <Elements.b>{options[modifiedStats.spellAttribute]}</Elements.b>
                     </Elements.align>
-                    <Elements.align direction='vc' weight='1' width='100%'>
+                    <Elements.align direction='vc' weight='1' width={null}>
                         <Elements.b>Spell Modifier</Elements.b>
                         <Elements.roll
                             dice={String(facade.getAttributeModifier(modifiedStats.spellAttribute))}
@@ -139,7 +139,7 @@ const ClassSpellGroups: React.FC<ClassSpellGroupsProps> = ({ facade, spells, set
                             type={RollType.General}/>
                     </Elements.align>
                     <Elements.space/>
-                    <Elements.align direction='vc' weight='1' width='100%'>
+                    <Elements.align direction='vc' weight='1' width={null}>
                         <Elements.b>Spell Attack</Elements.b>
                         <Elements.roll
                             dice={String(facade.getSpellAttackModifier(modifiedStats.spellAttribute))}
@@ -152,7 +152,7 @@ const ClassSpellGroups: React.FC<ClassSpellGroupsProps> = ({ facade, spells, set
                             type={RollType.Attack}/>
                     </Elements.align>
                     <Elements.space/>
-                    <Elements.align direction='vc' weight='1' width='100%'>
+                    <Elements.align direction='vc' weight='1' width={null}>
                         <Elements.bold>Spell Save</Elements.bold>
                         <Elements.save
                             value={facade.getSpellSaveModifier(modifiedStats.spellAttribute)}
