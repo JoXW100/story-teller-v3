@@ -104,7 +104,7 @@ class StoryScript {
                         switchTo: 'arguments'
                     }],
                     [/\%\%.*/, 'comment'],
-                    [/\%/, {
+                    [/\$\{/, {
                         token: 'equation',
                         switchTo: 'equation'
                     }],
@@ -114,7 +114,7 @@ class StoryScript {
                             '@default': 'variable'
                         }
                     }],
-                    [/\$\w+/, 'variable'],
+                    [/\$\w+~?/, 'variable'],
                     [/[\{\}\[\]]/, '@brackets'],
                     [/\~/, 'keyword']
                 ],
@@ -131,7 +131,7 @@ class StoryScript {
                 equation: [
                     [/\$\w+/, 'variable'],
                     [/[0-9\+\-\*\/\s]+/, 'equation'],
-                    [/\%/, {
+                    [/\}/, {
                         token: 'equation',
                         switchTo: 'root'
                     }]

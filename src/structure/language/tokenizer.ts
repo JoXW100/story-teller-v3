@@ -2,7 +2,7 @@ import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { MarkerData, ITokenData } from 'types/language'
 
 class Tokenizer {
-    private static readonly TokenizationExpr = /(%%|[^\w]|\w+)/i // /([\\~$:,\[\]\(\)\{\}\n\r\t ]|%%|[^\\~$:,\[\]\(\)\{\}\n\r\t ]+)/
+    private static readonly TokenizationExpr = /(%%|\$\{|[^\w]|\w+)/i // /([\\~$:,\[\]\(\)\{\}\n\r\t ]|%%|[^\\~$:,\[\]\(\)\{\}\n\r\t ]+)/
     private static readonly WhiteSpaceExpr = /^\s*$/
 
     public readonly elements: ElementDefinitions
@@ -35,8 +35,11 @@ class Tokenizer {
 
     public addMarker(message: string, token: Omit<ITokenData, 'content'>): void {
         this._markers.push({
-            ...token,
             message: message,
+            startLineNumber: token.startLineNumber,
+            endLineNumber: token.endLineNumber,
+            startColumn: token.startColumn,
+            endColumn: token.endColumn,
             severity: 8
         })
     }

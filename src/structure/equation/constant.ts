@@ -2,7 +2,7 @@ import SymbolicExpression from '.'
 import type { TokenContext } from 'types/language'
 
 class Constant extends SymbolicExpression {
-    private readonly value: number
+    public readonly value: number
 
     public constructor(value: number) {
         super()

@@ -4,7 +4,7 @@ import TextToken from 'structure/language/tokens/text'
 import type { TokenContext } from 'types/language'
 
 class Variable extends SymbolicExpression {
-    private readonly name: string
+    public readonly name: string
 
     public constructor(name: string) {
         super()

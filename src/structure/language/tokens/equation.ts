@@ -34,7 +34,7 @@ class EquationToken extends Token {
         }
 
         switch (token.content) {
-            case '\%':
+            case '\}':
             case '\)': {
                 return null
             }
@@ -54,7 +54,7 @@ class EquationToken extends Token {
                 if (expr === null) {
                     return null
                 } else {
-                    return this.parseOperator(tokenizer, new Negation(expr))
+                    return new Negation(expr)
                 }
             }
             case '\$': {
@@ -81,92 +81,47 @@ class EquationToken extends Token {
         }
     }
 
-    private parseValue(tokenizer: Tokenizer): SymbolicExpression | null {
-        const token = tokenizer.next(true)
-        if (token === null) {
-            this.finalize(tokenizer, 'Unexpected end of text')
-            return null
-        }
-
-        switch (token.content) {
-            case '\(': {
-                return this.parsePrimary(tokenizer)
-            }
-            case '\-': {
-                const expr = this.parsePrimary(tokenizer)
-                if (expr === null) {
-                    return null
-                } else {
-                    return this.parseOperator(tokenizer, new Negation(expr))
-                }
-            }
-            case '\$': {
-                const nameToken = tokenizer.next()
-                if (nameToken === null) {
-                    return null
-                } else if (!/^\w+$/i.test(nameToken.content)) {
-                    tokenizer.addMarker(`Invalid variable name: '${nameToken.content}'`, token)
-                    return null
-                } else if (!(nameToken.content in this.context)) {
-                    tokenizer.addMarker(`Undefined variable: '${nameToken.content}'`, token)
-                    return null
-                } else {
-                    return new Variable(nameToken.content)
-                }
-            }
-            default: {
-                if (!isNumeric(token.content)) {
-                    tokenizer.addMarker(`Invalid value: ${token.content}`, token)
-                    return null
-                } else {
-                    return new Constant(Number(token.content))
-                }
-            }
-        }
-    }
-
     private parseOperator(tokenizer: Tokenizer, lhs: SymbolicExpression): SymbolicExpression {
         const token = tokenizer.next(true)
         if (token === null) {
-            this.finalize(tokenizer, 'Unexpected end of text')
             return lhs
         }
 
         switch (token.content) {
-            case '\%':
+            case '\}':
             case '\)': {
                 return lhs
             }
             case '\/': {
-                const rhs = this.parseValue(tokenizer)
+                const rhs = this.parsePrimary(tokenizer)
                 if (rhs === null) {
                     return lhs
                 } else {
-                    return this.parseOperator(tokenizer, new Division(lhs, rhs))
-                }
-            }
-            case '\+': {
-                const rhs = this.parseValue(tokenizer)
-                if (rhs === null) {
-                    return lhs
-                } else {
-                    return this.parseOperator(tokenizer, new Addition(lhs, rhs))
-                }
-            }
-            case '\-': {
-                const rhs = this.parseValue(tokenizer)
-                if (rhs === null) {
-                    return lhs
-                } else {
-                    return this.parseOperator(tokenizer, new Subtraction(lhs, rhs))
+                    return new Division(lhs, rhs)
                 }
             }
             case '\*': {
-                const rhs = this.parseValue(tokenizer)
+                const rhs = this.parsePrimary(tokenizer)
                 if (rhs === null) {
                     return lhs
                 } else {
-                    return this.parseOperator(tokenizer, new Multiplication(lhs, rhs))
+                    return new Multiplication(lhs, rhs)
+                }
+            }
+            case '\+': {
+                const rhs = this.parsePrimary(tokenizer)
+                if (rhs === null) {
+                    return lhs
+                } else {
+                    return new Addition(lhs, rhs)
+                }
+            }
+            case '\-': {
+                const rhs = this.parsePrimary(tokenizer)
+                if (rhs === null) {
+                    return lhs
+                } else {
+                    return new Subtraction(lhs, rhs)
                 }
             }
             default: {

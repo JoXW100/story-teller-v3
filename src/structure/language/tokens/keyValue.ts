@@ -27,6 +27,8 @@ class KeyToken extends TextToken {
 }
 
 class KeyValueToken extends Token {
+    private static readonly BreakExpr = /^[\]\,\:]$/i
+    private static readonly BreakValueExpr = /^(\$\{|[\]\,\$])$/i
     private readonly element: IElement
     private _key: string | null = null
 
@@ -40,7 +42,7 @@ class KeyValueToken extends Token {
     }
 
     public get value(): string {
-        return this.children[0]?.getText()?.trim() ?? ''
+        return this.children.map(child => child.getText()).join('').trim()
     }
 
     public override get isEmpty(): boolean {
@@ -48,79 +50,70 @@ class KeyValueToken extends Token {
     }
 
     public parse(tokenizer: Tokenizer): void {
+        const key = new KeyToken(this.element, KeyValueToken.BreakExpr, this.startLineNumber, this.startColumn, this.context)
+        key.parse(tokenizer)
         const token = tokenizer.next(true)
         if (token === null) {
             this.finalize(tokenizer, 'Unexpected end of text')
             return
         }
         switch (token.content) {
-            case '\%': {
-                const equation = new EquationToken(token.startLineNumber, token.startColumn, this.context)
-                equation.parse(tokenizer)
-                const next = tokenizer.next(true)
-                if (next === null) {
-                    this.finalize(tokenizer, 'Unexpected end of text')
-                    return
-                } else if (next.content !== '\]' && next.content !== '\,') {
-                    this.finalize(tokenizer, `Unexpected symbol '${next.content}', expected ',' or ']'`)
-                    return
-                } else {
-                    this.children.push(equation)
-                    this.finalize(tokenizer)
-                    return
-                }
+            case '\]':
+            case '\,': {
+                tokenizer.back()
+                this.children.push(key)
+                this.finalize(tokenizer)
+                break
             }
-            case '\$': {
-                const variable = new VariableToken(token.startLineNumber, token.startColumn, this.context)
-                variable.parse(tokenizer)
-                const next = tokenizer.next(true)
-                if (next === null) {
-                    this.finalize(tokenizer, 'Unexpected end of text')
-                    return
-                } else if (next.content !== '\]' && next.content !== '\,') {
-                    this.finalize(tokenizer, `Unexpected symbol '${next.content}', expected ',' or ']'`)
-                    return
+            case '\:': {
+                this._key = asKeyOf<string>(key.value.trim(), this.element.params)
+                if (this._key === null) {
+                    this.finalize(tokenizer, `Invalid parameter: '${key.value}'`)
                 } else {
-                    this.children.push(variable)
-                    this.finalize(tokenizer)
-                    return
+                    this.parseValue(tokenizer)
                 }
+                break
             }
             default: {
                 tokenizer.back()
-                const text = new KeyToken(this.element, /^[\]\,\:]$/i, token.startLineNumber, token.startColumn, this.context)
-                text.parse(tokenizer)
-                const next = tokenizer.next(true)
-                if (next === null) {
-                    this.finalize(tokenizer, 'Unexpected end of text')
-                    return
-                }
-                switch (next.content) {
-                    case '\]':
-                    case '\,': {
-                        tokenizer.back()
-                        this.children.push(text)
-                        this.finalize(tokenizer)
-                        return
-                    }
-                    case '\:': {
-                        this._key = asKeyOf<string>(text.value.trim(), this.element.params)
-                        if (this._key === null) {
-                            this.finalize(tokenizer, `Invalid parameter: '${text.value}'`)
-                            return
-                        }
-                        const value = new TextToken(/^[\]\,]$/i, token.startLineNumber, token.startColumn, this.context)
-                        value.parse(tokenizer)
-                        this.children.push(value)
-                        this.finalize(tokenizer)
-                        return
-                    }
-                    default: {
-                        this.finalize(tokenizer, `Unexpected symbol '${next.content}'`)
-                    }
-                }
+                this.parseValue(tokenizer)
             }
         }
+    }
+
+    private parseValue(tokenizer: Tokenizer): void {
+        let token = tokenizer.next(true)
+        while (token !== null) {
+            switch (token.content) {
+                case '\]':
+                case '\,': {
+                    tokenizer.back()
+                    this.finalize(tokenizer)
+                    return
+                }
+                case '\$': {
+                    const variable = new VariableToken(token.startLineNumber, token.startColumn, this.context)
+                    variable.parse(tokenizer)
+                    this.children.push(variable)
+                    break
+                }
+                case '${': {
+                    const equation = new EquationToken(token.startLineNumber, token.startColumn, this.context)
+                    equation.parse(tokenizer)
+                    this.children.push(equation)
+                    break
+                }
+                default: {
+                    tokenizer.back()
+                    const text = new TextToken(KeyValueToken.BreakValueExpr, token.startLineNumber, token.startColumn, this.context)
+                    text.parse(tokenizer)
+                    this.children.push(text)
+                    break
+                }
+            }
+            token = tokenizer.next(true)
+        }
+        this.finalize(tokenizer, 'Unexpected end of text')
     }
 
     public build(): React.ReactNode {

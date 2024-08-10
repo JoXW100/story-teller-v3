@@ -2,7 +2,7 @@ import SymbolicExpression from '.'
 import type { TokenContext } from 'types/language'
 
 class Negation extends SymbolicExpression {
-    protected readonly expr: SymbolicExpression
+    public readonly expr: SymbolicExpression
 
     public constructor(expr: SymbolicExpression) {
         super()

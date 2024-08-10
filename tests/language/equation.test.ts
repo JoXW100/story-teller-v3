@@ -15,7 +15,7 @@ describe('Variable Token Tests', () => {
     })
 
     test('Test simple correct parse', () => {
-        const text = '10 + 3 - 1%' // initial % should not be included
+        const text = '10 + 3 - 1' // initial % should not be included
         const token = new EquationToken()
         const tokenizer = new Tokenizer(ElementDefinitionDictionary, text)
         token.parse(tokenizer)
@@ -23,5 +23,16 @@ describe('Variable Token Tests', () => {
         expect(tokenizer.markers).toHaveLength(0)
         expect(token.equation).not.toBeNull()
         expect(token.value).toEqual(12)
+    })
+
+    test('Test correct parse with parenthesis', () => {
+        const text = '10 + (3 * -1) / 3' // initial % should not be included
+        const token = new EquationToken()
+        const tokenizer = new Tokenizer(ElementDefinitionDictionary, text)
+        token.parse(tokenizer)
+
+        expect(tokenizer.markers).toHaveLength(0)
+        expect(token.equation).not.toBeNull()
+        expect(token.value).toEqual(9)
     })
 })

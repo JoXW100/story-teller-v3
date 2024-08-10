@@ -2,8 +2,8 @@ import SymbolicExpression from '.'
 import type { TokenContext } from 'types/language'
 
 abstract class Binary extends SymbolicExpression {
-    protected readonly lhs: SymbolicExpression
-    protected readonly rhs: SymbolicExpression
+    public readonly lhs: SymbolicExpression
+    public readonly rhs: SymbolicExpression
 
     public constructor(lhs: SymbolicExpression, rhs: SymbolicExpression) {
         super()
