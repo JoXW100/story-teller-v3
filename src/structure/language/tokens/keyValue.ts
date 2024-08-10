@@ -27,8 +27,8 @@ class KeyToken extends TextToken {
 }
 
 class KeyValueToken extends Token {
-    private static readonly BreakExpr = /^[\]\,\:]$/i
-    private static readonly BreakValueExpr = /^(\$\{|[\]\,\$])$/i
+    private static readonly BreakExpr = /^\$\{|[\]\,\:]$/i
+    private static readonly BreakValueExpr = /^\$\{|[\]\,\$]$/i
     private readonly element: IElement
     private _key: string | null = null
 

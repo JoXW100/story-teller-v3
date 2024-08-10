@@ -2,7 +2,7 @@ import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { MarkerData, ITokenData } from 'types/language'
 
 class Tokenizer {
-    private static readonly TokenizationExpr = /(%%|\$\{|[^\w]|\w+)/i // /([\\~$:,\[\]\(\)\{\}\n\r\t ]|%%|[^\\~$:,\[\]\(\)\{\}\n\r\t ]+)/
+    private static readonly TokenizationExpr = /(%%|\$\{|[^\w]|\w+)/i
     private static readonly WhiteSpaceExpr = /^\s*$/
 
     public readonly elements: ElementDefinitions

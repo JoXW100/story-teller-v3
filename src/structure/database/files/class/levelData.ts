@@ -1,7 +1,6 @@
 import type { ModifierData } from '../modifier/factory'
 import ModifierDataFactory from '../modifier/factory'
 import ModifierAddAbilityData from '../modifier/add/ability'
-import ModifierAddModifierData from '../modifier/add/modifier'
 import { isEnum, isNumber, isObjectId, isRecord, keysOf } from 'utils'
 import { getMaxSpellLevel } from 'utils/calculations'
 import { OptionalAttribute, SpellLevel } from 'structure/dnd'
@@ -61,12 +60,7 @@ class ClassLevelData implements IClassLevelData {
         this.modifiers = ClassLevelData.properties.modifiers.value
         if (Array.isArray(data.modifiers)) {
             for (const value of data.modifiers) {
-                if (isObjectId(value)) {
-                    this.modifiers.push(new ModifierAddModifierData({ name: value, value: { value: value } }))
-                    console.log('modifiers.added modifier', value)
-                } else {
-                    this.modifiers.push(ModifierDataFactory.create(value))
-                }
+                this.modifiers.push(ModifierDataFactory.create(value))
             }
         }
         if (Array.isArray(data.abilities)) {

@@ -62,7 +62,8 @@ const ModifiersInputComponent: React.FC<ModifiersInputComponentProps> = ({ field
                 onChange={handleChange}
                 createValue={handleCreateValue}
                 Component={ItemComponent}
-                EditComponent={EditComponent}/>
+                EditComponent={EditComponent}
+                allowReorder/>
         </GroupItemComponent>
     )
 }

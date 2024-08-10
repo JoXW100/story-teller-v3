@@ -36,9 +36,9 @@ class StoryScript {
             base: 'vs',
             inherit: true,
             rules: [
-                { token: 'keyword', foreground: '#FF6600' },
+                { token: 'keyword', foreground: '#ff6600' },
                 { token: 'comment', foreground: '#999999' },
-                { token: 'equation', foreground: '#5b9138' },
+                { token: 'equation', foreground: '#2053c2' },
                 { token: 'key', foreground: '#009966' },
                 { token: 'value', foreground: '#006699' },
                 { token: 'string', foreground: '#009966' },
@@ -120,6 +120,10 @@ class StoryScript {
                 ],
                 arguments: [
                     [/\$\w+/, 'variable'],
+                    [/\$\{/, {
+                        token: 'equation',
+                        switchTo: 'argEquation'
+                    }],
                     [/((?:^|[\[,])\s*)(https?:\/\/[^\],]+)/i, ['@default', 'url']],
                     [/((?:^|[\[,])\s*)(\w+)(:)/, ['@default', 'key', '@default']],
                     [/((?:^|[\[,])\s*)([^,:\]\s]+\s*)/, ['@default', 'value']],
@@ -134,6 +138,14 @@ class StoryScript {
                     [/\}/, {
                         token: 'equation',
                         switchTo: 'root'
+                    }]
+                ],
+                argEquation: [
+                    [/\$\w+/, 'variable'],
+                    [/[0-9\+\-\*\/\s]+/, 'equation'],
+                    [/\}/, {
+                        token: 'equation',
+                        switchTo: 'arguments'
                     }]
                 ]
             }

@@ -3,6 +3,7 @@ import Tooltip from '@mui/material/Tooltip'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import EditIcon from '@mui/icons-material/EditSharp'
+import MoveDownIcon from '@mui/icons-material/ArrowDropDownSharp'
 import LocalizedText from 'components/controls/localizedText'
 import styles from './template.module.scss'
 
@@ -20,6 +21,7 @@ type ListTemplateMenuProps<A, B, P> = React.PropsWithoutRef<{
     defaultValue: B
     params: P
     addLast?: boolean
+    allowReorder?: boolean
     createValue: (value: B) => A
     validateInput?: (value: B, values: A[]) => boolean
     onChange?: (items: A[]) => void
@@ -28,7 +30,7 @@ type ListTemplateMenuProps<A, B, P> = React.PropsWithoutRef<{
     EditComponent?: React.FC<ListTemplateComponentProps<A, B, P>>
 }>
 
-const ListTemplateMenu = <A, B, P>({ className, defaultValue, values, params, addLast = false, createValue, onChange, onEdit, validateInput, Component, EditComponent }: ListTemplateMenuProps<A, B, P>): React.ReactNode => {
+const ListTemplateMenu = <A, B, P>({ className, defaultValue, values, params, addLast = false, allowReorder = false, createValue, onChange, onEdit, validateInput, Component, EditComponent }: ListTemplateMenuProps<A, B, P>): React.ReactNode => {
     const [value, setValue] = useState<B>(defaultValue)
 
     const handleChange = (value: A, index: number): void => {
@@ -48,6 +50,15 @@ const ListTemplateMenu = <A, B, P>({ className, defaultValue, values, params, ad
 
     const handleEdit = (index: number): void => {
         onEdit?.(values[index], values, index)
+    }
+
+    const handleMove = (index: number): void => {
+        if ((index + 1) < values.length) {
+            const result = [...values]
+            result[index] = values[index + 1]
+            result[index + 1] = values[index]
+            onChange?.(result)
+        }
     }
 
     useEffect(() => {
@@ -85,14 +96,17 @@ const ListTemplateMenu = <A, B, P>({ className, defaultValue, values, params, ad
                                 params={params}
                                 onUpdate={(value) => { handleChange(value, index) }}/>
                         </div>
-                        { onEdit !== undefined &&
+                        { allowReorder &&
+                            <button className='center-flex fill-height square' onClick={() => { handleMove(index) }} disabled={index >= values.length - 1}>
+                                <MoveDownIcon className='small-icon'/>
+                            </button>
+                        }{ onEdit !== undefined &&
                             <Tooltip title={<LocalizedText id='common-edit'/>}>
                                 <button className='center-flex fill-height square' onClick={() => { handleEdit(index) }}>
                                     <EditIcon className='small-icon'/>
                                 </button>
                             </Tooltip>
-                        }
-                        { EditComponent !== undefined &&
+                        }{ EditComponent !== undefined &&
                             <Tooltip title={<LocalizedText id='common-remove'/>}>
                                 <button className='center-flex fill-height square' onClick={() => { handleRemove(index) }}>
                                     <RemoveIcon className='small-icon'/>

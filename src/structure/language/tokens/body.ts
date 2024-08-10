@@ -7,7 +7,7 @@ import TextToken from './text'
 import type { TokenContext } from 'types/language'
 
 class BodyToken extends Token {
-    private static readonly BreakExpr = /^(\$\{|[\}\\\$])$/
+    private static readonly BreakExpr = /^\$\{|[\}\\\$]$/
 
     public constructor(startLineNumber?: number, startColumn?: number, context?: TokenContext) {
         super(startLineNumber, startColumn, { ...context })

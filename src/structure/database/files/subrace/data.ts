@@ -1,5 +1,4 @@
 import ModifierDataFactory, { type ModifierData } from '../modifier/factory'
-import ModifierAddModifierData from '../modifier/add/modifier'
 import ModifierAddAbilityData from '../modifier/add/ability'
 import { asObjectId, isObjectId, isObjectIdOrNull, isString } from 'utils'
 import EmptyToken from 'structure/language/tokens/empty'
@@ -27,12 +26,7 @@ class SubraceData implements ISubraceData {
         this.modifiers = SubraceData.properties.modifiers.value
         if (Array.isArray(data.modifiers)) {
             for (const value of data.modifiers) {
-                if (isObjectId(value)) {
-                    this.modifiers.push(new ModifierAddModifierData({ name: value, value: { value: value } }))
-                    console.log('modifiers.added modifier', value)
-                } else {
-                    this.modifiers.push(ModifierDataFactory.create(value))
-                }
+                this.modifiers.push(ModifierDataFactory.create(value))
             }
         }
         if (Array.isArray(data.abilities)) {

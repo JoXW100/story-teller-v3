@@ -1,8 +1,7 @@
 import type { AbilityData } from '../ability/factory'
 import type { ModifierData } from '../modifier/factory'
 import ModifierDataFactory from '../modifier/factory'
-import ModifierAddModifierData from '../modifier/add/modifier'
-import { isBoolean, isEnum, isNumber, isObjectId, isRecord, isString, keysOf } from 'utils'
+import { isBoolean, isEnum, isNumber, isRecord, isString, keysOf } from 'utils'
 import type { TranslationHandler } from 'utils/hooks/localization'
 import type ChargesData from 'structure/database/charges'
 import ChargesDataFactory, { simplifyChargesDataRecord } from 'structure/database/charges/factory'
@@ -49,12 +48,7 @@ abstract class ItemDataBase implements IItemDataBase {
         this.modifiers = ItemDataBase.properties.modifiers.value
         if (Array.isArray(data.modifiers)) {
             for (const value of data.modifiers) {
-                if (isObjectId(value)) {
-                    this.modifiers.push(new ModifierAddModifierData({ name: value, value: { value: value } }))
-                    console.log('modifiers.added modifier', value)
-                } else {
-                    this.modifiers.push(ModifierDataFactory.create(value))
-                }
+                this.modifiers.push(ModifierDataFactory.create(value))
             }
         }
     }

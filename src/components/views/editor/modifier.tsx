@@ -63,7 +63,7 @@ const ModifierDocumentEditor: React.FC = () => {
                 { data.type === ModifierType.Ability &&
                     <>
                         <EnumComponent field={createField(field, 'subtype')} type='modifierAbilityType' labelId='editor-subtype'/>
-                        { (data.subtype === ModifierAbilityType.AttackBonus || data.subtype === ModifierAbilityType.MeleeWeaponAttackBonus || data.subtype === ModifierAbilityType.RangedWeaponAttackBonus || data.subtype === ModifierAbilityType.ThrownWeaponAttackBonus) &&
+                        { (data.subtype === ModifierAbilityType.AttackBonus || data.subtype === ModifierAbilityType.MeleeWeaponAttackBonus || data.subtype === ModifierAbilityType.RangedWeaponAttackBonus || data.subtype === ModifierAbilityType.ThrownWeaponAttackBonus || data.subtype === ModifierAbilityType.DamageBonus || data.subtype === ModifierAbilityType.MeleeWeaponDamageBonus || data.subtype === ModifierAbilityType.RangedWeaponDamageBonus || data.subtype === ModifierAbilityType.ThrownWeaponDamageBonus) &&
                             <NumberComponent field={createField(field, 'value')} labelId='editor-value' allowNegative/>
                         }
                     </>
@@ -109,8 +109,8 @@ const ModifierDocumentEditor: React.FC = () => {
                     </>
                 }{ data.type === ModifierType.Remove &&
                     <LinkComponent
-                        field={createField(field, 'source')}
-                        labelId='editor-source'
+                        field={createField(field, 'value')}
+                        labelId='editor-value'
                         placeholderId='editor-modifier-placeholder'
                         allowedTypes={AllowedTypes}/>
                 }{ data.type === ModifierType.Bonus &&

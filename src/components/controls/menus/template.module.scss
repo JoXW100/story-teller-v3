@@ -72,7 +72,7 @@ $size: 20px;
 
 .row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
     direction: ltr;
     height: $iconSmallSize;
     align-items: center;

@@ -75,7 +75,8 @@ const ListMenu: React.FC<ListMenuProps> = (props: ListMenuProps) => {
             onChange={props.onChange}
             Component={Component}
             EditComponent={EditComponent}
-            params={props}/>
+            params={props}
+            allowReorder/>
     )
 }
 

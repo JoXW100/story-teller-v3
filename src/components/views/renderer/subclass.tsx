@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react'
-import { ModifierDataRender } from './class'
+import ModifierDataRender from './modifier'
 import { Context } from 'components/contexts/file'
 import Elements, { ElementDictionary } from 'components/elements'
 import LocalizedText from 'components/controls/localizedText'

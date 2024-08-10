@@ -1,40 +1,22 @@
 import { useContext, useMemo } from 'react'
+import ModifierDataRender from './modifier'
 import { Context } from 'components/contexts/file'
 import Elements, { ElementDictionary } from 'components/elements'
+import LocalizedText from 'components/controls/localizedText'
 import { keysOf } from 'utils'
+import { getMaxSpellLevel, getProficiencyBonusFromLevel } from 'utils/calculations'
+import { useTranslator } from 'utils/hooks/localization'
 import { ClassLevel, OptionalAttribute, SpellLevel } from 'structure/dnd'
 import StoryScript from 'structure/language/storyscript'
 import type ClassData from 'structure/database/files/class/data'
-import type { ModifierData } from 'structure/database/files/modifier/factory'
-import LocalizedText from 'components/controls/localizedText'
-import styles from './styles.module.scss'
 import { LevelModifyType } from 'structure/database/files/class/levelData'
-import { getMaxSpellLevel, getProficiencyBonusFromLevel } from 'utils/calculations'
-import { useTranslator } from 'utils/hooks/localization'
+import styles from './styles.module.scss'
 
 interface IClassLevelSpellData {
     learnedSlots: number
     preparationSlots: number
     spellSlots: Partial<Record<SpellLevel, number>>
     maxSpellLevel: SpellLevel
-}
-
-type ModifierDataRenderProps = React.PropsWithRef<{
-    data: ModifierData
-}>
-
-export const ModifierDataRender: React.FC<ModifierDataRenderProps> = ({ data }) => {
-    const description = useMemo(() => {
-        const [description] = data.createContexts(ElementDictionary)
-        return StoryScript.tokenize(ElementDictionary, data.description, description).root
-    }, [data])
-
-    return (
-        <div className={styles.rendererBox} data='true'>
-            <Elements.h4 underline={false}>{data.name}</Elements.h4>
-            { description.build() }
-        </div>
-    )
 }
 
 type LevelRendererProps = React.PropsWithRef<{
@@ -152,7 +134,9 @@ const ClassRenderer: React.FC = () => {
                 <Elements.line width='2px'/>
             </>
         }
-        { keysOf(data.levels).map((level) => <LevelRender key={level} classData={data} level={level}/>)}
+        { keysOf(data.levels).map((level) =>
+            <LevelRender key={level} classData={data} level={level}/>)
+        }
     </>
 }
 
