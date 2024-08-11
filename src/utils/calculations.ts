@@ -154,32 +154,105 @@ export function getMaxProficiencyLevel(...proficiencies: Array<ProficiencyLevel 
     return maxProficiency
 }
 
-export const SkillAdvantageBindingMap: Record<Skill, AdvantageBinding> = {
-    [Skill.Acrobatics]: AdvantageBinding.AcrobaticsCheck,
-    [Skill.AnimalHandling]: AdvantageBinding.AnimalHandlingCheck,
-    [Skill.Arcana]: AdvantageBinding.ArcanaCheck,
-    [Skill.Athletics]: AdvantageBinding.AthleticsCheck,
-    [Skill.Deception]: AdvantageBinding.DeceptionCheck,
-    [Skill.History]: AdvantageBinding.HistoryCheck,
-    [Skill.Insight]: AdvantageBinding.InsightCheck,
-    [Skill.Intimidation]: AdvantageBinding.IntimidationCheck,
-    [Skill.Investigation]: AdvantageBinding.InvestigationCheck,
-    [Skill.Medicine]: AdvantageBinding.MedicineCheck,
-    [Skill.Nature]: AdvantageBinding.NatureCheck,
-    [Skill.Perception]: AdvantageBinding.PerceptionCheck,
-    [Skill.Performance]: AdvantageBinding.PerformanceCheck,
-    [Skill.Persuasion]: AdvantageBinding.PersuasionCheck,
-    [Skill.Religion]: AdvantageBinding.ReligionCheck,
-    [Skill.SleightOfHand]: AdvantageBinding.SleightOfHandCheck,
-    [Skill.Stealth]: AdvantageBinding.StealthCheck,
-    [Skill.Survival]: AdvantageBinding.SurvivalCheck
+export function getSkillAdvantageBinding(skill: Skill): AdvantageBinding {
+    switch (skill) {
+        case Skill.Acrobatics:
+            return AdvantageBinding.AthleticsCheck
+        case Skill.AnimalHandling:
+            return AdvantageBinding.AnimalHandlingCheck
+        case Skill.Arcana:
+            return AdvantageBinding.ArcanaCheck
+        case Skill.Athletics:
+            return AdvantageBinding.AthleticsCheck
+        case Skill.Deception:
+            return AdvantageBinding.DeceptionCheck
+        case Skill.History:
+            return AdvantageBinding.HistoryCheck
+        case Skill.Insight:
+            return AdvantageBinding.InsightCheck
+        case Skill.Intimidation:
+            return AdvantageBinding.IntimidationCheck
+        case Skill.Investigation:
+            return AdvantageBinding.InvestigationCheck
+        case Skill.Medicine:
+            return AdvantageBinding.MedicineCheck
+        case Skill.Nature:
+            return AdvantageBinding.NatureCheck
+        case Skill.Perception:
+            return AdvantageBinding.PerceptionCheck
+        case Skill.Performance:
+            return AdvantageBinding.PerformanceCheck
+        case Skill.Persuasion:
+            return AdvantageBinding.PerformanceCheck
+        case Skill.Religion:
+            return AdvantageBinding.ReligionCheck
+        case Skill.SleightOfHand:
+            return AdvantageBinding.SleightOfHandCheck
+        case Skill.Stealth:
+            return AdvantageBinding.StealthCheck
+        case Skill.Survival:
+            return AdvantageBinding.SurvivalCheck
+    }
 }
 
-export const AttributeAdvantageBindingMap: Record<Attribute, AdvantageBinding> = {
-    [Attribute.STR]: AdvantageBinding.StrengthSave,
-    [Attribute.DEX]: AdvantageBinding.DexteritySave,
-    [Attribute.CON]: AdvantageBinding.ConstitutionSave,
-    [Attribute.INT]: AdvantageBinding.IntelligenceSave,
-    [Attribute.WIS]: AdvantageBinding.WisdomSave,
-    [Attribute.CHA]: AdvantageBinding.CharismaSave
+export function getSkillAttribute(skill: Skill): Attribute {
+    switch (skill) {
+        case Skill.Athletics:
+            return Attribute.STR
+        case Skill.Acrobatics:
+        case Skill.SleightOfHand:
+        case Skill.Stealth:
+            return Attribute.DEX
+        case Skill.Arcana:
+        case Skill.History:
+        case Skill.Investigation:
+        case Skill.Nature:
+        case Skill.Religion:
+            return Attribute.INT
+        case Skill.AnimalHandling:
+        case Skill.Insight:
+        case Skill.Medicine:
+        case Skill.Perception:
+        case Skill.Survival:
+            return Attribute.WIS
+        case Skill.Deception:
+        case Skill.Intimidation:
+        case Skill.Performance:
+        case Skill.Persuasion:
+            return Attribute.CHA
+    }
+}
+
+export function getSkillAttributeCheckAdvantageBinding(skill: Skill): AdvantageBinding {
+    switch (getSkillAttribute(skill)) {
+        case Attribute.STR:
+            return AdvantageBinding.StrengthCheck
+        case Attribute.DEX:
+            return AdvantageBinding.DexterityCheck
+        case Attribute.CON:
+            return AdvantageBinding.ConstitutionCheck
+        case Attribute.INT:
+            return AdvantageBinding.IntelligenceCheck
+        case Attribute.WIS:
+            return AdvantageBinding.WisdomCheck
+        case Attribute.CHA:
+            return AdvantageBinding.CharismaCheck
+    }
+}
+
+export function getAttributeSaveAdvantageBinding(skill: Attribute): AdvantageBinding {
+    switch (skill) {
+        case Attribute.STR:
+            return AdvantageBinding.StrengthSave
+        case Attribute.DEX:
+            return AdvantageBinding.DexteritySave
+        case Attribute.CON:
+            return AdvantageBinding.ConstitutionSave
+        case Attribute.INT:
+            return AdvantageBinding.IntelligenceSave
+        case Attribute.WIS:
+            return AdvantageBinding.WisdomSave
+        case Attribute.CHA:
+            return AdvantageBinding.CharismaSave
+    }
 }

@@ -6,5 +6,6 @@ export type KeysOfTwo<T1, T2> = KeysOf<T1> | { [K in Exclude<keyof T2, keyof T1>
 export type Simplify<T> = T extends object ? { [K in keyof T]?: Simplify<T[K]> } : T
 export type Editable<T extends Record<string, any>, K extends string> = { [P in K]: T[P] }
 export type BooleanString = 'true' | 'false'
+export type MappedRecord<K extends keyof any, T extends Record<K, any>> = { [P in K]: T[P] }
 const ObjectIdBrand: unique symbol = Symbol('An unique database object identifier')
 export type ObjectId = string & { [ObjectIdBrand]: never }

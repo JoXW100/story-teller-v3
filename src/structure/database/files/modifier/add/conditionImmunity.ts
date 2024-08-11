@@ -1,5 +1,6 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
 import type Modifier from '../modifier'
+import { SourceType } from '../modifier'
 import { createDefaultChoiceData, createSingleChoiceData, simplifySingleChoiceData, validateChoiceData } from '../../../choice'
 import { asEnum, isEnum, isNumber, isString } from 'utils'
 import { ConditionBinding } from 'structure/dnd'
@@ -8,7 +9,6 @@ import type { DataPropertyMap } from 'types/database'
 import type { IModifierAddConditionImmunityData } from 'types/database/files/modifier'
 import type { ISourceBinding } from 'types/database/files/creature'
 import type { SingleChoiceData } from 'types/database/choice'
-
 class ModifierAddConditionImmunityData extends ModifierAddDataBase implements IModifierAddConditionImmunityData {
     public override readonly subtype = ModifierAddType.ConditionImmunity
     public readonly binding: SingleChoiceData<ConditionBinding>
@@ -64,15 +64,20 @@ class ModifierAddConditionImmunityData extends ModifierAddDataBase implements IM
                     choice = self.binding.value
                 }
 
-                if (choice === null) {
+                if (choice === null || (choice in value && value[choice]!.some(binding => binding.description === self.notes))) {
                     return value
                 }
 
-                value[choice] = [...(value[choice] ?? []), {
-                    source: modifier.findSource(key),
-                    description: self.notes
-                } satisfies ISourceBinding]
-                return value
+                return {
+                    ...value,
+                    [choice]: [
+                        ...value[choice] ?? [],
+                        {
+                            source: modifier.findSource(key, value => value.type !== SourceType.Modifier),
+                            description: self.notes
+                        } satisfies ISourceBinding
+                    ]
+                }
             }
         })
     }

@@ -1,13 +1,16 @@
 import DatabaseFile from '..'
 import SpellDataFactory, { type SpellData } from './factory'
-import type { DocumentType } from 'structure/database'
+import { type DocumentType, EmptyDatabaseFactory } from 'structure/database'
 import StoryScript from 'structure/language/storyscript'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { IDatabaseFactory } from 'types/database'
 import type { ISpellData, ISpellStorage } from 'types/database/files/spell'
 import type { IToken } from 'types/language'
 
-export class SpellDocument extends DatabaseFile<DocumentType.Spell, ISpellStorage, ISpellData, SpellData> {
+export class SpellDocument extends DatabaseFile<DocumentType.Spell, SpellData> {
+    public static get DataFactory(): IDatabaseFactory<ISpellData, SpellData> { return SpellDataFactory }
+    public static get StorageFactory(): IDatabaseFactory<ISpellStorage> { return EmptyDatabaseFactory }
+
     public override getTitle(): string {
         return this.data.name
     }
@@ -22,7 +25,11 @@ export class SpellDocument extends DatabaseFile<DocumentType.Spell, ISpellStorag
     }
 
     public override getDataFactory(): IDatabaseFactory<ISpellData, SpellData> {
-        return SpellDataFactory
+        return SpellDocument.DataFactory
+    }
+
+    public override getStorageFactory(): IDatabaseFactory<ISpellStorage> {
+        return SpellDocument.StorageFactory
     }
 }
 

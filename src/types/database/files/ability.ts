@@ -1,3 +1,4 @@
+import type { IDatabaseFileData, IDatabaseFileStorage } from '..'
 import type { IChargesData } from '../charges'
 import type { IArea } from '../area'
 import type { IModifierData } from './modifier'
@@ -6,7 +7,7 @@ import type { ActionType, TargetType } from 'structure/dnd'
 import type { IEffect } from 'types/database/effect'
 import type { IEffectCondition, IEffectConditionNone } from 'types/database/effectCondition'
 
-export interface IAbilityDataBase {
+export interface IAbilityDataBase extends IDatabaseFileData {
     readonly type: AbilityType
     readonly name: string
     readonly description: string
@@ -101,6 +102,6 @@ export type IAbilityData = IAbilityFeatureData | IAbilityCustomData |
 IAbilityAttackData | IAbilityMeleeAttackData | IAbilityRangedAttackData |
 IAbilityThrownAttackData | IAbilitySkillData
 
-export interface IAbilityStorage {
+export interface IAbilityStorage extends IDatabaseFileStorage {
 
 }

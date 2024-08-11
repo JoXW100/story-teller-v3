@@ -9,6 +9,7 @@ import type { ItemData } from '../item/factory'
 import CreatureFacade from '../creature/facade'
 import { LevelModifyType, resolveAggregateClassDataSpellInfo } from '../class/levelData'
 import type ClassLevelData from '../class/levelData'
+import type ConditionData from '../condition/data'
 import { SourceType } from '../modifier/modifier'
 import ItemArmorData from '../item/armor'
 import { asNumber, isKeyOf, keysOf } from 'utils'
@@ -29,8 +30,8 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
     public readonly subclassesData: Record<ObjectId, SubclassData>
     public readonly itemsData: Record<ObjectId, ItemData>
 
-    constructor(data: CharacterData, storage: CharacterStorage, modifier: Modifier, translator: TranslationHandler, properties?: IProperties, raceData: RaceData | null = null, subraceData: SubraceData | null = null, classesData: Record<ObjectId, ClassData> = {}, subclassesData: Record<ObjectId, SubclassData> = {}, itemsData: Record<ObjectId, ItemData> = {}) {
-        super(data, storage, modifier, translator, properties)
+    constructor(data: CharacterData, storage: CharacterStorage, modifier: Modifier, translator: TranslationHandler, properties?: IProperties, conditions?: Record<ObjectId, ConditionData>, raceData: RaceData | null = null, subraceData: SubraceData | null = null, classesData: Record<ObjectId, ClassData> = {}, subclassesData: Record<ObjectId, SubclassData> = {}, itemsData: Record<ObjectId, ItemData> = {}) {
+        super(data, storage, modifier, translator, properties, conditions)
         this.data = data
         this.storage = storage
         this.raceData = raceData
@@ -351,7 +352,7 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
     }
 
     public override getClassLevel(key: string): number {
-        const source = this.modifier.findSourceOfType(key, SourceType.Class)
+        const source = this.modifier.findSource(key, source => source.type !== SourceType.Class)
         if (source !== null && isKeyOf(source.key, this.data.classes)) {
             return asNumber(this.data.classes[source.key], 0)
         }

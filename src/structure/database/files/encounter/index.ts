@@ -1,16 +1,17 @@
 import DatabaseFile from '..'
-import EncounterDataFactory from './factory'
+import { EncounterDataFactory, EncounterStorageFactory } from './factory'
 import type EncounterStorage from './storage'
 import type EncounterData from './data'
 import type { DocumentType } from '../..'
 import StoryScript from 'structure/language/storyscript'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { IDatabaseFactory } from 'types/database'
-import type { IEncounterData } from 'types/database/files/encounter'
+import type { IEncounterData, IEncounterStorage } from 'types/database/files/encounter'
 import type { IToken } from 'types/language'
 
-export class EncounterDocument extends DatabaseFile<DocumentType.Encounter, EncounterStorage, IEncounterData, EncounterData> {
-    public static get Factory(): IDatabaseFactory<IEncounterData, EncounterData> { return EncounterDataFactory }
+export class EncounterDocument extends DatabaseFile<DocumentType.Encounter, EncounterData, EncounterStorage> {
+    public static get DataFactory(): IDatabaseFactory<IEncounterData, EncounterData> { return EncounterDataFactory }
+    public static get StorageFactory(): IDatabaseFactory<IEncounterStorage, EncounterStorage> { return EncounterStorageFactory }
 
     public override getTitle(): string {
         return this.data.name
@@ -26,7 +27,11 @@ export class EncounterDocument extends DatabaseFile<DocumentType.Encounter, Enco
     }
 
     public override getDataFactory(): IDatabaseFactory<IEncounterData, EncounterData> {
-        return EncounterDataFactory
+        return EncounterDocument.DataFactory
+    }
+
+    public override getStorageFactory(): IDatabaseFactory<IEncounterStorage, EncounterStorage> {
+        return EncounterDocument.StorageFactory
     }
 }
 

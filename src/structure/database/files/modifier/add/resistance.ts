@@ -1,5 +1,6 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
 import type Modifier from '../modifier'
+import { SourceType } from '../modifier'
 import { createSingleChoiceData, createDefaultChoiceData, validateChoiceData, simplifySingleChoiceData } from '../../../choice'
 import { asEnum, isEnum, isNumber, isString } from 'utils'
 import { DamageBinding } from 'structure/dnd'
@@ -64,15 +65,20 @@ class ModifierAddResistanceData extends ModifierAddDataBase implements IModifier
                     choice = self.binding.value
                 }
 
-                if (choice === null) {
+                if (choice === null || (choice in value && value[choice]!.some(binding => binding.description === self.notes))) {
                     return value
                 }
 
-                value[choice] = [...(value[choice] ?? []), {
-                    source: modifier.findSource(key),
-                    description: self.notes
-                } satisfies ISourceBinding]
-                return value
+                return {
+                    ...value,
+                    [choice]: [
+                        ...value[choice] ?? [],
+                        {
+                            source: modifier.findSource(key, value => value.type !== SourceType.Modifier),
+                            description: self.notes
+                        } satisfies ISourceBinding
+                    ]
+                }
             }
         })
     }

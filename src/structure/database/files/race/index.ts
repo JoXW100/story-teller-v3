@@ -1,15 +1,16 @@
 import DatabaseFile from '..'
 import RaceDataFactory from './factory'
 import type RaceData from './data'
-import type { DocumentType } from '../..'
+import { type DocumentType, EmptyDatabaseFactory } from '../..'
 import StoryScript from 'structure/language/storyscript'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { IDatabaseFactory } from 'types/database'
 import type { IRaceData, IRaceStorage } from 'types/database/files/race'
 import type { IToken } from 'types/language'
 
-export class RaceDocument extends DatabaseFile<DocumentType.Race, IRaceStorage, IRaceData, RaceData> {
-    public static get Factory(): IDatabaseFactory<IRaceData, RaceData> { return RaceDataFactory }
+export class RaceDocument extends DatabaseFile<DocumentType.Race, RaceData> {
+    public static get DataFactory(): IDatabaseFactory<IRaceData, RaceData> { return RaceDataFactory }
+    public static get StorageFactory(): IDatabaseFactory<IRaceStorage> { return EmptyDatabaseFactory }
 
     public override getTitle(): string {
         return this.data.name
@@ -25,7 +26,11 @@ export class RaceDocument extends DatabaseFile<DocumentType.Race, IRaceStorage, 
     }
 
     public override getDataFactory(): IDatabaseFactory<IRaceData, RaceData> {
-        return RaceDataFactory
+        return RaceDocument.DataFactory
+    }
+
+    public override getStorageFactory(): IDatabaseFactory<IRaceStorage> {
+        return RaceDocument.StorageFactory
     }
 }
 

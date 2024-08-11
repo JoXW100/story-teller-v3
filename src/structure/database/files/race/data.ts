@@ -1,7 +1,6 @@
 import ModifierDataFactory from '../modifier/factory'
 import type { ModifierData } from '../modifier/factory'
-import ModifierAddAbilityData from '../modifier/add/ability'
-import { isEnum, isNumber, isObjectId, isRecord, isString } from 'utils'
+import { isEnum, isNumber, isRecord, isString } from 'utils'
 import type { TranslationHandler } from 'utils/hooks/localization'
 import { CreatureType, Language, MovementType, ProficiencyLevelBasic, Sense, SizeType } from 'structure/dnd'
 import EmptyToken from 'structure/language/tokens/empty'
@@ -37,14 +36,6 @@ class RaceData implements IRaceData {
         if (Array.isArray(data.modifiers)) {
             for (const value of data.modifiers) {
                 this.modifiers.push(ModifierDataFactory.create(value))
-            }
-        }
-        if (Array.isArray(data.abilities)) {
-            for (const value of data.abilities) {
-                if (isObjectId(value)) {
-                    this.modifiers.push(new ModifierAddAbilityData({ name: value, value: { value: value } }))
-                    console.log('modifiers.added ability', value)
-                }
             }
         }
     }

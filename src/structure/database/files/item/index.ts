@@ -1,14 +1,15 @@
 import DatabaseFile from '..'
 import ItemDataFactory, { type ItemData } from './factory'
-import type { DocumentType } from '../..'
+import { type DocumentType, EmptyDatabaseFactory } from '../..'
 import StoryScript from 'structure/language/storyscript'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { IDatabaseFactory } from 'types/database'
 import type { IItemData, IItemStorage } from 'types/database/files/item'
 import type { IToken } from 'types/language'
 
-export class ItemDocument extends DatabaseFile<DocumentType.Item, IItemStorage, IItemData, ItemData> {
-    public static get Factory(): IDatabaseFactory<IItemData, ItemData> { return ItemDataFactory }
+export class ItemDocument extends DatabaseFile<DocumentType.Item, ItemData> {
+    public static get DataFactory(): IDatabaseFactory<IItemData, ItemData> { return ItemDataFactory }
+    public static get StorageFactory(): IDatabaseFactory<IItemStorage> { return EmptyDatabaseFactory }
 
     public override getTitle(): string {
         return this.data.name
@@ -24,7 +25,11 @@ export class ItemDocument extends DatabaseFile<DocumentType.Item, IItemStorage, 
     }
 
     public override getDataFactory(): IDatabaseFactory<IItemData, ItemData> {
-        return ItemDataFactory
+        return ItemDocument.DataFactory
+    }
+
+    public override getStorageFactory(): IDatabaseFactory<IItemStorage> {
+        return ItemDocument.StorageFactory
     }
 }
 

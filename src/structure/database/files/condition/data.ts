@@ -1,28 +1,25 @@
-import ModifierDataFactory, { type ModifierData } from '../modifier/factory'
-import { asObjectId, isObjectIdOrNull, isString } from 'utils'
+import ModifierDataFactory from '../modifier/factory'
+import type { ModifierData } from '../modifier/factory'
+import { isString } from 'utils'
 import EmptyToken from 'structure/language/tokens/empty'
 import StoryScript from 'structure/language/storyscript'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
-import type { ObjectId, Simplify } from 'types'
+import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
-import type { ISubraceData } from 'types/database/files/subrace'
+import type { IConditionData } from 'types/database/files/condition'
 import type { TokenContext } from 'types/language'
 
-class SubraceData implements ISubraceData {
+class ConditionData implements IConditionData {
     public readonly name: string
     public readonly description: string
-    public readonly content: string
-    public readonly parentFile: ObjectId | null
     // Modifiers
     public readonly modifiers: ModifierData[]
 
-    public constructor (data: Simplify<ISubraceData> = {}) {
-        this.name = data.name ?? SubraceData.properties.name.value
-        this.description = data.description ?? SubraceData.properties.description.value
-        this.content = data.content ?? SubraceData.properties.content.value
-        this.parentFile = asObjectId(data.parentFile) ?? SubraceData.properties.parentFile.value
-        // Modifiers
-        this.modifiers = SubraceData.properties.modifiers.value
+    public constructor(data: Simplify<IConditionData>) {
+        this.name = data.name ?? ConditionData.properties.name.value
+        this.description = data.description ?? ConditionData.properties.description.value
+        // Other
+        this.modifiers = ConditionData.properties.modifiers.value
         if (Array.isArray(data.modifiers)) {
             for (const value of data.modifiers) {
                 this.modifiers.push(ModifierDataFactory.create(value))
@@ -30,7 +27,7 @@ class SubraceData implements ISubraceData {
         }
     }
 
-    public static properties: DataPropertyMap<ISubraceData, SubraceData> = {
+    public static properties: DataPropertyMap<IConditionData, ConditionData> = {
         name: {
             value: '',
             validate: isString
@@ -39,14 +36,7 @@ class SubraceData implements ISubraceData {
             value: '',
             validate: isString
         },
-        content: {
-            value: '',
-            validate: isString
-        },
-        parentFile: {
-            value: null,
-            validate: isObjectIdOrNull
-        },
+        // Modifiers
         modifiers: {
             get value() { return [] },
             validate: (value) => Array.isArray(value) && value.every(ModifierDataFactory.validate),
@@ -72,4 +62,4 @@ class SubraceData implements ISubraceData {
     }
 }
 
-export default SubraceData
+export default ConditionData

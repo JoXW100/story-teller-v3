@@ -33,6 +33,7 @@ export const DocumentRendererMap: Record<DocumentType, { document: React.FC, lin
     [DocumentType.Ability]: { document: AbilityDocumentRenderer, link: AbilityLinkRenderer },
     [DocumentType.Character]: { document: CharacterDocumentRenderer, link: PortraitLinkRenderer },
     [DocumentType.Class]: { document: ClassRenderer, link: DefaultLinkRenderer },
+    [DocumentType.Condition]: { document: DefaultRenderer, link: DefaultLinkRenderer },
     [DocumentType.Subclass]: { document: SubclassRenderer, link: DefaultLinkRenderer },
     [DocumentType.Creature]: { document: CreatureDocumentRenderer, link: PortraitLinkRenderer },
     [DocumentType.Encounter]: { document: EncounterDocumentRenderer, link: DefaultLinkRenderer },
@@ -53,7 +54,7 @@ const Renderer: React.FC = () => {
     const [zoom, setZoom] = useState(100)
     const Renderer = isKeyOf(context.file.type, DocumentRendererMap)
         ? DocumentRendererMap[context.file.type].document
-        : () => { return null }
+        : DefaultRenderer
 
     const changeZoom = (delta: number): void => {
         setZoom((val) => Math.min(Math.max(val + delta, 10), 400))

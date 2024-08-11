@@ -2,9 +2,9 @@ import DatabaseFile from '.'
 import AbilityDocument from './ability'
 import CharacterDocument from './character'
 import ClassDocument from './class'
+import ConditionDocument from './condition'
 import CreatureDocument from './creature'
 import EncounterDocument from './encounter'
-import EncounterDataFactory, { EncounterStorageFactory } from './encounter/factory'
 import ItemDocument from './item'
 import MapDocument from './map'
 import ModifierDocument from './modifier'
@@ -14,146 +14,141 @@ import SubraceDocument from './subrace'
 import SpellDocument from './spell'
 import TextDocument from './text'
 import FolderFile from './folder'
-import type MapStorage from './map/storage'
 import SubclassDocument from './subclass'
-import type SubclassData from './subclass/data'
-import SubclassDataFactory from './subclass/factory'
-import AbilityDataFactory, { type AbilityData } from './ability/factory'
-import CharacterDataFactory, { CharacterStorageFactory } from './character/factory'
-import CreatureDataFactory, { CreatureStorageFactory } from './creature/factory'
-import ClassDataFactory from './class/factory'
-import SpellDataFactory, { type SpellData } from './spell/factory'
-import RaceDataFactory from './race/factory'
-import ItemDataFactory, { type ItemData } from './item/factory'
-import SubraceDataFactory from './subrace/factory'
-import MapDataFactory, { MapStorageFactory } from './map/factory'
-import ModifierDataFactory from './modifier/factory'
-import NPCDataFactory from './npc/factory'
-import TextDataFactory from './text/factory'
-import FolderDataFactory from './folder/factory'
-import type ClassData from './class/data'
+import { type AbilityData } from './ability/factory'
+import { type SpellData } from './spell/factory'
+import { type ItemData } from './item/factory'
 import type TextData from './text/data'
 import type RaceData from './race/data'
 import type SubraceData from './subrace/data'
 import type MapData from './map/data'
 import type { ModifierData } from './modifier/factory'
 import type NPCData from './npc/data'
+import type MapStorage from './map/storage'
 import type CharacterData from './character/data'
+import type ClassData from './class/data'
+import type ConditionData from './condition/data'
 import type CreatureData from './creature/data'
 import type FolderData from './folder/data'
+import type SubclassData from './subclass/data'
+import type EncounterData from './encounter/data'
 import type CreatureStorage from './creature/storage'
 import type CharacterStorage from './character/storage'
 import type EncounterStorage from './encounter/storage'
-import type EncounterData from './encounter/data'
-import { isEnum, isObjectId, isRecord } from 'utils'
-import { DocumentType, type DocumentFileType, FileType, validateObjectProperties, hasObjectProperties } from 'structure/database'
-import type { DataPropertyMap, IDatabaseFactory, IDatabaseFile } from 'types/database'
+import { isEnum, isRecord } from 'utils'
+import { DocumentFileType, type DocumentType, EmptyDatabaseFactory, type FileType, validateObjectProperties } from 'structure/database'
+import type { ValueOf } from 'types'
+import type { IDatabaseFactory, IDatabaseFile } from 'types/database'
 import type { DocumentIDataMap, DocumentIStorageMap } from 'types/database/files/factory'
 
-export interface DocumentDataMap {
-    [DocumentType.Ability]: AbilityData
-    [DocumentType.Creature]: CreatureData
-    [DocumentType.Character]: CharacterData
-    [DocumentType.Class]: ClassData
-    [DocumentType.Subclass]: SubclassData
-    [DocumentType.Encounter]: EncounterData
-    [DocumentType.Item]: ItemData
-    [DocumentType.Map]: MapData
-    [DocumentType.Modifier]: ModifierData
-    [DocumentType.NPC]: NPCData
-    [DocumentType.Race]: RaceData
-    [DocumentType.Subrace]: SubraceData
-    [DocumentType.Spell]: SpellData
-    [DocumentType.Text]: TextData
-    [FileType.Folder]: FolderData
+export interface DocumentDataMap extends Record<DocumentFileType, object> {
+    [DocumentFileType.Ability]: AbilityData
+    [DocumentFileType.Creature]: CreatureData
+    [DocumentFileType.Character]: CharacterData
+    [DocumentFileType.Class]: ClassData
+    [DocumentFileType.Condition]: ConditionData
+    [DocumentFileType.Subclass]: SubclassData
+    [DocumentFileType.Encounter]: EncounterData
+    [DocumentFileType.Item]: ItemData
+    [DocumentFileType.Map]: MapData
+    [DocumentFileType.Modifier]: ModifierData
+    [DocumentFileType.NPC]: NPCData
+    [DocumentFileType.Race]: RaceData
+    [DocumentFileType.Subrace]: SubraceData
+    [DocumentFileType.Spell]: SpellData
+    [DocumentFileType.Text]: TextData
+    [DocumentFileType.Folder]: FolderData
 }
 
-export interface DocumentStorageMap {
-    [DocumentType.Ability]: DocumentIStorageMap[DocumentType.Ability]
-    [DocumentType.Creature]: CreatureStorage
-    [DocumentType.Character]: CharacterStorage
-    [DocumentType.Class]: DocumentIStorageMap[DocumentType.Class]
-    [DocumentType.Subclass]: DocumentIStorageMap[DocumentType.Subclass]
-    [DocumentType.Encounter]: EncounterStorage
-    [DocumentType.Item]: DocumentIStorageMap[DocumentType.Item]
-    [DocumentType.Map]: MapStorage
-    [DocumentType.Modifier]: DocumentIStorageMap[DocumentType.Modifier]
-    [DocumentType.NPC]: DocumentIStorageMap[DocumentType.NPC]
-    [DocumentType.Race]: DocumentIStorageMap[DocumentType.Race]
-    [DocumentType.Subrace]: DocumentIStorageMap[DocumentType.Subrace]
-    [DocumentType.Spell]: DocumentIStorageMap[DocumentType.Spell]
-    [DocumentType.Text]: DocumentIStorageMap[DocumentType.Text]
-    [FileType.Folder]: DocumentIStorageMap[FileType.Folder]
+export interface DocumentStorageMap extends Record<DocumentFileType, object> {
+    [DocumentFileType.Ability]: DocumentIStorageMap[DocumentType.Ability]
+    [DocumentFileType.Creature]: CreatureStorage
+    [DocumentFileType.Character]: CharacterStorage
+    [DocumentFileType.Class]: DocumentIStorageMap[DocumentType.Class]
+    [DocumentFileType.Condition]: DocumentIStorageMap[DocumentType.Condition]
+    [DocumentFileType.Subclass]: DocumentIStorageMap[DocumentType.Subclass]
+    [DocumentFileType.Encounter]: EncounterStorage
+    [DocumentFileType.Item]: DocumentIStorageMap[DocumentType.Item]
+    [DocumentFileType.Map]: MapStorage
+    [DocumentFileType.Modifier]: DocumentIStorageMap[DocumentType.Modifier]
+    [DocumentFileType.NPC]: DocumentIStorageMap[DocumentType.NPC]
+    [DocumentFileType.Race]: DocumentIStorageMap[DocumentType.Race]
+    [DocumentFileType.Subrace]: DocumentIStorageMap[DocumentType.Subrace]
+    [DocumentFileType.Spell]: DocumentIStorageMap[DocumentType.Spell]
+    [DocumentFileType.Text]: DocumentIStorageMap[DocumentType.Text]
+    [DocumentFileType.Folder]: DocumentIStorageMap[FileType.Folder]
 }
 
-export interface DocumentTypeMap {
-    [DocumentType.Ability]: AbilityDocument
-    [DocumentType.Creature]: CreatureDocument
-    [DocumentType.Character]: CharacterDocument
-    [DocumentType.Class]: ClassDocument
-    [DocumentType.Encounter]: EncounterDocument
-    [DocumentType.Subclass]: SubclassDocument
-    [DocumentType.Item]: ItemDocument
-    [DocumentType.Map]: MapDocument
-    [DocumentType.Modifier]: ModifierDocument
-    [DocumentType.NPC]: NPCDocument
-    [DocumentType.Race]: RaceDocument
-    [DocumentType.Subrace]: SubraceDocument
-    [DocumentType.Spell]: SpellDocument
-    [DocumentType.Text]: TextDocument
-    [FileType.Folder]: FolderFile
+type DocumentTypeMapHelper<K extends DocumentFileType> = { [P in K]: DatabaseFile<P> }
+export interface DocumentTypeMap extends DocumentTypeMapHelper<DocumentFileType> {
+    [DocumentFileType.Ability]: AbilityDocument
+    [DocumentFileType.Creature]: CreatureDocument
+    [DocumentFileType.Character]: CharacterDocument
+    [DocumentFileType.Class]: ClassDocument
+    [DocumentFileType.Condition]: ConditionDocument
+    [DocumentFileType.Encounter]: EncounterDocument
+    [DocumentFileType.Subclass]: SubclassDocument
+    [DocumentFileType.Item]: ItemDocument
+    [DocumentFileType.Map]: MapDocument
+    [DocumentFileType.Modifier]: ModifierDocument
+    [DocumentFileType.NPC]: NPCDocument
+    [DocumentFileType.Race]: RaceDocument
+    [DocumentFileType.Subrace]: SubraceDocument
+    [DocumentFileType.Spell]: SpellDocument
+    [DocumentFileType.Text]: TextDocument
+    [DocumentFileType.Folder]: FolderFile
 }
 
-type DocumentMap<P extends DocumentType> = IDatabaseFile<P, DocumentDataMap[P]>
-type DocumentDataFactoryMap<P extends DocumentFileType> = P extends keyof DocumentIDataMap ? IDatabaseFactory<DocumentIDataMap[P], DocumentDataMap[P]> : null
-type DocumentStorageFactoryMap<P extends DocumentFileType> = P extends keyof DocumentIDataMap ? IDatabaseFactory<DocumentIStorageMap[P], DocumentStorageMap[P]> : null
+type DocumentIMap<P extends DocumentFileType> = IDatabaseFile<P, DocumentDataMap[P], DocumentStorageMap[P]>
+type DocumentDataFactory<P extends DocumentFileType = DocumentFileType> = IDatabaseFactory<DocumentIDataMap[P], DocumentDataMap[P]>
+type DocumentStorageFactory<P extends DocumentFileType = DocumentFileType> = IDatabaseFactory<DocumentIStorageMap[P], DocumentStorageMap[P]>
 
 interface IDocumentFactory {
-    readonly create: (data: IDatabaseFile) => DatabaseFile | null
+    readonly create: (data: IDatabaseFile) => ValueOf<DocumentTypeMap> | null
     readonly createOfType: <T extends DocumentType>(data: IDatabaseFile, type: T) => DocumentTypeMap[T] | null
     readonly createOfTypes: <T extends readonly DocumentType[]>(data: IDatabaseFile, types: T) => DocumentTypeMap[T[number]] | null
-    readonly is: (data: unknown) => data is IDatabaseFile
     readonly validate: (data: unknown) => data is Omit<IDatabaseFile, 'id' | 'isOwner'> & { id: unknown, isOwner: unknown }
-    readonly dataFactory: (type: DocumentFileType) => DocumentDataFactoryMap<DocumentFileType>
-    readonly storageFactory: (type: DocumentFileType) => DocumentStorageFactoryMap<DocumentFileType>
-    readonly properties: (data: Record<string, unknown>, type: DocumentFileType) => DataPropertyMap<Record<string, unknown>> | null
-    readonly isOfType: <T extends DocumentType>(data: IDatabaseFile, type: T) => data is DocumentMap<T>
-    readonly isOfTypes: <T extends readonly DocumentType[]>(data: IDatabaseFile, types: T) => data is DocumentMap<T[number]>
+    readonly dataFactory: (type: DocumentFileType) => DocumentDataFactory
+    readonly storageFactory: (type: DocumentFileType) => DocumentStorageFactory
+    readonly isOfType: <T extends DocumentType>(data: IDatabaseFile, type: T) => data is DocumentIMap<T>
+    readonly isOfTypes: <T extends readonly DocumentType[]>(data: IDatabaseFile, types: T) => data is DocumentIMap<T[number]>
 }
 
 const DocumentFactory: IDocumentFactory = {
-    create: function (data: IDatabaseFile): DatabaseFile | null {
+    create: function (data: IDatabaseFile): ValueOf<DocumentTypeMap> | null {
         switch (data.type) {
-            case DocumentType.Ability:
-                return new AbilityDocument({ ...data, type: data.type, data: AbilityDataFactory.create(data.data) })
-            case DocumentType.Character:
-                return new CharacterDocument({ ...data, type: data.type, data: CharacterDataFactory.create(data.data), storage: CharacterStorageFactory.create(data.storage) })
-            case DocumentType.Creature:
-                return new CreatureDocument({ ...data, type: data.type, data: CreatureDataFactory.create(data.data), storage: CreatureStorageFactory.create(data.storage) })
-            case DocumentType.Class:
-                return new ClassDocument({ ...data, type: data.type, data: ClassDataFactory.create(data.data) })
-            case DocumentType.Subclass:
-                return new SubclassDocument({ ...data, type: data.type, data: SubclassDataFactory.create(data.data) })
-            case DocumentType.Encounter:
-                return new EncounterDocument({ ...data, type: data.type, data: EncounterDataFactory.create(data.data), storage: EncounterStorageFactory.create(data.storage) })
-            case DocumentType.Race:
-                return new RaceDocument({ ...data, type: data.type, data: RaceDataFactory.create(data.data) })
-            case DocumentType.Subrace:
-                return new SubraceDocument({ ...data, type: data.type, data: SubraceDataFactory.create(data.data) })
-            case DocumentType.Item:
-                return new ItemDocument({ ...data, type: data.type, data: ItemDataFactory.create(data.data) })
-            case DocumentType.Spell:
-                return new SpellDocument({ ...data, type: data.type, data: SpellDataFactory.create(data.data) })
-            case DocumentType.Map:
-                return new MapDocument({ ...data, type: data.type, data: MapDataFactory.create(data.data), storage: MapStorageFactory.create(data.storage) })
-            case DocumentType.Modifier:
-                return new ModifierDocument({ ...data, type: data.type, data: ModifierDataFactory.create(data.data) })
-            case DocumentType.NPC:
-                return new NPCDocument({ ...data, type: data.type, data: NPCDataFactory.create(data.data) })
-            case DocumentType.Text:
-                return new TextDocument({ ...data, type: data.type, data: TextDataFactory.create(data.data) })
-            case FileType.Folder:
-                return new FolderFile({ ...data, type: data.type, data: FolderDataFactory.create(data.data) })
+            case DocumentFileType.Ability:
+                return new AbilityDocument(data as DocumentIMap<typeof data.type>)
+            case DocumentFileType.Character:
+                return new CharacterDocument(data as DocumentIMap<typeof data.type>)
+            case DocumentFileType.Creature:
+                return new CreatureDocument(data as DocumentIMap<typeof data.type>)
+            case DocumentFileType.Class:
+                return new ClassDocument(data as DocumentIMap<typeof data.type>)
+            case DocumentFileType.Condition:
+                return new ConditionDocument(data as DocumentIMap<typeof data.type>)
+            case DocumentFileType.Subclass:
+                return new SubclassDocument(data as DocumentIMap<typeof data.type>)
+            case DocumentFileType.Encounter:
+                return new EncounterDocument(data as DocumentIMap<typeof data.type>)
+            case DocumentFileType.Race:
+                return new RaceDocument(data as DocumentIMap<typeof data.type>)
+            case DocumentFileType.Subrace:
+                return new SubraceDocument(data as DocumentIMap<typeof data.type>)
+            case DocumentFileType.Item:
+                return new ItemDocument(data as DocumentIMap<typeof data.type>)
+            case DocumentFileType.Spell:
+                return new SpellDocument(data as DocumentIMap<typeof data.type>)
+            case DocumentFileType.Map:
+                return new MapDocument(data as DocumentIMap<typeof data.type>)
+            case DocumentFileType.Modifier:
+                return new ModifierDocument(data as DocumentIMap<typeof data.type>)
+            case DocumentFileType.NPC:
+                return new NPCDocument(data as DocumentIMap<typeof data.type>)
+            case DocumentFileType.Text:
+                return new TextDocument(data as DocumentIMap<typeof data.type>)
+            case DocumentFileType.Folder:
+                return new FolderFile(data as DocumentIMap<typeof data.type>)
             default:
                 return null
         }
@@ -170,75 +165,90 @@ const DocumentFactory: IDocumentFactory = {
         }
         return this.create(data) as DocumentTypeMap[T[number]] | null
     },
-    is: function (data: unknown): data is IDatabaseFile {
-        if (!this.validate(data) || !isObjectId(data.id)) {
-            return false
-        }
-
-        const properties = this.properties(data.data, data.type)
-        return properties === null || hasObjectProperties(data.data, properties)
-    },
     validate: function (data: unknown): data is Omit<IDatabaseFile, 'id'> & { id: unknown, isOwner: unknown } {
         return isRecord(data) && validateObjectProperties(data, DatabaseFile.properties)
     },
-    dataFactory: function <T extends DocumentFileType>(type: T): DocumentDataFactoryMap<DocumentFileType> {
+    dataFactory: function (type: DocumentFileType): DocumentDataFactory {
         switch (type) {
-            case DocumentType.Ability:
-                return AbilityDataFactory
-            case DocumentType.Character:
-                return CharacterDataFactory
-            case DocumentType.Creature:
-                return CreatureDataFactory
-            case DocumentType.Class:
-                return ClassDataFactory
-            case DocumentType.Subclass:
-                return SubclassDataFactory
-            case DocumentType.Encounter:
-                return EncounterDataFactory
-            case DocumentType.Spell:
-                return SpellDataFactory
-            case DocumentType.Race:
-                return RaceDataFactory
-            case DocumentType.Subrace:
-                return SubraceDataFactory
-            case DocumentType.Map:
-                return MapDataFactory
-            case DocumentType.Item:
-                return ItemDataFactory
-            case DocumentType.Modifier:
-                return ModifierDataFactory
-            case DocumentType.NPC:
-                return NPCDataFactory
-            case DocumentType.Text:
-                return TextDataFactory
-            case FileType.Folder:
-                return FolderDataFactory
+            case DocumentFileType.Ability:
+                return AbilityDocument.DataFactory as DocumentDataFactory
+            case DocumentFileType.Character:
+                return CharacterDocument.DataFactory as DocumentDataFactory
+            case DocumentFileType.Creature:
+                return CreatureDocument.DataFactory as DocumentDataFactory
+            case DocumentFileType.Class:
+                return ClassDocument.DataFactory as DocumentDataFactory
+            case DocumentFileType.Condition:
+                return ConditionDocument.DataFactory as DocumentDataFactory
+            case DocumentFileType.Subclass:
+                return SubclassDocument.DataFactory as DocumentDataFactory
+            case DocumentFileType.Encounter:
+                return EncounterDocument.DataFactory as DocumentDataFactory
+            case DocumentFileType.Spell:
+                return SpellDocument.DataFactory as DocumentDataFactory
+            case DocumentFileType.Race:
+                return RaceDocument.DataFactory as DocumentDataFactory
+            case DocumentFileType.Subrace:
+                return SubraceDocument.DataFactory as DocumentDataFactory
+            case DocumentFileType.Map:
+                return MapDocument.DataFactory as DocumentDataFactory
+            case DocumentFileType.Item:
+                return ItemDocument.DataFactory as DocumentDataFactory
+            case DocumentFileType.Modifier:
+                return ModifierDocument.DataFactory as DocumentDataFactory
+            case DocumentFileType.NPC:
+                return NPCDocument.DataFactory as DocumentDataFactory
+            case DocumentFileType.Text:
+                return TextDocument.DataFactory as DocumentDataFactory
+            case DocumentFileType.Folder:
+                return FolderFile.DataFactory as DocumentDataFactory
             default:
-                return null
+                return EmptyDatabaseFactory
         }
     },
-    storageFactory: function <T extends DocumentFileType>(type: T): DocumentStorageFactoryMap<DocumentFileType> {
+    storageFactory: function (type: DocumentFileType): DocumentStorageFactory {
         switch (type) {
-            case DocumentType.Character:
-                return CharacterStorageFactory
-            case DocumentType.Creature:
-                return CreatureStorageFactory
-            case DocumentType.Map:
-                return MapStorageFactory
-            case DocumentType.Encounter:
-                return EncounterStorageFactory
+            case DocumentFileType.Ability:
+                return AbilityDocument.StorageFactory as DocumentStorageFactory
+            case DocumentFileType.Character:
+                return CharacterDocument.StorageFactory as DocumentStorageFactory
+            case DocumentFileType.Creature:
+                return CreatureDocument.StorageFactory as DocumentStorageFactory
+            case DocumentFileType.Class:
+                return ClassDocument.StorageFactory as DocumentDataFactory
+            case DocumentFileType.Condition:
+                return ConditionDocument.StorageFactory as DocumentDataFactory
+            case DocumentFileType.Subclass:
+                return SubclassDocument.StorageFactory as DocumentStorageFactory
+            case DocumentFileType.Encounter:
+                return EncounterDocument.StorageFactory as DocumentStorageFactory
+            case DocumentFileType.Spell:
+                return SpellDocument.StorageFactory as DocumentStorageFactory
+            case DocumentFileType.Race:
+                return RaceDocument.StorageFactory as DocumentStorageFactory
+            case DocumentFileType.Subrace:
+                return SubraceDocument.StorageFactory as DocumentStorageFactory
+            case DocumentFileType.Map:
+                return MapDocument.StorageFactory as DocumentStorageFactory
+            case DocumentFileType.Item:
+                return ItemDocument.StorageFactory as DocumentStorageFactory
+            case DocumentFileType.Modifier:
+                return ModifierDocument.StorageFactory as DocumentStorageFactory
+            case DocumentFileType.NPC:
+                return NPCDocument.StorageFactory as DocumentStorageFactory
+            case DocumentFileType.Text:
+                return TextDocument.StorageFactory as DocumentStorageFactory
+            case DocumentFileType.Folder:
+                return FolderFile.StorageFactory as DocumentStorageFactory
             default:
-                return null
+                return EmptyDatabaseFactory
         }
     },
-    properties: function (data: Record<string, unknown>, type: DocumentFileType): DataPropertyMap<unknown> | null {
-        return this.dataFactory(type)?.properties(data) ?? null
-    },
-    isOfType: function <T extends DocumentType>(data: IDatabaseFile, type: T): data is DocumentMap<T> {
+    isOfType: function <T extends DocumentFileType>(data: IDatabaseFile, type: T): data is DocumentIMap<T> {
         return data.type === type
     },
-    isOfTypes: function <T extends readonly DocumentType[]>(data: IDatabaseFile, types: T): data is DocumentMap<T[number]> {
-        return isEnum(data.type, DocumentType) && types.includes(data.type)
+    isOfTypes: function <T extends readonly DocumentFileType[]>(data: IDatabaseFile, types: T): data is DocumentIMap<T[number]> {
+        return isEnum(data.type, DocumentFileType) && types.includes(data.type)
     }
 }
 

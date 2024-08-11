@@ -1,9 +1,10 @@
+import type { IDatabaseFileData, IDatabaseFileStorage } from '..'
 import type { IArea } from '../area'
 import type { CastingTime, Duration, MagicSchool, SpellLevel, TargetType } from 'structure/dnd'
 import type { IEffect } from 'types/database/effect'
 import type { IEffectCondition, IEffectConditionNone } from 'types/database/effectCondition'
 
-export interface ISpellDataBase {
+export interface ISpellDataBase extends IDatabaseFileData {
     readonly name: string
     readonly description: string
     readonly notes: string
@@ -66,6 +67,6 @@ export interface ISpellAreaData extends ISpellDataBase {
 export type ISpellData = ISpellNoneData | ISpellTouchData | ISpellSelfData |
 ISpellSingleData | ISpellMultipleData | ISpellAreaData
 
-export interface ISpellStorage {
+export interface ISpellStorage extends IDatabaseFileStorage {
 
 }

@@ -2,14 +2,17 @@ import DatabaseFile from '..'
 import type SubclassData from './data'
 import SubclassDataFactory from './factory'
 import StoryScript from 'structure/language/storyscript'
-import type { DocumentType } from 'structure/database'
+import { type DocumentType, EmptyDatabaseFactory } from 'structure/database'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { ObjectId } from 'types'
 import type { IDatabaseFactory } from 'types/database'
 import type { ISubclassData, ISubclassStorage } from 'types/database/files/subclass'
 import type { IToken } from 'types/language'
 
-class SubclassDocument extends DatabaseFile<DocumentType.Subclass, ISubclassStorage, ISubclassData, SubclassData> {
+class SubclassDocument extends DatabaseFile<DocumentType.Subclass, SubclassData> {
+    public static get DataFactory(): IDatabaseFactory<ISubclassData, SubclassData> { return SubclassDataFactory }
+    public static get StorageFactory(): IDatabaseFactory<ISubclassStorage> { return EmptyDatabaseFactory }
+
     public override getTitle(): string {
         return this.data.name
     }
@@ -24,7 +27,11 @@ class SubclassDocument extends DatabaseFile<DocumentType.Subclass, ISubclassStor
     }
 
     public override getDataFactory(): IDatabaseFactory<ISubclassData, SubclassData> {
-        return SubclassDataFactory
+        return SubclassDocument.DataFactory
+    }
+
+    public override getStorageFactory(): IDatabaseFactory<ISubclassStorage> {
+        return SubclassDocument.StorageFactory
     }
 
     public override getParentFile(): ObjectId | null {

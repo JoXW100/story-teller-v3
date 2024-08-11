@@ -2,14 +2,17 @@ import DatabaseFile from '..'
 import type SubraceData from './data'
 import SubraceDataFactory from './factory'
 import StoryScript from 'structure/language/storyscript'
-import type { DocumentType } from 'structure/database'
+import { type DocumentType, EmptyDatabaseFactory } from 'structure/database'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { ObjectId } from 'types'
 import type { IToken } from 'types/language'
 import type { IDatabaseFactory } from 'types/database'
 import type { ISubraceData, ISubraceStorage } from 'types/database/files/subrace'
 
-class SubraceDocument extends DatabaseFile<DocumentType.Subrace, ISubraceStorage, ISubraceData, SubraceData> {
+class SubraceDocument extends DatabaseFile<DocumentType.Subrace, SubraceData> {
+    public static get DataFactory(): IDatabaseFactory<ISubraceData, SubraceData> { return SubraceDataFactory }
+    public static get StorageFactory(): IDatabaseFactory<ISubraceStorage> { return EmptyDatabaseFactory }
+
     public override getTitle(): string {
         return this.data.name
     }
@@ -24,7 +27,11 @@ class SubraceDocument extends DatabaseFile<DocumentType.Subrace, ISubraceStorage
     }
 
     public override getDataFactory(): IDatabaseFactory<ISubraceData, SubraceData> {
-        return SubraceDataFactory
+        return SubraceDocument.DataFactory
+    }
+
+    public override getStorageFactory(): IDatabaseFactory<ISubraceStorage> {
+        return SubraceDocument.StorageFactory
     }
 
     public override getParentFile(): ObjectId | null {

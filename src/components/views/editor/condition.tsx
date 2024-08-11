@@ -1,32 +1,42 @@
 import { useContext } from 'react'
+import TextEditor from 'components/controls/textEditor'
 import { Context } from 'components/contexts/file'
+import PublishComponent from './components/publish'
 import GroupComponent from './components/group'
 import LocalizedText from 'components/controls/localizedText'
-import { getRelativeFieldObject } from 'utils'
-import NavigationComponent from './components/navigation'
-import ConditionComponent from './components/condition'
-import Condition from 'structure/database/condition'
+import TextComponent from './components/text'
+import ModifiersInputComponent from './components/modifiersInput'
+import { ElementDictionary } from 'components/elements'
+import ConditionDocument from 'structure/database/files/condition'
 import styles from './style.module.scss'
 
-const ConditionEditor: React.FC = () => {
-    const [context] = useContext(Context)
-    const page = context.editorPages[context.editorPages.length - 1]
-    const field = page?.root
-    const relative = getRelativeFieldObject(field, context.file.data)
-    const data = relative?.relative?.[relative.key]
+const ConditionDocumentEditor: React.FC = () => {
+    const [context, dispatch] = useContext(Context)
 
-    if (!(data instanceof Condition)) {
+    if (!(context.file instanceof ConditionDocument)) {
         return null
     }
 
+    const [descriptionContext] = context.file.data.createDescriptionContexts(ElementDictionary)
+
     return (
         <div className={styles.main}>
-            <NavigationComponent/>
-            <GroupComponent header={<LocalizedText id='editor-header-condition'/>} open>
-                <ConditionComponent field={field} labelId='editor-header-condition' />
+            <GroupComponent header={<LocalizedText id='editor-header-data'/>} open>
+                <PublishComponent/>
+                <TextComponent field='name' labelId='editor-name'/>
+            </GroupComponent>
+            <GroupComponent header={<LocalizedText id='editor-header-modifiers'/>} open>
+                <ModifiersInputComponent field='modifiers' fill/>
+            </GroupComponent>
+            <GroupComponent header={<LocalizedText id='editor-header-description'/>} open fill>
+                <TextEditor
+                    value={context.file.data.description}
+                    className={styles.editTextEditor}
+                    context={descriptionContext}
+                    onChange={(text) => { dispatch.setData('description', text) }}/>
             </GroupComponent>
         </div>
     )
 }
 
-export default ConditionEditor
+export default ConditionDocumentEditor

@@ -6,7 +6,7 @@ import type { Simplify } from 'types'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
 import type { ICharacterData, ICharacterStorage, IInventoryItemData } from 'types/database/files/character'
 
-const CharacterDataFactory: IDatabaseFactory<ICharacterData, CharacterData> = {
+export const CharacterDataFactory: IDatabaseFactory<ICharacterData, CharacterData> = {
     create: function (data: Simplify<ICharacterData> = {}): CharacterData {
         return new CharacterData(data)
     },
@@ -71,5 +71,3 @@ export const InventoryItemDataFactory: IDatabaseFactory<IInventoryItemData> = {
         }
     }
 }
-
-export default CharacterDataFactory

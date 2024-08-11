@@ -1,6 +1,7 @@
+import type { IDatabaseFileData, IDatabaseFileStorage } from '..'
 import type { Alignment, CreatureType, SizeType } from 'structure/dnd'
 
-export interface INPCData {
+export interface INPCData extends IDatabaseFileData {
     readonly name: string
     readonly description: string
     readonly content: string
@@ -17,6 +18,6 @@ export interface INPCData {
     readonly weight: string
 }
 
-export interface INPCStorage {
+export interface INPCStorage extends IDatabaseFileStorage {
 
 }

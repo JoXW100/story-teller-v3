@@ -1,3 +1,4 @@
+import type { IDatabaseFileData, IDatabaseFileStorage } from '..'
 import type { MultipleChoiceData, SingleChoiceData } from '../choice'
 import type { ModifierType } from 'structure/database/files/modifier/common'
 import type { ModifierAbilityType } from 'structure/database/files/modifier/ability'
@@ -9,7 +10,7 @@ import type { AdvantageBinding, ConditionBinding, Language, ProficiencyLevelBasi
 import type { ICondition } from 'types/database/condition'
 import type { ObjectId } from 'types'
 
-export interface IModifierDataBase {
+export interface IModifierDataBase extends IDatabaseFileData {
     readonly type: ModifierType
     readonly name: string
     readonly description: string
@@ -327,6 +328,6 @@ export type IModifierData = IModifierAddData | IModifierBonusData |
 IModifierAbilityData | IModifierChoiceData | IModifierRemoveData |
 IModifierSetData | IModifierVariableData | IModifierGroupData
 
-export interface IModifierStorage {
+export interface IModifierStorage extends IDatabaseFileStorage {
 
 }

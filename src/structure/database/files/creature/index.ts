@@ -1,14 +1,18 @@
 import type { IDatabaseFactory } from 'types/database'
 import DatabaseFile from '..'
 import type CreatureData from './data'
-import CreatureDataFactory from './factory'
+import type CreatureStorage from './storage'
+import { CreatureDataFactory, CreatureStorageFactory } from './factory'
 import StoryScript from 'structure/language/storyscript'
 import type { DocumentType } from 'structure/database'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { ICreatureData, ICreatureStorage } from 'types/database/files/creature'
 import type { IToken } from 'types/language'
 
-class CreatureDocument extends DatabaseFile<DocumentType.Creature, ICreatureStorage, ICreatureData, CreatureData> {
+class CreatureDocument extends DatabaseFile<DocumentType.Creature, CreatureData, CreatureStorage> {
+    public static get DataFactory(): IDatabaseFactory<ICreatureData, CreatureData> { return CreatureDataFactory }
+    public static get StorageFactory(): IDatabaseFactory<ICreatureStorage, CreatureStorage> { return CreatureStorageFactory }
+
     public override getTitle(): string {
         return this.data.name
     }
@@ -23,7 +27,11 @@ class CreatureDocument extends DatabaseFile<DocumentType.Creature, ICreatureStor
     }
 
     public override getDataFactory(): IDatabaseFactory<ICreatureData, CreatureData> {
-        return CreatureDataFactory
+        return CreatureDocument.DataFactory
+    }
+
+    public override getStorageFactory(): IDatabaseFactory<ICreatureStorage, CreatureStorage> {
+        return CreatureDocument.StorageFactory
     }
 }
 

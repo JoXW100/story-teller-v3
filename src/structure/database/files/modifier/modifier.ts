@@ -20,6 +20,7 @@ export enum SourceType {
     Subclass = 'scl',
     Race = 'rce',
     Subrace = 'rce',
+    Condition = 'cnd',
     Item = 'ite',
     Modifier = 'mod'
 }
@@ -188,25 +189,25 @@ class Modifier {
         }
     }
 
-    public findSourceOfType(key: string, type: SourceType): ISourceData | null {
-        while (key in this.properties.sources) {
-            const source = this.properties.sources[key]
-            if (source.type === type) {
-                return source
-            } else {
-                key = source.key
-            }
-        }
-        return null
-    }
-
-    public findSource(key: string): ISourceData | null {
+    public findSourceOrigin(key: string): ISourceData | null {
         let source: ISourceData | null = null
         while (key in this.properties.sources) {
             source = this.properties.sources[key]
             key = source.key
         }
         return source
+    }
+
+    public findSource(key: string, iterator?: (source: ISourceData) => boolean): ISourceData | null {
+        let source: ISourceData | null = null
+        while (key in this.properties.sources) {
+            source = this.properties.sources[key]
+            if (iterator === undefined || iterator(source)) {
+                return source
+            }
+            key = source.key
+        }
+        return null
     }
 
     public subscribe(modifier: ModifierDocument, key?: string): void {

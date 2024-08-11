@@ -107,7 +107,7 @@ const EnumTypes = {
     },
     modifierSetType: {
         enum: ModifierSetType,
-        default: ModifierSetType.SpellAttribute
+        default: ModifierSetType.Size
     },
     modifierVariableType: {
         enum: ModifierVariableType,

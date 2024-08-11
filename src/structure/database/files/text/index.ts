@@ -1,14 +1,17 @@
 import DatabaseFile from '..'
 import TextDataFactory from './factory'
 import type TextData from './data'
-import type { DocumentType } from '../..'
+import { type DocumentType, EmptyDatabaseFactory } from '../..'
 import StoryScript from 'structure/language/storyscript'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { IDatabaseFactory } from 'types/database'
 import type { ITextData, ITextStorage } from 'types/database/files/text'
 import type { IToken } from 'types/language'
 
-export class TextDocument extends DatabaseFile<DocumentType.Text, ITextStorage, ITextData, TextData> {
+export class TextDocument extends DatabaseFile<DocumentType.Text, TextData> {
+    public static get DataFactory(): IDatabaseFactory<ITextData, TextData> { return TextDataFactory }
+    public static get StorageFactory(): IDatabaseFactory<ITextStorage> { return EmptyDatabaseFactory }
+
     public override getTitle(): string {
         return this.data.title
     }
@@ -23,7 +26,11 @@ export class TextDocument extends DatabaseFile<DocumentType.Text, ITextStorage, 
     }
 
     public override getDataFactory(): IDatabaseFactory<ITextData, TextData> {
-        return TextDataFactory
+        return TextDocument.DataFactory
+    }
+
+    public override getStorageFactory(): IDatabaseFactory<ITextStorage> {
+        return TextDocument.StorageFactory
     }
 }
 

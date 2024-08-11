@@ -12,7 +12,7 @@ import CreatureDataFactory, { CreatureStorageFactory } from 'structure/database/
 import CharacterDataFactory, { CharacterStorageFactory } from 'structure/database/files/character/factory'
 import ClassDataFactory from 'structure/database/files/class/factory'
 import TextDataFactory from 'structure/database/files/text/factory'
-import EncounterDataFactory from 'structure/database/files/encounter/factory'
+import { EncounterDataFactory } from 'structure/database/files/encounter/factory'
 import ItemDataFactory from 'structure/database/files/item/factory'
 import RaceDataFactory from 'structure/database/files/race/factory'
 import SpellDataFactory from 'structure/database/files/spell/factory'

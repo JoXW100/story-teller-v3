@@ -423,6 +423,7 @@
             "document-cha": "Character",
             "document-cre": "Creature",
             "document-cla": "Class",
+            "document-cnd": "Condition",
             "document-scl": "Subclass",
             "document-txt": "Document",
             "document-enc": "Encounter",
@@ -974,8 +975,8 @@
             "binding-disadvantage": "Disadvantage",
             "binding-vulnerability": "Vulnerability",
             "binding-resistance": "Resistance",
-            "binding-damageImmunity": "Damage Immunity",
-            "binding-conditionImmunity": "Condition Immunity",
+            "binding-damageImmunity": "Immunity",
+            "binding-conditionImmunity": "Immunity",
 
             "binding-advantage-title": "Advantages",
             "binding-disadvantage-title": "Disadvantages",

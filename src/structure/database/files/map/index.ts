@@ -1,6 +1,7 @@
 import DatabaseFile from '..'
 import type MapData from './data'
-import { MapDataFactory } from './factory'
+import type MapStorage from './storage'
+import { MapDataFactory, MapStorageFactory } from './factory'
 import StoryScript from 'structure/language/storyscript'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { DocumentType } from 'structure/database'
@@ -8,7 +9,10 @@ import type { IDatabaseFactory } from 'types/database'
 import type { IMapData, IMapStorage } from 'types/database/files/map'
 import type { IToken } from 'types/language'
 
-class MapDocument extends DatabaseFile<DocumentType.Map, IMapStorage, IMapData, MapData> {
+class MapDocument extends DatabaseFile<DocumentType.Map, MapData, MapStorage> {
+    public static get DataFactory(): IDatabaseFactory<IMapData, MapData> { return MapDataFactory }
+    public static get StorageFactory(): IDatabaseFactory<IMapStorage, MapStorage> { return MapStorageFactory }
+
     public override getTitle(): string {
         return this.data.name
     }
@@ -23,7 +27,11 @@ class MapDocument extends DatabaseFile<DocumentType.Map, IMapStorage, IMapData, 
     }
 
     public override getDataFactory(): IDatabaseFactory<IMapData, MapData> {
-        return MapDataFactory
+        return MapDocument.DataFactory
+    }
+
+    public override getStorageFactory(): IDatabaseFactory<IMapStorage, MapStorage> {
+        return MapDocument.StorageFactory
     }
 }
 

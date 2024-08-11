@@ -1,8 +1,9 @@
-import type { DocumentType, FileType } from 'structure/database'
+import type { IDatabaseFileData, IDatabaseFileStorage } from '..'
 import type { IAbilityData, IAbilityStorage } from './ability'
-import type { ICreatureData, ICreatureStorage } from './creature'
 import type { ICharacterData, ICharacterStorage } from './character'
 import type { IClassData, IClassStorage } from './class'
+import type { IConditionData, IConditionStorage } from './condition'
+import type { ICreatureData, ICreatureStorage } from './creature'
 import type { IEncounterData, IEncounterStorage } from './encounter'
 import type { ISubclassData, ISubclassStorage } from './subclass'
 import type { ISpellData, ISpellStorage } from './spell'
@@ -14,39 +15,42 @@ import type { IRaceData, IRaceStorage } from './race'
 import type { ISubraceData, ISubraceStorage } from './subrace'
 import type { ITextData, ITextStorage } from './text'
 import type { IFolderData, IFolderStorage } from './folder'
+import type { DocumentFileType } from 'structure/database'
 
-export interface DocumentIDataMap {
-    [DocumentType.Ability]: IAbilityData
-    [DocumentType.Character]: ICharacterData
-    [DocumentType.Class]: IClassData
-    [DocumentType.Creature]: ICreatureData
-    [DocumentType.Encounter]: IEncounterData
-    [DocumentType.Item]: IItemData
-    [DocumentType.Map]: IMapData
-    [DocumentType.Modifier]: IModifierData
-    [DocumentType.NPC]: INPCData
-    [DocumentType.Race]: IRaceData
-    [DocumentType.Subrace]: ISubraceData
-    [DocumentType.Spell]: ISpellData
-    [DocumentType.Text]: ITextData
-    [DocumentType.Subclass]: ISubclassData
-    [FileType.Folder]: IFolderData
+export interface DocumentIDataMap extends Record<DocumentFileType, IDatabaseFileData> {
+    [DocumentFileType.Ability]: IAbilityData
+    [DocumentFileType.Character]: ICharacterData
+    [DocumentFileType.Class]: IClassData
+    [DocumentFileType.Condition]: IConditionData
+    [DocumentFileType.Creature]: ICreatureData
+    [DocumentFileType.Encounter]: IEncounterData
+    [DocumentFileType.Item]: IItemData
+    [DocumentFileType.Map]: IMapData
+    [DocumentFileType.Modifier]: IModifierData
+    [DocumentFileType.NPC]: INPCData
+    [DocumentFileType.Race]: IRaceData
+    [DocumentFileType.Subrace]: ISubraceData
+    [DocumentFileType.Spell]: ISpellData
+    [DocumentFileType.Text]: ITextData
+    [DocumentFileType.Subclass]: ISubclassData
+    [DocumentFileType.Folder]: IFolderData
 }
 
-export interface DocumentIStorageMap {
-    [DocumentType.Ability]: IAbilityStorage
-    [DocumentType.Character]: ICharacterStorage
-    [DocumentType.Class]: IClassStorage
-    [DocumentType.Creature]: ICreatureStorage
-    [DocumentType.Encounter]: IEncounterStorage
-    [DocumentType.Item]: IItemStorage
-    [DocumentType.Map]: IMapStorage
-    [DocumentType.Modifier]: IModifierStorage
-    [DocumentType.NPC]: INPCStorage
-    [DocumentType.Race]: IRaceStorage
-    [DocumentType.Subrace]: ISubraceStorage
-    [DocumentType.Spell]: ISpellStorage
-    [DocumentType.Subclass]: ISubclassStorage
-    [DocumentType.Text]: ITextStorage
-    [FileType.Folder]: IFolderStorage
+export interface DocumentIStorageMap extends Record<DocumentFileType, IDatabaseFileStorage> {
+    [DocumentFileType.Ability]: IAbilityStorage
+    [DocumentFileType.Character]: ICharacterStorage
+    [DocumentFileType.Class]: IClassStorage
+    [DocumentFileType.Condition]: IConditionStorage
+    [DocumentFileType.Creature]: ICreatureStorage
+    [DocumentFileType.Encounter]: IEncounterStorage
+    [DocumentFileType.Item]: IItemStorage
+    [DocumentFileType.Map]: IMapStorage
+    [DocumentFileType.Modifier]: IModifierStorage
+    [DocumentFileType.NPC]: INPCStorage
+    [DocumentFileType.Race]: IRaceStorage
+    [DocumentFileType.Subrace]: ISubraceStorage
+    [DocumentFileType.Spell]: ISpellStorage
+    [DocumentFileType.Subclass]: ISubclassStorage
+    [DocumentFileType.Text]: ITextStorage
+    [DocumentFileType.Folder]: IFolderStorage
 }

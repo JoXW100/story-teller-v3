@@ -2,17 +2,15 @@ import { useEffect, useState } from 'react'
 import { isObjectId } from 'utils'
 import Logger from 'utils/logger'
 import Communication from 'utils/communication'
-import type DatabaseFile from 'structure/database/files'
-import type AbilityDocument from 'structure/database/files/ability'
-import type { DocumentType } from 'structure/database'
+import type { DocumentFileType, DocumentType } from 'structure/database'
 import type { DocumentTypeMap } from 'structure/database/files/factory'
 import type { ObjectId } from 'types'
 
-type FileState<T extends DatabaseFile> = [file: T | null, loading: boolean]
-type FilesState<T extends DatabaseFile> = [files: Array<T | null>, loading: boolean]
+type FileState<T extends DocumentFileType> = [file: DocumentTypeMap[T] | null, loading: boolean]
+type FilesState<T extends DocumentFileType> = [files: Array<DocumentTypeMap[T] | null>, loading: boolean]
 
-export function useFilesOfType<T extends readonly DocumentType[]>(fileIDs: Array<ObjectId | null>, allowedTypes: T): FilesState<DocumentTypeMap[T[number]]> {
-    const [state, setState] = useState<FilesState<DocumentTypeMap[T[number]]>>(
+export function useFilesOfType<T extends readonly DocumentType[]>(fileIDs: Array<ObjectId | null>, allowedTypes: T): FilesState<T[number]> {
+    const [state, setState] = useState<FilesState<T[number]>>(
         [Array.from({ length: fileIDs.length }).map(() => null), true]
     )
     useEffect(() => {
@@ -41,8 +39,8 @@ export function useFilesOfType<T extends readonly DocumentType[]>(fileIDs: Array
     return state
 }
 
-export function useFileOfType<T extends readonly DocumentType[]>(fileID: ObjectId | null, allowedTypes: T): FileState<DocumentTypeMap[T[number]]> {
-    const [state, setState] = useState<FileState<DocumentTypeMap[T[number]]>>([null, true])
+export function useFileOfType<T extends readonly DocumentType[]>(fileID: ObjectId | null, allowedTypes: T): FileState<T[number]> {
+    const [state, setState] = useState<FileState<T[number]>>([null, true])
     useEffect(() => {
         if (isObjectId(fileID) && allowedTypes.length > 0) {
             Communication.getFileOfTypes(fileID, allowedTypes)
@@ -59,8 +57,8 @@ export function useFileOfType<T extends readonly DocumentType[]>(fileID: ObjectI
     return state
 }
 
-export function useFile(fileID: ObjectId | null): FileState<DatabaseFile> {
-    const [state, setState] = useState<FileState<DatabaseFile>>([null, true])
+export function useFile(fileID: ObjectId | null): FileState<DocumentFileType> {
+    const [state, setState] = useState<FileState<DocumentFileType>>([null, true])
     useEffect(() => {
         if (isObjectId(fileID)) {
             Communication.getFile(fileID)
@@ -77,8 +75,8 @@ export function useFile(fileID: ObjectId | null): FileState<DatabaseFile> {
     return state
 }
 
-export function useSubFiles<T extends DocumentType>(parentId: ObjectId | null, type: T): FilesState<DocumentTypeMap[T]> {
-    const [state, setState] = useState<FilesState<DocumentTypeMap[T]>>([[], true])
+export function useSubFiles<T extends DocumentType>(parentId: ObjectId | null, type: T): FilesState<T> {
+    const [state, setState] = useState<FilesState<T>>([[], true])
     useEffect(() => {
         if (isObjectId(parentId)) {
             Communication.getSubFiles(parentId, type)
@@ -95,8 +93,8 @@ export function useSubFiles<T extends DocumentType>(parentId: ObjectId | null, t
     return state
 }
 
-export function useAbilitiesOfCategory(category: string): FilesState<AbilityDocument> {
-    const [state, setState] = useState<FilesState<AbilityDocument>>([[], true])
+export function useAbilitiesOfCategory(category: string): FilesState<DocumentType.Ability> {
+    const [state, setState] = useState<FilesState<DocumentType.Ability>>([[], true])
     useEffect(() => {
         Communication.getAbilitiesOfCategory(category)
             .then((res) => {

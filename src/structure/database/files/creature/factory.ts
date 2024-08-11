@@ -6,7 +6,7 @@ import type { ICreatureData, ICreatureStorage } from 'types/database/files/creat
 import { isRecord } from 'utils'
 import CreatureStorage from './storage'
 
-const CreatureDataFactory: IDatabaseFactory<ICreatureData, CreatureData> = {
+export const CreatureDataFactory: IDatabaseFactory<ICreatureData, CreatureData> = {
     create: function (data: Simplify<ICreatureData> = {}): CreatureData {
         return new CreatureData(data)
     },
@@ -41,5 +41,3 @@ export const CreatureStorageFactory: IDatabaseFactory<ICreatureStorage, Creature
         return CreatureStorage.properties
     }
 }
-
-export default CreatureDataFactory

@@ -1,8 +1,8 @@
-import { isEnum, isNumber, isNumberOrNull, isRecord, keysOf } from 'utils'
-import type { Simplify } from 'types'
+import { isEnum, isNumber, isNumberOrNull, isObjectId, isRecord, keysOf } from 'utils'
+import { SpellLevel } from 'structure/dnd'
+import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { ICreatureStorage } from 'types/database/files/creature'
-import { SpellLevel } from 'structure/dnd'
 
 function simplifyExpended<K extends string | number>(value: Partial<Record<K, number>>): Partial<Record<K, number>> | null {
     const result: Partial<typeof value> = {}
@@ -23,6 +23,7 @@ class CreatureStorage implements ICreatureStorage {
     public readonly abilitiesExpendedCharges: Record<string, number>
     public readonly spellsExpendedSlots: Partial<Record<SpellLevel, number>>
     public readonly choices: Record<string, unknown>
+    public readonly conditions: ObjectId[]
 
     public constructor(storage: Simplify<ICreatureStorage>) {
         this.health = storage.health ?? CreatureStorage.properties.health.value
@@ -51,6 +52,14 @@ class CreatureStorage implements ICreatureStorage {
                 this.choices[key] = storage.choices[key]
             }
         }
+        this.conditions = CreatureStorage.properties.conditions.value
+        if (storage.conditions !== undefined) {
+            for (const value of storage.conditions) {
+                if (isObjectId(value)) {
+                    this.conditions.push(value)
+                }
+            }
+        }
     }
 
     public static properties: DataPropertyMap<ICreatureStorage, CreatureStorage> = {
@@ -76,6 +85,11 @@ class CreatureStorage implements ICreatureStorage {
             get value() { return {} },
             validate: (value) => isRecord(value),
             simplify: (value) => Object.keys(value).length > 0 ? value : null
+        },
+        conditions: {
+            get value() { return [] },
+            validate: (value) => Array.isArray(value) && value.every(isObjectId),
+            simplify: (value) => value.length > 0 ? value : null
         }
     }
 }

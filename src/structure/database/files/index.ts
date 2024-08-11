@@ -1,11 +1,12 @@
 import { DatabaseObject, DocumentFileType, FileType, FlagType } from '..'
 import { isBoolean, isEnum, isNumber, isObjectId, isRecord, isString } from 'utils'
+import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { DataPropertyMap, IDatabaseFactory, IDatabaseFile } from 'types/database'
 import type { ObjectId } from 'types'
 import type { IToken } from 'types/language'
-import type { ElementDefinitions } from 'structure/elements/dictionary'
+import type { DocumentIDataMap, DocumentIStorageMap } from 'types/database/files/factory'
 
-abstract class DatabaseFile<T extends DocumentFileType = DocumentFileType, S extends object = any, I extends object = any, D extends I = I> extends DatabaseObject implements IDatabaseFile<T, S, D> {
+abstract class DatabaseFile<T extends DocumentFileType = DocumentFileType, D extends DocumentIDataMap[T] = DocumentIDataMap[T], S extends DocumentIStorageMap[T] = DocumentIStorageMap[T]> extends DatabaseObject implements IDatabaseFile<T, D, S> {
     public readonly storyId: ObjectId
     public readonly type: T
     public readonly name: string
@@ -16,15 +17,15 @@ abstract class DatabaseFile<T extends DocumentFileType = DocumentFileType, S ext
     public readonly dateCreated: number
     public readonly dateUpdated: number
 
-    public constructor(document: IDatabaseFile<T, S, D>) {
+    public constructor(document: IDatabaseFile<T, DocumentIDataMap[T], DocumentIStorageMap[T]>) {
         super(document.id)
         this.storyId = document.storyId
         this.type = document.type ?? DatabaseFile.properties.type.value
         this.name = document.name ?? DatabaseFile.properties.name.value
         this.flags = document.flags ?? DatabaseFile.properties.flags.value
         this.isOwner = document.isOwner ?? DatabaseFile.properties.isOwner.value
-        this.data = document.data ?? DatabaseFile.properties.data.value
-        this.storage = document.storage ?? DatabaseFile.properties.storage.value
+        this.data = this.getDataFactory().create(document.data ?? DatabaseFile.properties.data.value)
+        this.storage = this.getStorageFactory().create(document.storage ?? DatabaseFile.properties.storage.value)
         this.dateCreated = document.dateCreated ?? DatabaseFile.properties.dateCreated.value
         this.dateUpdated = document.dateUpdated ?? DatabaseFile.properties.dateUpdated.value
     }
@@ -81,12 +82,12 @@ abstract class DatabaseFile<T extends DocumentFileType = DocumentFileType, S ext
         }
     }
 
-    public updateData(data: I): this {
+    public updateData(data: DocumentIDataMap[T]): this {
         return new (this.constructor as any)({ ...this, data: this.getDataFactory().create(data) })
     }
 
-    public updateStorage(storage: S): this {
-        return new (this.constructor as any)({ ...this, storage: storage })
+    public updateStorage(storage: DocumentIStorageMap[T]): this {
+        return new (this.constructor as any)({ ...this, storage: this.getStorageFactory().create(storage) })
     }
 
     public stringify(): string {
@@ -100,7 +101,8 @@ abstract class DatabaseFile<T extends DocumentFileType = DocumentFileType, S ext
     public abstract getTitle(): string
     public abstract getDescription(): string
     public abstract getTokenizedDescription(elements: ElementDefinitions): IToken
-    public abstract getDataFactory(): IDatabaseFactory<I, D>
+    public abstract getDataFactory(): IDatabaseFactory<DocumentIDataMap[T], D>
+    public abstract getStorageFactory(): IDatabaseFactory<DocumentIStorageMap[T], S>
 }
 
 export default DatabaseFile

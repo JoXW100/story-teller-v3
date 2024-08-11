@@ -509,12 +509,12 @@ export enum AdvantageBinding {
     CharismaSave = 'chaSave',
     // Checks
     Checks = 'checks',
-    StrengthChecks = 'strCheck',
-    DexterityChecks = 'dexCheck',
-    ConstitutionChecks = 'conCheck',
-    IntelligenceChecks = 'intCheck',
-    WisdomChecks = 'wisCheck',
-    CharismaChecks = 'chaCheck',
+    StrengthCheck = 'strCheck',
+    DexterityCheck = 'dexCheck',
+    ConstitutionCheck = 'conCheck',
+    IntelligenceCheck = 'intCheck',
+    WisdomCheck = 'wisCheck',
+    CharismaCheck = 'chaCheck',
     // Skills
     SkillChecks = 'skillCheck',
     AcrobaticsCheck = 'acrobaticsCheck',

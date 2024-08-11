@@ -41,7 +41,7 @@ const BindingGroup = <T extends EnumTypeKey>({ type, binding, bindings }: Bindin
             }
             return key === 'generic'
                 ? <>{ value.map((val, i) => val.description.length > 0 && <span key={i}>{val.description}</span>) }</>
-                : <Tooltip key={type} title={<SourceTooltips type={type} binding={key} values={bindings} />}>
+                : <Tooltip key={type} title={<SourceTooltips type={type} sources={bindings[key]} />}>
                     <span>{ options[key] }</span>
                 </Tooltip>
         })}

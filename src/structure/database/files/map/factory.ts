@@ -1,10 +1,10 @@
 import MapData from './data'
+import MapStorage from './storage'
 import { isRecord } from 'utils'
 import { hasObjectProperties, simplifyObjectProperties, validateObjectProperties } from 'structure/database'
 import type { Simplify } from 'types'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
 import type { IMapData, IMapStorage } from 'types/database/files/map'
-import MapStorage from './storage'
 
 export const MapDataFactory: IDatabaseFactory<IMapData, MapData> = {
     create: function (data: Simplify<IMapData> = {}): MapData {
@@ -41,5 +41,3 @@ export const MapStorageFactory: IDatabaseFactory<IMapStorage, MapStorage> = {
         return MapStorage.properties
     }
 }
-
-export default MapDataFactory

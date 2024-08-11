@@ -15,6 +15,7 @@ import type { SpellData } from 'structure/database/files/spell/factory'
 import type ModifierDocument from 'structure/database/files/modifier'
 import CharacterDocument from 'structure/database/files/character'
 import type ClassData from 'structure/database/files/class/data'
+import type ConditionData from 'structure/database/files/condition/data'
 import type SubclassData from 'structure/database/files/subclass/data'
 import type CreatureDocument from 'structure/database/files/creature'
 import type RaceDocument from 'structure/database/files/race'
@@ -123,12 +124,32 @@ async function fetchCreatureData(creature: CreatureDocument, current: ICreatureF
         const id = creature.data.abilities[i]
         initialAbilityIds[asObjectId(id) ?? String(i)] = id
     }
+    // Fetch conditions
+    const conditions: Record<ObjectId, ConditionData> = {}
+    if (creature.storage.conditions.length > 0) {
+        const conditionsResponse = await Communication.getFilesOfTypes(creature.storage.conditions, [DocumentType.Condition])
+        if (conditionsResponse.success) {
+            for (const conditionDocument of Object.values(conditionsResponse.result)) {
+                conditions[conditionDocument.id] = conditionDocument.data
+            }
+        }
+    }
 
-    const abilities: Record<ObjectId | string, AbilityData> = {}
+    for (const conditionId of keysOf(conditions)) {
+        const conditionData = conditions[conditionId]
+        for (let i = 0; i < conditionData.modifiers.length; i++) {
+            const value = conditionData.modifiers[i]
+            const key = `condition.${conditionId}.${i}`
+            value.apply(modifier, key)
+            modifier.addSource(key, SourceType.Condition, conditionId)
+        }
+    }
+
     let properties: IProperties = EmptyProperties
+    const abilities: Record<ObjectId | string, AbilityData> = {}
     for (let depth = 0; depth < 100; depth++) {
         // Find new abilities to fetch
-        const facade = new CreatureFacade(creature.data, creature.storage, modifier, translator, properties)
+        const facade = new CreatureFacade(creature.data, creature.storage, modifier, translator, properties, conditions)
         properties = facade.createProperties()
         const abilityIds = modifier.abilities.call(initialAbilityIds, properties, creature.storage.choices)
 
@@ -146,6 +167,12 @@ async function fetchCreatureData(creature: CreatureDocument, current: ICreatureF
 
 async function fetchCharacterData(character: CharacterDocument, current: ICharacterFacadeState, translator: TranslationHandler): Promise<ICharacterFacadeState> {
     const modifier = new Modifier()
+    // Fetch initial ids from race and classes
+    const initialAbilityIds: Record<string, ObjectId | string> = {}
+    for (let i = 0; i < character.data.abilities.length; i++) {
+        const id = character.data.abilities[i]
+        initialAbilityIds[asObjectId(id) ?? String(i)] = id
+    }
 
     let race: RaceDocument | null = null
     let subraceId: ObjectId | null = null
@@ -206,14 +233,27 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
             }
         }
     }
-
-    const abilities: Record<ObjectId | string, AbilityData> = {}
-    // Fetch initial ids from race and classes
-    const initialAbilityIds: Record<string, ObjectId | string> = {}
-    for (let i = 0; i < character.data.abilities.length; i++) {
-        const id = character.data.abilities[i]
-        initialAbilityIds[asObjectId(id) ?? String(i)] = id
+    // Fetch conditions
+    const conditions: Record<ObjectId, ConditionData> = {}
+    if (character.storage.conditions.length > 0) {
+        const conditionsResponse = await Communication.getFilesOfTypes(character.storage.conditions, [DocumentType.Condition])
+        if (conditionsResponse.success) {
+            for (const conditionDocument of Object.values(conditionsResponse.result)) {
+                conditions[conditionDocument.id] = conditionDocument.data
+            }
+        }
     }
+
+    for (const conditionId of keysOf(conditions)) {
+        const conditionData = conditions[conditionId]
+        for (let i = 0; i < conditionData.modifiers.length; i++) {
+            const value = conditionData.modifiers[i]
+            const key = `condition.${conditionId}.${i}`
+            value.apply(modifier, key)
+            modifier.addSource(key, SourceType.Condition, conditionId)
+        }
+    }
+
     if (race !== null) {
         for (let i = 0; i < race.data.modifiers.length; i++) {
             const value = race.data.modifiers[i]
@@ -273,11 +313,11 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
     }
 
     let properties: IProperties = EmptyProperties
-
+    const abilities: Record<ObjectId | string, AbilityData> = {}
     // Start ability/modifier fetch loop
     for (let depth = 0; depth < 100; depth++) {
         // Find new abilities to fetch
-        const facade = new CharacterFacade(character.data, character.storage, modifier, translator, properties, race?.data, subrace?.data, classes, subclasses, items)
+        const facade = new CharacterFacade(character.data, character.storage, modifier, translator, properties, conditions, race?.data, subrace?.data, classes, subclasses, items)
         properties = facade.createProperties()
         const abilityIds = modifier.abilities.call(initialAbilityIds, properties, character.storage.choices)
         const modifierIds = modifier.modifiers.call({}, properties, character.storage.choices)

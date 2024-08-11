@@ -2,12 +2,11 @@ import Logger from './logger'
 import type DatabaseStory from 'structure/database/story'
 import { isEnum, isObjectId, keysOf } from 'utils'
 import { type DocumentFileType, DocumentType, type FlagType } from 'structure/database'
-import type DatabaseFile from 'structure/database/files'
 import FileStructure from 'structure/database/fileStructure'
 import DocumentFactory, { type DocumentTypeMap } from 'structure/database/files/factory'
 import StoryFactory from 'structure/database/story/factory'
 import type AbilityDocument from 'structure/database/files/ability'
-import type { ObjectId } from 'types'
+import type { ObjectId, ValueOf } from 'types'
 import type { IDatabaseStory, DBResponse, IFileStructure, IDatabaseFile, ServerRequestType } from 'types/database'
 
 type FetchMethod = 'GET' | 'PUT' | 'DELETE'
@@ -25,7 +24,7 @@ abstract class Communication {
     private static readonly serverRootURL = '/api/server'
     private static readonly open5eRootURL = 'https://api.open5e.com/'
 
-    public static readonly cache: Record<ObjectId, DatabaseFile> = {}
+    public static readonly cache: Record<ObjectId, ValueOf<DocumentTypeMap>> = {}
 
     private static async databaseFetch<T>(type: ServerRequestType, method: FetchMethod, params: FetchParams = {}): Promise<DBResponse<T>> {
         try {
@@ -149,10 +148,10 @@ abstract class Communication {
         return response
     }
 
-    public static async getFile<T>(fileId: ObjectId, type?: T): Promise<DBResponse<DatabaseFile>>
+    public static async getFile<T>(fileId: ObjectId, type?: T): Promise<DBResponse<ValueOf<DocumentTypeMap>>>
     public static async getFile<T extends DocumentType>(fileId: ObjectId, type: T): Promise<DBResponse<DocumentTypeMap[T]>>
-    public static async getFile<T extends DocumentType>(fileId: ObjectId, type?: T): Promise<DBResponse<DocumentTypeMap[T] | DatabaseFile>> {
-        if (fileId in this.cache && this.cache[fileId].type === type) {
+    public static async getFile<T extends DocumentType>(fileId: ObjectId, type?: T): Promise<DBResponse<DocumentTypeMap[T] | ValueOf<DocumentTypeMap>>> {
+        if (fileId in this.cache && (type === undefined || this.cache[fileId].type === type)) {
             return { success: true, result: this.cache[fileId] }
         }
 
@@ -170,8 +169,7 @@ abstract class Communication {
                     throw new Error('Validated file creation resulted in null value')
                 }
 
-                this.cache[instance.id] = instance
-                return { success: true, result: instance }
+                return { success: true, result: (this.cache[instance.id] = instance) }
             }
         }
         return response
@@ -179,9 +177,9 @@ abstract class Communication {
 
     public static async getFileOfTypes<T extends readonly DocumentType[]>(fileId: ObjectId, allowedTypes: T): Promise<DBResponse<DocumentTypeMap[T[number]]>> {
         if (fileId in this.cache) {
-            const type = this.cache[fileId].type
-            if (isEnum(type, DocumentType) && allowedTypes.includes(type)) {
-                return { success: true, result: this.cache[fileId] as DocumentTypeMap[T[number]] }
+            const file = this.cache[fileId]
+            if (isEnum(file.type, DocumentType) && allowedTypes.includes(file.type)) {
+                return { success: true, result: file as DocumentTypeMap[T[number]] }
             }
         }
 

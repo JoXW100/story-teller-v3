@@ -10,8 +10,8 @@ import RequestBuffer from 'utils/buffer'
 import { useLocalizedText } from 'utils/hooks/localization'
 import type { EditorPageKeyType } from 'components/views/editor'
 import type DatabaseFile from 'structure/database/files'
-import DocumentFactory from 'structure/database/files/factory'
-import type { ObjectId } from 'types'
+import type { DocumentDataMap } from 'structure/database/files/factory'
+import type { ObjectId, ValueOf } from 'types'
 import type { ContextProvider, DispatchAction, DispatchActionNoData, DispatchActionWithDispatch, ISetFieldData } from 'types/context'
 import type { DBResponse } from 'types/database'
 
@@ -41,7 +41,7 @@ type FileContextAction =
     DispatchActionNoData<'init'>
     | DispatchActionNoData<'update'>
     | DispatchActionWithDispatch<'fetchFile', ObjectId, FileContextAction>
-    | DispatchAction<'setFile', DBResponse<DatabaseFile>>
+    | DispatchAction<'setFile', DBResponse<ValueOf<DocumentDataMap>>>
     | DispatchActionWithDispatch<'setData', ISetFieldData, FileContextAction>
     | DispatchActionWithDispatch<'setStorage', ISetFieldData, FileContextAction>
     | DispatchActionWithDispatch<'publish', boolean, FileContextAction>
@@ -125,7 +125,7 @@ const reducer: React.Reducer<FileContextState, FileContextAction> = (state, acti
 
             match.relative[match.key] = action.data.value // Update local value
             const file = state.file.updateData(data)
-            const result = { data: DocumentFactory.dataFactory(file.type)?.simplify(file.data) ?? file.data }
+            const result = { data: file.getDataFactory().simplify(file.data) ?? file.data }
 
             state.buffer.add(() => {
                 Communication.updateFile(state.file.id, state.file.type, result).then((response) => {
@@ -166,7 +166,7 @@ const reducer: React.Reducer<FileContextState, FileContextAction> = (state, acti
 
             match.relative[match.key] = action.data.value // Update local value
             const file = state.file.updateStorage(storage)
-            const result = { storage: DocumentFactory.storageFactory(file.type)?.simplify(file.storage) ?? file.storage }
+            const result = { storage: file.getStorageFactory().simplify(file.storage) ?? file.storage }
 
             state.buffer.add(() => {
                 Communication.updateFile(state.file.id, state.file.type, result).then((response) => {

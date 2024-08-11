@@ -1,10 +1,11 @@
+import type { IDatabaseFileData, IDatabaseFileStorage } from '..'
 import type { IEffect } from '../effect'
 import type { IChargesData } from '../charges'
 import type { IModifierData } from './modifier'
 import type { DieType } from 'structure/dice'
 import type { ArmorType, DamageType, ItemType, MeleeWeaponType, RangedWeaponType, Rarity, ScalingType, ThrownWeaponType, ToolType, WeaponType } from 'structure/dnd'
 
-export interface IItemDataBase {
+export interface IItemDataBase extends IDatabaseFileData {
     readonly name: string
     readonly description: string
     readonly content: string
@@ -83,6 +84,6 @@ export interface IItemOtherData extends IItemDataBase {
 export type IItemData = IItemArmorData | IItemToolData | IItemWeaponData |
 IItemConsumableData | IItemWondrousItemData | IItemOtherData
 
-export interface IItemStorage {
+export interface IItemStorage extends IDatabaseFileStorage {
 
 }

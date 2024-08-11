@@ -5,11 +5,11 @@ import ListTemplateMenu, { type ListTemplateComponentProps } from './template'
 import { asBooleanString, isDefined, isObjectId } from 'utils'
 import { useFilesOfType } from 'utils/hooks/files'
 import Logger from 'utils/logger'
+import Navigation from 'utils/navigation'
 import type { DocumentType } from 'structure/database'
 import type { DocumentTypeMap } from 'structure/database/files/factory'
 import type DatabaseFile from 'structure/database/files'
 import type { ObjectId } from 'types'
-import Navigation from 'utils/navigation'
 
 interface ListMenuPropsBase<T> {
     className?: string

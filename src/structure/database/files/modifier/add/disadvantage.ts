@@ -1,5 +1,6 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
 import type Modifier from '../modifier'
+import { SourceType } from '../modifier'
 import { createSingleChoiceData, createDefaultChoiceData, validateChoiceData, simplifySingleChoiceData } from '../../../choice'
 import { asEnum, isEnum, isNumber, isString } from 'utils'
 import { AdvantageBinding } from 'structure/dnd'
@@ -64,16 +65,19 @@ class ModifierAddDisadvantageData extends ModifierAddDataBase implements IModifi
                     choice = self.binding.value
                 }
 
-                if (choice === null) {
+                if (choice === null || (choice in value && value[choice]!.some(binding => binding.description === self.notes))) {
                     return value
                 }
 
                 return {
                     ...value,
-                    [choice]: [...(value[choice] ?? []), {
-                        source: modifier.findSource(key),
-                        description: self.notes
-                    } satisfies ISourceBinding]
+                    [choice]: [
+                        ...value[choice] ?? [],
+                        {
+                            source: modifier.findSource(key, value => value.type !== SourceType.Modifier),
+                            description: self.notes
+                        } satisfies ISourceBinding
+                    ]
                 }
             }
         })

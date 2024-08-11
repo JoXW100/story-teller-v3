@@ -211,7 +211,7 @@ export function capitalizeFirstLetter(string: string): string {
     return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
-export function getRelativeFieldObject(field: string, data: Record<string, unknown>): { key: string, relative: Record<string, unknown> } | null {
+export function getRelativeFieldObject(field: string, data: object): { key: string, relative: Record<string, unknown> } | null {
     if (!isString(field) || !isRecord(data)) {
         return null
     }

@@ -1,8 +1,8 @@
-import type { ISubFile } from '..'
-import type { IClassLevelData, IClassStorage } from './class'
+import type { IDatabaseFileData, IDatabaseFileStorage, ISubFile } from '..'
+import type { IClassLevelData } from './class'
 import type { ClassLevel, OptionalAttribute } from 'structure/dnd'
 
-export interface ISubclassData extends ISubFile {
+export interface ISubclassData extends IDatabaseFileData, ISubFile {
     readonly name: string
     readonly description: string
     readonly content: string
@@ -15,6 +15,6 @@ export interface ISubclassData extends ISubFile {
     readonly learnedSlotsScaling: OptionalAttribute
 }
 
-export interface ISubclassStorage extends IClassStorage {
+export interface ISubclassStorage extends IDatabaseFileStorage {
 
 }

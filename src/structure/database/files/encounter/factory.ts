@@ -60,5 +60,3 @@ export const EncounterStorageFactory: IDatabaseFactory<IEncounterStorage, Encoun
         return EncounterStorage.properties
     }
 }
-
-export default EncounterDataFactory

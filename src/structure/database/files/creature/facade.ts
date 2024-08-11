@@ -1,6 +1,7 @@
+import type Modifier from '../modifier/modifier'
+import type ConditionData from '../condition/data'
 import type CreatureData from './data'
 import type CreatureStorage from './storage'
-import type Modifier from '../modifier/modifier'
 import { asNumber, keysOf } from 'utils'
 import { getProficiencyBonusFromLevel, getProficiencyLevelValue } from 'utils/calculations'
 import { type Alignment, type ArmorType, Attribute, type CreatureType, type Language, MovementType, OptionalAttribute, ProficiencyLevel, Sense, type SizeType, type ToolType, type WeaponTypeValue, Skill, type AdvantageBinding, ProficiencyLevelBasic, type DamageBinding, type ConditionBinding, type SpellLevel } from 'structure/dnd'
@@ -18,6 +19,7 @@ class CreatureFacade implements ICreatureData {
     public readonly modifier: Modifier
     public readonly properties: IProperties
     public readonly translator: TranslationHandler
+    public readonly conditions: Record<ObjectId, ConditionData>
 
     // 0 - none / unarmored / clothing
     // 1 - light
@@ -31,12 +33,13 @@ class CreatureFacade implements ICreatureData {
     protected shieldLevel: number = 0
     protected armorAC: number = 10
 
-    constructor(data: CreatureData, storage: CreatureStorage, modifier: Modifier, translator: TranslationHandler, properties: IProperties = EmptyProperties) {
+    constructor(data: CreatureData, storage: CreatureStorage, modifier: Modifier, translator: TranslationHandler, properties: IProperties = EmptyProperties, conditions: Record<ObjectId, ConditionData> = {}) {
         this.data = data
         this.storage = storage
         this.modifier = modifier
         this.properties = properties
         this.translator = translator
+        this.conditions = conditions
     }
 
     public get name(): string {

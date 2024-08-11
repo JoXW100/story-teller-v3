@@ -1,5 +1,6 @@
 import type { DocumentFileType, FlagType } from 'structure/database'
 import type { ObjectId, Simplify } from 'types'
+import type { DocumentIDataMap, DocumentIStorageMap } from './files/factory'
 
 export type DBResponse<T> = {
     success: true
@@ -29,7 +30,9 @@ export interface IDatabaseStory {
     readonly dateUpdated: number
 }
 
-export interface IDatabaseFile<T extends DocumentFileType = DocumentFileType, S extends object = any, D extends object = any> {
+export interface IDatabaseFileData {}
+export interface IDatabaseFileStorage {}
+export interface IDatabaseFile<T extends DocumentFileType = DocumentFileType, D extends DocumentIDataMap[T] = DocumentIDataMap[T], S extends DocumentIStorageMap[T] = DocumentIStorageMap[T]> {
     readonly id: ObjectId
     readonly storyId: ObjectId
     readonly type: T
@@ -38,8 +41,8 @@ export interface IDatabaseFile<T extends DocumentFileType = DocumentFileType, S 
     readonly isOwner: boolean
     readonly dateCreated: number
     readonly dateUpdated: number
-    readonly data: Readonly<D>
-    readonly storage: Readonly<S>
+    readonly data: D
+    readonly storage: S
 }
 
 export interface IDataProperty<T, U extends T = T> {
@@ -54,7 +57,7 @@ export interface ISubFile {
 
 export type DataPropertyMap<T, U extends T = T> = { readonly [K in keyof T]: IDataProperty<T[K], U[K]> }
 
-export interface IDatabaseFactory<T extends object, U extends T = T> {
+export interface IDatabaseFactory<T extends object = object, U extends T = T> {
     readonly create: (data?: Simplify<T> | T) => U
     readonly is: (data: unknown) => data is T
     readonly validate: (data: unknown) => data is Simplify<T>

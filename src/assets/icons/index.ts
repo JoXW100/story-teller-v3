@@ -35,13 +35,16 @@ import AdvantageIcon from './advantage.svg'
 import CampIcon from './camp.svg'
 import ConcentrationIcon from './concentration.svg'
 import CritIcon from './crit.svg'
-import EncounterIcon from './crossedSwords.svg'
 import DisadvantageIcon from './disadvantage.svg'
+import EncounterIcon from './crossedSwords.svg'
 import DragonIcon from './dragon.svg'
 import HandIcon from './hand.svg'
+import ImmunityIcon from './immunity.svg'
 import LibraryIcon from './library.svg'
 import NightIcon from './night.svg'
+import ResistanceIcon from './resistance.svg'
 import RitualIcon from './ritual.svg'
+import VulnerabilityIcon from './vulnerability.svg'
 
 import SettingsIcon from '@mui/icons-material/SettingsSharp'
 import StoryIcon from '@mui/icons-material/ImportContactsSharp'
@@ -85,6 +88,7 @@ const IconMap = {
     'ability': HandIcon as React.FC<IconParams>,
     'character': CharacterIcon as React.FC<IconParams>,
     'class': ClassIcon as React.FC<IconParams>,
+    'condition': PoisonIcon as React.FC<IconParams>,
     'creature': DragonIcon as React.FC<IconParams>,
     'document': DocumentIcon as React.FC<IconParams>,
     'encounter': EncounterIcon as React.FC<IconParams>,
@@ -95,6 +99,9 @@ const IconMap = {
     // other
     'advantage': AdvantageIcon as React.FC<IconParams>,
     'disadvantage': DisadvantageIcon as React.FC<IconParams>,
+    'resistance': ResistanceIcon as React.FC<IconParams>,
+    'immunity': ImmunityIcon as React.FC<IconParams>,
+    'vulnerability': VulnerabilityIcon as React.FC<IconParams>,
     'crit': CritIcon as React.FC<IconParams>,
     'concentration': ConcentrationIcon as React.FC<IconParams>,
     'ritual': RitualIcon as React.FC<IconParams>,

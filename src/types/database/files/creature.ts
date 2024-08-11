@@ -1,3 +1,4 @@
+import type { IDatabaseFileData, IDatabaseFileStorage } from '..'
 import type { CalcValue } from 'structure/database'
 import type { ISourceData } from 'structure/database/files/modifier/modifier'
 import type { DieType } from 'structure/dice'
@@ -9,7 +10,7 @@ export interface ISourceBinding {
     readonly description: string
 }
 
-export interface ICreatureData {
+export interface ICreatureData extends IDatabaseFileData {
     readonly name: string
     readonly description: string
     readonly content: string
@@ -65,10 +66,11 @@ export interface ICreatureData {
     readonly abilities: Array<ObjectId | string>
 }
 
-export interface ICreatureStorage {
+export interface ICreatureStorage extends IDatabaseFileStorage {
     readonly health: number | null
     readonly healthTemp: number | null
     readonly abilitiesExpendedCharges: Record<string, number>
     readonly spellsExpendedSlots: Partial<Record<SpellLevel, number>>
     readonly choices: Record<string, unknown>
+    readonly conditions: ObjectId[]
 }

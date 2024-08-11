@@ -1,14 +1,14 @@
 import { useContext } from 'react'
 import { Context } from 'components/contexts/file'
-import GroupComponent from './components/group'
+import GroupComponent from '../components/group'
 import LocalizedText from 'components/controls/localizedText'
-import EnumComponent from './components/enum'
-import NavigationComponent from './components/navigation'
-import ConditionComponent from './components/condition'
-import SelectionInputComponent from './components/selectionInput'
+import EnumComponent from '../components/enum'
+import NavigationComponent from '../components/navigation'
+import ConditionComponent from '../components/condition'
+import SelectionInputComponent from '../components/selectionInput'
 import { createField, getRelativeFieldObject } from 'utils'
 import ChargesData from 'structure/database/charges'
-import styles from './style.module.scss'
+import styles from '../style.module.scss'
 
 const ChargesEditor: React.FC = () => {
     const [context] = useContext(Context)
@@ -38,7 +38,7 @@ const ChargesEditor: React.FC = () => {
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-condition'/>} open>
                 <ConditionComponent
-                    field={createField(field, 'condition')}
+                    field={createField(field, 'conditionValue')}
                     labelId='editor-header-condition' />
             </GroupComponent>
         </div>

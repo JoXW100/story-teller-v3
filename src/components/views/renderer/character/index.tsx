@@ -4,7 +4,8 @@ import AbilityGroups from '../creature/abilityGroups'
 import PageSelector, { type IPageSelectorData } from '../pageSelector'
 import AttributesBox from '../creature/attributesBox'
 import ProficienciesPage from '../creature/proficienciesPage'
-import HealthBox from './healthBox'
+import DefenseConditionBox from '../creature/defenseConditionBox'
+import HealthBox from '../creature/healthBox'
 import CharacterBackgroundPage from './backgroundPage'
 import CharacterSpellPage from './spellPage'
 import CharacterChoicePage from './choicePage'
@@ -19,7 +20,6 @@ import { openDialog } from 'components/dialogs/handler'
 import { asNumber, keysOf } from 'utils'
 import { useCharacterFacade } from 'utils/hooks/documents'
 import { RestType } from 'structure/dnd'
-import { RollMethodType, RollType } from 'structure/dice'
 import type CharacterDocument from 'structure/database/files/character'
 import styles from '../styles.module.scss'
 
@@ -113,17 +113,9 @@ const CharacterDocumentRenderer: React.FC = () => {
                 <AttributesBox facade={facade}/>
                 <Elements.space/>
                 <Elements.align direction='h' weight={null} width={null}>
-                    <div className={styles.proficiencyBox}>
-                        <b>PROF</b>
-                        <Elements.roll
-                            dice={String(facade.proficiencyValue)}
-                            desc='Proficiency Check'
-                            details={null}
-                            tooltips={null}
-                            critRange={facade.critRange}
-                            critDieCount={facade.critDieCount}
-                            mode={RollMethodType.Normal}
-                            type={RollType.Check}/>
+                    <div className={styles.armorBox}>
+                        <b>AC</b>
+                        <b>{facade.acValue}</b>
                     </div>
                     <div className={styles.passivesBox}>
                         <b>Passive Perception: </b>
@@ -134,7 +126,7 @@ const CharacterDocumentRenderer: React.FC = () => {
                         <b>{facade.passiveInsightValue}</b>
                     </div>
                     <div className={styles.speedBox}>
-                        <Elements.b>SPEED</Elements.b>
+                        <div className='font-bold'>SPEED</div>
                         <span>{facade.speedAsText}</span>
                     </div>
                 </Elements.align>
@@ -144,6 +136,8 @@ const CharacterDocumentRenderer: React.FC = () => {
             <Elements.line width='2px'/>
             <Elements.block weight='1' width={null}>
                 <HealthBox facade={facade}/>
+                <Elements.space/>
+                <DefenseConditionBox facade={facade}/>
                 <Elements.space/>
                 <PageSelector pages={Pages} selected={page} setSelected={setPage}/>
                 <Elements.line width='2px'/>

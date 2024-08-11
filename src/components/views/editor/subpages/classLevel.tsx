@@ -1,16 +1,16 @@
 import { useContext } from 'react'
 import { Context } from 'components/contexts/file'
-import GroupComponent from './components/group'
+import GroupComponent from '../components/group'
 import LocalizedText from 'components/controls/localizedText'
-import EnumComponent from './components/enum'
-import SelectionInputComponent from './components/selectionInput'
-import NumberComponent from './components/number'
-import NavigationComponent from './components/navigation'
-import ModifiersInputComponent from './components/modifiersInput'
+import EnumComponent from '../components/enum'
+import SelectionInputComponent from '../components/selectionInput'
+import NumberComponent from '../components/number'
+import NavigationComponent from '../components/navigation'
+import ModifiersInputComponent from '../components/modifiersInput'
 import { createField, getRelativeFieldObject } from 'utils'
 import ClassLevelData from 'structure/database/files/class/levelData'
 import { OptionalAttribute } from 'structure/dnd'
-import styles from './style.module.scss'
+import styles from '../style.module.scss'
 
 const ClassLevelEditor: React.FC = () => {
     const [context] = useContext(Context)

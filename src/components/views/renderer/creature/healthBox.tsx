@@ -107,12 +107,20 @@ const HealthBox: React.FC<HealthBoxProps> = ({ facade }) => {
 
     return (
         <Elements.align direction='h' weight={null} width={null}>
-            <div className={styles.armorBox}>
-                <b>AC</b>
-                <b>{facade.acValue}</b>
+            <div className={styles.proficiencyBox}>
+                <b>PROF</b>
+                <Elements.roll
+                    dice={String(facade.proficiencyValue)}
+                    desc='Proficiency Check'
+                    details={null}
+                    tooltips={null}
+                    critRange={facade.critRange}
+                    critDieCount={facade.critDieCount}
+                    mode={RollMethodType.Normal}
+                    type={RollType.Check}/>
             </div>
             <div className={styles.initiativeBox}>
-                <b>Initiative</b>
+                <b>INIT</b>
                 <Elements.roll
                     dice={String(facade.initiativeValue)}
                     desc='Initiative'

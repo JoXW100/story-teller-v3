@@ -1,31 +1,33 @@
 import { useContext, useEffect, useMemo } from 'react'
-import TextDocumentEditor from './text'
+import AbilityDocumentEditor from './ability'
 import CreatureDocumentEditor from './creature'
 import CharacterDocumentEditor from './character'
 import ClassDocumentEditor from './class'
-import ClassLevelEditor from './classLevel'
-import AbilityDocumentEditor from './ability'
+import ConditionDocumentEditor from './condition'
+import EncounterDocumentEditor from './encounter'
 import ItemDocumentEditor from './item'
 import MapDocumentEditor from './map'
 import ModifierDocumentEditor from './modifier'
 import RaceDocumentEditor from './race'
-import SubraceDocumentEditor from './subrace'
 import SpellDocumentEditor from './spell'
 import SubclassDocumentEditor from './subclass'
-import EffectEditor from './effect'
-import ConditionEditor from './condition'
-import ChargesEditor from './charges'
-import EncounterDocumentEditor from './encounter'
+import SubraceDocumentEditor from './subrace'
+import TextDocumentEditor from './text'
+import ClassLevelEditor from './subpages/classLevel'
+import EffectEditor from './subpages/effect'
+import ConditionEditor from './subpages/condition'
+import ChargesEditor from './subpages/charges'
 import NPCDocumentEditor from './npc'
-import { Context } from 'components/contexts/file'
 import { isKeyOf } from 'utils'
 import { DocumentType } from 'structure/database'
+import { Context } from 'components/contexts/file'
 
 export const DocumentEditorMap = {
     [DocumentType.Ability]: AbilityDocumentEditor,
     [DocumentType.Creature]: CreatureDocumentEditor,
     [DocumentType.Character]: CharacterDocumentEditor,
     [DocumentType.Class]: ClassDocumentEditor,
+    [DocumentType.Condition]: ConditionDocumentEditor,
     [DocumentType.Encounter]: EncounterDocumentEditor,
     [DocumentType.Item]: ItemDocumentEditor,
     [DocumentType.Map]: MapDocumentEditor,
@@ -38,11 +40,11 @@ export const DocumentEditorMap = {
     [DocumentType.Text]: TextDocumentEditor,
     'classLevel': ClassLevelEditor,
     'effect': EffectEditor,
-    'conditionInner': ConditionEditor,
     'condition': ConditionEditor,
+    'conditionInner': ConditionEditor,
     'charges': ChargesEditor,
     'none': null
-}
+} satisfies Record<DocumentType, React.FC> & Record<string, React.FC | null>
 
 export type EditorPageKeyType = keyof typeof DocumentEditorMap
 

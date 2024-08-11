@@ -1,3 +1,4 @@
+import type { IDatabaseFileData, IDatabaseFileStorage } from '..'
 import type { LevelModifyType } from 'structure/database/files/class/levelData'
 import type { DieType } from 'structure/dice'
 import type { ArmorType, Attribute, ClassLevel, OptionalAttribute, ProficiencyLevel, ProficiencyLevelBasic, SpellLevel, ToolType, WeaponTypeValue } from 'structure/dnd'
@@ -15,7 +16,7 @@ export interface IClassLevelData {
     readonly learnedSlots: number // Max number of known spells for each level
 }
 
-export interface IClassData {
+export interface IClassData extends IDatabaseFileData {
     readonly name: string
     readonly description: string
     readonly content: string
@@ -35,6 +36,6 @@ export interface IClassData {
     readonly learnedSlotsScaling: OptionalAttribute
 }
 
-export interface IClassStorage {
+export interface IClassStorage extends IDatabaseFileStorage {
 
 }

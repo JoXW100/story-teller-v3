@@ -29,6 +29,8 @@ export function getFileIcon(type: DocumentFileType): React.FC<IconParams> {
         case DocumentType.Class:
         case DocumentType.Subclass:
             return IconMap.class
+        case DocumentType.Condition:
+            return IconMap.condition
         case DocumentType.Creature:
             return IconMap.creature
         case DocumentType.Encounter:

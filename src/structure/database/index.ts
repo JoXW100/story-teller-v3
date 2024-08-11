@@ -1,8 +1,8 @@
-import { isKeyOf, keysOf } from 'utils'
+import { isKeyOf, isRecord, keysOf } from 'utils'
 import Logger from 'utils/logger'
 import { OptionalAttribute } from 'structure/dnd'
 import type { ObjectId, Simplify } from 'types'
-import type { DataPropertyMap } from 'types/database'
+import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
 import type { IBonusGroup, IProperties } from 'types/editor'
 
 export enum DocumentType {
@@ -10,6 +10,7 @@ export enum DocumentType {
     Character = 'cha',
     Creature = 'cre',
     Class = 'cla',
+    Condition = 'cnd',
     Encounter = 'enc',
     Subclass = 'scl',
     Race = 'rce',
@@ -99,6 +100,24 @@ export const EmptyBonusGroup: IBonusGroup = {
     meleeBonus: 0,
     rangedBonus: 0,
     thrownBonus: 0
+}
+
+export const EmptyDatabaseFactory: IDatabaseFactory = {
+    create: function (data: object = {}): object {
+        return data
+    },
+    is: function (data: unknown): data is object {
+        return isRecord(data)
+    },
+    validate: function (data: unknown): data is Simplify<object> {
+        return isRecord(data)
+    },
+    simplify: function (): Simplify<object> {
+        return {}
+    },
+    properties: function (): DataPropertyMap<object> {
+        return {}
+    }
 }
 
 export function createCalcValue(data: Partial<CalcValue> = {}): CalcValue {
