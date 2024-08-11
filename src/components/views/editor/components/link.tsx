@@ -1,6 +1,7 @@
 import React, { useContext } from 'react'
 import GroupItemComponent from './groupItem'
 import { Context } from 'components/contexts/file'
+import { Context as StoryContext } from 'components/contexts/story'
 import LinkInput from 'components/controls/linkInput'
 import { asObjectId, getRelativeFieldObject, isObjectIdOrNull, isRecord } from 'utils'
 import Logger from 'utils/logger'
@@ -21,6 +22,7 @@ type LinkComponentParams = React.PropsWithChildren<{
 }>
 
 const LinkComponent: React.FC<LinkComponentParams> = ({ field, labelId, labelArgs, allowedTypes, parentFile, placeholderId, placeholderArgs }) => {
+    const [storyContext] = useContext(StoryContext)
     const [context, dispatch] = useContext(Context)
     const placeholder = useLocalizedText(placeholderId, placeholderArgs)
     if (!isRecord(context.file.data)) {
@@ -53,6 +55,7 @@ const LinkComponent: React.FC<LinkComponentParams> = ({ field, labelId, labelArg
                 <LinkInput
                     className={styles.editInput}
                     value={value ?? ''}
+                    story={storyContext.story}
                     placeholder={placeholder}
                     allowedTypes={allowedTypes}
                     parentFile={parentFile}

@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useMemo } from 'react'
 import Tooltip from '@mui/material/Tooltip'
 import GroupItemComponent from './groupItem'
 import { Context } from 'components/contexts/file'
+import { Context as StoryContext } from 'components/contexts/story'
 import LinkInput from 'components/controls/linkInput'
 import LocalizedText from 'components/controls/localizedText'
 import RecordMenu, { type RecordComponentProps } from 'components/controls/menus/record'
@@ -93,6 +94,7 @@ const SubclassesInputComponent: React.FC<SubclassesInputComponentProps> = ({ dat
 
 const AllowedSubTypes = [DocumentType.Subclass] as const
 const SubclassComponent: React.FC<SubclassComponentProps> = ({ value, itemKey, params }) => {
+    const [context] = useContext(StoryContext)
     const classId = itemKey as ObjectId
     const classFile = params.classes[classId] as ClassDocument | undefined
     const placeholder = useLocalizedText('editor-subclass-placeholder')
@@ -105,6 +107,7 @@ const SubclassComponent: React.FC<SubclassComponentProps> = ({ value, itemKey, p
             <LinkInput
                 className={styles.editInput}
                 value={value}
+                story={context.story}
                 placeholder={placeholder}
                 allowedTypes={AllowedSubTypes}
                 parentFile={classId}

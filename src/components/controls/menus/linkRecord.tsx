@@ -1,14 +1,14 @@
 import { useMemo } from 'react'
+import { Tooltip } from '@mui/material'
 import LinkInput from '../../controls/linkInput'
 import DropdownMenu from '../dropdownMenu'
 import ListTemplateMenu, { type ListTemplateComponentProps } from './template'
 import { asBooleanString, asObjectId, isObjectId, keysOf } from 'utils'
 import { useFilesOfType } from 'utils/hooks/files'
+import type DatabaseStory from 'structure/database/story'
 import type { DocumentType } from 'structure/database'
-import type DatabaseFile from 'structure/database/files'
 import type { DocumentTypeMap } from 'structure/database/files/factory'
 import type { EnumValue, ObjectId } from 'types'
-import { Tooltip } from '@mui/material'
 
 export interface ILinkRecordMenuTextProps {
     type: 'text'
@@ -46,6 +46,7 @@ type LinkRecordMenuPropsType = ILinkRecordMenuTextProps |
 ILinkRecordMenuNumberProps | ILinkRecordMenuEnumProps | ILinkRecordMenuButtonProps
 
 type LinkRecordMenuProps = React.PropsWithRef<{
+    story: DatabaseStory
     className?: string
     itemClassName?: string
     editClassName?: string
@@ -54,6 +55,7 @@ type LinkRecordMenuProps = React.PropsWithRef<{
 } & LinkRecordMenuPropsType>
 
 type RecordMenuComponentProps = React.PropsWithRef<{
+    story: DatabaseStory
     itemClassName?: string
     editClassName?: string
     ids: ObjectId[]
@@ -151,7 +153,7 @@ function ItemComponent({ index, params }: ListTemplateComponentProps<string | nu
 }
 
 function EditComponent({ value, onUpdate, params }: ListTemplateComponentProps<string | null, string | null, RecordMenuComponentProps>): React.ReactNode {
-    const handleFileChanged = (file: DatabaseFile | null): void => {
+    const handleFileChanged = (file: DocumentTypeMap[DocumentType] | null): void => {
         if (file !== null) {
             onUpdate('')
             switch (params.type) {
@@ -175,6 +177,7 @@ function EditComponent({ value, onUpdate, params }: ListTemplateComponentProps<s
         <LinkInput
             className={params.editClassName}
             value={String(value)}
+            story={params.story}
             allowText={false}
             allowedTypes={params.allowedTypes}
             placeholder={params.placeholder}

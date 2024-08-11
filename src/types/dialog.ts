@@ -1,7 +1,8 @@
-import type { CreateFilePopupData } from 'components/dialogs/createFile'
 import type { LanguageKey } from 'assets'
-import type { DocumentType } from 'structure/database'
 import type { IDatabaseFile } from './database'
+import type { CreateFilePopupData } from 'components/dialogs/createFile'
+import type { DocumentType } from 'structure/database'
+import type DatabaseStory from 'structure/database/story'
 import type { ObjectId } from 'types'
 
 export enum InputType {
@@ -35,6 +36,11 @@ export interface ISelectFileDialogParams extends IDialogParams {
     sources: ObjectId[]
 }
 
+export interface IManageConditionsDialogParams extends IDialogParams {
+    values: ObjectId[]
+    story: DatabaseStory
+}
+
 export interface ICreateFileDialogParams extends IDialogParams {
     type: InputType
 }
@@ -56,6 +62,10 @@ export interface ISelectFileDialogPromise extends IDialogPromise {
     onSelect: (handler: (file: IDatabaseFile) => void) => Omit<this, 'onSelect'>
 }
 
+export interface IManageConditionsDialogPromise extends IDialogPromise {
+    onConfirm: (handler: (values: ObjectId[]) => void) => Omit<this, 'onSelect'>
+}
+
 export interface IDialogArgs<T extends IDialogParams = IDialogParams, P extends IDialogPromise = IDialogPromise> {
     params: T
     promise: P
@@ -66,6 +76,7 @@ export interface DialogTypeMap {
     notice: IDialogArgs<INoticeDialogParams, IDialogPromise>
     createFile: IDialogArgs<ICreateFileDialogParams, ICreateFileDialogPromise>
     selectFile: IDialogArgs<ISelectFileDialogParams, ISelectFileDialogPromise>
+    manageConditions: IDialogArgs<IManageConditionsDialogParams, IManageConditionsDialogPromise>
 }
 
 export type DialogArgs<K extends keyof DialogTypeMap> = DialogTypeMap[K]['params'] & { callback: (type: keyof DialogTypeMap[K]['promise'], ...args: any[]) => void }

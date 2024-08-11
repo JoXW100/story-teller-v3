@@ -4,9 +4,10 @@ import ConfirmationDialog from './confirmation'
 import NoticeDialog from './notice'
 import CreateFileDialog from './createFile'
 import Logger from 'utils/logger'
-import { ConfirmationPromise, DialogPromise, CreateFilePromise, SelectFilePromise } from 'structure/dialog'
+import { ConfirmationPromise, DialogPromise, CreateFilePromise, SelectFilePromise, ManageConditionsDialogPromise } from 'structure/dialog'
 import type { DialogTypeMap, DialogDetails } from 'types/dialog'
 import SelectFileDialog from './selectFile'
+import ManageConditionsDialog from './manageConditions'
 
 function createDialogPromise<K extends keyof DialogTypeMap>(type: K): DialogTypeMap[K]['promise'] {
     switch (type) {
@@ -16,6 +17,8 @@ function createDialogPromise<K extends keyof DialogTypeMap>(type: K): DialogType
             return new CreateFilePromise()
         case 'selectFile':
             return new SelectFilePromise()
+        case 'manageConditions':
+            return new ManageConditionsDialogPromise()
         case 'notice':
         default:
             return new DialogPromise()
@@ -112,6 +115,16 @@ const DialogHandler: React.FC = () => {
                             return rest
                         })
                         if (SelectFilePromise.isSelectFilePromise(dialog)) {
+                            dialog.promise.invoke(type, ...args)
+                        }
+                    }} />
+                case 'manageConditions':
+                    return <ManageConditionsDialog key={key} {...dialog.params} callback={(type, ...args) => {
+                        setDialogs(dialogs => {
+                            const { [key]: _, ...rest } = dialogs
+                            return rest
+                        })
+                        if (ManageConditionsDialogPromise.isManageConditionsDialogPromise(dialog)) {
                             dialog.promise.invoke(type, ...args)
                         }
                     }} />

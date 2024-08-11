@@ -108,6 +108,7 @@
             "dialog-selectFile-header": "Select File",
             "dialog-selectFile-button": "Select @1",
             "dialog-selectFile-noFiles": "No files available.",
+            "dialog-manageConditions-header": "Manage Conditions",
             "component-searchBar-placeholder": "Search ...",
             "component-appBar-backButton-tooltips": "Back",
             "filter-menu-header": "Filters",

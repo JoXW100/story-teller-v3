@@ -2,8 +2,6 @@ import ModifierDataFactory from '../modifier/factory'
 import type { ModifierData } from '../modifier/factory'
 import { isString } from 'utils'
 import EmptyToken from 'structure/language/tokens/empty'
-import StoryScript from 'structure/language/storyscript'
-import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IConditionData } from 'types/database/files/condition'
@@ -44,21 +42,12 @@ class ConditionData implements IConditionData {
         }
     }
 
-    public createDescriptionContexts(elements: ElementDefinitions): [description: TokenContext] {
+    public createContexts(): [description: TokenContext] {
         const descriptionContext = {
             title: new EmptyToken(this.name),
             name: new EmptyToken(this.name)
         }
         return [descriptionContext]
-    }
-
-    public createContexts(elements: ElementDefinitions): [description: TokenContext, content: TokenContext] {
-        const [descriptionContext] = this.createDescriptionContexts(elements)
-        const contentContext: TokenContext = {
-            ...descriptionContext,
-            description: StoryScript.tokenize(elements, this.description, descriptionContext).root
-        }
-        return [descriptionContext, contentContext]
     }
 }
 

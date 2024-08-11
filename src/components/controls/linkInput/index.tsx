@@ -1,22 +1,23 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { Tooltip } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import ClearIcon from '@mui/icons-material/CloseSharp'
 import SelectIcon from '@mui/icons-material/RadioButtonUncheckedSharp'
-import { Context } from 'components/contexts/story'
 import { openDialog } from 'components/dialogs/handler'
 import LocalizedText from 'components/controls/localizedText'
 import { asBooleanString, isDefined, isEnum, isObjectId, isString } from 'utils'
 import Communication from 'utils/communication'
 import Logger from 'utils/logger'
+import Navigation from 'utils/navigation'
 import { DocumentType } from 'structure/database'
-import type DatabaseFile from 'structure/database/files'
+import type { DocumentTypeMap } from 'structure/database/files/factory'
+import type DatabaseStory from 'structure/database/story'
 import type { ObjectId } from 'types'
 import styles from './styles.module.scss'
-import Link from 'next/link'
-import Navigation from 'utils/navigation'
 
 interface IComponentPropsBase {
+    story: DatabaseStory
     className?: string
     value?: string | null
     placeholder?: string
@@ -24,15 +25,15 @@ interface IComponentPropsBase {
     allowedTypes: readonly DocumentType[]
     parentFile?: ObjectId
     onChange?: (value: string) => void
-    onFileChanged?: (value: DatabaseFile | null) => void
-    onAdd?: (value: DatabaseFile) => void
-    validateAdd?: (value: DatabaseFile) => boolean
+    onFileChanged?: (value: DocumentTypeMap[DocumentType] | null) => void
+    onAdd?: (value: DocumentTypeMap[DocumentType]) => void
+    validateAdd?: (value: DocumentTypeMap[DocumentType]) => boolean
 }
 
 interface IAllowTextComponentProps extends IComponentPropsBase {
     allowText: true
     validateText?: (value: string) => boolean
-    parseText: (value: string) => DatabaseFile | null
+    parseText: (value: string) => DocumentTypeMap[DocumentType] | null
 }
 
 interface IComponentProps extends IComponentPropsBase {
@@ -42,12 +43,11 @@ interface IComponentProps extends IComponentPropsBase {
 type EditLinkInputComponentProps = React.PropsWithRef<IAllowTextComponentProps | IComponentProps>
 
 interface EditLinkInputState {
-    file: DatabaseFile | null
+    file: DocumentTypeMap[DocumentType] | null
     highlight: boolean
 }
 
 const LinkInput: React.FC<EditLinkInputComponentProps> = (props) => {
-    const [context] = useContext(Context)
     const [state, setState] = useState<EditLinkInputState>({
         file: null,
         highlight: false
@@ -97,10 +97,10 @@ const LinkInput: React.FC<EditLinkInputComponentProps> = (props) => {
     const handleSelect = (): void => {
         openDialog('selectFile', {
             id: 'linkInput.selectFile',
-            storyId: context.story.id,
+            storyId: props.story.id,
             allowedTypes: props.allowedTypes,
             parentFile: props.parentFile,
-            sources: [...context.story.sources, context.story.id]
+            sources: [...props.story.sources, props.story.id]
         }).onSelect((file) => {
             props.onChange?.(file.id)
         })
@@ -175,7 +175,7 @@ const LinkInput: React.FC<EditLinkInputComponentProps> = (props) => {
         }
     }, [props])
 
-    const disabled = context.story === null || props.disabled === true
+    const disabled = !isDefined(props.story) || props.disabled === true
 
     return (
         <div className={combinedClassName}>

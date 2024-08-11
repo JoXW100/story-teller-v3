@@ -6,12 +6,13 @@ import { asBooleanString, isDefined, isObjectId } from 'utils'
 import { useFilesOfType } from 'utils/hooks/files'
 import Logger from 'utils/logger'
 import Navigation from 'utils/navigation'
+import type DatabaseStory from 'structure/database/story'
 import type { DocumentType } from 'structure/database'
 import type { DocumentTypeMap } from 'structure/database/files/factory'
-import type DatabaseFile from 'structure/database/files'
 import type { ObjectId } from 'types'
 
 interface ListMenuPropsBase<T> {
+    story: DatabaseStory
     className?: string
     itemClassName?: string
     editClassName?: string
@@ -25,16 +26,17 @@ interface ListMenuPropsBase<T> {
 
 interface ListMenuPropsWithText extends ListMenuPropsBase<string> {
     allowText: true
-    parseText: (value: string) => DatabaseFile | null
+    parseText: (value: string) => DocumentTypeMap[DocumentType] | null
 }
 
 interface ListMenuProps extends ListMenuPropsBase<ObjectId> {
     allowText: false
-    parseText?: (value: string) => DatabaseFile | null
+    parseText?: (value: string) => DocumentTypeMap[DocumentType] | null
 }
 
 type LinkListMenuProps = React.PropsWithRef<ListMenuProps | ListMenuPropsWithText>
 type LinkListMenuComponent = React.PropsWithRef<{
+    story: DatabaseStory
     itemClassName?: string
     editClassName?: string
     files: Array<DocumentTypeMap[DocumentType] | null>
@@ -43,7 +45,7 @@ type LinkListMenuComponent = React.PropsWithRef<{
     allowText: boolean
     disabled: boolean
     onChange: (selection: Array<string | ObjectId>) => void
-    parseText: (value: string) => DatabaseFile | null
+    parseText: (value: string) => DocumentTypeMap[DocumentType] | null
 }>
 
 function toNull(): null {
@@ -87,13 +89,13 @@ const LinkListMenu: React.FC<LinkListMenuProps> = (props) => {
             className={props.className}
             defaultValue=''
             values={loading ? [] : props.values}
-            addLast
             createValue={String}
             onChange={handleChange}
             validateInput={handleValidate}
             Component={Component}
             EditComponent={EditComponent}
-            params={{ files, itemClassName: props.itemClassName, editClassName: props.editClassName, allowedTypes: props.allowedTypes, allowText: true, placeholder: props.placeholder, disabled: props.disabled === true, onChange: handleChange, parseText: props.parseText ?? toNull }}/>
+            params={{ story: props.story, files, itemClassName: props.itemClassName, editClassName: props.editClassName, allowedTypes: props.allowedTypes, allowText: true, placeholder: props.placeholder, disabled: props.disabled === true, onChange: handleChange, parseText: props.parseText ?? toNull }}
+            addLast/>
     )
 }
 
@@ -117,16 +119,19 @@ const Component: React.FC<ListTemplateComponentProps<string, string, LinkListMen
 }
 
 const EditComponent: React.FC<ListTemplateComponentProps<string, string, LinkListMenuComponent>> = ({ value, values, onUpdate, params }) => {
-    const handleFileChanged = (file: DatabaseFile | null): void => {
+    const handleFileChanged = (file: DocumentTypeMap[DocumentType] | null): void => {
         if (file !== null) {
             onUpdate('')
             params.onChange([...values, file.id])
         }
     }
 
+    console.log('here', params)
+
     return (
         <LinkInput
             className={params.editClassName}
+            story={params.story}
             value={value}
             allowText={params.allowText}
             allowedTypes={params.allowedTypes}

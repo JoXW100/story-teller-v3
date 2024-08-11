@@ -3,6 +3,7 @@ import { Tooltip } from '@mui/material'
 import RemoveIcon from '@mui/icons-material/Remove'
 import EquipIcon from '@mui/icons-material/AddModeratorSharp'
 import UnequipIcon from '@mui/icons-material/RemoveModeratorSharp'
+import { Context as StoryContext } from 'components/contexts/story'
 import { Context } from 'components/contexts/file'
 import Elements from 'components/elements'
 import LocalizedText from 'components/controls/localizedText'
@@ -10,14 +11,14 @@ import CollapsibleGroup from 'components/controls/collapsibleGroup'
 import DropdownMenu from 'components/controls/dropdownMenu'
 import LinkInput from 'components/controls/linkInput'
 import { asBooleanString, isObjectId, keysOf } from 'utils'
+import { useTranslator } from 'utils/hooks/localization'
 import { DocumentType } from 'structure/database'
-import type DatabaseFile from 'structure/database/files'
+import type { DocumentTypeMap } from 'structure/database/files/factory'
 import type CharacterFacade from 'structure/database/files/character/facade'
 import type { ItemData } from 'structure/database/files/item/factory'
 import type { ObjectId } from 'types'
 import type { IInventoryItemData } from 'types/database/files/character'
 import styles from '../styles.module.scss'
-import { useTranslator } from 'utils/hooks/localization'
 
 type CharacterInventoryPageProps = React.PropsWithRef<{
     facade: CharacterFacade
@@ -26,6 +27,7 @@ type CharacterInventoryPageProps = React.PropsWithRef<{
 
 const AllowedTypes = [DocumentType.Item] as const
 const CharacterInventoryPage: React.FC<CharacterInventoryPageProps> = ({ facade, items }) => {
+    const [context] = useContext(StoryContext)
     const [, dispatch] = useContext(Context)
     const [text, setText] = useState<string>('')
     const translator = useTranslator()
@@ -40,7 +42,7 @@ const CharacterInventoryPage: React.FC<CharacterInventoryPageProps> = ({ facade,
         return options
     }, [facade.storage.inventory, items])
 
-    const handleAdd = (value: DatabaseFile): void => {
+    const handleAdd = (value: DocumentTypeMap[DocumentType]): void => {
         setText('')
         if (value.id in facade.storage.inventory) {
             dispatch.setStorage('inventory', {
@@ -181,6 +183,7 @@ const CharacterInventoryPage: React.FC<CharacterInventoryPageProps> = ({ facade,
                     <Elements.b>Item: </Elements.b>
                     <LinkInput
                         value={text}
+                        story={context.story}
                         allowedTypes={AllowedTypes}
                         allowText={false}
                         onChange={setText}

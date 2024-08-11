@@ -1,6 +1,7 @@
 import type { CreateFilePopupData } from 'components/dialogs/createFile'
+import type { ObjectId } from 'types'
 import type { IDatabaseFile } from 'types/database'
-import type { DialogDetails, IConfirmationDialogPromise, ICreateFileDialogPromise, IDialogPromise, ISelectFileDialogPromise } from 'types/dialog'
+import type { DialogDetails, IConfirmationDialogPromise, ICreateFileDialogPromise, IDialogPromise, IManageConditionsDialogPromise, ISelectFileDialogPromise } from 'types/dialog'
 
 export class DialogPromise<T extends IDialogPromise = IDialogPromise> implements IDialogPromise {
     protected readonly handlers: Partial<Record<keyof T, ((...args: any[]) => void) | null>> = {}
@@ -54,5 +55,16 @@ export class SelectFilePromise extends DialogPromise<ISelectFileDialogPromise> i
 
     public static isSelectFilePromise(dialog: DialogDetails): dialog is DialogDetails<'selectFile'> & { promise: SelectFilePromise } {
         return dialog.show && dialog.type === 'selectFile'
+    }
+}
+
+export class ManageConditionsDialogPromise extends DialogPromise<IManageConditionsDialogPromise> implements IManageConditionsDialogPromise {
+    public onConfirm(handler: (data: ObjectId[]) => void): this {
+        this.handlers.onConfirm = handler
+        return this
+    }
+
+    public static isManageConditionsDialogPromise(dialog: DialogDetails): dialog is DialogDetails<'manageConditions'> & { promise: ManageConditionsDialogPromise } {
+        return dialog.show && dialog.type === 'manageConditions'
     }
 }

@@ -1,6 +1,7 @@
 import React, { useContext } from 'react'
 import GroupItemComponent from './groupItem'
 import { Context } from 'components/contexts/file'
+import { Context as StoryContext } from 'components/contexts/story'
 import LinkListMenu from 'components/controls/menus/link'
 import { asBooleanString, isObjectId, isRecord, isString, getRelativeFieldObject } from 'utils'
 import Logger from 'utils/logger'
@@ -8,7 +9,6 @@ import { toAbility } from 'utils/importers/stringFormatAbilityImporter'
 import { useLocalizedText } from 'utils/hooks/localization'
 import type { LanguageKey } from 'assets'
 import { DocumentType } from 'structure/database'
-import type DatabaseFile from 'structure/database/files'
 import AbilityDocument from 'structure/database/files/ability'
 import type { ObjectId } from 'types'
 import styles from '../style.module.scss'
@@ -25,6 +25,7 @@ type LinkListComponentParams = React.PropsWithChildren<{
 }>
 
 const LinkListComponent: React.FC<LinkListComponentParams> = ({ field, labelId, labelArgs, allowedTypes, placeholderId, placeholderArgs, fill = false, allowText = false }) => {
+    const [storyContext] = useContext(StoryContext)
     const [context, dispatch] = useContext(Context)
     const placeholder = useLocalizedText(placeholderId, placeholderArgs)
     if (!isRecord(context.file.data)) {
@@ -52,7 +53,7 @@ const LinkListComponent: React.FC<LinkListComponentParams> = ({ field, labelId, 
         dispatch.setData(field, values)
     }
 
-    const handleParseText = (value: string): DatabaseFile | null => {
+    const handleParseText = (value: string): AbilityDocument | null => {
         if (allowText) {
             const data = toAbility(value)
             return data !== null
@@ -79,6 +80,7 @@ const LinkListComponent: React.FC<LinkListComponentParams> = ({ field, labelId, 
                 itemClassName={styles.itemListItem}
                 editClassName={styles.editListItem}
                 values={value}
+                story={storyContext.story}
                 onChange={handleChange}
                 validateInput={handleValidate}
                 parseText={handleParseText}

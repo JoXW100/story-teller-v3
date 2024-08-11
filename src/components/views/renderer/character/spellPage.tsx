@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import PageSelector, { type IPageSelectorData } from '../pageSelector'
 import SpellList from './spellList'
 import type { FileContextDispatch } from 'components/contexts/file'
@@ -6,11 +6,12 @@ import CollapsibleGroup from 'components/controls/collapsibleGroup'
 import LocalizedText from 'components/controls/localizedText'
 import Elements from 'components/elements'
 import LinkInput from 'components/controls/linkInput'
+import { Context } from 'components/contexts/story'
 import { isObjectId, keysOf } from 'utils'
 import { getSpellLevelValue } from 'utils/calculations'
 import { useLocalizedText } from 'utils/hooks/localization'
-import { DocumentFileType } from 'structure/database'
-import type DatabaseFile from 'structure/database/files'
+import { DocumentFileType, type DocumentType } from 'structure/database'
+import type { DocumentTypeMap } from 'structure/database/files/factory'
 import type CharacterFacade from 'structure/database/files/character/facade'
 import SpellDocument from 'structure/database/files/spell'
 import type { SpellData } from 'structure/database/files/spell/factory'
@@ -27,6 +28,7 @@ type CharacterSpellPageProps = React.PropsWithRef<{
 const allowedTypes = [DocumentFileType.Spell]
 
 const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells, setStorage }) => {
+    const [context] = useContext(Context)
     const [spellInput, setSpellInput] = useState<string>('')
     const [selectedClass, setSelectedClass] = useState<ObjectId | null>(null)
     const pages = useMemo(() => {
@@ -144,7 +146,7 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
         }
     }
 
-    const handleAddClick = (value: DatabaseFile | null): void => {
+    const handleAddClick = (value: DocumentTypeMap[DocumentType] | null): void => {
         if (selectedClass !== null && value instanceof SpellDocument && !(value.id in preparations)) {
             const prepared = facade.storage.spellPreparations
             prepared[selectedClass] = {
@@ -156,7 +158,7 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
         setSpellInput('')
     }
 
-    const handleValidateAdd = (value: DatabaseFile): boolean => {
+    const handleValidateAdd = (value: DocumentTypeMap[DocumentType]): boolean => {
         return selectedClass !== null && (!(selectedClass in preparations) || (
             value instanceof SpellDocument && !(value.id in preparations[selectedClass]) &&
                 getSpellLevelValue(value.data.level) <= getSpellLevelValue(maxSpellLevels) && (
@@ -202,6 +204,7 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
                             <Elements.b>Spell: </Elements.b>
                             <LinkInput
                                 value={spellInput}
+                                story={context.story}
                                 placeholder={addSpellPlaceholder}
                                 allowedTypes={allowedTypes}
                                 allowText={false}

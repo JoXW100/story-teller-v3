@@ -6,7 +6,7 @@ import type { ObjectId } from 'types'
 import type { IToken } from 'types/language'
 import type { DocumentIDataMap, DocumentIStorageMap } from 'types/database/files/factory'
 
-abstract class DatabaseFile<T extends DocumentFileType = DocumentFileType, D extends DocumentIDataMap[T] = DocumentIDataMap[T], S extends DocumentIStorageMap[T] = DocumentIStorageMap[T]> extends DatabaseObject implements IDatabaseFile<T, D, S> {
+abstract class DatabaseFile<T extends DocumentFileType = DocumentFileType, D extends DocumentIDataMap[T] = any, S extends DocumentIStorageMap[T] = any> extends DatabaseObject implements IDatabaseFile<T, D, S> {
     public readonly storyId: ObjectId
     public readonly type: T
     public readonly name: string

@@ -1,6 +1,7 @@
 import { useContext, useMemo, useState } from 'react'
 import { Tooltip } from '@mui/material'
 import { Context } from 'components/contexts/file'
+import { Context as StoryContext } from 'components/contexts/story'
 import ClearIcon from '@mui/icons-material/CloseSharp'
 import DropdownMenu from 'components/controls/dropdownMenu'
 import ListMenu from 'components/controls/menus/list'
@@ -10,16 +11,16 @@ import LinkInput from 'components/controls/linkInput'
 import { ElementDictionary } from 'components/elements'
 import { asNumber, isKeyOf, isNumber, isObjectId, keysOf } from 'utils'
 import { useAbilitiesOfCategory, useFilesOfType, useSubFiles } from 'utils/hooks/files'
+import { useLocalizedEnums } from 'utils/hooks/localization'
 import StoryScript from 'structure/language/storyscript'
 import { DocumentType } from 'structure/database'
-import type DatabaseFile from 'structure/database/files'
+import type { DocumentTypeMap } from 'structure/database/files/factory'
 import type RaceData from 'structure/database/files/race/data'
 import type ClassData from 'structure/database/files/class/data'
 import type CharacterFacade from 'structure/database/files/character/facade'
 import type { ObjectId } from 'types'
 import type { IEditorChoiceData, IEditorDocumentChoiceData, IEditorEnumChoiceData, IEditorLinkedChoiceData, IEditorValueChoiceData } from 'types/database/choice'
 import styles from '../styles.module.scss'
-import { useLocalizedEnums } from 'utils/hooks/localization'
 
 type ChoicePageProps = React.PropsWithRef<{
     facade: CharacterFacade
@@ -195,6 +196,7 @@ export const ModifierChoiceValueItem: React.FC<ModifierChoiceValueItemProps> = (
 }
 
 export const ModifierSelectDocumentItem: React.FC<ModifierChoiceDocumentItemProps> = ({ facade, choiceKey, data }) => {
+    const [context] = useContext(StoryContext)
     const [, dispatch] = useContext(Context)
     const value = getValueArray(facade.storage.choices[choiceKey], isObjectId) as ObjectId[]
     const [text, setText] = useState(String(value[0] ?? ''))
@@ -203,7 +205,7 @@ export const ModifierSelectDocumentItem: React.FC<ModifierChoiceDocumentItemProp
         dispatch.setStorage('choices', { ...facade.storage.choices, [choiceKey]: value })
     }
 
-    const handleFileChange = (file: DatabaseFile | null): void => {
+    const handleFileChange = (file: DocumentTypeMap[DocumentType] | null): void => {
         const choices: Record<string, unknown> = {}
         let flag = false
         for (const key of keysOf(facade.modifier.properties.choices)) {
@@ -226,14 +228,16 @@ export const ModifierSelectDocumentItem: React.FC<ModifierChoiceDocumentItemProp
         ? <LinkListMenu
             itemClassName={styles.dropdown}
             values={value}
+            story={context.story}
             allowedTypes={data.allowedTypes}
             onChange={handleChange}
             disabled={value.length >= data.numChoices}
             allowText={false}/>
         : <LinkInput
-            value={text}
-            allowedTypes={data.allowedTypes}
             className={styles.dropdown}
+            value={text}
+            story={context.story}
+            allowedTypes={data.allowedTypes}
             onChange={setText}
             onFileChanged={handleFileChange}
             allowText={false}/>
