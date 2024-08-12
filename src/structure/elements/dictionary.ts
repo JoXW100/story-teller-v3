@@ -68,6 +68,6 @@ export const ElementDefinitionDictionary = {
     'th': tableHeader,
     'text': new TextElement(),
     'var': new VariableElement()
-} satisfies Record<string, IElement<any>>
+} satisfies Record<string, IElement>
 
 export type ElementDefinitions = typeof ElementDefinitionDictionary

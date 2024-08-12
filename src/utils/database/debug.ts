@@ -3,7 +3,7 @@ import Database, { success } from '.'
 import type { IDBStory } from './story'
 import type { IDBFile } from './files'
 import { type CollectionName, Collections } from './constants'
-import { asBoolean, asEnum, asNumber, asObjectId, isDefined, isEnum, isObjectId, isRecord, isString, keysOf } from 'utils'
+import { asBoolean, asEnum, asNumber, asObjectId, asString, isDefined, isEnum, isObjectId, isRecord, isString, keysOf } from 'utils'
 import Logger from 'utils/logger'
 import { DieType } from 'structure/dice'
 import { CalcMode, type CalcValue, DocumentFileType, FlagType } from 'structure/database'
@@ -81,6 +81,12 @@ class DebugHandler {
         if (process.env.NODE_ENV !== 'development') {
             return fail('Debug not enabled')
         }
+        return success(false) // Prevent further calls
+        /*
+        // Move temp to main
+        await this.move('files', 'files', 'temp', 'main')
+        await this.move('stories', 'stories', 'temp', 'main')
+        // Clear
         await this.clear('files', 'backup')
         await this.clear('stories', 'backup')
         await this.clear('files', 'temp')
@@ -88,12 +94,15 @@ class DebugHandler {
         // Backup
         await this.backup('files')
         await this.backup('stories')
+        // Move current into temp
         await this.move('_document', 'files', 'main', 'temp')
         await this.move('_story', 'stories', 'main', 'temp')
-        // Convert
+        // Convert previous into temp
         await this.convertFiles('files')
         await this.convertStories('stories')
+        Logger.log('debug.done', true)
         return success(true)
+        */
     }
 
     async clear(name: CollectionName, type: keyof IDebugCollections): Promise<DBResponse<boolean>> {
@@ -133,8 +142,8 @@ class DebugHandler {
             conversions.push({
                 _id: story._id,
                 _userId: story._userId,
-                name: story.name,
-                description: story.desc,
+                name: asString(story.name, ''),
+                description: asString(story.desc, ''),
                 image: null,
                 sources: [],
                 flags: [],
@@ -237,9 +246,9 @@ class DebugHandler {
                         name: file.content.name,
                         flags: asBoolean(file.content.public) ? [FlagType.Public] : [],
                         data: TextDataFactory.simplify({
-                            title: file.metadata.name ?? '',
-                            description: file.metadata.description ?? '',
-                            content: file.content.text ?? ''
+                            title: asString(file.metadata.name, ''),
+                            description: asString(file.metadata.description, ''),
+                            content: asString(file.content.text, '')
                         }),
                         dateCreated: file.dateCreated,
                         dateUpdated: file.dateUpdated
@@ -342,9 +351,9 @@ class DebugHandler {
     private toAbilityData(metadata: IAbilityMetadata): IAbilityData {
         const base: IAbilityDataBase = {
             type: AbilityType.Feature,
-            name: metadata.name ?? '',
-            description: metadata.description ?? '',
-            notes: metadata.notes ?? '',
+            name: asString(metadata.name, ''),
+            description: asString(metadata.description, ''),
+            notes: asString(metadata.notes, ''),
             action: asEnum(metadata.action, ActionType) ?? ActionType.Action,
             charges: this.toCharges(metadata.charges, metadata.chargesReset),
             modifiers: [] // TODO: Modifiers are not converted
@@ -448,20 +457,18 @@ class DebugHandler {
         const advantages: Partial<Record<AdvantageBinding, readonly ISourceBinding[]>> = {}
         if (isRecord(metadata.advantages)) {
             for (const binding of keysOf(metadata.advantages)) {
-                const value = metadata.advantages[binding] ?? ''
                 advantages[asEnum(binding, AdvantageBinding) ?? AdvantageBinding.Generic] = [{
                     source: null,
-                    description: value
+                    description: asString(metadata.advantages[binding], '')
                 }]
             }
         }
         const disadvantages: Partial<Record<AdvantageBinding, readonly ISourceBinding[]>> = {}
         if (isRecord(metadata.disadvantages)) {
             for (const binding of keysOf(metadata.disadvantages)) {
-                const value = metadata.disadvantages[binding] ?? ''
                 disadvantages[asEnum(binding, AdvantageBinding) ?? AdvantageBinding.Generic] = [{
                     source: null,
-                    description: value
+                    description: asString(metadata.disadvantages[binding], '')
                 }]
             }
         }
@@ -518,10 +525,10 @@ class DebugHandler {
             }
         }
         return {
-            name: metadata.name ?? '',
-            description: metadata.description ?? '',
-            content: content.text ?? '',
-            portrait: metadata.portrait ?? '',
+            name: asString(metadata.name, ''),
+            description: asString(metadata.description, ''),
+            content: asString(content.text, ''),
+            portrait: asString(metadata.portrait, ''),
             type: asEnum(metadata.type, CreatureType, CreatureType.None),
             size: asEnum(metadata.size, SizeType, SizeType.Medium),
             alignment: asEnum(metadata.alignment, Alignment, Alignment.None),
@@ -600,18 +607,18 @@ class DebugHandler {
         if (metadata.notes !== undefined && metadata.notes.length > 0) {
             text += `\\h2{Notes}\n${metadata.notes}\n`
         }
-        if (text.length > 0 && (content.text ?? '').length > 0) {
+        if (text.length > 0 && asString(content.text, '').length > 0) {
             text += `\\h2{Content}\n${content.text}`
         }
         return {
             ...this.toCreatureData(metadata, { ...content, text: text }),
             gender: this.convertGender(metadata.gender),
-            age: metadata.age ?? '',
-            height: metadata.height ?? '',
-            weight: metadata.weight ?? '',
+            age: asString(metadata.age, ''),
+            height: asString(metadata.height, ''),
+            weight: asString(metadata.weight, ''),
             race: asObjectId(metadata.raceFile),
             subrace: null,
-            raceName: metadata.raceName ?? '',
+            raceName: asString(metadata.raceName, ''),
             classes: classes,
             subclasses: {},
             attunementSlots: 3
@@ -629,22 +636,22 @@ class DebugHandler {
         if (metadata.notes !== undefined && metadata.notes.length > 0) {
             text += `\\h2{Notes}\n${metadata.notes}\n`
         }
-        if (text.length > 0 && (content.text ?? '').length > 0) {
+        if (text.length > 0 && asString(content.text, '').length > 0) {
             text += `\\h2{Content}\n${content.text}`
         }
         return {
-            name: metadata.name ?? '',
-            description: metadata.description ?? '',
+            name: asString(metadata.name, ''),
+            description: asString(metadata.description, ''),
             content: text,
-            portrait: metadata.portrait ?? '',
+            portrait: asString(metadata.portrait, ''),
             type: asEnum(metadata.type, CreatureType, CreatureType.None),
             size: asEnum(metadata.size, SizeType, SizeType.Medium),
             alignment: asEnum(metadata.alignment, Alignment, Alignment.None),
-            race: metadata.raceName ?? '',
+            race: asString(metadata.raceName, ''),
             gender: this.convertGender(metadata.gender),
-            age: metadata.age ?? '',
-            height: metadata.height ?? '',
-            weight: metadata.weight ?? ''
+            age: asString(metadata.age, ''),
+            height: asString(metadata.height, ''),
+            weight: asString(metadata.weight, '')
         }
     }
 
@@ -668,7 +675,7 @@ class DebugHandler {
             spellPreparations: {},
             preparationsExpendedSlots: {},
             inventory: inventory,
-            inventoryText: storage.inventoryOther ?? '',
+            inventoryText: asString(storage.inventoryOther, ''),
             attunement: []
         }
     }
@@ -695,9 +702,9 @@ class DebugHandler {
             }
         }
         return {
-            name: metadata.name ?? '',
-            description: metadata.description ?? '',
-            content: content.text ?? '',
+            name: asString(metadata.name, ''),
+            description: asString(metadata.description, ''),
+            content: asString(content.text, ''),
             hitDie: this.convertDiceType(metadata.hitDice),
             subclassLevel: asEnum(String(metadata.subclassLevel ?? 1), ClassLevel, ClassLevel.Level1),
             levels: levels,
@@ -723,9 +730,9 @@ class DebugHandler {
             }
         }
         return {
-            name: metadata.name ?? '',
-            description: metadata.description ?? '',
-            content: content.text ?? '',
+            name: asString(metadata.name, ''),
+            description: asString(metadata.description, ''),
+            content: asString(content.text, ''),
             challenge: metadata.challenge ?? 0,
             xp: metadata.xp ?? 0,
             creatures: creatures
@@ -734,9 +741,9 @@ class DebugHandler {
 
     private toItemData(metadata: IItemMetadata, content: IFileContent): IItemData {
         const base: IItemDataBase = {
-            name: metadata.name ?? '',
-            description: metadata.description ?? '',
-            content: content.text ?? '',
+            name: asString(metadata.name, ''),
+            description: asString(metadata.description, ''),
+            content: asString(content.text, ''),
             type: ItemType.Armor,
             rarity: asEnum(metadata.rarity, Rarity) ?? Rarity.Mundane,
             attunement: metadata.requiresAttunement ?? false,
@@ -764,7 +771,7 @@ class DebugHandler {
                     ...base,
                     type: ItemType.Weapon,
                     subtype: asEnum(metadata.meleeWeaponType, MeleeWeaponType) ?? MeleeWeaponType.Battleaxe,
-                    notes: metadata.notes ?? '',
+                    notes: asString(metadata.notes, ''),
                     damageType: DamageType.None,
                     damageScaling: {},
                     damageDie: DieType.None,
@@ -778,7 +785,7 @@ class DebugHandler {
                     ...base,
                     type: ItemType.Weapon,
                     subtype: asEnum(metadata.rangedWeaponType, RangedWeaponType) ?? RangedWeaponType.Blowgun,
-                    notes: metadata.notes ?? '',
+                    notes: asString(metadata.notes, ''),
                     damageType: DamageType.None,
                     damageScaling: {},
                     damageDie: DieType.None,
@@ -793,7 +800,7 @@ class DebugHandler {
                     ...base,
                     type: ItemType.Weapon,
                     subtype: asEnum(metadata.thrownWeaponType, ThrownWeaponType) ?? ThrownWeaponType.Dagger,
-                    notes: metadata.notes ?? '',
+                    notes: asString(metadata.notes, ''),
                     damageType: DamageType.None,
                     damageScaling: {},
                     damageDie: DieType.None,
@@ -836,9 +843,9 @@ class DebugHandler {
             }
         }
         return {
-            name: metadata.name ?? '',
-            description: metadata.description ?? '',
-            content: content.text ?? '',
+            name: asString(metadata.name, ''),
+            description: asString(metadata.description, ''),
+            content: asString(content.text, ''),
             type: asEnum(metadata.type, CreatureType, CreatureType.Humanoid),
             size: asEnum(metadata.size, SizeType, SizeType.Medium),
             speed: speed,
@@ -850,13 +857,13 @@ class DebugHandler {
 
     private toSpell(metadata: ISpellMetadata): ISpellData {
         const base: ISpellDataBase = {
-            name: metadata.name ?? '',
-            description: metadata.description ?? '',
-            notes: metadata.notes ?? '',
+            name: asString(metadata.name, ''),
+            description: asString(metadata.description, ''),
+            notes: asString(metadata.notes, ''),
             level: asEnum(String(metadata.level ?? 1), SpellLevel, SpellLevel.Cantrip),
             school: asEnum(metadata.school, MagicSchool, MagicSchool.Abjuration),
             time: asEnum(metadata.time, CastingTime, CastingTime.Action),
-            timeCustom: metadata.timeCustom ?? '',
+            timeCustom: asString(metadata.timeCustom, ''),
             timeValue: asNumber(metadata.timeValue, 1),
             duration: asEnum(metadata.duration, Duration, Duration.Instantaneous),
             durationCustom: '',
@@ -869,7 +876,7 @@ class DebugHandler {
             componentVerbal: asBoolean(metadata.componentVerbal),
             componentSomatic: asBoolean(metadata.componentSomatic),
             componentMaterial: asBoolean(metadata.componentMaterial),
-            materials: metadata.materials ?? '',
+            materials: asString(metadata.materials, ''),
             effects: this.toEffects(metadata.effects)
         }
         switch (metadata.target ?? OldTargetType.None) {
@@ -989,14 +996,14 @@ class DebugHandler {
             if (effect.damageType === undefined || effect.damageType === DamageType.None) {
                 result[effect.id] = {
                     type: EffectType.Text,
-                    label: effect.label ?? '',
-                    text: effect.text ?? '',
+                    label: asString(effect.label, ''),
+                    text: asString(effect.text, ''),
                     condition: {}
                 }
             } else {
                 result[effect.id] = {
                     type: EffectType.Damage,
-                    label: effect.label ?? '',
+                    label: asString(effect.label, ''),
                     category: EffectCategory.Uncategorized,
                     damageType: effect.damageType,
                     scaling: this.toScaling(effect.scaling, effect.proficiency, effect.modifier), // TODO: scalingModifiers not converted

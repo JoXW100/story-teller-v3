@@ -167,10 +167,11 @@
 
 .no-line-break { @include fontNoLineBreak; }
 .font-normal { @include fontNormal; }
-.font-bold { @include fontBold; }
-.font-thin { @include fontThin; }
-.font-small { @include fontSmall; }
-.font-large { @include fontLarge; }
+.font-larger { font-size: larger; }
+.font-medium { font-size: medium; }
+.font-smaller { font-size: smaller; }
+.font-bold { font-weight: bold; }
+.font-thin { font-weight: 100; }
 .font-h1 { @include fontHeader1; }
 .font-h2 { @include fontHeader2; }
 .font-h3 { @include fontHeader3; }

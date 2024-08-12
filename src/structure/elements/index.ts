@@ -11,6 +11,7 @@ export interface IElement<T extends Record<string, any> = any> {
     readonly name: string
     readonly defaultParam: keyof T | null
     readonly params: { [K in keyof T]: IElementParam<T[K]> }
+    readonly init: (token: CommandToken) => void
     readonly parse: (token: CommandToken, key?: string) => React.ReactNode
     readonly create: (params: T, key?: string, children?: React.ReactNode) => React.ReactNode
 }
@@ -23,6 +24,9 @@ export abstract class Element<T extends Record<string, any> = any> implements IE
 
     public constructor(element?: React.FC<{ key?: string } & T>) {
         this.element = element
+    }
+
+    public init(token: CommandToken): void {
     }
 
     public parse(token: CommandToken, key?: string): React.ReactNode {

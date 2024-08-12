@@ -49,7 +49,7 @@ export function asKeyOf<T extends string | number | symbol, O>(key: unknown, val
 }
 
 export function isURLString(value: string): boolean {
-    return /https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,}/.test(value)
+    return URL.canParse(value)
 }
 
 /**
@@ -86,6 +86,12 @@ export function asNumber<O>(value: unknown, other: O): number | O
 export function asNumber<O>(value: unknown, other: O | number = NaN): number | O {
     const tmp = Number(value)
     return value === null || isNaN(tmp) ? other : tmp
+}
+
+export function asString(value: unknown): string | null
+export function asString<O>(value: unknown, other: O): string | O
+export function asString<O>(value: unknown, other: O | null = null): string | O | null {
+    return isString(value) ? value : null
 }
 
 export function isBoolean(value: unknown): value is boolean {

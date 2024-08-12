@@ -112,11 +112,11 @@ const CharacterInventoryPage: React.FC<CharacterInventoryPageProps> = ({ facade,
         <>
             <CollapsibleGroup header={<LocalizedText id='renderer-inventory'/>}>
                 <div className={styles.inventoryHeader}>
-                    <LocalizedText className='font-bold' id='render-inventory-equipped'/>
-                    <LocalizedText className='font-bold' id='render-inventory-name'/>
-                    <LocalizedText className='font-bold' id='render-inventory-weight'/>
-                    <LocalizedText className='font-bold' id='render-inventory-quantity'/>
-                    <LocalizedText className='font-bold' id='render-inventory-cost'/>
+                    <LocalizedText className='font-bold font-smaller' id='render-inventory-equipped'/>
+                    <LocalizedText className='font-bold font-smaller' id='render-inventory-name'/>
+                    <LocalizedText className='font-bold font-smaller' id='render-inventory-weight'/>
+                    <LocalizedText className='font-bold font-smaller' id='render-inventory-quantity'/>
+                    <LocalizedText className='font-bold font-smaller' id='render-inventory-cost'/>
                 </div>
                 { keysOf(items).sort(handleSort).map((key) => {
                     const item = items[key]

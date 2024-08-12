@@ -690,7 +690,6 @@ $size: $iconSmallSize;
 .inventoryHeader {
     display: grid;
     grid-template-columns: $iconNormalSize 1fr 1.5 * $iconNormalSize 1.5 * $iconNormalSize 1.5 * $iconNormalSize;
-    font-size: small;
     border-bottom: 2px solid;
     padding-right: $iconNormalSize;
     justify-items: center;
@@ -704,8 +703,9 @@ $size: $iconSmallSize;
 .inventoryAttunementDropdown {
     background-color: colorInGroup(second, decoration) !important;
     color: colorInGroup(second, text) !important;
-    height: $iconSmallSize !important;
+    height: $iconSmallSize;
     margin-bottom: 5px;
+    width: 100%;
 }
 
 .inventoryInput {

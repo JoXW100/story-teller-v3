@@ -55,7 +55,6 @@ export const Context = React.createContext<AppContextProvider>([
 ])
 
 const setPalette = (palette: keyof typeof Palettes): void => {
-    console.log('setPalette', palette)
     if (typeof window !== 'undefined') {
         keysOf(Palettes[palette]).forEach((color) => {
             const value: string = Palettes[palette][color]
@@ -84,7 +83,6 @@ const reducer: React.Reducer<AppContextState, AppContextAction> = (state, action
             return state
         }
         case 'setOption': {
-            console.log('setOption', action.data)
             switch (action.data.field) {
                 case 'palette': {
                     const value = asKeyOf(action.data.value, Palettes, defaultContextState.palette)

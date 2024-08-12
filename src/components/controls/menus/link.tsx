@@ -126,8 +126,6 @@ const EditComponent: React.FC<ListTemplateComponentProps<string, string, LinkLis
         }
     }
 
-    console.log('here', params)
-
     return (
         <LinkInput
             className={params.editClassName}

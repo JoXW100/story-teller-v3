@@ -48,8 +48,8 @@ class StoryCollection {
 
     constructor (database: Db, test: boolean) {
         const name = test
-            ? Collections._story.test
-            : Collections._story.main
+            ? Collections.stories.test
+            : Collections.stories.main
         this.collection = database.collection<IDBStory>(name)
     }
 
@@ -255,7 +255,7 @@ class StoryCollection {
      */
     async getAll(userId: string): Promise<DBResponse<IDatabaseStory[]>> {
         try {
-            const result = (await this.collection.aggregate<IDatabaseStory>([
+            const result = await this.collection.aggregate<IDatabaseStory>([
                 {
                     $match: {
                         _userId: userId
@@ -274,8 +274,8 @@ class StoryCollection {
                         dateUpdated: '$dateUpdated'
                     } satisfies KeysOfTwo<IDatabaseStory, object>
                 }
-            ]).toArray())
-            Logger.log('story.getAll', result.length, result.map(x => x.name))
+            ]).toArray()
+            Logger.log('story.getAll', result.length, result.map(x => x.name), result[0])
             return success(result)
         } catch (error) {
             Logger.error('story.getAll', error)
@@ -294,7 +294,7 @@ class StoryCollection {
      */
     async getAllAvailableSources(userId: string): Promise<DBResponse<IDatabaseStory[]>> {
         try {
-            const result = (await this.collection.aggregate<IDatabaseStory>([
+            const result = await this.collection.aggregate<IDatabaseStory>([
                 {
                     $addFields: {
                         valid: {
@@ -319,7 +319,7 @@ class StoryCollection {
                         dateUpdated: '$dateUpdated'
                     } satisfies KeysOfTwo<IDatabaseStory, object>
                 }
-            ]).toArray())
+            ]).toArray()
             Logger.log('story.getAll', result.length, result.map(x => x.name))
             return success(result)
         } catch (error) {
@@ -339,7 +339,7 @@ class StoryCollection {
      */
     async getLastUpdated(userId: string): Promise<DBResponse<IDatabaseStory | null>> {
         try {
-            const result = (await this.collection.aggregate<IDatabaseStory>([
+            const result = await this.collection.aggregate<IDatabaseStory>([
                 {
                     $match: {
                         _userId: userId
@@ -386,7 +386,7 @@ class StoryCollection {
                         dateUpdated: '$dateUpdated'
                     } satisfies KeysOfTwo<IDatabaseStory, object>
                 }
-            ]).toArray())
+            ]).toArray()
 
             if (result.length > 0) {
                 Logger.log('story.getLastUpdated', result[0].name)

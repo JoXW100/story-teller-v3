@@ -12,6 +12,7 @@ import type { IAbilityAttackDataBase, IAbilityData, IAbilityFeatureData } from '
 const roll20AbilityExpr = /^(?:([\w ]+): *)?([^\.]+)\. *(?:([a-z ]+): *([+-][0-9]+) *to hit,?.*[a-z ]+([0-9]+(?:\/[0-9]+)?)[^.]+\.,? *([^.]+)[^:]+: *(?:[0-9]+)? *\(([0-9]+)d([0-9]+) *([+-] *[0-9]+)?\) *(\w+)[^.]+. *)/mi
 const roll20FeatureSimpleExpr = /^(?:([\w ]+): *)?([^\.]+)\. *([\s\S]*)/mi
 const rollTextExpr = /([0-9]+d[0-9]+ *[+-]? *[0-9]+)( *)/ig
+const checkTextExpr = /DC +([0-9]+) *(?:(\w+)?( *))/ig
 
 function getAbilityType(ability: string): AbilityType {
     switch (ability?.toLowerCase()) {
@@ -117,9 +118,8 @@ export function isValidAbilityFormat(text: string): boolean {
 }
 
 export function toRichText(text: string): string {
-    text = text.replace(rollTextExpr, (_, match, spaces) => String(spaces ?? '').length > 0
-        ? `\\roll[${match}]~`
-        : `\\roll[${match}]`)
+    text = text.replace(rollTextExpr, (_, match: string, spaces: string) => `\\roll[${match}]${spaces.length > 0 ? '~' : ''}`)
+    text = text.replace(checkTextExpr, (_, dc: string, type?: string, spaces?: string) => `\\check[${dc}${type !== undefined ? `, type: ${type}]${spaces!.length > 0 ? '~' : ''}` : ']'}`)
     return text.replace(/\n{2,}/g, '\n\\space\n')
 }
 

@@ -88,6 +88,7 @@ abstract class Communication {
                     result.push(StoryFactory.create(story))
                 }
             }
+            Logger.log('Communication.getAllStories', result)
             return { success: true, result: result }
         }
         return response

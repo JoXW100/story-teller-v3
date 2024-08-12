@@ -93,8 +93,8 @@ class FileCollection {
 
     constructor (database: Db, test: boolean) {
         const name = test
-            ? Collections._document.test
-            : Collections._document.main
+            ? Collections.files.test
+            : Collections.files.main
         this.collection = database.collection<IDBFile>(name)
     }
 

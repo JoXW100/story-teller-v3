@@ -75,7 +75,7 @@ class CommandToken extends Token {
 
     public build(key?: string): React.ReactNode {
         if (this._keyword !== null) {
-            return this.elements[this._keyword].parse(this as any, key)
+            return this.elements[this._keyword].parse(this, key)
         }
     }
 
@@ -96,6 +96,13 @@ class CommandToken extends Token {
                 kind: monaco.languages.CompletionItemKind.Function
             }
         }) as CompletionItem[]
+    }
+
+    public override finalize(tokenizer: Tokenizer, message?: string): void {
+        super.finalize(tokenizer, message)
+        if (this._keyword !== null) {
+            this.elements[this._keyword].init(this)
+        }
     }
 }
 
