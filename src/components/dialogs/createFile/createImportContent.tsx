@@ -15,10 +15,10 @@ import Communication from 'utils/communication'
 import Logger from 'utils/logger'
 import { open5eCreatureImporter, open5eSpellImporter } from 'utils/importers/open5eImporter'
 import { DocumentType } from 'structure/database'
+import SpellDataFactory from 'structure/database/files/spell/factory'
+import { CreatureDataFactory } from 'structure/database/files/creature/factory'
 import type { IOpen5eItemInfo, ICompendiumMenuItem } from 'types/open5eCompendium'
 import styles from './style.module.scss'
-import SpellDataFactory from 'structure/database/files/spell/factory'
-import CreatureDataFactory from 'structure/database/files/creature/factory'
 
 interface ImportContentState {
     menu: ICompendiumMenuItem

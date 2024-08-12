@@ -8,8 +8,8 @@ import Logger from 'utils/logger'
 import { DieType } from 'structure/dice'
 import { CalcMode, type CalcValue, DocumentFileType, FlagType } from 'structure/database'
 import AbilityDataFactory from 'structure/database/files/ability/factory'
-import CreatureDataFactory, { CreatureStorageFactory } from 'structure/database/files/creature/factory'
-import CharacterDataFactory, { CharacterStorageFactory } from 'structure/database/files/character/factory'
+import { CreatureDataFactory, CreatureStorageFactory } from 'structure/database/files/creature/factory'
+import { CharacterDataFactory, CharacterStorageFactory } from 'structure/database/files/character/factory'
 import ClassDataFactory from 'structure/database/files/class/factory'
 import TextDataFactory from 'structure/database/files/text/factory'
 import { EncounterDataFactory } from 'structure/database/files/encounter/factory'
@@ -580,7 +580,8 @@ class DebugHandler {
             healthTemp: null,
             abilitiesExpendedCharges: {},
             spellsExpendedSlots: spellsExpendedSlots,
-            choices: {}
+            choices: {},
+            conditions: []
         }
     }
 
