@@ -16,10 +16,10 @@ const App: React.FC<AppProps> = ({ Component, pageProps, router }) => {
                 <link rel="icon" href="/storyteller.ico" />
                 <meta name="google-site-verification" content="HLSInHx7aA7G6nENh3w_NwmSZlAPOkS7aUuSXNOeNOg" />
                 <meta key="description" name="description" content="Create your own story!" />
-                <meta key="og:title" property="og:title" content="Story Teller 2"/>
+                <meta key="og:title" property="og:title" content="Story Teller"/>
                 <meta key="og:description" property="og:description" content="Create your own story!"/>
                 <meta key="og:type" property="og:type" content="website" />
-                <meta key="og:image" property="og:image" content="https://story-teller-v2.vercel.app/storyteller.png"/>
+                <meta key="og:image" property="og:image" content="https://story-teller-site.vercel.app/storyteller.png"/>
                 <meta key="twitter:card" property="twitter:card" content="summary"/>
             </Head>
             <AppContext>

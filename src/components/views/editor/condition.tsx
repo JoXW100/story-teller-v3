@@ -6,7 +6,6 @@ import GroupComponent from './components/group'
 import LocalizedText from 'components/controls/localizedText'
 import TextComponent from './components/text'
 import ModifiersInputComponent from './components/modifiersInput'
-import { ElementDictionary } from 'components/elements'
 import ConditionDocument from 'structure/database/files/condition'
 import styles from './style.module.scss'
 
@@ -17,7 +16,7 @@ const ConditionDocumentEditor: React.FC = () => {
         return null
     }
 
-    const [descriptionContext] = context.file.data.createDescriptionContexts(ElementDictionary)
+    const [descriptionContext] = context.file.data.createContexts()
 
     return (
         <div className={styles.main}>

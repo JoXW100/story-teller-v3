@@ -29,7 +29,7 @@
             "common-unsavedChanges-description": "Leaving the page may result in lost changes.",
 
             "app-name": "Story Teller",
-            "app-name-full": "Story Teller v3.0.0",
+            "app-version": "Version: @1",
             "button-settings": "Settings",
             "button-home": "Home",
             "button-edit": "Edit",
@@ -57,6 +57,7 @@
             "settings-viewMode": "View mode",
             "settings-enableColorFileByType": "Color files by type",
             "settings-enableEditorWordWrap": "Editor word wrap",
+            "settings-hideRolls": "Roll20: Hide Rolls",
             "stories-header": "Stories",
             "stories-card-addStory": "Create Story",
             "stories-card-tooltip-delete": "Delete",

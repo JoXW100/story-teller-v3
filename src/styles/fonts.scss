@@ -34,9 +34,8 @@ $fontDocument: 'Mrs Eaves';
 }
 
 @mixin fontHeader1 {
-    @include fontNoLineBreak;
     font-size: xx-large;
-    font-weight: 300;
+    font-weight: bold;
 }
 
 @mixin fontHeader2 {

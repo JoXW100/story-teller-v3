@@ -7,7 +7,7 @@ import Navigation from 'utils/navigation'
 const SettingsButton: React.FC = () => {
     return (
         <Tooltip title={<LocalizedText className='no-line-break' id='button-settings'/>}>
-            <Link href={Navigation.settingsURL(location.pathname)}>
+            <Link className='square' href={Navigation.settingsURL(location.pathname)}>
                 <button className='center-flex fill-height square'>
                     <Icon icon='settings'/>
                 </button>

@@ -198,6 +198,7 @@ abstract class Beyond20 {
 
     private static sendMessage (message: any): void {
         const event = new CustomEvent(this.EventId, { detail: [message] })
+        console.log('sendMessage', event.detail)
         document.dispatchEvent(event)
     }
 }

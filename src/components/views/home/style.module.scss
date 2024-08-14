@@ -6,9 +6,8 @@
 
 .view {
     @include scroll;
-    display: grid;
-    grid-template-rows: auto minmax(0, $menuHeaderHeight) 1fr;
-    grid-template-columns: minmax(0, 1fr);
+    display: flex;
+    flex-direction: column;
     gap: 10px;
     width: 100%;
     height: 100%;
@@ -19,12 +18,30 @@
     @include colorWithShadow(main);
     @include fontHeader1;
     @include centerGrid;
+    position: relative;
     border-radius: 10px;
     margin: 0 10px;
+    padding: 5px;
+    height: $menuHeaderHeight;
+    width: 100%;
 
     @include desktop {
-        justify-self: center;
+        align-self: center;
         width: $desktop-width;
+    }
+
+    .versionBox {
+        @include colorWithShadow(second);
+        @include centerGrid;
+        position: absolute;
+        right: -10px;
+        bottom: -10px;
+        font-size: small;
+        overflow: hidden;
+        height: 20px;
+        border-radius: 10px;
+        padding: 0 10px;
+        font-weight: normal;
     }
 }
 
@@ -43,13 +60,15 @@
 }
 
 .contentHolder {
+    @include scroll;
     display: grid;
-    grid-template-rows: repeat(auto-fill, $smallMenuHeight);
     gap: 10px;
     padding: 10px;
     width: 100%;
     max-width: $desktop-width;
-    justify-self: center;
+    align-self: center;
+    overflow-y: auto;
+    overflow-x: hidden;
         
     @include desktop {
         grid-template-columns: 1fr 1fr;
@@ -66,6 +85,7 @@
     & > button {
         @include colorInteractiveWithShadow();
         padding: 10px;
+        height: $smallMenuHeight;
 
         & > div {
             @include centerGrid;

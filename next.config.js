@@ -1,5 +1,11 @@
+/* eslint-disable */
+const { version } = require('./package.json');
+
 module.exports = {
     reactStrictMode: true,
+    env: {
+        version
+    },
     webpack(config) {
         config.module.rules.push({
             test: /\.svg$/,

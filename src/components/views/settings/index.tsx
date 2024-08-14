@@ -74,6 +74,13 @@ const SettingsView: React.FC<SettingsViewParams> = ({ returnPath }) => {
                         value={context.enableEditorWordWrap}
                         onChange={(value) => { dispatch.setOption('enableEditorWordWrap', value) }}/>
                 </span>
+
+                <LocalizedText className='center-vertical-flex' id='settings-hideRolls'/>
+                <span>
+                    <Checkbox
+                        value={context.hideRolls}
+                        onChange={(value) => { dispatch.setOption('hideRolls', value) }}/>
+                </span>
             </div>
         </div>
     )

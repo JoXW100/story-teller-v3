@@ -79,7 +79,7 @@ const HomeView: React.FC = () => {
             <AppBar headerId='home-header' iconId='home'>
                 { user === undefined
                     ? <Tooltip title={<LocalizedText className={styles.headerButtonTooltips} id='login-user'/>}>
-                        <Link href={Navigation.LoginAPI}>
+                        <Link className='square' href={Navigation.LoginAPI}>
                             <button className={styles.headerButton}>
                                 <LocalizedText className='no-line-break label-xl mobile-hide' id='login-user'/>
                                 <LoginIcon/>
@@ -87,7 +87,7 @@ const HomeView: React.FC = () => {
                         </Link>
                     </Tooltip>
                     : <Tooltip title={<LocalizedText className={styles.headerButtonTooltips} id='logout-user' args={[user?.name ?? '']}/>}>
-                        <Link href={Navigation.LogoutAPI}>
+                        <Link className='square' href={Navigation.LogoutAPI}>
                             <button className={styles.headerButton}>
                                 <LocalizedText className='no-line-break label-xl mobile-hide' id='logout-user' args={[user?.name ?? '']}/>
                                 <LogoutIcon/>
@@ -106,7 +106,10 @@ const HomeView: React.FC = () => {
             </AppBar>
 
             <div className={styles.headerContainer}>
-                <LocalizedText id='app-name-full'/>
+                <LocalizedText className='center-vertical-flex no-line-break' id='app-name'/>
+                <div className={styles.versionBox}>
+                    <LocalizedText id='app-version' args={[process.env.version ?? '-']}/>
+                </div>
             </div>
 
             <div className={styles.contentHolder}>

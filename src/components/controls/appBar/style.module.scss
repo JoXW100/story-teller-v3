@@ -6,6 +6,7 @@
 .main {
     @include colorWithShadow(main);
     display: flex;
+    position: sticky;
     flex-direction: row-reverse;
     height: $pageHeaderHeight;
     gap: 1px;

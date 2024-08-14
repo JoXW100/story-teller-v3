@@ -40,7 +40,7 @@ const RollHistoryButton: React.FC<RollHistoryButtonProps> = ({ disabled = false 
         <div
             data={String(toggled || open)}
             className={styles.holder}>
-            <Tooltip title={<LocalizedText id={tooltip}/>}>
+            <Tooltip className='square' title={<LocalizedText id={tooltip}/>}>
                 <div className='center-flex fill-height'>
                     <button
                         className='center-flex fill square'

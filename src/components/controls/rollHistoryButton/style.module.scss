@@ -32,6 +32,10 @@
         display: none;
     }
 
+    &[data=false] {
+        aspect-ratio: 1 / 1;
+    }
+
     &[data=true] {
         @include colorShadow(second);
         margin-right: 2px;

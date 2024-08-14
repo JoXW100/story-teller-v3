@@ -17,15 +17,15 @@ const AppBar: React.FC<AppBarProps> = ({ children, headerId, headerArgs, iconId,
     return (
         <div id='app-bar' className={styles.main}>
             { handleBack !== undefined &&
-                <Tooltip title={<LocalizedText id='component-appBar-backButton-tooltips'/>}>
-                    <button className='square' onClick={handleBack}>
+                <Tooltip className='square' title={<LocalizedText id='component-appBar-backButton-tooltips'/>}>
+                    <button onClick={handleBack}>
                         <BackIcon/>
                     </button>
                 </Tooltip>
             }
             { children }
             <span className={styles.header}>
-                <Icon icon={iconId}/>
+                <Icon className='icon' icon={iconId}/>
                 <LocalizedText className='no-line-break' id={headerId} args={headerArgs}/>
             </span>
         </div>

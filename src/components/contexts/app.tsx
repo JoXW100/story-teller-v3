@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useReducer } from 'react'
 import { asBoolean, asEnum, asKeyOf, isKeyOf, keysOf } from 'utils'
 import Storage from 'utils/storage'
+import Beyond20, { WhisperType } from 'utils/beyond20'
 import { TextData, type ITextData, type LanguageType } from 'assets'
 import Palettes from 'assets/palettes'
 import type { ContextProvider, DispatchAction, DispatchActionNoData, ISetFieldData } from 'types/context'
@@ -141,6 +142,10 @@ const AppContext: React.FC<React.PropsWithChildren> = ({ children }) => {
     const memoisedDispatch = useMemo<AppContextDispatch>(() => ({
         setOption(field, value) { dispatch({ type: 'setOption', data: { field: field, value: value } }) }
     }), [dispatch])
+
+    useEffect(() => {
+        Beyond20.initialize(state.hideRolls ? WhisperType.YES : WhisperType.NO)
+    }, [state.hideRolls])
 
     return (
         <Context.Provider value={[state, memoisedDispatch]}>
