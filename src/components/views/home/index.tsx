@@ -79,7 +79,7 @@ const HomeView: React.FC = () => {
             <AppBar headerId='home-header' iconId='home'>
                 { user === undefined
                     ? <Tooltip title={<LocalizedText className={styles.headerButtonTooltips} id='login-user'/>}>
-                        <Link className='square' href={Navigation.LoginAPI}>
+                        <Link href={Navigation.LoginAPI}>
                             <button className={styles.headerButton}>
                                 <LocalizedText className='no-line-break label-xl mobile-hide' id='login-user'/>
                                 <LoginIcon/>
@@ -87,7 +87,7 @@ const HomeView: React.FC = () => {
                         </Link>
                     </Tooltip>
                     : <Tooltip title={<LocalizedText className={styles.headerButtonTooltips} id='logout-user' args={[user?.name ?? '']}/>}>
-                        <Link className='square' href={Navigation.LogoutAPI}>
+                        <Link href={Navigation.LogoutAPI}>
                             <button className={styles.headerButton}>
                                 <LocalizedText className='no-line-break label-xl mobile-hide' id='logout-user' args={[user?.name ?? '']}/>
                                 <LogoutIcon/>

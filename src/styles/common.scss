@@ -102,7 +102,13 @@
 .gap-4 { gap: 4px; }
 .gap-5 { gap: 5px; }
 
-.square { aspect-ratio: 1 / 1; }
+.square { 
+    aspect-ratio: 1 / 1; 
+}
+
+a > .square {
+    aspect-ratio: 1 / 1; 
+}
 
 .icon {
     @extend .square;

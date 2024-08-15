@@ -10,7 +10,7 @@ const EditButton: React.FC = () => {
     const [context] = useContext(Context)
     return (
         <Tooltip title={<LocalizedText className='no-line-break' id='button-edit'/>}>
-            <Link className='square' href={Navigation.editURL(!context.editEnabled)}>
+            <Link href={Navigation.editURL(!context.editEnabled)}>
                 <button className='center-flex fill-height square'>
                     <Icon icon='edit'/>
                 </button>

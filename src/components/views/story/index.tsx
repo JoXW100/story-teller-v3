@@ -1,6 +1,7 @@
 import { useContext } from 'react'
 import { useRouter } from 'next/router'
-import { Context } from 'components/contexts/story'
+import { Context as AppContext, ViewMode } from 'components/contexts/app'
+import { Context as StoryContext } from 'components/contexts/story'
 import RollContext from 'components/contexts/roll'
 import AppBar from 'components/controls/appBar'
 import FileSystem from 'components/controls/fileSystem'
@@ -20,7 +21,8 @@ interface StoryViewProps {
 
 const StoryView: React.FC<StoryViewProps> = ({ fileId }) => {
     const router = useRouter()
-    const [context] = useContext(Context)
+    const [appContext] = useContext(AppContext)
+    const [storyContext] = useContext(StoryContext)
 
     const handleBack = (): void => {
         void router.push(Navigation.homeURL())
@@ -29,23 +31,25 @@ const StoryView: React.FC<StoryViewProps> = ({ fileId }) => {
     return (
         <div className={styles.view}>
             <RollContext>
-                <AppBar headerId='empty' headerArgs={[context.story.name]} iconId='story' handleBack={handleBack}>
+                <AppBar headerId='empty' headerArgs={[storyContext.story.name]} iconId='story' handleBack={handleBack}>
                     <SettingsButton/>
                     <EditButton/>
                     <RollHistoryButton/>
                 </AppBar>
-                <Divider
-                    className='fill-width'
-                    leftClassName='z-2'
-                    rightClassName='z-1'
-                    defaultSlider={0}
-                    collapsed={!context.sidePanelExpanded}
-                    minLeft='8em'
-                    minRight='2em'
-                    left={<FileSystem fileId={fileId}/>}
-                    right={<FileView fileId={fileId} editEnabled={context.editEnabled}/>}
-                    collapsedLeft={<FileSystemCollapsedMenu/>}
-                />
+                { storyContext.editEnabled && appContext.viewMode === ViewMode.SplitView
+                    ? <Divider
+                        className='fill-width'
+                        leftClassName='z-2'
+                        rightClassName='z-1'
+                        defaultSlider={0}
+                        collapsed={!storyContext.sidePanelExpanded}
+                        minLeft='8em'
+                        minRight='2em'
+                        left={<FileSystem fileId={fileId}/>}
+                        right={<FileView fileId={fileId} editEnabled={storyContext.editEnabled}/>}
+                        collapsedLeft={<FileSystemCollapsedMenu/>}/>
+                    : <FileView fileId={fileId} editEnabled={storyContext.editEnabled}/>
+                }
             </RollContext>
         </div>
     )
