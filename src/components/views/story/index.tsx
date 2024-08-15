@@ -14,6 +14,7 @@ import FileView from 'components/views/fileView'
 import Navigation from 'utils/navigation'
 import type { ObjectId } from 'types'
 import styles from './style.module.scss'
+import { isObjectId } from 'utils'
 
 interface StoryViewProps {
     fileId: ObjectId | null
@@ -36,7 +37,7 @@ const StoryView: React.FC<StoryViewProps> = ({ fileId }) => {
                     <EditButton/>
                     <RollHistoryButton/>
                 </AppBar>
-                { storyContext.editEnabled && appContext.viewMode === ViewMode.SplitView
+                { (storyContext.editEnabled || appContext.viewMode === ViewMode.SplitView)
                     ? <Divider
                         className='fill-width'
                         leftClassName='z-2'
@@ -48,7 +49,9 @@ const StoryView: React.FC<StoryViewProps> = ({ fileId }) => {
                         left={<FileSystem fileId={fileId}/>}
                         right={<FileView fileId={fileId} editEnabled={storyContext.editEnabled}/>}
                         collapsedLeft={<FileSystemCollapsedMenu/>}/>
-                    : <FileView fileId={fileId} editEnabled={storyContext.editEnabled}/>
+                    : isObjectId(fileId)
+                        ? <FileView fileId={fileId} editEnabled={storyContext.editEnabled}/>
+                        : <FileSystem fileId={fileId}/>
                 }
             </RollContext>
         </div>
