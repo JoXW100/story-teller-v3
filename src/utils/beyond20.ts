@@ -196,9 +196,8 @@ abstract class Beyond20 {
         } satisfies Beyond20RollRequest)
     }
 
-    private static sendMessage (message: any): void {
+    private static sendMessage (message: Beyond20RollRequest): void {
         const event = new CustomEvent(this.EventId, { detail: [message] })
-        console.log('sendMessage', event.detail)
         document.dispatchEvent(event)
     }
 }

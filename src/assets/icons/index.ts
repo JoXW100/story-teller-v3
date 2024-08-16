@@ -23,6 +23,15 @@ import CylinderIcon from './shapes/cylinder.svg'
 import LineIcon from './shapes/line.svg'
 import SquareIcon from './shapes/square.svg'
 import SphereIcon from './shapes/sphere.svg'
+// Dice
+import D100Icon from './dice/d100.svg'
+import D20Icon from './dice/d20.svg'
+import D12Icon from './dice/d12.svg'
+import D10Icon from './dice/d10.svg'
+import D8Icon from './dice/d8.svg'
+import D6Icon from './dice/d6.svg'
+import D4Icon from './dice/d4.svg'
+import DXIcon from './dice/dX.svg'
 // documents
 import DocumentIcon from '@mui/icons-material/InsertDriveFileSharp'
 import CharacterIcon from '@mui/icons-material/PersonSharp'
@@ -83,6 +92,15 @@ const IconMap = {
     'line': LineIcon as React.FC<IconParams>,
     'sphere': SphereIcon as React.FC<IconParams>,
     'square': SquareIcon as React.FC<IconParams>,
+    // dice
+    'd4': D4Icon as React.FC<IconParams>,
+    'd6': D6Icon as React.FC<IconParams>,
+    'd8': D8Icon as React.FC<IconParams>,
+    'd10': D10Icon as React.FC<IconParams>,
+    'd12': D12Icon as React.FC<IconParams>,
+    'd20': D20Icon as React.FC<IconParams>,
+    'd100': D100Icon as React.FC<IconParams>,
+    'dx': DXIcon as React.FC<IconParams>,
     // documents
     'story': StoryIcon as React.FC<IconParams>,
     'ability': HandIcon as React.FC<IconParams>,

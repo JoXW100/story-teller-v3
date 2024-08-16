@@ -1,6 +1,5 @@
 import { useContext, useMemo } from 'react'
 import { Tooltip } from '@mui/material'
-import { D20Icon } from 'assets/dice'
 import Icon from 'components/controls/icon'
 import { openContext } from 'components/controls/contextMenu'
 import { Context } from 'components/contexts/roll'
@@ -43,7 +42,7 @@ const RollComponent: React.FC<RollElementParams> = ({ children, dice, critRange,
             ? [
                 {
                     text: 'roll-normal',
-                    icon: <D20Icon/>,
+                    icon: <Icon icon='d20'/>,
                     action: () => { roll(RollMethodType.Normal) }
                 },
                 {
@@ -55,7 +54,7 @@ const RollComponent: React.FC<RollElementParams> = ({ children, dice, critRange,
             : [
                 {
                     text: 'roll-normal',
-                    icon: <D20Icon/>,
+                    icon: <Icon icon='d20'/>,
                     action: () => { roll(RollMethodType.Normal) }
                 },
                 {

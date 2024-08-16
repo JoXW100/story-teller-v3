@@ -2,6 +2,8 @@ import type Random from 'structure/random'
 
 export enum DieType {
     None = 'none',
+    D2 = 'd2',
+    D3 = 'd3',
     D4 = 'd4',
     D6 = 'd6',
     D8 = 'd8',
@@ -23,7 +25,7 @@ export enum RollMethodType {
 }
 
 export enum RollType {
-    General = 'general',
+    Generic = 'generic',
     Attack = 'attack',
     Damage = 'damage',
     Save = 'save',
@@ -148,6 +150,10 @@ export function parseDieType(num: number | string, other: DieType = DieType.DX):
     switch (Number(num)) {
         case 0:
             return DieType.None
+        case 2:
+            return DieType.D2
+        case 3:
+            return DieType.D3
         case 4:
             return DieType.D4
         case 6:
@@ -171,6 +177,10 @@ export function numberFromDieType(type: DieType): number {
     switch (type) {
         case DieType.None:
             return 0
+        case DieType.D2:
+            return 2
+        case DieType.D3:
+            return 3
         case DieType.D4:
             return 4
         case DieType.D6:

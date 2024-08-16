@@ -62,7 +62,7 @@ const EffectRenderer: React.FC<EffectRendererProps> = ({ data, properties, bonus
                         critRange={properties.critRange}
                         critDieCount={properties.critDieCount}
                         mode={RollMethodType.Normal}
-                        type={RollType.General}/>
+                        type={RollType.Generic}/>
                 </div>
             )
     }

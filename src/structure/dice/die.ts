@@ -41,6 +41,8 @@ export class Die extends DiceBase {
             case DieType.None:
             case DieType.DX:
                 break
+            case DieType.D2:
+            case DieType.D3:
             case DieType.D4:
             case DieType.D6:
             case DieType.D8:

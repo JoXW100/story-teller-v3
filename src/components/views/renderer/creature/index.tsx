@@ -175,7 +175,7 @@ const CreatureDocumentRenderer: React.FC = () => {
                             critRange={facade.critRange}
                             critDieCount={facade.critDieCount}
                             mode={RollMethodType.Normal}
-                            type={RollType.General}/>
+                            type={RollType.Generic}/>
                     </Elements.align>
                     <Elements.space/>
                     <Elements.align direction='vc' weight='1' width={null}>

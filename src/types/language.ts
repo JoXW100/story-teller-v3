@@ -1,9 +1,10 @@
 import type { Monaco } from '@monaco-editor/react'
-import type { editor, languages, Position as IPosition, IMarkdownString, IDisposable } from 'monaco-editor'
+import type { editor, languages, Position as IPosition, IMarkdownString, IDisposable, Range as IRange } from 'monaco-editor'
 import type Tokenizer from 'structure/language/tokenizer'
 
 export type MonacoType = Monaco
 export type MonacoEditor = editor.IStandaloneCodeEditor
+export type MonacoMouseEvent = editor.IEditorMouseEvent
 export type MonacoModel = editor.ITextModel
 export type MarkerData = editor.IMarkerData
 export type MonacoDisposable = IDisposable
@@ -11,6 +12,7 @@ export type CompletionItem = languages.CompletionItem
 export type MarkdownString = IMarkdownString
 export type TokenContext = Record<string, IToken | null>
 export type Position = IPosition
+export type Range = IRange
 export type MonarchLanguage = languages.IMonarchLanguage
 export type CompletionItemProvider = languages.CompletionItemProvider
 export type HoverProvider = languages.HoverProvider

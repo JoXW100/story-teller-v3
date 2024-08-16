@@ -24,7 +24,7 @@ class RollElement extends Element<RollElementParams> {
             parse: (value) => value
         },
         'type': {
-            default: RollType.General,
+            default: RollType.Generic,
             validate: (value) => isEnum(value, RollType),
             parse: (value) => value as RollType
         },

@@ -23,6 +23,10 @@ const ItemDataFactory: IDatabaseFactory<IItemData, ItemData> = {
                 return new ItemToolData(data)
             case ItemType.Weapon:
                 return ItemWeaponDataFactory.create(data)
+            case ItemType.Consumable:
+                return new ItemConsumableData(data)
+            case ItemType.Other:
+                return new ItemOtherData(data)
             default:
                 return new ItemWondrousItemData(data as IItemWondrousItemData)
         }

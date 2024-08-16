@@ -1,21 +1,28 @@
 import type { ContextRowData } from './types'
-import styles from './style.module.scss'
 import LocalizedText from 'components/controls/localizedText'
+import styles from './style.module.scss'
 
 type ContextMenuItemProps = React.PropsWithRef<{
     data: ContextRowData
 }>
 
 const ContextMenuItem: React.FC<ContextMenuItemProps> = ({ data }) => {
+    let option: 'hide' | 'content' | undefined
+    if (data.hide === true) {
+        option = 'hide'
+    } else if (Array.isArray(data.content)) {
+        option = 'content'
+    }
     return (
         <div
             id={data.id}
             className={styles.item}
             onContextMenu={(e) => { e.preventDefault() }}
             onClick={data.action}
-            data={(data.enabled ?? true) ? data.content !== undefined ? 'content' : undefined : 'hide'}>
+            data={option}
+            disabled={data.disabled}>
             { data.icon }
-            <LocalizedText id={data.text}/>
+            <LocalizedText className='no-line-break' id={data.text}/>
             {Array.isArray(data.content) && data.content.length > 0 &&
                 <div className={styles.content}>
                     { data.content.map((data, index) =>

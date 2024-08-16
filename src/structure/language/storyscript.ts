@@ -15,12 +15,13 @@ class StoryScript {
     }
 
     public register(monaco: MonacoType): void {
-        if (this.isRegistered) {
+        const language = { id: 'storyscript' }
+        if (this.isRegistered || monaco.languages.getLanguages().includes(language)) {
             return
         }
 
         this.isRegistered = true
-        monaco.languages.register({ id: 'storyscript' })
+        monaco.languages.register(language)
         this.disposable.push(monaco.languages.setMonarchTokensProvider('storyscript', this.createMonarchTokensProvider()))
         this.disposable.push(monaco.languages.registerCompletionItemProvider('storyscript', this.createCompletionItemProvider(monaco)))
         this.disposable.push(monaco.languages.registerHoverProvider('storyscript', this.createHoverProvider(monaco)))

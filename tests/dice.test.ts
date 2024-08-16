@@ -47,9 +47,9 @@ describe('Dice parsing', () => {
     })
 
     test('Test dX parsing', () => {
-        const die = Die.parse('d3')
+        const die = Die.parse('d5')
 
-        expect(die.size).toBe(3)
+        expect(die.size).toBe(5)
         expect(die.type).toBe(DieType.DX)
     })
 })

@@ -1,0 +1,102 @@
+@import 'styles/colors.scss';
+@import 'styles/prefabs.scss';
+@import 'styles/animations.scss';
+
+$width: 40px;
+$diceWidth: 35px;
+$numWidth: 15px;
+
+.main {
+    @include colorWithShadow(second);
+    @include centerGrid;
+    position: relative;
+    gap: 2.5px;
+    top: 3px;
+    padding: 2.5px 0;
+    right: 0;
+    border-radius: $width / 2.0;
+    width: $width;
+}
+
+.holder {
+    position: absolute;
+    z-index: 100;
+    right: 0;
+
+    &[data=true] {
+        @include contentSlideIn(200ms);
+        display: block;
+    }
+
+    &[data=false] {
+        @include contentSlideOut(200ms);
+        display: none;
+    }
+}
+
+.buttonHolder {
+    position: relative;
+
+    @include mobile {
+        display: none;
+    }
+
+    &[data=open] {
+        @include colorShadow(second);
+        & > * {
+            @include desktop {
+                width: $smallMenuWidth;
+            }
+            @include mobile-landscape {
+                width: $mobile-smallMenuWidth;
+            }
+            @include mobile {
+                width: $mobile-smallMenuWidth;
+            }
+        }
+    }
+}
+
+
+.dice {
+    @include colorShadow(interactive);
+    @include centerFlex;
+    position: relative;
+    border-radius: $width / 2.0;
+    padding: 4px;
+    width: $diceWidth;
+    height: $diceWidth;
+
+    & > .number {
+        @include colorWithShadow(interactive);
+        @include centerFlex;
+        position: absolute;
+        padding: 0 3px;
+        right: -1px;
+        bottom: -1px;
+        height: $numWidth;
+        width: fit-content;
+        font-size: small;
+        border-radius: $numWidth / 2.0;
+        user-select: none;
+    }
+}
+
+.rollBackground {
+    @include colorWithShadow(second);
+    position: absolute;
+    display: flex;
+    right: 0;
+    top: 3px;
+    width: 120px;
+    border-radius: $width / 2.0;
+    height: $width;
+    user-select: none;
+}
+
+.roll {
+    @include centerFlex;
+    z-index: 1000;
+    border-radius: $width / 2.0;
+    width: 75px;
+}

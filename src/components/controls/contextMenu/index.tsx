@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import ContextMenuItem from './menuItem'
-import type { Point, ContextRowData, ContextMenuEvent, ContextEventDetails } from './types'
+import type { IPoint, ContextRowData, ContextMenuEvent, ContextEventDetails } from './types'
 import styles from './style.module.scss'
 
 interface ContextMenuState {
@@ -98,7 +98,7 @@ const ContextMenu: React.FC = () => {
         : null
 }
 
-export const openContext = (content: ContextRowData[], point: Point, interrupt: boolean = true): void => {
+export const openContext = (content: ContextRowData[], point: IPoint, interrupt: boolean = true): void => {
     document.dispatchEvent(new CustomEvent<ContextEventDetails>('contextMenu', {
         bubbles: true,
         detail: {

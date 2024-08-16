@@ -7,27 +7,26 @@
     display: block;
     position: absolute;
     z-index: 1000;
+    height: auto;
 }
 
 .item {
     @include colorInteractiveControl;
-    @include fontNoLineBreak;
     @include fontThin;
     display: grid;
+    position: relative;
+    user-select: none;
     grid-template-columns: $iconSmallSize auto;
     gap: 5px;
-    position: relative;
-    padding: 2.5px 10px 2.5px 2px;
+    padding: 2.5px 15px 2.5px 2px;
     height: 26px;
-    user-select: none;
-    width: 100%;
 
     & > svg {
         width: $iconSmallSize;
         height: $iconSmallSize;
     }
 
-    & > span, svg {
+    & > svg, span {
         pointer-events: none;
     }
 
@@ -42,21 +41,22 @@
             content: " ";
         }
 
-        &:hover > .content { 
+        &:hover > div { 
             visibility: visible; 
-        }
-        
-        & > .content {
-            @include colorShadow(input);
-            visibility: hidden;
-            display: block;
-            width: 100%;
-            height: fit-content;
-            transform: translateX(calc(100% + 10px)) translateY(-2.5px);
         }
     }
 
     &[data=hide] {
         display: none;
     }
+}
+
+.content {
+    @include colorWithShadow(input);
+    position: absolute;
+    visibility: hidden;
+    display: block;
+    width: max-content;
+    height: max-content;
+    left: 100%;
 }

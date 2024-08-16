@@ -3,7 +3,7 @@ import type React from 'react'
 
 export type ContextMenuEvent = CustomEvent<ContextEventDetails>
 
-export interface Point {
+export interface IPoint {
     x: number
     y: number
 }
@@ -12,7 +12,8 @@ export interface ContextRowData {
     text: LanguageKey
     icon: React.ReactNode
     id?: string
-    enabled?: boolean
+    hide?: boolean
+    disabled?: boolean
     action?: React.MouseEventHandler
     content?: ContextRowData[]
 }
