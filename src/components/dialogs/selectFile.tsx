@@ -10,14 +10,14 @@ import Loading from 'components/controls/loading'
 import LocalizedText from 'components/controls/localizedText'
 import SearchBar from 'components/controls/searchBar'
 import Error from 'components/controls/error'
-import type { DocumentType } from 'structure/database'
 import type { DocumentTypeMap } from 'structure/database/files/factory'
+import type { ValueOf } from 'types'
 import type { DialogArgs } from 'types/dialog'
 import styles from './style.module.scss'
 
 interface ISelectFileDialogState {
-    selected: DocumentTypeMap[DocumentType] | null
-    files: Array<DocumentTypeMap[DocumentType]>
+    selected: ValueOf<DocumentTypeMap> | null
+    files: Array<ValueOf<DocumentTypeMap>>
     search: string
     loading: boolean
     error: string | null
@@ -61,7 +61,7 @@ const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, storyId, all
             }
             (isDefined(parentFile)
                 ? Communication.getSubFiles(parentFile, allowedTypes[0], sources)
-                : Communication.getAllFilesOfTypes(storyId, allowedTypes, sources)
+                : Communication.getAllFiles(storyId, allowedTypes, [], sources)
             ).then((response) => {
                 if (response.success) {
                     setState((state) => ({ ...state, files: response.result, loading: false, error: null }))

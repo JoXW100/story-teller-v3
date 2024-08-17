@@ -1,15 +1,16 @@
 import { useRouter } from 'next/router'
+import Renderer from '../renderer'
 import AppBar from 'components/controls/appBar'
 import SettingsButton from 'components/controls/settingsButton'
 import RollHistoryButton from 'components/controls/rollHistoryButton'
 import RollContext from 'components/contexts/roll'
-import FileView from 'components/views/fileView'
+import FileContext from 'components/contexts/file'
 import Navigation from 'utils/navigation'
 import type { ObjectId } from 'types'
 import styles from './style.module.scss'
 
 interface ViewViewProps {
-    fileId: ObjectId | null
+    fileId: ObjectId
 }
 
 const ViewView: React.FC<ViewViewProps> = ({ fileId }) => {
@@ -26,7 +27,9 @@ const ViewView: React.FC<ViewViewProps> = ({ fileId }) => {
                     <SettingsButton/>
                     <RollHistoryButton/>
                 </AppBar>
-                <FileView fileId={fileId}/>
+                <FileContext fileId={fileId}>
+                    <Renderer/>
+                </FileContext>
             </RollContext>
         </div>
     )

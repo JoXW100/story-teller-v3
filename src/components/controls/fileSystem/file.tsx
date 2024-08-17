@@ -1,17 +1,21 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
+import Icon from '../icon'
 import RemoveIcon from '@mui/icons-material/Remove'
 import RenameIcon from '@mui/icons-material/DriveFileRenameOutline'
 import CopyIcon from '@mui/icons-material/ContentCopySharp'
 import OpenIcon from '@mui/icons-material/OpenInBrowserSharp'
 import OpenInNewPageIcon from '@mui/icons-material/LaunchSharp'
 import DuplicateIcon from '@mui/icons-material/DifferenceSharp'
+import StarIcon from '@mui/icons-material/StarRateSharp'
+import StarEmptyIcon from '@mui/icons-material/StarBorderSharp'
 import { openContext } from '../contextMenu'
 import { Context as FileSystemContext } from './context'
-import IconMap, { type IconParams } from 'assets/icons'
+import IconMap from 'assets/icons'
 import { Context as AppContext } from 'components/contexts/app'
+import { asKeyOf } from 'utils'
 import Navigation from 'utils/navigation'
-import { type DocumentFileType, DocumentType } from 'structure/database'
+import { FlagType } from 'structure/database'
 import type { IFileStructure } from 'types/database'
 import styles from './fileStyle.module.scss'
 
@@ -19,46 +23,15 @@ type FileProps = React.PropsWithRef<{
     file: IFileStructure
 }>
 
-export function getFileIcon(type: DocumentFileType): React.FC<IconParams> {
-    switch (type) {
-        case DocumentType.Ability:
-            return IconMap.ability
-        case DocumentType.Character:
-        case DocumentType.NPC:
-            return IconMap.character
-        case DocumentType.Class:
-        case DocumentType.Subclass:
-            return IconMap.class
-        case DocumentType.Condition:
-            return IconMap.condition
-        case DocumentType.Creature:
-            return IconMap.creature
-        case DocumentType.Encounter:
-            return IconMap.encounter
-        case DocumentType.Spell:
-            return IconMap.spell
-        case DocumentType.Modifier:
-            return IconMap.settings
-        case DocumentType.Item:
-            return IconMap.item
-        case DocumentType.Race:
-        case DocumentType.Subrace:
-            return IconMap.character
-        case DocumentType.Text:
-        default:
-            return IconMap.document
-    }
-}
-
 const File: React.FC<FileProps> = ({ file }) => {
     const [app] = useContext(AppContext)
     const [context, dispatch] = useContext(FileSystemContext)
     const [state, setState] = useState({ inEditMode: false, text: file.name })
     const router = useRouter()
     const ref = useRef<HTMLInputElement | null>(null)
-    const Icon = getFileIcon(file.type)
     const isSelected = useMemo(() => context.selected === file.id, [file.id, context.selected])
     const contextID = useMemo(() => `${file.id}-context-rename-item`, [file.id])
+    const isFavorite = file.flags.includes(FlagType.Favorite)
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e): void => {
         if (e.key === 'Enter') {
@@ -85,6 +58,7 @@ const File: React.FC<FileProps> = ({ file }) => {
     const handleContext = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>): void => {
         e.preventDefault()
         e.stopPropagation()
+        const isFavorite = file.flags.includes(FlagType.Favorite)
         openContext([
             {
                 text: 'fileSystem-file-open',
@@ -96,6 +70,17 @@ const File: React.FC<FileProps> = ({ file }) => {
                 icon: <OpenInNewPageIcon/>,
                 action: () => window.open(Navigation.fileURL(file.id))
             },
+            isFavorite
+                ? {
+                    text: 'fileSystem-file-unfavorite',
+                    icon: <StarEmptyIcon/>,
+                    action: () => { dispatch.setFavoriteFile(file, false) }
+                }
+                : {
+                    text: 'fileSystem-file-favorite',
+                    icon: <StarIcon/>,
+                    action: () => { dispatch.setFavoriteFile(file, true) }
+                },
             {
                 text: 'fileSystem-file-copyId',
                 icon: <CopyIcon/>,
@@ -170,7 +155,7 @@ const File: React.FC<FileProps> = ({ file }) => {
             onContextMenu={handleContext}
             draggable={!state.inEditMode}
             data={app.enableColorFileByType ? file.type : undefined}>
-            <Icon/>
+            <Icon icon={asKeyOf(file.type, IconMap) ?? 'txt'}/>
             <input
                 ref={ref}
                 type='text'
@@ -179,6 +164,9 @@ const File: React.FC<FileProps> = ({ file }) => {
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
                 value={state.text}/>
+            { isFavorite &&
+                <StarIcon className='square icon-small'/>
+            }
         </div>
     )
 }

@@ -63,6 +63,7 @@
             "stories-card-tooltip-delete": "Delete",
             "stories-card-tooltip-edit": "Edit",
             "stories-card-tooltip-dateUpdated": "Last Updated",
+            "stories-dialog-getAllStories": "Failed to load stories: @1",
             "create-story-header": "Create Story",
             "create-story-label-name": "Name",
             "create-story-label-description": "Description",
@@ -77,7 +78,6 @@
             "create-story-dialog-getPublicStories": "Failed to get public stories: @1",
             "create-story-dialog-addStory": "Failed to add story: @1",
             "create-story-dialog-updateStory": "Failed to update story: @1",
-            "stories-dialog-getAllStories": "Failed to load stories: @1",
 
             "dialog-confirm-deletion-header": "Confirm deletion of '@1'",
             "dialog-confirm-common-body": "Are you sure you want to take a short rest?",
@@ -111,10 +111,13 @@
             "dialog-selectFile-button": "Select @1",
             "dialog-selectFile-noFiles": "No files available.",
             "dialog-manageConditions-header": "Manage Conditions",
+
             "component-searchBar-placeholder": "Search ...",
             "component-appBar-backButton-tooltips": "Back",
+
             "filter-menu-header": "Filters",
             "filter-menu-showEmptyFolders": "Empty folders",
+
             "fileSystem-create-file-tooltips": "New File",
             "fileSystem-create-folder-tooltips": "New Folder",
             "fileSystem-create-import-tooltips": "Import",
@@ -124,23 +127,33 @@
             "fileSystem-file-copyId": "Copy ID",
             "fileSystem-file-open": "Open file",
             "fileSystem-file-openNewTab": "Open file in new tab",
+            "fileSystem-file-favorite": "Favorite",
+            "fileSystem-file-unfavorite": "Un-Favorite",
             "fileSystem-dialog-load": "Failed to load file structure: @1",
             "fileSystem-dialog-update": "Failed to update file @1, changes not saved: @2",
             "fileSystem-dialog-addFile": "Failed to add file @1: @2",
             "fileSystem-dialog-deleteFile": "Failed to delete file @1: @2",
             "fileSystem-dialog-moveFile": "Failed to move file @1: @2",
             "fileSystem-dialog-copyFile": "Failed to copy file @1: @2",
+
+            "fileHomeView-favorites": "Favorites",
+            "fileHomeView-recent": "Recently Updated",
+            "fileHomeView-empty": "Start your story by creating some files!",
+
             "rollHistory-button-open-tooltips": "Open roll history menu",
             "rollHistory-button-close-tooltips": "Close roll history menu",
             "rollHistory-entry-roll": "Total: ",
+
             "dicePanel-roll": "Roll",
             "dicePanel-roll-tooltips": "Roll selected dice",
             "dicePanel-open": "Open dice menu",
             "dicePanel-close": "Close dice menu",
+
             "roll-normal": "Roll Normal",
             "roll-crit": "Roll Critical",
             "roll-advantage": "Roll Advantage",
             "roll-disadvantage": "Roll Disadvantage",
+
             "renderer-zoomIn": "Zoom In",
             "renderer-zoomOut": "Zoom Out",
 

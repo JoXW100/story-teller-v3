@@ -1,5 +1,6 @@
 import { useContext } from 'react'
 import { useRouter } from 'next/router'
+import FileView from './fileView'
 import { Context as AppContext, ViewMode } from 'components/contexts/app'
 import { Context as StoryContext } from 'components/contexts/story'
 import RollContext from 'components/contexts/roll'
@@ -11,9 +12,7 @@ import DieButton from 'components/controls/dicePanel/diceButton'
 import SettingsButton from 'components/controls/settingsButton'
 import RollHistoryButton from 'components/controls/rollHistoryButton'
 import FileSystemCollapsedMenu from 'components/controls/fileSystem/collapsedMenu'
-import FileView from 'components/views/fileView'
 import Navigation from 'utils/navigation'
-import { isObjectId } from 'utils'
 import type { ObjectId } from 'types'
 import styles from './style.module.scss'
 
@@ -27,7 +26,11 @@ const StoryView: React.FC<StoryViewProps> = ({ fileId }) => {
     const [storyContext] = useContext(StoryContext)
 
     const handleBack = (): void => {
-        void router.push(Navigation.homeURL())
+        if (fileId === null) {
+            void router.push(Navigation.homeURL())
+        } else {
+            void router.push(Navigation.storyURL(storyContext.story.id))
+        }
     }
 
     return (
@@ -42,8 +45,8 @@ const StoryView: React.FC<StoryViewProps> = ({ fileId }) => {
                 { (storyContext.editEnabled || appContext.viewMode === ViewMode.SplitView)
                     ? <Divider
                         className='fill-width'
-                        leftClassName='z-2'
                         rightClassName='z-1'
+                        leftClassName='z-2'
                         defaultSlider={0}
                         collapsed={!storyContext.sidePanelExpanded}
                         minLeft='8em'
@@ -51,9 +54,7 @@ const StoryView: React.FC<StoryViewProps> = ({ fileId }) => {
                         left={<FileSystem fileId={fileId}/>}
                         right={<FileView fileId={fileId} editEnabled={storyContext.editEnabled}/>}
                         collapsedLeft={<FileSystemCollapsedMenu/>}/>
-                    : isObjectId(fileId)
-                        ? <FileView fileId={fileId} editEnabled={storyContext.editEnabled}/>
-                        : <FileSystem fileId={fileId}/>
+                    : <FileView fileId={fileId} editEnabled={storyContext.editEnabled}/>
                 }
             </RollContext>
         </div>

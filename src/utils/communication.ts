@@ -117,6 +117,35 @@ abstract class Communication {
         return null
     }
 
+    public static async getLastUpdatedFiles(storyId: ObjectId, count: number = 1): Promise<DBResponse<Array<DocumentTypeMap[DocumentType]>>> {
+        const response = await this.databaseFetch<IDatabaseFile[]>('getLastUpdatedFiles', 'GET', {
+            storyId: storyId,
+            count: count
+        })
+
+        if (response.success) {
+            if (!response.result.every(value => DocumentFactory.validate(value))) {
+                Logger.error('Communication.getLastUpdatedFiles', response.result)
+                return { success: false, result: 'Failed to get file, validation failed' }
+            } else {
+                const result: Array<DocumentTypeMap[DocumentType]> = []
+                for (const document of response.result) {
+                    const instance = DocumentFactory.create(document)
+                    if (instance === null) {
+                        throw new Error('Validated file creation resulted in null value')
+                    }
+                    this.cache[instance.id] = instance
+                    result.push(instance as DocumentTypeMap[DocumentType])
+                }
+                return {
+                    success: true,
+                    result: result
+                }
+            }
+        }
+        return response
+    }
+
     public static async addStory(name: string, description: string, image: string | null, sources: ObjectId[], flags: FlagType[]): Promise<DBResponse<ObjectId>> {
         Logger.log('Communication.addStory', name, description, image, sources, flags)
         const response = await this.databaseFetch<ObjectId>('addStory', 'PUT', {
@@ -149,7 +178,7 @@ abstract class Communication {
         return response
     }
 
-    public static async getFile<T>(fileId: ObjectId, type?: T): Promise<DBResponse<ValueOf<DocumentTypeMap>>>
+    public static async getFile(fileId: ObjectId, type?: any): Promise<DBResponse<ValueOf<DocumentTypeMap>>>
     public static async getFile<T extends DocumentType>(fileId: ObjectId, type: T): Promise<DBResponse<DocumentTypeMap[T]>>
     public static async getFile<T extends DocumentType>(fileId: ObjectId, type?: T): Promise<DBResponse<DocumentTypeMap[T] | ValueOf<DocumentTypeMap>>> {
         if (fileId in this.cache && (type === undefined || this.cache[fileId].type === type)) {
@@ -247,21 +276,23 @@ abstract class Communication {
         return response
     }
 
-    public static async getAllFilesOfTypes<T extends readonly DocumentType[]>(storyId: ObjectId, allowedTypes: T, sources: ObjectId[] = []): Promise<DBResponse<Array<DocumentTypeMap[T[number]]>>> {
+    public static async getAllFiles(allowedTypes?: any, requiredFlags?: FlagType[], sources?: readonly ObjectId[]): Promise<DBResponse<Array<ValueOf<DocumentTypeMap>>>>
+    public static async getAllFiles<T extends readonly DocumentType[]>(allowedTypes: T, requiredFlags?: readonly FlagType[], sources?: readonly ObjectId[]): Promise<DBResponse<Array<DocumentTypeMap[T[number]]>>>
+    public static async getAllFiles<T extends readonly DocumentType[]>(allowedTypes?: T, requiredFlags?: readonly FlagType[], sources?: readonly ObjectId[]): Promise<DBResponse<Array<DocumentTypeMap[T[number]] | ValueOf<DocumentTypeMap>>>> {
         const response = await this.databaseFetch<IDatabaseFile[]>('getAll', 'GET', {
-            storyId: storyId,
-            allowedTypes: allowedTypes,
-            sources: sources
+            sources: sources ?? [],
+            allowedTypes: allowedTypes ?? [],
+            requiredFlags: requiredFlags ?? []
         })
         if (response.success) {
             if (!response.result.every(value => DocumentFactory.validate(value))) {
-                Logger.error('Communication.getAllFilesOfTypes', response.result)
+                Logger.error('Communication.getAllFiles', response.result)
                 return { success: false, result: 'Failed to get file, type missmatch' }
             } else {
                 return {
                     success: true,
                     result: response.result.map(value => {
-                        const instance = DocumentFactory.createOfTypes(value, allowedTypes)
+                        const instance = DocumentFactory.create(value)
                         if (instance === null) {
                             throw new Error('Validated file creation resulted in null value')
                         }

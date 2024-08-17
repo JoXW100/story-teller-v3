@@ -294,9 +294,13 @@ type FileHeaderProps = React.PropsWithoutRef<{
     file: DatabaseFile
 }>
 
-const FileHeader: React.FC<FileHeaderProps> = ({ file }): JSX.Element => {
-    const fileTitle = (file != null ? file.getTitle() + ' - ' : '') + 'Story Teller'
-    const fileDescription = file?.getDescription() ?? 'Create your own story!'
+const FileHeader: React.FC<FileHeaderProps> = ({ file }) => {
+    if (file === null) {
+        return null
+    }
+
+    const fileTitle = `${file.getTitle()} - Story Teller`
+    const fileDescription = file.getDescription()
 
     return (
         <Head>

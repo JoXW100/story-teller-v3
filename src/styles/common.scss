@@ -163,6 +163,7 @@ a > .square {
 .color-interactive { @include colorInteractive; }
 .color-interactive-shadow { @include colorInteractiveWithShadow; }
 
+.margin-none { margin: 0; }
 .margin-small { margin: 2px; }
 .margin-medium { margin: 5px; }
 .margin-large { margin: 10px; }

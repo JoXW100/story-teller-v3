@@ -129,7 +129,7 @@ abstract class Beyond20 {
             attack_rolls: roll.result.rolls.map((res, index) => ({
                 total: res.sum,
                 discarded: roll.result.selected !== index,
-                parts: [interleave<Beyond20Dice | number | string>(this.getParts(res), '+'), res.modifier !== 0 ? [res.modifier > 0 ? '+' : '-', Math.abs(res.modifier)] : []].flat(),
+                parts: [interleave<Beyond20Dice | number | string>(this.getParts(res), '+'), res.modifier !== 0 ? [res.modifier >= 0 ? '+' : '-', Math.abs(res.modifier)] : []].flat(),
                 formula: roll.result.dice.stringify()
             })),
             damage_rolls: [],
@@ -151,7 +151,7 @@ abstract class Beyond20 {
                     'critical-failure': isFail(res),
                     discarded: roll.result.selected !== index,
                     total: res.sum + res.modifier,
-                    parts: [interleave<Beyond20Dice | number | string>(this.getParts(res), '+'), res.modifier !== 0 ? [res.modifier > 0 ? '+' : '-', Math.abs(res.modifier)] : []].flat(),
+                    parts: [interleave<Beyond20Dice | number | string>(this.getParts(res), '+'), res.modifier !== 0 ? [res.modifier >= 0 ? '+' : '-', Math.abs(res.modifier)] : []].flat(),
                     formula: roll.result.dice.stringify()
                 } satisfies Beyond20Roll, 1]
             )),
@@ -170,12 +170,12 @@ abstract class Beyond20 {
                 initiative: (modifier >= 0 ? '+' : '-') + Math.abs(modifier),
                 sendMessage: true
             },
-            title: `${roll.description}${modifier !== 0 ? ` (${modifier > 0 ? '+' : '-'}${Math.abs(modifier)})` : ''}`,
+            title: `${roll.description}${modifier !== 0 ? ` (${modifier >= 0 ? '+' : '-'}${Math.abs(modifier)})` : ''}`,
             character: roll.source ?? roll.result.dice.stringify(),
             attack_rolls: roll.result.rolls.map((res, index) => ({
                 total: res.sum,
                 discarded: roll.result.selected !== index,
-                parts: [interleave<Beyond20Dice | number | string>(this.getParts(res), '+'), modifier !== 0 ? [modifier > 0 ? '+' : '-', Math.abs(modifier)] : []].flat(),
+                parts: [interleave<Beyond20Dice | number | string>(this.getParts(res), '+'), modifier !== 0 ? [modifier >= 0 ? '+' : '-', Math.abs(modifier)] : []].flat(),
                 formula: roll.result.dice.stringify()
             })),
             damage_rolls: [],

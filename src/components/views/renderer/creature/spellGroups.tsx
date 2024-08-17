@@ -31,7 +31,7 @@ const SpellGroups: React.FC<SpellGroupsProps> = ({ facade, spells, spellSlots, e
         }
         return categories
     }, [spellSlots, spells])
-    const attributes = facade.spells
+    const spellAttributeMap = facade.spells
 
     return (
         <>
@@ -51,7 +51,12 @@ const SpellGroups: React.FC<SpellGroupsProps> = ({ facade, spells, spellSlots, e
                         <SpellToggleRenderer
                             key={id}
                             data={spells[id]}
-                            properties={{ ...stats, spellAttribute: attributes[id] ?? OptionalAttribute.None }}
+                            properties={{
+                                ...stats,
+                                spellAttribute: spellAttributeMap[id] !== OptionalAttribute.None
+                                    ? spellAttributeMap[id] ?? facade.spellAttribute
+                                    : facade.spellAttribute
+                            }}
                             startCollapsed/>
                     )}
                     <Elements.space/>

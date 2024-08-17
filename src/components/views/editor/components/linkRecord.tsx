@@ -2,7 +2,8 @@ import React, { useContext } from 'react'
 import EditIcon from '@mui/icons-material/EditSharp'
 import type { EditorPageKeyType } from '..'
 import GroupItemComponent from './groupItem'
-import { Context } from 'components/contexts/file'
+import { Context as FileContext } from 'components/contexts/file'
+import { Context as StoryContext } from 'components/contexts/story'
 import LinkRecordMenu, { type ILinkRecordMenuButtonProps } from 'components/controls/menus/linkRecord'
 import type { LanguageKey } from 'assets'
 import { asBooleanString, isEnum, isNumber, isObjectId, isRecord, isString, getRelativeFieldObject } from 'utils'
@@ -29,7 +30,8 @@ type LinkRecordComponentParams = React.PropsWithChildren<{
 }>
 
 const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type, editPage, enumType, allowedTypes, defaultValue, labelId, labelArgs, placeholderId, placeholderArgs, fill = false }) => {
-    const [context, dispatch] = useContext(Context)
+    const [storyContext] = useContext(StoryContext)
+    const [context, dispatch] = useContext(FileContext)
     const placeholder = useLocalizedText(placeholderId, placeholderArgs)
     const buttonTooltips = useLocalizedText('common-edit')
     const options = useLocalizedEnums(enumType)
@@ -99,6 +101,7 @@ const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type,
                     editClassName={styles.editRecordItem}
                     type={type}
                     value={value as Record<ObjectId, string>}
+                    story={storyContext.story}
                     defaultValue={String(defaultValue)}
                     onChange={handleChange}
                     placeholder={placeholder}
@@ -110,6 +113,7 @@ const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type,
                     editClassName={styles.editRecordItem}
                     type={type}
                     value={value as Record<ObjectId, number>}
+                    story={storyContext.story}
                     defaultValue={Number(defaultValue)}
                     onChange={handleChange}
                     placeholder={placeholder}
@@ -121,6 +125,7 @@ const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type,
                     editClassName={styles.editRecordItem}
                     type={type}
                     value={value as Record<ObjectId, string>}
+                    story={storyContext.story}
                     options={options}
                     defaultValue={option!.default}
                     onChange={handleChange}
@@ -134,6 +139,7 @@ const LinkRecordComponent: React.FC<LinkRecordComponentParams> = ({ field, type,
                     editClassName={styles.editRecordItem}
                     buttonContent={<EditIcon className='small-icon'/>}
                     value={value as Record<ObjectId, object>}
+                    story={storyContext.story}
                     defaultValue={defaultValue as object}
                     onChange={handleChange}
                     onClick={handleClick}

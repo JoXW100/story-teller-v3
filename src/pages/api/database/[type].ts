@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { ObjectId } from 'mongodb'
 import { withApiAuthRequired, getSession } from '@auth0/nextjs-auth0'
-import { asBoolean, isEnum, isNumber, isObjectId, isObjectIdOrNull, isRecord, isString } from 'utils'
+import { asBoolean, isEnum, isObjectId, isObjectIdOrNull, isRecord, isString } from 'utils'
 import Database, { failure, success } from 'utils/database'
 import Logger from 'utils/logger'
 import { DocumentFileType, FlagType } from 'structure/database'
@@ -36,6 +36,9 @@ function toObjectIdNull(value: unknown): ObjectId | null {
 
 function toObjectIdArray(value: unknown): ObjectId[] {
     try {
+        if (value === '') {
+            return []
+        }
         const array = (Array.isArray(value) ? value : typeof value === 'string' ? value.split(',') : [])
         return array.map(toObjectId)
     } catch (e: unknown) {
@@ -80,11 +83,11 @@ function toStringOrNull(value: unknown): string | null {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function toNumber(value: unknown): number {
-    if (isNumber(value)) {
-        return Number(value)
-    } else {
+    const res = Number(value)
+    if (isNaN(res)) {
         throw new DBError('toNumber', value)
     }
+    return res
 }
 
 function toEnum<T extends Enum>(value: unknown, type: T): T[keyof T] {
@@ -97,6 +100,9 @@ function toEnum<T extends Enum>(value: unknown, type: T): T[keyof T] {
 
 function toEnumArray<T extends Enum>(value: unknown, type: T): Array<T[keyof T]> {
     try {
+        if (value === '') {
+            return []
+        }
         const array = (Array.isArray(value) ? value : typeof value === 'string' ? value.split(',') : [])
         return array.map((value) => toEnum(value, type))
     } catch (e: unknown) {
@@ -138,16 +144,18 @@ async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void>
                     { res.status(200).json(await Database.stories?.getAllAvailableSources(userId) ?? failure()); return }
                     case 'getLastUpdatedStory':
                     { res.status(200).json(await Database.stories?.getLastUpdated(userId) ?? failure()); return }
+                    case 'getLastUpdatedFiles':
+                    { res.status(200).json(await Database.files?.getLastUpdated(userId, toObjectId(params.storyId), toNumber(params.count)) ?? failure()); return }
                     case 'getFile':
                     { res.status(200).json(await Database.files?.get(userId, toObjectId(params.fileId), toEnumArray(params.allowedTypes, DocumentFileType)) ?? failure()); return }
                     case 'getFiles':
                     { res.status(200).json(await Database.files?.getMultiple(userId, toObjectIdArray(params.fileIds), toEnumArray(params.allowedTypes, DocumentFileType)) ?? failure()); return }
                     case 'getSubFiles':
-                    { res.status(200).json(await Database.files?.getSubFiles(userId, toObjectId(params.parentId), toEnum(params.fileType, DocumentFileType), toObjectIdArray(params.sources)) ?? failure()); return }
+                    { res.status(200).json(await Database.files?.getSubFiles(userId, toObjectIdArray(params.sources), toObjectId(params.parentId), toEnum(params.fileType, DocumentFileType)) ?? failure()); return }
                     case 'getAbilitiesOfCategory':
                     { res.status(200).json(await Database.files?.getAbilitiesOfCategory(userId, toString(params.category)) ?? failure()); return }
                     case 'getAll':
-                    { res.status(200).json(await Database.files?.getAll(userId, toObjectIdArray(params.sources), toEnumArray(params.allowedTypes, DocumentFileType)) ?? failure()); return }
+                    { res.status(200).json(await Database.files?.getAll(userId, toObjectIdArray(params.sources), toEnumArray(params.allowedTypes, DocumentFileType), toEnumArray(params.requiredFlags, FlagType)) ?? failure()); return }
                     case 'getFileStructure':
                     { res.status(200).json(await Database.files?.getStructure(userId, toObjectId(params.storyId)) ?? failure()); return }
                     default: break

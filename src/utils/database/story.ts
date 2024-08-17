@@ -388,12 +388,11 @@ class StoryCollection {
                 }
             ]).toArray()
 
+            Logger.log('story.getLastUpdated', result[0].name)
             if (result.length > 0) {
-                Logger.log('story.getLastUpdated', result[0].name)
                 return success(result[0])
             } else {
-                Logger.warn('story.getLastUpdated', null)
-                return failure('User has no stories')
+                return success(null)
             }
         } catch (error) {
             Logger.error('story.getLastUpdated', error)

@@ -139,12 +139,13 @@ class FileCollection {
             }
 
             const time = Date.now()
-            const request: Omit<IDBFile, '_id' | 'flags'> = {
+            const request: Omit<IDBFile, '_id'> = {
                 _userId: userId,
                 _storyId: storyId,
                 _holderId: holderId,
                 type: type,
                 name: name,
+                flags: [],
                 data: data,
                 dateCreated: time,
                 dateUpdated: time
@@ -169,7 +170,14 @@ class FileCollection {
         }
     }
 
-    /** Adds a copy of a file to the database */
+    /**
+     * Adds a copy of a file to the database
+     * @param userId The Auth0 sub of the user
+     * @param fileId The id of the file to copy
+     * @param holderId The parent folder of the new file
+     * @param name The name of the new file
+     * @returns True if a copy was created, False otherwise, or an error message
+     */
     async addCopy (userId: string, fileId: ObjectId, holderId: ObjectId, name: string): Promise<DBResponse<boolean>> {
         try {
             if (name.length === 0) {
@@ -448,7 +456,7 @@ class FileCollection {
      * @param allowedTypes The allowed typed of the files
      * @returns The documents with the given ids, or an error message
      */
-    async getMultiple(userId: string, fileIds: ObjectId[], allowedTypes?: DocumentFileType[]): Promise<DBResponse<IDatabaseFile[]>> {
+    async getMultiple(userId: string, fileIds: ObjectId[], allowedTypes: DocumentFileType[]): Promise<DBResponse<IDatabaseFile[]>> {
         try {
             if (fileIds.length === 0) {
                 return success([])
@@ -457,7 +465,7 @@ class FileCollection {
                 {
                     $match: {
                         _id: { $in: fileIds },
-                        type: allowedTypes !== undefined && allowedTypes?.length > 0
+                        type: allowedTypes.length > 0
                             ? { $in: allowedTypes }
                             : { $nin: [FileType.Root, FileType.Empty] }
                     } satisfies KeysOfTwo<IDatabaseFile, object>
@@ -486,10 +494,12 @@ class FileCollection {
     /**
      * Gets all allowed documents from the database
      * @param userId The Auth0 sub of the user
-     * @param allowedTypes The allowed typed of the files
+     * @param sources The stories to find files from, empty means all
+     * @param allowedTypes The allowed typed of the files, empty means all
+     * @param requiredFlags The required flags, empty means all
      * @returns The allowed documents, or an error message
      */
-    async getAll(userId: string, sources: ObjectId[] = [], allowedTypes: DocumentFileType[] = []): Promise<DBResponse<IDatabaseFile[]>> {
+    async getAll(userId: string, sources: ObjectId[], allowedTypes: DocumentFileType[], requiredFlags: FlagType[]): Promise<DBResponse<IDatabaseFile[]>> {
         try {
             const result = await this.collection.aggregate<IDatabaseFile>([
                 {
@@ -497,9 +507,8 @@ class FileCollection {
                         type: allowedTypes.length > 0
                             ? { $in: allowedTypes }
                             : { $nin: [FileType.Root, FileType.Empty] },
-                        _storyId: sources.length > 0
-                            ? { $in: sources }
-                            : undefined
+                        ...(sources.length > 0 && { _storyId: { $in: sources } }),
+                        ...(requiredFlags.length > 0 && { flags: { $in: requiredFlags } })
                     } satisfies KeysOfTwo<IDatabaseFile, object>
                 },
                 ...this.getSubscribedFilter(userId),
@@ -521,20 +530,19 @@ class FileCollection {
     /**
      * Gets subscribed sub-files to the given parent
      * @param userId The Auth0 sub of the user
+     * @param sources The stories to find files from, empty means all
      * @param storyId The story to fetch sub-files for
      * @param parentId The id of the parent file
      * @param type The type sub-files files
      * @returns The subscribed sub-files, or an error message
      */
-    async getSubFiles(userId: string, parentId: ObjectId, type: DocumentFileType, sources: ObjectId[]): Promise<DBResponse<IDatabaseFile[]>> {
+    async getSubFiles(userId: string, sources: ObjectId[], parentId: ObjectId, type: DocumentFileType): Promise<DBResponse<IDatabaseFile[]>> {
         try {
             const result = await this.collection.aggregate<IDatabaseFile>([
                 {
                     $match: {
                         type: type,
-                        _storyId: sources.length > 0
-                            ? { $in: sources }
-                            : undefined,
+                        ...(sources.length > 0 && { _storyId: { $in: sources } }),
                         'data.parentFile': String(parentId)
                     } satisfies KeysOfTwo<IDatabaseFile, object>
                 },
@@ -697,6 +705,7 @@ class FileCollection {
                         holderId: '$_holderId',
                         type: '$type',
                         name: '$name',
+                        flags: '$flags',
                         open: { $ifNull: ['$data.open', false] },
                         children: []
                     } satisfies KeysOfTwo<IFileStructure, object>
@@ -725,6 +734,39 @@ class FileCollection {
             Logger.log('file.getStructure', result.length)
             return success(root)
         } catch (error: unknown) {
+            if (error instanceof Error) {
+                return failure(error.message)
+            } else {
+                return failure(String(error))
+            }
+        }
+    }
+
+    /**
+     * Gets the latest updated files from a story
+     * @param userId The Auth0 sub of the user
+     * @param count The maximum number of files to get
+     * @returns A response containing a Story, null, or an error message
+     */
+    async getLastUpdated(userId: string, storyId: ObjectId, count: number): Promise<DBResponse<IDatabaseFile[]>> {
+        try {
+            const result = await this.collection.aggregate<IDatabaseFile>([
+                {
+                    $match: {
+                        _userId: userId,
+                        _storyId: storyId,
+                        type: { $nin: [FileType.Root, FileType.Empty, FileType.Folder] }
+                    }
+                },
+                ...this.getFileProjection(userId),
+                { $sort: { dateUpdated: -1 } },
+                { $limit: count }
+            ]).toArray()
+
+            Logger.log('file.getLastUpdated', result.length)
+            return success(result)
+        } catch (error) {
+            Logger.error('file.getLastUpdated', error)
             if (error instanceof Error) {
                 return failure(error.message)
             } else {

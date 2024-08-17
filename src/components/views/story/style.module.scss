@@ -9,3 +9,47 @@
     grid-template-rows: $pageHeaderHeight 1fr;
     grid-template-columns: minmax(0, 1fr);
 }
+
+.divider {
+    width: calc(100% - 5px);
+    height: calc(100% - 5px);
+    margin: 5px 0 0 5px;
+    z-index: 0;
+}
+
+.home {
+    @include scroll;
+    display: grid;
+    grid-template-columns: 1fr;
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+.holder {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    min-width: min-content;
+    max-width: 2 * $smallMenuWidth + 50px;
+    margin: 20px 10px auto 10px;
+    justify-self: center;
+}
+
+.headerBox {
+    @include centerGrid;
+    @include fontHeader2;
+    @include colorWithShadow(main);
+    padding: 5px;
+    height: fit-content;
+}
+
+.content {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax($smallMenuWidth, 1fr));
+    gap: 10px;
+
+    @include mobile {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

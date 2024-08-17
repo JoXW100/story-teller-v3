@@ -20,9 +20,4 @@
     @include mobile {
         grid-template-columns: minmax(0, 1fr);
     }
-
-    & > * {
-        height: $smallMenuHeight;
-    }
 }
-

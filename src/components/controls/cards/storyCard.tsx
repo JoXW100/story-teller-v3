@@ -1,10 +1,10 @@
-import { useMemo } from 'react'
 import { useRouter } from 'next/router'
+import { openDialog } from '../../dialogs/handler'
+import EmptyCard from './empty'
 import RemoveIcon from '@mui/icons-material/DeleteOutlineOutlined'
 import EditIcon from '@mui/icons-material/DriveFileRenameOutline'
 import { Tooltip } from '@mui/material'
 import LocalizedText from 'components/controls/localizedText'
-import { openDialog } from '../../dialogs/handler'
 import type DatabaseStory from 'structure/database/story'
 import Navigation from 'utils/navigation'
 import Communication from 'utils/communication'
@@ -17,12 +17,6 @@ interface StoryCardProps {
 
 const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
     const router = useRouter()
-    const description = useMemo<string>(() => {
-        if (story.description.length > 120) {
-            return story.description.substring(0, 120) + '...'
-        }
-        return story.description
-    }, [story.description])
 
     const handleDeleteConfirmed = (): void => {
         Communication.deleteStory(story.id).then((response) => {
@@ -65,53 +59,34 @@ const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
         <EmptyCard header={story.name} href={Navigation.storyURL(story.id)}>
             <div className={styles.description}>
                 <div>
-                    {description}
+                    {story.description}
                 </div>
             </div>
-            <Tooltip title={<LocalizedText id='stories-card-tooltip-delete'/>}>
-                <button
-                    className={styles.delete}
-                    onClick={handleDelete}>
-                    <RemoveIcon/>
-                </button>
-            </Tooltip>
-            <Tooltip title={<LocalizedText id='stories-card-tooltip-edit'/>}>
-                <button
-                    className={styles.edit}
-                    onClick={handleEdit}>
-                    <EditIcon/>
-                </button>
-            </Tooltip>
-            <Tooltip title={<LocalizedText id='stories-card-tooltip-dateUpdated'/>}>
-                <div className={styles.date}>
-                    { new Date(story.dateUpdated).toLocaleDateString('se-SW', {
-                        hour: 'numeric',
-                        minute: 'numeric'
-                    })}
-                </div>
-            </Tooltip>
+            <div className={styles.bottomBar}>
+                <Tooltip title={<LocalizedText id='stories-card-tooltip-delete'/>}>
+                    <button
+                        className='icon square circular-center padding-small margin-none'
+                        onClick={handleDelete}>
+                        <RemoveIcon/>
+                    </button>
+                </Tooltip>
+                <Tooltip title={<LocalizedText id='stories-card-tooltip-edit'/>}>
+                    <button
+                        className='icon square circular-center padding-small margin-none'
+                        onClick={handleEdit}>
+                        <EditIcon/>
+                    </button>
+                </Tooltip>
+                <Tooltip title={<LocalizedText id='stories-card-tooltip-dateUpdated'/>}>
+                    <div className={styles.date}>
+                        { new Date(story.dateUpdated).toLocaleDateString('se-SW', {
+                            hour: 'numeric',
+                            minute: 'numeric'
+                        })}
+                    </div>
+                </Tooltip>
+            </div>
         </EmptyCard>
-    )
-}
-
-type EmptyCardProps = React.PropsWithChildren<{
-    header: React.ReactNode
-    href: URL
-}>
-
-export const EmptyCard: React.FC<EmptyCardProps> = ({ header, href, children }) => {
-    const router = useRouter()
-    const handleClick: React.MouseEventHandler<HTMLDivElement> = (e) => {
-        void router.push(href)
-    }
-
-    return (
-        <div className={styles.card} onClick={handleClick}>
-            <div className={styles.label}>
-                { header }
-            </div>
-            { children }
-        </div>
     )
 }
 

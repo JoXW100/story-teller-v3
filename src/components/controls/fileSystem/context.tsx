@@ -4,13 +4,13 @@ import Loading from 'components/controls/loading'
 import { openDialog } from 'components/dialogs/handler'
 import Logger from 'utils/logger'
 import Communication from 'utils/communication'
-import { DocumentType, FileType } from 'structure/database'
+import { DocumentType, FileType, FlagType } from 'structure/database'
 import FileStructure from 'structure/database/fileStructure'
 import type { ObjectId } from 'types'
 import type { InputType } from 'types/dialog'
 import type { DBResponse, IFileStructure } from 'types/database'
 import type { ContextProvider, DispatchAction, DispatchActionWithDispatch } from 'types/context'
-import { isString } from 'utils'
+import { isEnum, isString } from 'utils'
 
 export type FileFilter = Record<DocumentType, boolean> & {
     search: string
@@ -31,6 +31,7 @@ interface FileSystemDispatch {
     openDeleteFileMenu: (file: IFileStructure) => void
     openFilterMenu: () => void
     closeFilterMenu: () => void
+    setFavoriteFile: (file: IFileStructure, favorite: boolean) => void
     moveFile: (file: IFileStructure, target?: IFileStructure | null) => void
     renameFile: (file: IFileStructure, newName: string) => void
     setFileOpen: (file: IFileStructure, open: boolean) => void
@@ -42,6 +43,7 @@ type FileSystemContextAction =
     DispatchActionWithDispatch<'load', ObjectId, FileSystemContextAction> |
     DispatchAction<'updateName', IFileStructure> |
     DispatchAction<'updateOpen', IFileStructure> |
+    DispatchAction<'updateFavorite', IFileStructure> |
     DispatchAction<'setFiles', DBResponse<FileStructure>> |
     DispatchAction<'setFilter', FileFilter> |
     DispatchAction<'setShowFilterMenu', boolean>
@@ -94,7 +96,8 @@ const defaultContextDispatch: FileSystemDispatch = {
     moveFile() {},
     renameFile() {},
     copyFile() {},
-    setFileOpen() {}
+    setFileOpen() {},
+    setFavoriteFile() {}
 }
 
 export const Context = React.createContext<FileSystemContextProvider>([
@@ -171,6 +174,18 @@ const reducer: React.Reducer<FileSystemContextState, FileSystemContextAction> = 
                 }
             }, (error: unknown) => {
                 Logger.throw('FileSystem.updateOpen', error)
+            })
+            return { ...state, root: new FileStructure(state.root.updateContained(action.data)) }
+        }
+        case 'updateFavorite': {
+            Communication.updateFile(action.data.id, action.data.type, {
+                'flags': action.data.flags
+            }).then((response) => {
+                if (!response.success || !response.result) {
+                    Logger.warn('FileSystem.updateFavorite', response.result)
+                }
+            }, (error: unknown) => {
+                Logger.throw('FileSystem.updateFavorite', error)
             })
             return { ...state, root: new FileStructure(state.root.updateContained(action.data)) }
         }
@@ -312,6 +327,22 @@ const FileSystemContext: React.FC<FileSystemContextProps> = ({ children, fileId 
                 dispatch({ type: 'updateOpen', data: { ...file, open: open } })
             } else {
                 Logger.throw('fileSystem.setFileOpen', 'Invalid file type', file.type)
+            }
+        },
+        setFavoriteFile(file, favorite) {
+            if (isEnum(file.type, DocumentType)) {
+                const flags: FlagType[] = []
+                for (const flag of file.flags) {
+                    if (flag !== FlagType.Favorite) {
+                        flags.push(flag)
+                    }
+                }
+                if (favorite) {
+                    flags.push(FlagType.Favorite)
+                }
+                dispatch({ type: 'updateFavorite', data: { ...file, flags: flags } })
+            } else {
+                Logger.throw('fileSystem.setFavoriteFile', 'Invalid file type', file.type)
             }
         }
     }), [context.story.id, state.root])

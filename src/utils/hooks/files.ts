@@ -2,12 +2,33 @@ import { useEffect, useState } from 'react'
 import { isObjectId } from 'utils'
 import Logger from 'utils/logger'
 import Communication from 'utils/communication'
-import type { DocumentFileType, DocumentType } from 'structure/database'
+import type { DocumentFileType, DocumentType, FlagType } from 'structure/database'
 import type { DocumentTypeMap } from 'structure/database/files/factory'
 import type { ObjectId } from 'types'
 
 type FileState<T extends DocumentFileType> = [file: DocumentTypeMap[T] | null, loading: boolean]
 type FilesState<T extends DocumentFileType> = [files: Array<DocumentTypeMap[T] | null>, loading: boolean]
+
+export function useAllFiles(sources: readonly ObjectId[], allowedTypes?: any, requiredFlags?: readonly FlagType[]): FilesState<DocumentType>
+export function useAllFiles<T extends readonly DocumentType[]>(sources: readonly ObjectId[], allowedTypes: T, requiredFlags?: readonly FlagType[]): FilesState<T[number]> {
+    const [state, setState] = useState<FilesState<T[number]>>([[], true])
+    useEffect(() => {
+        const values: Array<DocumentTypeMap[T[number]]> = []
+        Communication.getAllFiles<T>(allowedTypes, requiredFlags, sources)
+            .then((res) => {
+                if (res.success) {
+                    for (let i = 0; i < res.result.length; i++) {
+                        values.push(res.result[i])
+                    }
+                }
+            }, (e: unknown) => {
+                Logger.throw('useAllFiles', e)
+            }).finally(() => {
+                setState([values, false])
+            })
+    }, [sources, allowedTypes, requiredFlags])
+    return state
+}
 
 export function useFilesOfType<T extends readonly DocumentType[]>(fileIDs: Array<ObjectId | null>, allowedTypes: T): FilesState<T[number]> {
     const [state, setState] = useState<FilesState<T[number]>>(
@@ -83,7 +104,7 @@ export function useSubFiles<T extends DocumentType>(parentId: ObjectId | null, t
                 .then((res) => {
                     setState([res.success ? res.result : [], false])
                 }, (e: unknown) => {
-                    Logger.throw('useSubclasses', e)
+                    Logger.throw('useSubFiles', e)
                     setState([[], false])
                 })
         } else {
@@ -104,5 +125,25 @@ export function useAbilitiesOfCategory(category: string): FilesState<DocumentTyp
                 setState([[], false])
             })
     }, [category])
+    return state
+}
+
+export function useLastUpdatedFiles(storyId: ObjectId, count?: number): FilesState<DocumentType> {
+    const [state, setState] = useState<FilesState<DocumentType>>([[], true])
+    useEffect(() => {
+        const values: Array<DocumentTypeMap[DocumentType]> = []
+        Communication.getLastUpdatedFiles(storyId, count)
+            .then((res) => {
+                if (res.success) {
+                    for (let i = 0; i < res.result.length; i++) {
+                        values.push(res.result[i])
+                    }
+                }
+            }, (e: unknown) => {
+                Logger.throw('useAllFiles', e)
+            }).finally(() => {
+                setState([values, false])
+            })
+    }, [storyId, count])
     return state
 }

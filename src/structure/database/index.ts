@@ -37,7 +37,8 @@ export enum CalcMode {
 
 export enum FlagType {
     Public = 'public',
-    Official = 'official'
+    Official = 'official',
+    Favorite = 'favorite'
 }
 
 export abstract class DatabaseObject {
