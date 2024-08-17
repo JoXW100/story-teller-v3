@@ -1,6 +1,7 @@
-import { DatabaseObject, type FlagType, type DocumentFileType } from '.'
+import { DatabaseObject, FlagType, DocumentFileType } from '.'
 import type { ObjectId } from 'types'
 import type { IFileStructure } from 'types/database'
+import { asBoolean, asEnum, asString, isEnum } from 'utils'
 
 class FileStructure extends DatabaseObject implements IFileStructure {
     public readonly holderId: ObjectId | null
@@ -13,11 +14,23 @@ class FileStructure extends DatabaseObject implements IFileStructure {
     public constructor(data: IFileStructure) {
         super(data.id)
         this.holderId = data.holderId ?? null
-        this.type = data.type
-        this.name = data.name
-        this.flags = data.flags
-        this.open = data.open
-        this.children = data.children.map((child) => new FileStructure(child))
+        this.type = asEnum(data.type, DocumentFileType, DocumentFileType.Empty)
+        this.name = asString(data.name, '')
+        const flags: FlagType[] = []
+        if (Array.isArray(data.flags)) {
+            for (const flag of data.flags) {
+                if (isEnum(flag, FlagType)) {
+                    flags.push(flag)
+                }
+            }
+        }
+        this.flags = flags
+        this.open = asBoolean(data.open, false)
+        if (Array.isArray(data.children)) {
+            this.children = data.children.map((child) => new FileStructure(child))
+        } else {
+            this.children = []
+        }
     }
 
     public updateContained(file: IFileStructure): IFileStructure {

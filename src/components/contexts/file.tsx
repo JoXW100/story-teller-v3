@@ -9,8 +9,7 @@ import Logger from 'utils/logger'
 import RequestBuffer from 'utils/buffer'
 import { useLocalizedText } from 'utils/hooks/localization'
 import type { EditorPageKeyType } from 'components/views/editor'
-import type DatabaseFile from 'structure/database/files'
-import type { DocumentDataMap } from 'structure/database/files/factory'
+import type { DocumentDataMap, DocumentTypeMap } from 'structure/database/files/factory'
 import type { ObjectId, ValueOf } from 'types'
 import type { ContextProvider, DispatchAction, DispatchActionNoData, DispatchActionWithDispatch, ISetFieldData } from 'types/context'
 import type { DBResponse } from 'types/database'
@@ -22,7 +21,7 @@ export interface IEditorPageData {
 }
 
 interface FileContextState {
-    file: DatabaseFile
+    file: ValueOf<DocumentTypeMap>
     editorPages: IEditorPageData[]
     loading: boolean
     buffer: RequestBuffer
@@ -110,7 +109,7 @@ const reducer: React.Reducer<FileContextState, FileContextAction> = (state, acti
             }
         }
         case 'setData': {
-            const data: Record<string, unknown> = { ...state.file.data }
+            const data = { ...state.file.data }
             const match = getRelativeFieldObject(action.data.field, data)
             if (match === null) {
                 Logger.throw('FileContext.setData', 'Failed to get relative object', data, action.data)
@@ -291,7 +290,7 @@ const FileContext: React.FC<FileContextProps> = ({ children, fileId }) => {
 }
 
 type FileHeaderProps = React.PropsWithoutRef<{
-    file: DatabaseFile
+    file: ValueOf<DocumentTypeMap>
 }>
 
 const FileHeader: React.FC<FileHeaderProps> = ({ file }) => {

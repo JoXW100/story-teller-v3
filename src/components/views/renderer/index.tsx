@@ -2,60 +2,17 @@ import { useState, useContext } from 'react'
 import ZoomInIcon from '@mui/icons-material/ZoomInSharp'
 import ZoomOutIcon from '@mui/icons-material/ZoomOutSharp'
 import { Tooltip } from '@mui/material'
-import { DefaultRenderer, DefaultLinkRenderer } from './default'
-import TextDocumentRenderer from './text'
-import CreatureDocumentRenderer from './creature'
-import PortraitLinkRenderer from './portraitLink'
-import CharacterDocumentRenderer from './character'
-import EncounterDocumentRenderer from './encounter'
-import AbilityDocumentRenderer from './ability'
-import AbilityLinkRenderer from './ability/link'
-import SpellDocumentRender from './spell'
-import SpellLinkRenderer from './spell/link'
-import RaceDocumentRenderer from './race'
-import SubraceDocumentRenderer from './subrace'
-import ItemDocumentRenderer from './item'
-import MapDocumentRenderer from './map'
-import NPCDocumentRenderer from './npc'
-import ClassRenderer from './class'
-import SubclassRenderer from './subclass'
-import { isKeyOf } from 'utils'
 import { Context } from 'components/contexts/file'
 import LocalizedText from 'components/controls/localizedText'
 import Loading from 'components/controls/loading'
-import { DocumentType } from 'structure/database'
-import type DatabaseFile from 'structure/database/files'
+import { DocumentRenderer } from './utils'
 import styles from './styles.module.scss'
-
-export type LinkRendererProps = React.PropsWithRef<{ file: DatabaseFile }>
-
-export const DocumentRendererMap: Record<DocumentType, { document: React.FC, link: React.FC<LinkRendererProps> }> = {
-    [DocumentType.Ability]: { document: AbilityDocumentRenderer, link: AbilityLinkRenderer },
-    [DocumentType.Character]: { document: CharacterDocumentRenderer, link: PortraitLinkRenderer },
-    [DocumentType.Class]: { document: ClassRenderer, link: DefaultLinkRenderer },
-    [DocumentType.Condition]: { document: DefaultRenderer, link: DefaultLinkRenderer },
-    [DocumentType.Subclass]: { document: SubclassRenderer, link: DefaultLinkRenderer },
-    [DocumentType.Creature]: { document: CreatureDocumentRenderer, link: PortraitLinkRenderer },
-    [DocumentType.Encounter]: { document: EncounterDocumentRenderer, link: DefaultLinkRenderer },
-    [DocumentType.Item]: { document: ItemDocumentRenderer, link: DefaultLinkRenderer },
-    [DocumentType.Map]: { document: MapDocumentRenderer, link: DefaultLinkRenderer },
-    [DocumentType.Modifier]: { document: DefaultRenderer, link: DefaultLinkRenderer },
-    [DocumentType.NPC]: { document: NPCDocumentRenderer, link: PortraitLinkRenderer },
-    [DocumentType.Race]: { document: RaceDocumentRenderer, link: DefaultLinkRenderer },
-    [DocumentType.Subrace]: { document: SubraceDocumentRenderer, link: DefaultLinkRenderer },
-    [DocumentType.Spell]: { document: SpellDocumentRender, link: SpellLinkRenderer },
-    [DocumentType.Text]: { document: TextDocumentRenderer, link: DefaultLinkRenderer }
-}
 
 const zoomDelta: number = 10
 
 const Renderer: React.FC = () => {
     const [context] = useContext(Context)
     const [zoom, setZoom] = useState(100)
-    const Renderer = isKeyOf(context.file.type, DocumentRendererMap)
-        ? DocumentRendererMap[context.file.type].document
-        : DefaultRenderer
-
     const changeZoom = (delta: number): void => {
         setZoom((val) => Math.min(Math.max(val + delta, 10), 400))
     }
@@ -80,7 +37,7 @@ const Renderer: React.FC = () => {
             <div className={styles.innerPage} style={{ zoom: `${zoom}%` }}>
                 <Loading loaded={!context.loading}>
                     <div className={styles.contentHolder}>
-                        <Renderer/>
+                        <DocumentRenderer type={context.file.type}/>
                     </div>
                 </Loading>
             </div>

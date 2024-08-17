@@ -705,7 +705,7 @@ class FileCollection {
                         holderId: '$_holderId',
                         type: '$type',
                         name: '$name',
-                        flags: '$flags',
+                        flags: { $ifNull: ['$flags', []] },
                         open: { $ifNull: ['$data.open', false] },
                         children: []
                     } satisfies KeysOfTwo<IFileStructure, object>
@@ -810,7 +810,7 @@ class FileCollection {
                     storyId: '$_storyId',
                     type: '$type',
                     name: '$name',
-                    flags: '$flags',
+                    flags: { $ifNull: ['$flags', []] },
                     isOwner: { $eq: ['$_userId', userId] },
                     dateCreated: '$dateCreated',
                     dateUpdated: '$dateUpdated',

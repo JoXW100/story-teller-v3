@@ -9,9 +9,9 @@ import Navigation from 'utils/navigation'
 import type { ObjectId } from 'types'
 import styles from './style.module.scss'
 
-interface ViewViewProps {
+type ViewViewProps = React.PropsWithRef<{
     fileId: ObjectId
-}
+}>
 
 const ViewView: React.FC<ViewViewProps> = ({ fileId }) => {
     const router = useRouter()
