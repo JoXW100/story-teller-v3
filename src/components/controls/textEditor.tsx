@@ -38,169 +38,169 @@ interface TextEditorState {
     monaco: MonacoType | null
 }
 
+function openContextMenu(editor: MonacoEditor, e: MonacoMouseEvent): void {
+    const model = editor.getModel()
+    const range = e.target.range
+    const selectionText = model !== null && range !== null ? model.getValueInRange(range) : ''
+
+    const insertText = (value: string): void => {
+        editor.executeEdits('editor-context', [{
+            range: range!,
+            text: value
+        }])
+    }
+
+    openContext([
+        {
+            text: 'textEditor-insert',
+            icon: <EditIcon/>,
+            content: [
+                {
+                    text: 'textEditor-insert-layout',
+                    icon: <LayoutIcon/>,
+                    content: [
+                        {
+                            text: 'textEditor-insert-layout-align',
+                            icon: <AlignIcon/>,
+                            action: () => { insertText(`\\align[hc] {${selectionText}}`) }
+                        },
+                        {
+                            text: 'textEditor-insert-layout-block',
+                            icon: <BlockIcon/>,
+                            action: () => { insertText(`\\block {${selectionText}}`) }
+                        },
+                        {
+                            text: 'textEditor-insert-layout-table',
+                            icon: <TableIcon/>,
+                            action: () => { insertText(`\\table {\n\t\\th{ Header }\n\t\\tc{${selectionText}}\n}`) }
+                        },
+                        {
+                            text: 'textEditor-insert-layout-box',
+                            icon: <BoxIcon/>,
+                            action: () => { insertText(`\\box {${selectionText}}`) }
+                        },
+                        {
+                            text: 'textEditor-insert-layout-center',
+                            icon: <CenterIcon/>,
+                            action: () => { insertText(`\\center {${selectionText}}`) }
+                        },
+                        {
+                            text: 'textEditor-insert-layout-line',
+                            icon: <LineIcon/>,
+                            action: () => { insertText('\\line') }
+                        },
+                        {
+                            text: 'textEditor-insert-layout-space',
+                            icon: <SpaceIcon/>,
+                            action: () => { insertText('\\space') }
+                        }
+                    ]
+                },
+                {
+                    text: 'textEditor-insert-decoration',
+                    icon: <ImageIcon/>,
+                    content: [
+                        {
+                            text: 'textEditor-insert-decoration-bold',
+                            icon: <BoldIcon/>,
+                            action: () => { insertText(`\\bold {${selectionText}}`) }
+                        },
+                        {
+                            text: 'textEditor-insert-decoration-h1',
+                            icon: <TextIcon/>,
+                            action: () => { insertText(`\\h1 {${selectionText}}`) }
+                        },
+                        {
+                            text: 'textEditor-insert-decoration-h2',
+                            icon: <TextIcon/>,
+                            action: () => { insertText(`\\h2 {${selectionText}}`) }
+                        },
+                        {
+                            text: 'textEditor-insert-decoration-h3',
+                            icon: <TextIcon/>,
+                            action: () => { insertText(`\\h3 {${selectionText}}`) }
+                        },
+                        {
+                            text: 'textEditor-insert-decoration-h4',
+                            icon: <TextIcon/>,
+                            action: () => { insertText(`\\h4 {${selectionText}}`) }
+                        },
+                        {
+                            text: 'textEditor-insert-decoration-icon',
+                            icon: <IconIcon/>,
+                            action: () => { insertText('\\icon[acid, tooltips: Acid]') }
+                        },
+                        {
+                            text: 'textEditor-insert-decoration-image',
+                            icon: <ImageIcon/>,
+                            action: () => { insertText('\\image[]') }
+                        }
+                    ]
+                },
+                {
+                    text: 'textEditor-insert-interactive',
+                    icon: <InteractiveIcon/>,
+                    content: [
+                        {
+                            text: 'textEditor-insert-interactive-link',
+                            icon: <LinkIcon/>,
+                            action: () => { insertText(`\\link[] {${selectionText}}`) }
+                        },
+                        {
+                            text: 'textEditor-insert-interactive-linkTitle',
+                            icon: <LinkIcon/>,
+                            action: () => { insertText('\\linkTitle[]') }
+                        },
+                        {
+                            text: 'textEditor-insert-interactive-linkContent',
+                            icon: <LinkIcon/>,
+                            action: () => { insertText('\\linkContent[]') }
+                        },
+                        {
+                            text: 'textEditor-insert-interactive-roll',
+                            icon: <DiceIcon/>,
+                            action: () => { insertText(`\\roll[1d20+0, type: general, mode: normal, desc: Rolled, tooltips: Roll] {${selectionText}}`) }
+                        },
+                        {
+                            text: 'textEditor-insert-interactive-save',
+                            icon: <DiceIcon/>,
+                            action: () => { insertText('\\save[10, type: type, tooltips: ...]') }
+                        },
+                        {
+                            text: 'textEditor-insert-interactive-check',
+                            icon: <DiceIcon/>,
+                            action: () => { insertText('\\check[10, type: type, tooltips: ...]') }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            text: 'textEditor-cut',
+            icon: <CutIcon/>,
+            disabled: selectionText.length <= 0,
+            action: () => { void Promise.resolve(navigator.clipboard.writeText(selectionText)).then(() => { insertText('') }) }
+        },
+        {
+            text: 'textEditor-copy',
+            icon: <CopyIcon/>,
+            disabled: selectionText.length <= 0,
+            action: () => { void Promise.resolve(navigator.clipboard.writeText(selectionText)) }
+        },
+        {
+            text: 'textEditor-paste',
+            icon: <PasteIcon/>,
+            action: () => { void Promise.resolve(navigator.clipboard.readText().then((res) => { insertText(res) })) }
+        }
+    ], { x: e.event.posx, y: e.event.posy }, true)
+}
+
 const TextEditor: React.FC<TextEditorProps> = ({ value, className, context, onMount, onChange }) => {
     const [app] = useContext(Context)
     const [state, setState] = useState<TextEditorState>({
         editor: null,
         monaco: null
     })
-
-    const handleContextMenu = (editor: MonacoEditor, e: MonacoMouseEvent): void => {
-        const model = editor.getModel()
-        const range = e.target.range
-        const selectionText = model !== null && range !== null ? model.getValueInRange(range) : ''
-
-        const insertText = (value: string): void => {
-            editor.executeEdits('editor-context', [{
-                range: range!,
-                text: value
-            }])
-        }
-
-        openContext([
-            {
-                text: 'textEditor-insert',
-                icon: <EditIcon/>,
-                content: [
-                    {
-                        text: 'textEditor-insert-layout',
-                        icon: <LayoutIcon/>,
-                        content: [
-                            {
-                                text: 'textEditor-insert-layout-align',
-                                icon: <AlignIcon/>,
-                                action: () => { insertText(`\\align[hc] {${selectionText}}`) }
-                            },
-                            {
-                                text: 'textEditor-insert-layout-block',
-                                icon: <BlockIcon/>,
-                                action: () => { insertText(`\\block {${selectionText}}`) }
-                            },
-                            {
-                                text: 'textEditor-insert-layout-table',
-                                icon: <TableIcon/>,
-                                action: () => { insertText(`\\table {\n\t\\th{ Header }\n\t\\tc{${selectionText}}\n}`) }
-                            },
-                            {
-                                text: 'textEditor-insert-layout-box',
-                                icon: <BoxIcon/>,
-                                action: () => { insertText(`\\box {${selectionText}}`) }
-                            },
-                            {
-                                text: 'textEditor-insert-layout-center',
-                                icon: <CenterIcon/>,
-                                action: () => { insertText(`\\center {${selectionText}}`) }
-                            },
-                            {
-                                text: 'textEditor-insert-layout-line',
-                                icon: <LineIcon/>,
-                                action: () => { insertText('\\line') }
-                            },
-                            {
-                                text: 'textEditor-insert-layout-space',
-                                icon: <SpaceIcon/>,
-                                action: () => { insertText('\\space') }
-                            }
-                        ]
-                    },
-                    {
-                        text: 'textEditor-insert-decoration',
-                        icon: <ImageIcon/>,
-                        content: [
-                            {
-                                text: 'textEditor-insert-decoration-bold',
-                                icon: <BoldIcon/>,
-                                action: () => { insertText(`\\bold {${selectionText}}`) }
-                            },
-                            {
-                                text: 'textEditor-insert-decoration-h1',
-                                icon: <TextIcon/>,
-                                action: () => { insertText(`\\h1 {${selectionText}}`) }
-                            },
-                            {
-                                text: 'textEditor-insert-decoration-h2',
-                                icon: <TextIcon/>,
-                                action: () => { insertText(`\\h2 {${selectionText}}`) }
-                            },
-                            {
-                                text: 'textEditor-insert-decoration-h3',
-                                icon: <TextIcon/>,
-                                action: () => { insertText(`\\h3 {${selectionText}}`) }
-                            },
-                            {
-                                text: 'textEditor-insert-decoration-h4',
-                                icon: <TextIcon/>,
-                                action: () => { insertText(`\\h4 {${selectionText}}`) }
-                            },
-                            {
-                                text: 'textEditor-insert-decoration-icon',
-                                icon: <IconIcon/>,
-                                action: () => { insertText('\\icon[acid, tooltips: Acid]') }
-                            },
-                            {
-                                text: 'textEditor-insert-decoration-image',
-                                icon: <ImageIcon/>,
-                                action: () => { insertText('\\image[]') }
-                            }
-                        ]
-                    },
-                    {
-                        text: 'textEditor-insert-interactive',
-                        icon: <InteractiveIcon/>,
-                        content: [
-                            {
-                                text: 'textEditor-insert-interactive-link',
-                                icon: <LinkIcon/>,
-                                action: () => { insertText(`\\link[] {${selectionText}}`) }
-                            },
-                            {
-                                text: 'textEditor-insert-interactive-linkTitle',
-                                icon: <LinkIcon/>,
-                                action: () => { insertText('\\linkTitle[]') }
-                            },
-                            {
-                                text: 'textEditor-insert-interactive-linkContent',
-                                icon: <LinkIcon/>,
-                                action: () => { insertText('\\linkContent[]') }
-                            },
-                            {
-                                text: 'textEditor-insert-interactive-roll',
-                                icon: <DiceIcon/>,
-                                action: () => { insertText(`\\roll[1d20+0, type: general, mode: normal, desc: Rolled, tooltips: Roll] {${selectionText}}`) }
-                            },
-                            {
-                                text: 'textEditor-insert-interactive-save',
-                                icon: <DiceIcon/>,
-                                action: () => { insertText('\\save[10, type: type, tooltips: ...]') }
-                            },
-                            {
-                                text: 'textEditor-insert-interactive-check',
-                                icon: <DiceIcon/>,
-                                action: () => { insertText('\\check[10, type: type, tooltips: ...]') }
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                text: 'textEditor-cut',
-                icon: <CutIcon/>,
-                disabled: selectionText.length <= 0,
-                action: () => { void Promise.resolve(navigator.clipboard.writeText(selectionText)).then(() => { insertText('') }) }
-            },
-            {
-                text: 'textEditor-copy',
-                icon: <CopyIcon/>,
-                disabled: selectionText.length <= 0,
-                action: () => { void Promise.resolve(navigator.clipboard.writeText(selectionText)) }
-            },
-            {
-                text: 'textEditor-paste',
-                icon: <PasteIcon/>,
-                action: () => { void Promise.resolve(navigator.clipboard.readText().then((res) => { insertText(res) })) }
-            }
-        ], { x: e.event.posx, y: e.event.posy }, true)
-    }
 
     return (
         <MEditor
@@ -228,7 +228,7 @@ const TextEditor: React.FC<TextEditorProps> = ({ value, className, context, onMo
                 const token = StoryScript.applyMarkers(model, monaco, undefined, context)
                 editor.onContextMenu((e) => {
                     e.event.preventDefault()
-                    handleContextMenu(editor, e)
+                    openContextMenu(editor, e)
                 })
                 editor.layout()
                 setState(state => ({ ...state, editor: editor, monaco: monaco }))

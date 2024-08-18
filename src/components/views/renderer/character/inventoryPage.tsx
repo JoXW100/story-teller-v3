@@ -13,11 +13,11 @@ import LinkInput from 'components/controls/linkInput'
 import { asBooleanString, isObjectId, keysOf } from 'utils'
 import { useTranslator } from 'utils/hooks/localization'
 import { DocumentType } from 'structure/database'
-import type { DocumentTypeMap } from 'structure/database/files/factory'
 import type CharacterFacade from 'structure/database/files/character/facade'
 import type { ItemData } from 'structure/database/files/item/factory'
 import type { ObjectId } from 'types'
 import type { IInventoryItemData } from 'types/database/files/character'
+import type { DocumentTypeMap } from 'types/database/files/factory'
 import styles from '../styles.module.scss'
 
 type CharacterInventoryPageProps = React.PropsWithRef<{
@@ -141,8 +141,8 @@ const CharacterInventoryPage: React.FC<CharacterInventoryPageProps> = ({ facade,
                                 </span>
                             </Tooltip>
                             <div>
-                                <b data={item.rarity}>{item.name}</b>
-                                <span>{item.getCategoryText(translator)}</span>
+                                <b className='color-by-rarity' data={item.rarity}>{item.name}</b>
+                                <span className='font-smaller'>{item.getCategoryText(translator)}</span>
                             </div>
                             <span>{String(item.weight * quantity)}</span>
                             <span>{String(quantity)}</span>

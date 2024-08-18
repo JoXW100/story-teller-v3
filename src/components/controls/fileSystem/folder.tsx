@@ -1,7 +1,5 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
-import IconClosed from '@mui/icons-material/FolderSharp'
-import IconOpen from '@mui/icons-material/FolderOpenSharp'
 import RemoveIcon from '@mui/icons-material/Remove'
 import RenameIcon from '@mui/icons-material/DriveFileRenameOutline'
 import { openContext } from '../contextMenu'
@@ -12,6 +10,7 @@ import { isObjectId, keysOf } from 'utils'
 import type { ObjectId } from 'types'
 import type { IFileStructure } from 'types/database'
 import styles from './fileStyle.module.scss'
+import { Icon } from '../icon'
 
 type FolderProps = React.PropsWithChildren<{
     file: IFileStructure
@@ -37,7 +36,6 @@ const Folder: React.FC<FolderProps> = ({ file, children }) => {
     const router = useRouter()
     const ref = useRef<HTMLInputElement | null>(null)
     const contextID = String(file.id) + '-context-rename-item'
-    const Icon = useMemo(() => state.open ? IconOpen : IconClosed, [state.open])
     const containsSelected = useMemo(() => {
         const selected = router.query?.fileId
         return isObjectId(selected) && hasSelectedChild(file, selected)
@@ -193,10 +191,12 @@ const Folder: React.FC<FolderProps> = ({ file, children }) => {
                 onClick={changeState}
                 onDragStart={handleDrag}
                 onContextMenu={handleContext}
-                data={app.enableColorFileByType ? file.type : undefined}
                 value={state.open ? 'open' : 'closed'}
                 draggable={!state.inEditMode}>
-                <Icon/>
+                <Icon
+                    className='square icon-small color-by-type'
+                    data={app.enableColorFileByType ? file.type : undefined}
+                    icon={state.open ? 'openFolder' : 'folder'}/>
                 <input
                     ref={ref}
                     type='text'

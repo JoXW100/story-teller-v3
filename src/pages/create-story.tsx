@@ -1,4 +1,4 @@
-import CreateStoryView from 'components/views/createStory'
+import CreateStoryView from 'components/views/editStory'
 import Loading from 'components/controls/loading'
 import { useValidation } from 'utils/hooks/validation'
 

@@ -1,6 +1,5 @@
-import { useContext } from 'react'
+import { Fragment, useContext } from 'react'
 import CloseIcon from '@mui/icons-material/CloseSharp'
-import FolderIcon from '@mui/icons-material/FolderSharp'
 import { Tooltip } from '@mui/material'
 import { Context } from './context'
 import type { LanguageKey } from 'assets'
@@ -39,30 +38,26 @@ const FileFilterMenu: React.FC = () => {
                     <button
                         className={styles.headerEndButton}
                         onClick={dispatch.closeFilterMenu}>
-                        <CloseIcon className='small-icon'/>
+                        <CloseIcon className='square small-icon'/>
                     </button>
                 </Tooltip>
             </div>
-            <div className={styles.fileFilterMenuItem}
-                data={app.enableColorFileByType ? FileType.Folder : undefined}>
+            <div className={styles.fileFilterMenuContent}>
                 <Checkbox
                     value={state.filter.showEmptyFolders}
                     onChange={handleChangeFolder}/>
-                <FolderIcon/>
-                <LocalizedText id='filter-menu-showEmptyFolders'/>
+                <Icon className='square small-icon color-by-type' data={app.enableColorFileByType ? FileType.Folder : undefined} icon='folder'/>
+                <LocalizedText className='no-line-break' id='filter-menu-showEmptyFolders'/>
+                { Object.values(DocumentType).map((type) =>
+                    <Fragment key={type}>
+                        <Checkbox
+                            value={state.filter[type]}
+                            onChange={() => { handleChange(type) }}/>
+                        <Icon className='square small-icon color-by-type' data={app.enableColorFileByType ? type : undefined} icon={asKeyOf(type, IconMap) ?? 'txt'}/>
+                        <LocalizedText className='no-line-break' id={`document-${type}` as LanguageKey}/>
+                    </Fragment>
+                )}
             </div>
-            { Object.values(DocumentType).map((type) =>
-                <div
-                    className={styles.fileFilterMenuItem}
-                    key={type}
-                    data={app.enableColorFileByType ? type : undefined}>
-                    <Checkbox
-                        value={state.filter[type]}
-                        onChange={() => { handleChange(type) }}/>
-                    <Icon className='small-icon' icon={asKeyOf(type, IconMap) ?? 'txt'}/>
-                    <LocalizedText id={`document-${type}` as LanguageKey}/>
-                </div>
-            )}
         </div>
     )
 }

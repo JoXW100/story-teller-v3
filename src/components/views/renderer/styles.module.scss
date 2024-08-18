@@ -672,14 +672,6 @@ $size: $iconSmallSize;
         @include fontNoLineBreak;
         display: grid;
         text-indent: 10px;
-
-        & > b {
-            @include colorByRarity;
-        }
-
-        & > span {
-            font-size: small;
-        }
     }
 
     & > span {
@@ -711,13 +703,10 @@ $size: $iconSmallSize;
 .inventoryInput {
     @include colorDecoration(second);
     @include scroll;
-    @include fontNormal;
     width: 100%;
     resize: vertical;
     overflow-x: hidden;
     overflow-y: auto;
-    outline: none;
-    border: none;
     border-radius: $iconSmallSize / 2;
     padding: $iconSmallSize / 2;
     min-height: 28px + $iconSmallSize / 2;

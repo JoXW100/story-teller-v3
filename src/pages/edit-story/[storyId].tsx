@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
-import CreateStoryView from 'components/views/createStory'
+import CreateStoryView from 'components/views/editStory'
 import Loading from 'components/controls/loading'
 import { isObjectId } from 'utils'
 import { useValidation } from 'utils/hooks/validation'

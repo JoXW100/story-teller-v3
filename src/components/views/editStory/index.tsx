@@ -288,7 +288,6 @@ const CreateStoryView: React.FC<CreateStoryViewProps> = ({ storyId = null }) => 
                     <div className={styles.item}>
                         <LocalizedText className='no-line-break' id='create-story-label-sources'/>
                         <ListMenu
-                            className={styles.listMenu}
                             itemClassName={styles.listMenuItem}
                             type='enum'
                             defaultValue={keysOf(options)[0]}

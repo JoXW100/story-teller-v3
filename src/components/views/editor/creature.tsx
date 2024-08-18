@@ -49,8 +49,18 @@ const CreatureDocumentEditor: React.FC = () => {
                 <CalcComponent field='health' labelId='editor-health'/>
                 <CalcComponent field='ac' labelId='editor-ac'/>
                 <CalcComponent field='proficiency' labelId='editor-proficiency'/>
-                <SelectionInputComponent field='speed' type='number' optionsType='movement' labelId='editor-speed' />
-                <SelectionInputComponent field='senses' type='number' optionsType='sense' labelId='editor-senses'/>
+                <SelectionInputComponent
+                    field='speed'
+                    type='number'
+                    optionsType='movement'
+                    labelId='editor-speed'
+                    fill/>
+                <SelectionInputComponent
+                    field='senses'
+                    type='number'
+                    optionsType='sense'
+                    labelId='editor-senses'
+                    fill/>
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-attributes'/>} open>
                 <NumberComponent field='str' labelId='editor-str'/>

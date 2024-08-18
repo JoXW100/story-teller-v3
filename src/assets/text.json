@@ -138,7 +138,8 @@
 
             "fileHomeView-favorites": "Favorites",
             "fileHomeView-recent": "Recently Updated",
-            "fileHomeView-empty": "Start your story by creating some files!",
+            "fileHomeView-empty": "Nothing Here",
+            "fileHomeView-empty-body": "Start your story by creating some files!",
 
             "rollHistory-button-open-tooltips": "Open roll history menu",
             "rollHistory-button-close-tooltips": "Close roll history menu",

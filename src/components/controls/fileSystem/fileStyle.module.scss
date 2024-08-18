@@ -5,7 +5,6 @@
 .file {
     @include colorDecoration(second);
     @include colorInteractiveControl;
-    @include colorFileByType;
     display: flex;
     justify-content: left;
     align-items: center;
@@ -15,8 +14,6 @@
 
     & > svg {
         padding: 4px 2px 1px 0;
-        width: $iconSmallSize;
-        height: $iconSmallSize;
     }
 
     & > .text {

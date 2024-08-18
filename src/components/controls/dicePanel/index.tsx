@@ -62,7 +62,7 @@ const DicePanel = ({ open }: DicePanelProps): JSX.Element => {
                         <button
                             className={styles.dice}
                             onClick={() => { handleClick(type) }}>
-                            <Icon icon={asKeyOf(type, IconMap, 'dx')}/>
+                            <Icon className='square icon-small' icon={asKeyOf(type, IconMap, 'dx')}/>
                             { type in state &&
                                 <div className={styles.number}>
                                     {state[type]}

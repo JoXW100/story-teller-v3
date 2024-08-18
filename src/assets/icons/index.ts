@@ -36,6 +36,7 @@ import DXIcon from './dice/dX.svg'
 import DocumentIcon from '@mui/icons-material/InsertDriveFileSharp'
 import CharacterIcon from '@mui/icons-material/PersonSharp'
 import FolderIcon from '@mui/icons-material/FolderSharp'
+import OpenFolderIcon from '@mui/icons-material/FolderOpenSharp'
 import SpellIcon from '@mui/icons-material/AutoAwesomeSharp'
 import ClassIcon from '@mui/icons-material/SchoolSharp'
 import ItemIcon from '@mui/icons-material/ShieldSharp'
@@ -117,6 +118,7 @@ const IconMap = {
     'mod': SettingsIcon as React.FC<IconParams>,
     'ite': ItemIcon as React.FC<IconParams>,
     'folder': FolderIcon as React.FC<IconParams>,
+    'openFolder': OpenFolderIcon as React.FC<IconParams>,
     // other
     'story': StoryIcon as React.FC<IconParams>,
     'advantage': AdvantageIcon as React.FC<IconParams>,

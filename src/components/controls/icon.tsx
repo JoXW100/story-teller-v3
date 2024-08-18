@@ -17,7 +17,7 @@ export const Icon: React.FC<IconParams> = ({ icon, tooltipsId, tooltipsArgs, ...
     const Component = IconMap[icon]
     if (tooltipsId !== undefined) {
         return (
-            <Tooltip title={<LocalizedText id='render-spell-concentration'/>}>
+            <Tooltip title={<LocalizedText id={tooltipsId} args={tooltipsArgs}/>}>
                 <Component {...props}/>
             </Tooltip>
         )

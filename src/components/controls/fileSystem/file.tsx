@@ -153,9 +153,11 @@ const File: React.FC<FileProps> = ({ file }) => {
             onClick={handleClick}
             onDragStart={handleDrag}
             onContextMenu={handleContext}
-            draggable={!state.inEditMode}
-            data={app.enableColorFileByType ? file.type : undefined}>
-            <Icon icon={asKeyOf(file.type, IconMap) ?? 'txt'}/>
+            draggable={!state.inEditMode}>
+            <Icon
+                className='square icon-small color-by-type'
+                data={app.enableColorFileByType ? file.type : undefined}
+                icon={asKeyOf(file.type, IconMap) ?? 'txt'}/>
             <input
                 ref={ref}
                 type='text'

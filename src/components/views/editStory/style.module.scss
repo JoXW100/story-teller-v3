@@ -53,11 +53,6 @@
         width: auto;
     }
 
-    & > .listMenu {
-        min-height: $menuItemHeaderHeight;
-        height: $menuItemHeaderHeight * 6;
-    }
-
     & > .checkbox {
         height: $menuItemHeaderHeight;
     }

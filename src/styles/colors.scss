@@ -56,6 +56,28 @@ $palette: (
     second-icons: var(--color-second-icons),
 );
 
+$file-palette: (
+    folder: var(--color-folder),
+    abi: var(--color-abi),
+    cha: var(--color-cha),
+    cla: var(--color-cla),
+    cre: var(--color-cre),
+    doc: var(--color-doc),
+    spe: var(--color-spe),
+    rce: var(--color-rce),
+    ite: var(--color-ite),
+);
+
+$rarity-palette: (
+    mundane: #929292,
+    common: #c7b9ad,
+    uncommon: #5cbe3e,
+    rare: #5991dc,
+    veryRare: #8759dc,
+    legendary: #f2a546,
+    artifact: #8d5e25,
+);
+
 $grouped-palette: (
     main: (
         background: var(--color-main-background),
@@ -194,26 +216,18 @@ $grouped-palette: (
     box-shadow: color(interactive-border) 0 0 5px 1px;
 }
 
-@mixin colorFileByType {
-    @include colorIcon(second);
-    &[data=folder] > svg { color: color(folder); }
-    &[data=abi] > svg { color: color(abi); }
-    &[data=cha] > svg { color: color(cha); }
-    &[data=cla] > svg { color: color(cla); }
-    &[data=cre] > svg { color: color(cre); }
-    &[data=doc] > svg { color: color(doc); }
-    &[data=enc] > svg { color: color(enc); }
-    &[data=spe] > svg { color: color(spe); }
-    &[data=ite] > svg { color: color(ite); }
+@mixin colorByType {
+    @each $type, $value in $file-palette {
+        &[data=#{$type}] {
+            color: $value;
+        }
+    }
 }
 
 @mixin colorByRarity {
-    @include colorIcon(second);
-    &[data=mundane] { color: #d1d1d1; }
-    &[data=common] { color: #ffffff; }
-    &[data=uncommon] { color: #5cbe3e; }
-    &[data=rare] { color: #5991dc; }
-    &[data=veryRare] { color: #8759dc; }
-    &[data=legendary] { color: #f2a546; }
-    &[data=artifact] { color: #8d5e25; }
+    @each $type, $value in $rarity-palette {
+        &[data=#{$type}] {
+            color: $value;
+        }
+    }
 }
