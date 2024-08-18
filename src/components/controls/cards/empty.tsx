@@ -17,7 +17,9 @@ const EmptyCard: React.FC<EmptyCardProps> = ({ header, href, children }) => {
             <div className={styles.label}>
                 { header }
             </div>
-            { children }
+            <div className={styles.content}>
+                { children }
+            </div>
         </div>
     )
 }

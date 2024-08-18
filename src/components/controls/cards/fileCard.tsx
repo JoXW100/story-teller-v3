@@ -20,7 +20,7 @@ const FileCard: React.FC<FileCardProps> = ({ file }) => {
             </div>
             <div className={styles.bottomBar}>
                 <div className='font-bold no-line-break'>
-                    {`${file.name}.${file.type}`}
+                    <span>{`${file.name}.${file.type}`}</span>
                 </div>
                 <Tooltip title={<LocalizedText id='stories-card-tooltip-dateUpdated'/>}>
                     <div className='justify-right no-line-break'>

@@ -1,6 +1,8 @@
+import { useContext } from 'react'
 import Editor from '../editor'
 import Renderer from '../renderer'
 import FileHomeView from './fileHomeView'
+import { Context, ViewMode } from 'components/contexts/app'
 import FileContext from 'components/contexts/file'
 import Divider from 'components/controls/divider'
 import { isObjectId } from 'utils'
@@ -13,19 +15,28 @@ interface DocumentViewParams {
 }
 
 const FileView: React.FC<DocumentViewParams> = ({ fileId, editEnabled = false }) => {
-    return isObjectId(fileId)
-        ? <FileContext fileId={fileId}>
-            { editEnabled
-                ? <Divider
+    const [context] = useContext(Context)
+
+    if (!isObjectId(fileId)) {
+        return <FileHomeView/>
+    }
+
+    return (
+        <FileContext fileId={fileId}>
+            { context.viewMode === ViewMode.SplitView && editEnabled &&
+                <Divider
                     className={styles.divider}
                     minLeft='1em'
                     minRight='1em'
                     left={<Editor/>}
                     right={<Renderer/>}/>
-                : <Renderer/>
+            }{ context.viewMode === ViewMode.Exclusive && editEnabled &&
+                <Editor/>
+            }{ !editEnabled &&
+                <Renderer/>
             }
         </FileContext>
-        : <FileHomeView/>
+    )
 }
 
 export default FileView

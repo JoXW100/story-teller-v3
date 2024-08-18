@@ -78,7 +78,7 @@ const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
                     </button>
                 </Tooltip>
                 <Tooltip title={<LocalizedText id='stories-card-tooltip-dateUpdated'/>}>
-                    <div className={styles.date}>
+                    <div className='justify-right no-line-break'>
                         { new Date(story.dateUpdated).toLocaleDateString('se-SW', {
                             hour: 'numeric',
                             minute: 'numeric'

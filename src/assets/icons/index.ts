@@ -136,7 +136,7 @@ const IconMap = {
     'settings': SettingsIcon as React.FC<IconParams>,
     'edit': EditIcon as React.FC<IconParams>,
     'error': ErrorIcon as React.FC<IconParams>
-}
+} as const
 
 export type IconType = keyof typeof IconMap
 

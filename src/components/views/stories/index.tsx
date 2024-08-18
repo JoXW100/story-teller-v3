@@ -79,7 +79,9 @@ const StoriesView: React.FC = () => {
                     <EmptyCard
                         href={Navigation.createStoryURL()}
                         header={<LocalizedText id='stories-card-addStory'/>}>
-                        <AddSharpIcon/>
+                        <div className='fill center-flex'>
+                            <AddSharpIcon className='icon square'/>
+                        </div>
                     </EmptyCard>
                     { state.stories.map((story) => (
                         <StoryCard key={story.id} story={story}/>

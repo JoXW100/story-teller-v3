@@ -30,7 +30,7 @@ const PublishComponent: React.FC = () => {
         }
     }
 
-    const isPublicStory = true || ctx.story.flags.includes(FlagType.Public)
+    const isPublicStory = ctx.story.flags.includes(FlagType.Public)
     const isPublic = isPublicStory || context.file.flags.includes(FlagType.Public)
     const href = Navigation.viewURL(context.file.id)
 

@@ -9,12 +9,7 @@ $iconPadding: 2px;
     @include colorInteractiveInnerControl;
     @include colorShadow(second);
     @include colorDecoration(second);
-    display: grid;
-    grid-template-rows: 1fr;
-    grid-template-rows: auto 1fr;
-    position: relative;
-    width: 100%;
-    height: 100%;
+    overflow: hidden;
 
     & > svg {
         color: inherit;
@@ -32,10 +27,17 @@ $iconPadding: 2px;
     height: $menuItemHeaderHeight;
 }
 
+.content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    overflow: hidden;
+    gap: 5px;
+    height: 3 * $menuItemHeight - $iconNormalSize;
+    margin: $iconPadding $iconPadding + 5px;
+}
+
 .description {
     overflow: hidden;
-    padding: 10px;
-    height: 80px;
 
     & > div {
         display: -webkit-box;
@@ -43,6 +45,7 @@ $iconPadding: 2px;
         line-clamp: 3;
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
+        max-width: 100%;
     }
 }
 
@@ -51,7 +54,7 @@ $iconPadding: 2px;
     height: $iconNormalSize + $iconPadding;
     align-items: center;
     gap: 2 * $iconPadding;
-    margin: $iconPadding $iconPadding + 5px;
+    margin-top: auto;
 
     & > * {
         user-select: none;

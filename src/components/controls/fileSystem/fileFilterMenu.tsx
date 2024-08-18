@@ -2,13 +2,15 @@ import { useContext } from 'react'
 import CloseIcon from '@mui/icons-material/CloseSharp'
 import FolderIcon from '@mui/icons-material/FolderSharp'
 import { Tooltip } from '@mui/material'
-import { getFileIcon } from './file'
 import { Context } from './context'
-import Checkbox from '../../controls/checkbox'
+import type { LanguageKey } from 'assets'
+import IconMap from 'assets/icons'
 import { Context as AppContext } from 'components/contexts/app'
 import LocalizedText from 'components/controls/localizedText'
+import Icon from 'components/controls/icon'
+import Checkbox from 'components/controls/checkbox'
+import { asKeyOf } from 'utils'
 import { DocumentType, FileType } from 'structure/database'
-import type { LanguageKey } from 'assets'
 import styles from './style.module.scss'
 
 const FileFilterMenu: React.FC = () => {
@@ -49,21 +51,18 @@ const FileFilterMenu: React.FC = () => {
                 <FolderIcon/>
                 <LocalizedText id='filter-menu-showEmptyFolders'/>
             </div>
-            { Object.values(DocumentType).map((type) => {
-                const Icon = getFileIcon(type)
-                return (
-                    <div
-                        className={styles.fileFilterMenuItem}
-                        key={type}
-                        data={app.enableColorFileByType ? type : undefined}>
-                        <Checkbox
-                            value={state.filter[type]}
-                            onChange={() => { handleChange(type) }}/>
-                        <Icon className='small-icon'/>
-                        <LocalizedText id={`document-${type}` as LanguageKey}/>
-                    </div>
-                )
-            })}
+            { Object.values(DocumentType).map((type) =>
+                <div
+                    className={styles.fileFilterMenuItem}
+                    key={type}
+                    data={app.enableColorFileByType ? type : undefined}>
+                    <Checkbox
+                        value={state.filter[type]}
+                        onChange={() => { handleChange(type) }}/>
+                    <Icon className='small-icon' icon={asKeyOf(type, IconMap) ?? 'txt'}/>
+                    <LocalizedText id={`document-${type}` as LanguageKey}/>
+                </div>
+            )}
         </div>
     )
 }
