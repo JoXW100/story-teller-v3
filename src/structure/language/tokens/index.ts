@@ -52,15 +52,15 @@ abstract class Token implements IToken {
             return []
         }
         for (const token of this.children) {
-            const match = token.findTokenAt(position)
-            if (match.length > 0) {
+            const match = token?.findTokenAt(position)
+            if (match !== undefined && match.length > 0) {
                 return [...token.findTokenAt(position), this]
             }
         }
         return [this]
     }
 
-    public getHoverText(_: MonacoModel): MarkdownString[] {
+    public async getHoverText(_: MonacoModel): Promise<MarkdownString[]> {
         return []
     }
 

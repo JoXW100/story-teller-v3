@@ -1,13 +1,13 @@
 import Logger from './logger'
-import type DatabaseStory from 'structure/database/story'
 import { isEnum, isObjectId, keysOf } from 'utils'
 import { type DocumentFileType, DocumentType, type FlagType } from 'structure/database'
 import FileStructure from 'structure/database/fileStructure'
-import DocumentFactory, { type DocumentTypeMap } from 'structure/database/files/factory'
-import StoryFactory from 'structure/database/story/factory'
 import type AbilityDocument from 'structure/database/files/ability'
-import type { ObjectId, ValueOf } from 'types'
+import type DatabaseStory from 'structure/database/story'
+import type { ObjectId } from 'types'
 import type { IDatabaseStory, DBResponse, IFileStructure, IDatabaseFile, ServerRequestType } from 'types/database'
+import type { Document, DocumentTypeMap, IDocumentFactory } from 'types/database/files/factory'
+import type { IStoryFactory } from 'types/database/story'
 
 type FetchMethod = 'GET' | 'PUT' | 'DELETE'
 type FetchParams = Record<string, unknown>
@@ -24,7 +24,10 @@ abstract class Communication {
     private static readonly serverRootURL = '/api/server'
     private static readonly open5eRootURL = 'https://api.open5e.com/'
 
-    public static readonly cache: Record<ObjectId, ValueOf<DocumentTypeMap>> = {}
+    private static storyFactory: IStoryFactory
+    private static documentFactory: IDocumentFactory
+
+    public static readonly cache: Record<ObjectId, Document> = {}
 
     private static async databaseFetch<T>(type: ServerRequestType, method: FetchMethod, params: FetchParams = {}): Promise<DBResponse<T>> {
         try {
@@ -59,6 +62,11 @@ abstract class Communication {
         }
     }
 
+    public static init(storyFactory: IStoryFactory, documentFactory: IDocumentFactory): void {
+        this.storyFactory = storyFactory
+        this.documentFactory = documentFactory
+    }
+
     public static async debug(params: FetchParams = {}): Promise<DBResponse<boolean>> {
         return await this.databaseFetch<boolean>('debug', 'PUT', params)
     }
@@ -69,8 +77,8 @@ abstract class Communication {
         })
         Logger.log('Communication.getStory', response)
         if (response.success) {
-            if (StoryFactory.validate(response.result)) {
-                return { success: true, result: StoryFactory.create(response.result) }
+            if (this.storyFactory.validate(response.result)) {
+                return { success: true, result: this.storyFactory.create(response.result) }
             } else {
                 return { success: false, result: 'Failed validation' }
             }
@@ -84,8 +92,8 @@ abstract class Communication {
             const result: DatabaseStory[] = []
             for (let i = 0; i < response.result.length; i++) {
                 const story = response.result[i]
-                if (StoryFactory.validate(story)) {
-                    result.push(StoryFactory.create(story))
+                if (this.storyFactory.validate(story)) {
+                    result.push(this.storyFactory.create(story))
                 }
             }
             Logger.log('Communication.getAllStories', result)
@@ -100,8 +108,8 @@ abstract class Communication {
             const result: DatabaseStory[] = []
             for (let i = 0; i < response.result.length; i++) {
                 const story = response.result[i]
-                if (StoryFactory.validate(story)) {
-                    result.push(StoryFactory.create(story))
+                if (this.storyFactory.validate(story)) {
+                    result.push(this.storyFactory.create(story))
                 }
             }
             return { success: true, result: result }
@@ -111,8 +119,8 @@ abstract class Communication {
 
     public static async getLastUpdatedStory(): Promise<DatabaseStory | null> {
         const response = await this.databaseFetch<IDatabaseStory>('getLastUpdatedStory', 'GET')
-        if (response.success && StoryFactory.validate(response.result)) {
-            return StoryFactory.create(response.result)
+        if (response.success && this.storyFactory.validate(response.result)) {
+            return this.storyFactory.create(response.result)
         }
         return null
     }
@@ -124,13 +132,13 @@ abstract class Communication {
         })
 
         if (response.success) {
-            if (!response.result.every(value => DocumentFactory.validate(value))) {
+            if (!response.result.every(value => this.documentFactory.validate(value))) {
                 Logger.error('Communication.getLastUpdatedFiles', response.result)
                 return { success: false, result: 'Failed to get file, validation failed' }
             } else {
                 const result: Array<DocumentTypeMap[DocumentType]> = []
                 for (const document of response.result) {
-                    const instance = DocumentFactory.create(document)
+                    const instance = this.documentFactory.create(document)
                     if (instance === null) {
                         throw new Error('Validated file creation resulted in null value')
                     }
@@ -178,9 +186,9 @@ abstract class Communication {
         return response
     }
 
-    public static async getFile(fileId: ObjectId, type?: any): Promise<DBResponse<ValueOf<DocumentTypeMap>>>
+    public static async getFile(fileId: ObjectId, type?: any): Promise<DBResponse<Document>>
     public static async getFile<T extends DocumentType>(fileId: ObjectId, type: T): Promise<DBResponse<DocumentTypeMap[T]>>
-    public static async getFile<T extends DocumentType>(fileId: ObjectId, type?: T): Promise<DBResponse<DocumentTypeMap[T] | ValueOf<DocumentTypeMap>>> {
+    public static async getFile<T extends DocumentType>(fileId: ObjectId, type?: T): Promise<DBResponse<DocumentTypeMap[T] | Document>> {
         if (fileId in this.cache && (type === undefined || this.cache[fileId].type === type)) {
             return { success: true, result: this.cache[fileId] }
         }
@@ -190,11 +198,11 @@ abstract class Communication {
             allowedTypes: type !== undefined ? [type] : undefined
         })
         if (response.success) {
-            if (!DocumentFactory.validate(response.result)) {
+            if (!this.documentFactory.validate(response.result)) {
                 Logger.error('Communication.getFile', response.result)
                 return { success: false, result: 'Failed to get file, type missmatch' }
             } else {
-                const instance = DocumentFactory.create(response.result)
+                const instance = this.documentFactory.create(response.result)
                 if (instance === null) {
                     throw new Error('Validated file creation resulted in null value')
                 }
@@ -218,11 +226,11 @@ abstract class Communication {
             allowedTypes: allowedTypes
         })
         if (response.success) {
-            if (!DocumentFactory.validate(response.result)) {
+            if (!this.documentFactory.validate(response.result)) {
                 Logger.error('Communication.getFileOfTypes', response.result)
                 return { success: false, result: 'Failed to get file, type missmatch' }
             } else {
-                const instance = DocumentFactory.createOfTypes(response.result, allowedTypes)
+                const instance = this.documentFactory.createOfTypes(response.result, allowedTypes)
                 if (instance === null) {
                     throw new Error('Validated file creation resulted in null value')
                 }
@@ -256,12 +264,12 @@ abstract class Communication {
         })
 
         if (response.success) {
-            if (!response.result.every(value => DocumentFactory.validate(value))) {
+            if (!response.result.every(value => this.documentFactory.validate(value))) {
                 Logger.error('Communication.getFilesOfTypes', response.result)
                 return { success: false, result: 'Failed to get file, type missmatch' }
             } else {
                 for (const document of response.result) {
-                    const instance = DocumentFactory.createOfTypes(document, allowedTypes)
+                    const instance = this.documentFactory.createOfTypes(document, allowedTypes)
                     if (instance === null) {
                         throw new Error('Validated file creation resulted in null value')
                     }
@@ -276,23 +284,23 @@ abstract class Communication {
         return response
     }
 
-    public static async getAllFiles(allowedTypes?: any, requiredFlags?: FlagType[], sources?: readonly ObjectId[]): Promise<DBResponse<Array<ValueOf<DocumentTypeMap>>>>
+    public static async getAllFiles(allowedTypes?: any, requiredFlags?: FlagType[], sources?: readonly ObjectId[]): Promise<DBResponse<Document[]>>
     public static async getAllFiles<T extends readonly DocumentType[]>(allowedTypes: T, requiredFlags?: readonly FlagType[], sources?: readonly ObjectId[]): Promise<DBResponse<Array<DocumentTypeMap[T[number]]>>>
-    public static async getAllFiles<T extends readonly DocumentType[]>(allowedTypes?: T, requiredFlags?: readonly FlagType[], sources?: readonly ObjectId[]): Promise<DBResponse<Array<DocumentTypeMap[T[number]] | ValueOf<DocumentTypeMap>>>> {
+    public static async getAllFiles<T extends readonly DocumentType[]>(allowedTypes?: T, requiredFlags?: readonly FlagType[], sources?: readonly ObjectId[]): Promise<DBResponse<Array<DocumentTypeMap[T[number]] | Document>>> {
         const response = await this.databaseFetch<IDatabaseFile[]>('getAll', 'GET', {
             sources: sources ?? [],
             allowedTypes: allowedTypes ?? [],
             requiredFlags: requiredFlags ?? []
         })
         if (response.success) {
-            if (!response.result.every(value => DocumentFactory.validate(value))) {
+            if (!response.result.every(value => this.documentFactory.validate(value))) {
                 Logger.error('Communication.getAllFiles', response.result)
                 return { success: false, result: 'Failed to get file, type missmatch' }
             } else {
                 return {
                     success: true,
                     result: response.result.map(value => {
-                        const instance = DocumentFactory.create(value)
+                        const instance = this.documentFactory.create(value)
                         if (instance === null) {
                             throw new Error('Validated file creation resulted in null value')
                         }
@@ -312,14 +320,14 @@ abstract class Communication {
             sources: sources
         })
         if (response.success) {
-            if (!response.result.every(value => DocumentFactory.validate(value))) {
+            if (!response.result.every(value => this.documentFactory.validate(value))) {
                 Logger.error('Communication.getSubFiles', response.result)
                 return { success: false, result: 'Failed to get file, type missmatch' }
             } else {
                 return {
                     success: true,
                     result: response.result.map(value => {
-                        const instance = DocumentFactory.createOfTypes(value, [type])
+                        const instance = this.documentFactory.createOfTypes(value, [type])
                         if (instance === null) {
                             throw new Error('Validated file creation resulted in null value')
                         }
@@ -337,14 +345,14 @@ abstract class Communication {
             category: category
         })
         if (response.success) {
-            if (!response.result.every(value => DocumentFactory.validate(value))) {
+            if (!response.result.every(value => this.documentFactory.validate(value))) {
                 Logger.error('Communication.getFeats', response.result)
                 return { success: false, result: 'Failed to get file, type missmatch' }
             } else {
                 return {
                     success: true,
                     result: response.result.map(value => {
-                        const instance = DocumentFactory.createOfTypes(value, [DocumentType.Ability])
+                        const instance = this.documentFactory.createOfTypes(value, [DocumentType.Ability])
                         if (instance === null) {
                             throw new Error('Validated file creation resulted in null value')
                         }

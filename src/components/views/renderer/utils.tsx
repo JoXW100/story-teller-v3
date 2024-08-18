@@ -17,10 +17,9 @@ import ClassRenderer from './class'
 import SubclassRenderer from './subclass'
 import { isKeyOf } from 'utils'
 import { type DocumentFileType, DocumentType } from 'structure/database'
-import type { DocumentTypeMap } from 'structure/database/files/factory'
-import type { ValueOf } from 'types'
+import type { Document } from 'types/database/files/factory'
 
-export type LinkRendererProps = React.PropsWithRef<{ file: ValueOf<DocumentTypeMap> }>
+export type LinkRendererProps = React.PropsWithRef<{ file: Document }>
 
 export const DocumentRendererMap: Record<DocumentType, { document: React.FC, link: React.FC<LinkRendererProps> }> = {
     [DocumentType.Ability]: { document: AbilityDocumentRenderer, link: AbilityLinkRenderer },

@@ -4,13 +4,13 @@ import { isString } from 'utils'
 import type Condition from 'structure/database/condition'
 import ConditionFactory, { simplifyCondition } from 'structure/database/condition/factory'
 import EmptyToken from 'structure/language/tokens/empty'
+import StoryScript from 'structure/language/storyscript'
+import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { Simplify } from 'types'
 import type { TokenContext } from 'types/language'
 import type { IProperties } from 'types/editor'
 import type { DataPropertyMap } from 'types/database'
 import type { IModifierDataBase } from 'types/database/files/modifier'
-import type { ElementDefinitions } from 'structure/elements/dictionary'
-import StoryScript from 'structure/language/storyscript'
 
 abstract class ModifierDataBase implements IModifierDataBase {
     public abstract readonly type: ModifierType

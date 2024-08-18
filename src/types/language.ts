@@ -1,6 +1,7 @@
 import type { Monaco } from '@monaco-editor/react'
 import type { editor, languages, Position as IPosition, IMarkdownString, IDisposable, Range as IRange } from 'monaco-editor'
 import type Tokenizer from 'structure/language/tokenizer'
+import type { ElementDefinitions } from 'structure/elements/dictionary'
 
 export type MonacoType = Monaco
 export type MonacoEditor = editor.IStandaloneCodeEditor
@@ -17,6 +18,13 @@ export type MonarchLanguage = languages.IMonarchLanguage
 export type CompletionItemProvider = languages.CompletionItemProvider
 export type HoverProvider = languages.HoverProvider
 
+export interface MonacoModelWithToken extends editor.ITextModel {
+    elements: ElementDefinitions
+    tokenHolder: {
+        token: IToken | null
+    }
+}
+
 export interface IToken {
     readonly isEmpty: boolean
     readonly startLineNumber: number
@@ -28,7 +36,7 @@ export interface IToken {
     readonly parse: (tokenizer: Tokenizer) => void
     readonly build: (key?: string) => React.ReactNode
     readonly findTokenAt: (position: Position) => IToken[]
-    readonly getHoverText: (model: MonacoModel) => MarkdownString[]
+    readonly getHoverText: (model: MonacoModel) => Promise<MarkdownString[]>
     readonly getCompletion: (monaco: MonacoType) => CompletionItem[]
     readonly getText: () => string | null
 }

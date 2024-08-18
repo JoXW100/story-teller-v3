@@ -8,7 +8,7 @@ export type LinkTitleElementParams = React.PropsWithoutRef<{
 }>
 
 class LinkTitleElement extends Element<LinkTitleElementParams> {
-    public readonly name = 'link'
+    public readonly name = 'linkTitle'
     public readonly defaultParam = 'fileId'
     public readonly params = {
         'fileId': {

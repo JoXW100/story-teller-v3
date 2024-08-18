@@ -1,9 +1,12 @@
 import React, { useEffect, useMemo, useReducer } from 'react'
-import { asBoolean, asEnum, asKeyOf, isKeyOf, keysOf } from 'utils'
-import Storage from 'utils/storage'
-import Beyond20, { WhisperType } from 'utils/beyond20'
 import { TextData, type ITextData, type LanguageType } from 'assets'
+import { asBoolean, asEnum, asKeyOf, isKeyOf, keysOf } from 'utils'
 import Palettes from 'assets/palettes'
+import Storage from 'utils/storage'
+import Communication from 'utils/communication'
+import Beyond20, { WhisperType } from 'utils/beyond20'
+import StoryFactory from 'structure/database/story/factory'
+import DocumentFactory from 'structure/database/files/factory'
 import type { ContextProvider, DispatchAction, DispatchActionNoData, ISetFieldData } from 'types/context'
 
 export enum ViewMode {
@@ -146,6 +149,10 @@ const AppContext: React.FC<React.PropsWithChildren> = ({ children }) => {
     useEffect(() => {
         Beyond20.initialize(state.hideRolls ? WhisperType.YES : WhisperType.NO)
     }, [state.hideRolls])
+
+    useEffect(() => {
+        Communication.init(StoryFactory, DocumentFactory)
+    }, [])
 
     return (
         <Context.Provider value={[state, memoisedDispatch]}>

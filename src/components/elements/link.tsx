@@ -6,7 +6,7 @@ const LinkComponent: React.FC<LinkElementParams> = ({ children, href, newTab }) 
     const rel = newTab ? 'noopener noreferrer' : undefined
     const target = newTab ? '_blank' : undefined
     return (
-        <Link href={href} className={styles.link} target={target} rel={rel} passHref>
+        <Link className={styles.link} href={href} target={target} rel={rel} passHref>
             { children }
         </Link>
     )

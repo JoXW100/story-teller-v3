@@ -11,9 +11,9 @@ import Communication from 'utils/communication'
 import Logger from 'utils/logger'
 import Navigation from 'utils/navigation'
 import { DocumentType } from 'structure/database'
-import type { DocumentTypeMap } from 'structure/database/files/factory'
 import type DatabaseStory from 'structure/database/story'
 import type { ObjectId } from 'types'
+import type { DocumentTypeMap } from 'types/database/files/factory'
 import styles from './styles.module.scss'
 
 interface IComponentPropsBase {
@@ -97,7 +97,6 @@ const LinkInput: React.FC<EditLinkInputComponentProps> = (props) => {
     const handleSelect = (): void => {
         openDialog('selectFile', {
             id: 'linkInput.selectFile',
-            storyId: props.story.id,
             allowedTypes: props.allowedTypes,
             parentFile: props.parentFile,
             sources: [...props.story.sources, props.story.id]

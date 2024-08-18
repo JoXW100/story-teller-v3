@@ -3,12 +3,11 @@ import { Tooltip } from '@mui/material'
 import { ElementDictionary } from 'components/elements'
 import LocalizedText from 'components/controls/localizedText'
 import Navigation from 'utils/navigation'
-import type { DocumentTypeMap } from 'structure/database/files/factory'
-import type { ValueOf } from 'types'
+import type { Document } from 'types/database/files/factory'
 import styles from './style.module.scss'
 
 interface FileCardProps {
-    file: ValueOf<DocumentTypeMap>
+    file: Document
 }
 
 const FileCard: React.FC<FileCardProps> = ({ file }) => {

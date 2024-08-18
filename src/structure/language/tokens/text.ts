@@ -1,6 +1,9 @@
 import type Tokenizer from '../tokenizer'
 import Token from '.'
-import type { TokenContext } from 'types/language'
+import { isObjectId } from 'utils'
+import Navigation from 'utils/navigation'
+import Communication from 'utils/communication'
+import type { MarkdownString, TokenContext } from 'types/language'
 
 class TextToken extends Token {
     private text: string = ''
@@ -43,6 +46,20 @@ class TextToken extends Token {
 
     public override getText(): string {
         return this.text
+    }
+
+    public override async getHoverText(): Promise<MarkdownString[]> {
+        const text = this.value
+        if (isObjectId(text)) {
+            const url = Navigation.fileURL(text)
+            const response = await Communication.getFile(text)
+            if (response.success) {
+                return [{
+                    value: `${response.result.getTitle()}: [Source](${url.toString()})`
+                }]
+            }
+        }
+        return []
     }
 }
 

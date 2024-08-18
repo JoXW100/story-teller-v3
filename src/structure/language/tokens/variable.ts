@@ -48,7 +48,7 @@ class VariableToken extends Token {
         return this.getContent()?.getText() ?? null
     }
 
-    public override getHoverText(model: MonacoModel): MarkdownString[] {
+    public override async getHoverText(model: MonacoModel): Promise<MarkdownString[]> {
         const token = this.getContent()
         if (token !== null) {
             if (token === null) {

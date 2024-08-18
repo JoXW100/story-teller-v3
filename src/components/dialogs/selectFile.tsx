@@ -10,20 +10,19 @@ import Loading from 'components/controls/loading'
 import LocalizedText from 'components/controls/localizedText'
 import SearchBar from 'components/controls/searchBar'
 import Error from 'components/controls/error'
-import type { DocumentTypeMap } from 'structure/database/files/factory'
-import type { ValueOf } from 'types'
 import type { DialogArgs } from 'types/dialog'
+import type { Document } from 'types/database/files/factory'
 import styles from './style.module.scss'
 
 interface ISelectFileDialogState {
-    selected: ValueOf<DocumentTypeMap> | null
-    files: Array<ValueOf<DocumentTypeMap>>
+    selected: Document | null
+    files: Document[]
     search: string
     loading: boolean
     error: string | null
 }
 
-const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, storyId, allowedTypes, parentFile, sources, callback }) => {
+const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, allowedTypes, parentFile, sources, callback }) => {
     const [state, setState] = useState<ISelectFileDialogState>({
         selected: null,
         files: [],
@@ -61,7 +60,7 @@ const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, storyId, all
             }
             (isDefined(parentFile)
                 ? Communication.getSubFiles(parentFile, allowedTypes[0], sources)
-                : Communication.getAllFiles(storyId, allowedTypes, [], sources)
+                : Communication.getAllFiles(allowedTypes, [], sources)
             ).then((response) => {
                 if (response.success) {
                     setState((state) => ({ ...state, files: response.result, loading: false, error: null }))
@@ -75,7 +74,7 @@ const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, storyId, all
 
             return { ...state, files: [], loading: true, error: null }
         })
-    }, [allowedTypes, parentFile, sources, storyId])
+    }, [allowedTypes, parentFile, sources])
 
     useEffect(() => {
         loadContent()

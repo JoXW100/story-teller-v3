@@ -1,5 +1,6 @@
-import { isURLString } from 'utils'
 import { Element } from '.'
+import { isObjectId, isURLString } from 'utils'
+import Navigation from 'utils/navigation'
 
 export type LinkElementParams = React.PropsWithChildren<{
     href: URL
@@ -11,8 +12,8 @@ class LinkElement extends Element<LinkElementParams> {
     public readonly defaultParam = 'href'
     public readonly params = {
         'href': {
-            validate: (value) => isURLString(value),
-            parse: (value) => new URL(value)
+            validate: (value) => isObjectId(value) || isURLString(value),
+            parse: (value) => isObjectId(value) ? Navigation.fileURL(value) : new URL(value)
         },
         'newTab': {
             default: false,

@@ -79,7 +79,7 @@ class CommandToken extends Token {
         }
     }
 
-    public override getHoverText(): MarkdownString[] {
+    public override async getHoverText(): Promise<MarkdownString[]> {
         if (this._keyword === null) {
             return []
         }

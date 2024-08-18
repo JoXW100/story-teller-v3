@@ -15,107 +15,13 @@ import SpellDocument from './spell'
 import TextDocument from './text'
 import FolderFile from './folder'
 import SubclassDocument from './subclass'
-import { type AbilityData } from './ability/factory'
-import { type SpellData } from './spell/factory'
-import { type ItemData } from './item/factory'
-import type TextData from './text/data'
-import type RaceData from './race/data'
-import type SubraceData from './subrace/data'
-import type MapData from './map/data'
-import type { ModifierData } from './modifier/factory'
-import type NPCData from './npc/data'
-import type MapStorage from './map/storage'
-import type CharacterData from './character/data'
-import type ClassData from './class/data'
-import type ConditionData from './condition/data'
-import type CreatureData from './creature/data'
-import type FolderData from './folder/data'
-import type SubclassData from './subclass/data'
-import type EncounterData from './encounter/data'
-import type CreatureStorage from './creature/storage'
-import type CharacterStorage from './character/storage'
-import type EncounterStorage from './encounter/storage'
 import { isEnum, isRecord } from 'utils'
-import { DocumentFileType, type DocumentType, EmptyDatabaseFactory, type FileType, validateObjectProperties } from 'structure/database'
-import type { ValueOf } from 'types'
-import type { IDatabaseFactory, IDatabaseFile } from 'types/database'
-import type { DocumentIDataMap, DocumentIStorageMap } from 'types/database/files/factory'
-
-export interface DocumentDataMap extends Record<DocumentFileType, object> {
-    [DocumentFileType.Ability]: AbilityData
-    [DocumentFileType.Creature]: CreatureData
-    [DocumentFileType.Character]: CharacterData
-    [DocumentFileType.Class]: ClassData
-    [DocumentFileType.Condition]: ConditionData
-    [DocumentFileType.Subclass]: SubclassData
-    [DocumentFileType.Encounter]: EncounterData
-    [DocumentFileType.Item]: ItemData
-    [DocumentFileType.Map]: MapData
-    [DocumentFileType.Modifier]: ModifierData
-    [DocumentFileType.NPC]: NPCData
-    [DocumentFileType.Race]: RaceData
-    [DocumentFileType.Subrace]: SubraceData
-    [DocumentFileType.Spell]: SpellData
-    [DocumentFileType.Text]: TextData
-    [DocumentFileType.Folder]: FolderData
-}
-
-export interface DocumentStorageMap extends Record<DocumentFileType, object> {
-    [DocumentFileType.Ability]: DocumentIStorageMap[DocumentType.Ability]
-    [DocumentFileType.Creature]: CreatureStorage
-    [DocumentFileType.Character]: CharacterStorage
-    [DocumentFileType.Class]: DocumentIStorageMap[DocumentType.Class]
-    [DocumentFileType.Condition]: DocumentIStorageMap[DocumentType.Condition]
-    [DocumentFileType.Subclass]: DocumentIStorageMap[DocumentType.Subclass]
-    [DocumentFileType.Encounter]: EncounterStorage
-    [DocumentFileType.Item]: DocumentIStorageMap[DocumentType.Item]
-    [DocumentFileType.Map]: MapStorage
-    [DocumentFileType.Modifier]: DocumentIStorageMap[DocumentType.Modifier]
-    [DocumentFileType.NPC]: DocumentIStorageMap[DocumentType.NPC]
-    [DocumentFileType.Race]: DocumentIStorageMap[DocumentType.Race]
-    [DocumentFileType.Subrace]: DocumentIStorageMap[DocumentType.Subrace]
-    [DocumentFileType.Spell]: DocumentIStorageMap[DocumentType.Spell]
-    [DocumentFileType.Text]: DocumentIStorageMap[DocumentType.Text]
-    [DocumentFileType.Folder]: DocumentIStorageMap[FileType.Folder]
-}
-
-type DocumentTypeMapHelper<K extends DocumentFileType> = { [P in K]: DatabaseFile<P> }
-export interface DocumentTypeMap extends DocumentTypeMapHelper<DocumentFileType> {
-    [DocumentFileType.Ability]: AbilityDocument
-    [DocumentFileType.Creature]: CreatureDocument
-    [DocumentFileType.Character]: CharacterDocument
-    [DocumentFileType.Class]: ClassDocument
-    [DocumentFileType.Condition]: ConditionDocument
-    [DocumentFileType.Encounter]: EncounterDocument
-    [DocumentFileType.Subclass]: SubclassDocument
-    [DocumentFileType.Item]: ItemDocument
-    [DocumentFileType.Map]: MapDocument
-    [DocumentFileType.Modifier]: ModifierDocument
-    [DocumentFileType.NPC]: NPCDocument
-    [DocumentFileType.Race]: RaceDocument
-    [DocumentFileType.Subrace]: SubraceDocument
-    [DocumentFileType.Spell]: SpellDocument
-    [DocumentFileType.Text]: TextDocument
-    [DocumentFileType.Folder]: FolderFile
-}
-
-type DocumentIMap<P extends DocumentFileType> = IDatabaseFile<P, DocumentDataMap[P], DocumentStorageMap[P]>
-type DocumentDataFactory<P extends DocumentFileType = DocumentFileType> = IDatabaseFactory<DocumentIDataMap[P], DocumentDataMap[P]>
-type DocumentStorageFactory<P extends DocumentFileType = DocumentFileType> = IDatabaseFactory<DocumentIStorageMap[P], DocumentStorageMap[P]>
-
-interface IDocumentFactory {
-    readonly create: (data: IDatabaseFile) => ValueOf<DocumentTypeMap> | null
-    readonly createOfType: <T extends DocumentType>(data: IDatabaseFile, type: T) => DocumentTypeMap[T] | null
-    readonly createOfTypes: <T extends readonly DocumentType[]>(data: IDatabaseFile, types: T) => DocumentTypeMap[T[number]] | null
-    readonly validate: (data: unknown) => data is Omit<IDatabaseFile, 'id' | 'isOwner'> & { id: unknown, isOwner: unknown }
-    readonly dataFactory: (type: DocumentFileType) => DocumentDataFactory
-    readonly storageFactory: (type: DocumentFileType) => DocumentStorageFactory
-    readonly isOfType: <T extends DocumentType>(data: IDatabaseFile, type: T) => data is DocumentIMap<T>
-    readonly isOfTypes: <T extends readonly DocumentType[]>(data: IDatabaseFile, types: T) => data is DocumentIMap<T[number]>
-}
+import { DocumentFileType, type DocumentType, EmptyDatabaseFactory, validateObjectProperties } from 'structure/database'
+import type { IDatabaseFile } from 'types/database'
+import type { Document, DocumentDataFactory, DocumentIMap, DocumentStorageFactory, DocumentTypeMap, IDocumentFactory } from 'types/database/files/factory'
 
 const DocumentFactory: IDocumentFactory = {
-    create: function (data: IDatabaseFile): ValueOf<DocumentTypeMap> | null {
+    create: function (data: IDatabaseFile): Document | null {
         switch (data.type) {
             case DocumentFileType.Ability:
                 return new AbilityDocument(data as DocumentIMap<typeof data.type>)

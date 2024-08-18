@@ -9,10 +9,10 @@ import Logger from 'utils/logger'
 import RequestBuffer from 'utils/buffer'
 import { useLocalizedText } from 'utils/hooks/localization'
 import type { EditorPageKeyType } from 'components/views/editor'
-import type { DocumentDataMap, DocumentTypeMap } from 'structure/database/files/factory'
 import type { ObjectId, ValueOf } from 'types'
 import type { ContextProvider, DispatchAction, DispatchActionNoData, DispatchActionWithDispatch, ISetFieldData } from 'types/context'
 import type { DBResponse } from 'types/database'
+import type { Document, DocumentDataMap } from 'types/database/files/factory'
 
 export interface IEditorPageData {
     pageKey: EditorPageKeyType
@@ -21,7 +21,7 @@ export interface IEditorPageData {
 }
 
 interface FileContextState {
-    file: ValueOf<DocumentTypeMap>
+    file: Document
     editorPages: IEditorPageData[]
     loading: boolean
     buffer: RequestBuffer
@@ -290,7 +290,7 @@ const FileContext: React.FC<FileContextProps> = ({ children, fileId }) => {
 }
 
 type FileHeaderProps = React.PropsWithoutRef<{
-    file: ValueOf<DocumentTypeMap>
+    file: Document
 }>
 
 const FileHeader: React.FC<FileHeaderProps> = ({ file }) => {

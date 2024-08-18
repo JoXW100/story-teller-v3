@@ -1,6 +1,6 @@
+import type { DocumentIDataMap, DocumentIStorageMap } from './files'
 import type { DocumentFileType, FlagType } from 'structure/database'
 import type { ObjectId, Simplify } from 'types'
-import type { DocumentIDataMap, DocumentIStorageMap } from './files/factory'
 
 export type DBResponse<T> = {
     success: true

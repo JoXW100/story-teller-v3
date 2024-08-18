@@ -1,30 +1,21 @@
+import Tokenizer from './tokenizer'
 import BodyToken from './tokens/body'
 import { isDefined, keysOf } from 'utils'
-import type { IToken, MonacoType, MonacoEditor, MarkerData, CompletionItemProvider, HoverProvider, TokenContext, MonacoDisposable, MonarchLanguage, ITokenizedResult } from 'types/language'
+import Logger from 'utils/logger'
+import type { MonacoType, MarkerData, CompletionItemProvider, HoverProvider, TokenContext, MonarchLanguage, ITokenizedResult, MonacoModelWithToken, IToken } from 'types/language'
 import type { ElementDefinitions } from 'structure/elements/dictionary'
-import Tokenizer from './tokenizer'
 
 class StoryScript {
-    private isRegistered = false
-    private readonly tokenHolder: { token: IToken | null } = { token: null }
-    private readonly elements: ElementDefinitions
-    private readonly disposable: MonacoDisposable[] = []
-
-    public constructor(elements: ElementDefinitions) {
-        this.elements = elements
-    }
-
-    public register(monaco: MonacoType): void {
-        const language = { id: 'storyscript' }
-        if (this.isRegistered || monaco.languages.getLanguages().includes(language)) {
+    public static readonly LanguageId = 'storyscript'
+    public static register(monaco: MonacoType, elements: ElementDefinitions): void {
+        if (monaco.languages.getLanguages().some((value) => value.id === this.LanguageId)) {
             return
         }
 
-        this.isRegistered = true
-        monaco.languages.register(language)
-        this.disposable.push(monaco.languages.setMonarchTokensProvider('storyscript', this.createMonarchTokensProvider()))
-        this.disposable.push(monaco.languages.registerCompletionItemProvider('storyscript', this.createCompletionItemProvider(monaco)))
-        this.disposable.push(monaco.languages.registerHoverProvider('storyscript', this.createHoverProvider(monaco)))
+        monaco.languages.register({ id: this.LanguageId })
+        monaco.languages.setMonarchTokensProvider('storyscript', this.createMonarchTokensProvider(monaco, elements))
+        monaco.languages.registerCompletionItemProvider('storyscript', this.createCompletionItemProvider(monaco))
+        monaco.languages.registerHoverProvider('storyscript', this.createHoverProvider(monaco))
         // monaco.languages.registerDefinitionProvider('storyscript', {
         //     provideDefinition(model, position, token) {
         //         // const word = model.getWordAtPosition(position)
@@ -51,47 +42,43 @@ class StoryScript {
         })
     }
 
-    public dispose(): void {
-        for (const disposable of this.disposable) {
-            disposable.dispose()
-        }
-        this.isRegistered = false
-    }
-
-    public applyMarkers(editor: MonacoEditor, monaco: MonacoType, data?: ITokenizedResult, context?: TokenContext): void {
-        const model = editor.getModel()
+    public static applyMarkers(model: MonacoModelWithToken, monaco: MonacoType, data?: ITokenizedResult, context?: TokenContext): IToken | null {
         if (model === null) {
-            return
+            return null
+        }
+
+        if (!isDefined(model.tokenHolder)) {
+            model.tokenHolder = {
+                token: null
+            }
         }
 
         if (data !== undefined) {
-            this.tokenHolder.token = data.root
+            model.tokenHolder.token = data.root
             monaco.editor.setModelMarkers(model, 'owner', data.markers as MarkerData[])
+            return data.root
         } else {
-            const result = StoryScript.tokenize(this.elements, editor.getValue(), context)
-            this.tokenHolder.token = result.root
+            const result = StoryScript.tokenize(model.elements, model.getValue(), context)
+            model.tokenHolder.token = result.root
             monaco.editor.setModelMarkers(model, 'owner', result.markers as MarkerData[])
+            return result.root
         }
-    }
-
-    public get token(): IToken | null {
-        return this.tokenHolder.token
     }
 
     public static tokenize(elements: ElementDefinitions, text: string, context?: TokenContext): ITokenizedResult {
         const root = new BodyToken(1, 1, context)
         const tokenizer = new Tokenizer(elements, text)
         root.parse(tokenizer, true)
-
+        Logger.log('StoryScript.tokenize', root)
         return {
             root: root,
             markers: tokenizer.markers
         }
     }
 
-    private createMonarchTokensProvider(): MonarchLanguage {
+    private static createMonarchTokensProvider(monaco: MonacoType, elements: ElementDefinitions): MonarchLanguage {
         return {
-            keywords: keysOf(this.elements).map(k => `\\${k}`),
+            keywords: keysOf(elements).map(k => `\\${k}`),
             brackets: [
                 { open: '[', close: ']', token: 'param-brackets' },
                 { open: '{', close: '}', token: 'body-brackets' },
@@ -153,10 +140,10 @@ class StoryScript {
         }
     }
 
-    private createCompletionItemProvider(monaco: MonacoType): CompletionItemProvider {
-        const tokenHolder = this.tokenHolder
+    private static createCompletionItemProvider(monaco: MonacoType): CompletionItemProvider {
         return {
             provideCompletionItems(model, position, context, token) {
+                const tokenHolder = (model as MonacoModelWithToken).tokenHolder
                 const target = tokenHolder.token?.findTokenAt(position)?.[0] ?? null
                 const suggestions = target?.getCompletion(monaco) ?? []
                 return {
@@ -167,18 +154,19 @@ class StoryScript {
         }
     }
 
-    private createHoverProvider(monaco: MonacoType): HoverProvider {
-        const tokenHolder = this.tokenHolder
+    private static createHoverProvider(monaco: MonacoType): HoverProvider {
         return {
-            provideHover: function (model, position, token) {
+            provideHover: async function (model, position, token) {
+                const tokenHolder = (model as MonacoModelWithToken).tokenHolder
                 if (isDefined(tokenHolder.token)) {
-                    const match = tokenHolder.token.findTokenAt(position)
-                    if (match.length < 1) {
+                    const match = tokenHolder.token?.findTokenAt(position)
+                    console.log('createHoverProvider.getHoverText', match)
+                    if (match === undefined || match.length < 1) {
                         return undefined
                     }
 
                     const target = match[0]
-                    const hover = target.getHoverText(model)
+                    const hover = await target.getHoverText(model)
                     return { contents: hover }
                 }
 

@@ -19,15 +19,14 @@ import IconIcon from '@mui/icons-material/InsertEmoticonSharp'
 import ImageIcon from '@mui/icons-material/InsertPhotoSharp'
 import TextIcon from '@mui/icons-material/TextFieldsSharp'
 import MEditor from '@monaco-editor/react'
-import { ElementDictionary } from '../elements'
 import { Context } from '../contexts/app'
-import StoryScript from 'structure/language/storyscript'
-import type { MonacoEditor, MonacoType, IToken, TokenContext, MonacoMouseEvent } from 'types/language'
 import { openContext } from './contextMenu'
+import { ElementDictionary } from 'components/elements'
+import StoryScript from 'structure/language/storyscript'
+import type { MonacoEditor, MonacoType, IToken, TokenContext, MonacoMouseEvent, MonacoModelWithToken } from 'types/language'
 
 type TextEditorProps = React.PropsWithRef<{
     value?: string
-    script?: StoryScript
     className?: string
     context?: TokenContext
     onMount?: (token: IToken | null) => void
@@ -35,15 +34,13 @@ type TextEditorProps = React.PropsWithRef<{
 }>
 
 interface TextEditorState {
-    script: StoryScript
     editor: MonacoEditor | null
     monaco: MonacoType | null
 }
 
-const TextEditor: React.FC<TextEditorProps> = ({ value, script = new StoryScript(ElementDictionary), className, context, onMount, onChange }) => {
+const TextEditor: React.FC<TextEditorProps> = ({ value, className, context, onMount, onChange }) => {
     const [app] = useContext(Context)
     const [state, setState] = useState<TextEditorState>({
-        script: script,
         editor: null,
         monaco: null
     })
@@ -222,22 +219,28 @@ const TextEditor: React.FC<TextEditorProps> = ({ value, script = new StoryScript
                 contextmenu: false
             }}
             beforeMount={(monaco) => {
-                state.script.register(monaco)
+                StoryScript.register(monaco, ElementDictionary)
             }}
             onMount={(editor, monaco) => {
-                state.script.applyMarkers(editor, monaco, undefined, context)
+                const model = editor.getModel() as MonacoModelWithToken
+                model.elements = ElementDictionary
+                model.tokenHolder = { token: null }
+                const token = StoryScript.applyMarkers(model, monaco, undefined, context)
                 editor.onContextMenu((e) => {
                     e.event.preventDefault()
                     handleContextMenu(editor, e)
                 })
                 editor.layout()
                 setState(state => ({ ...state, editor: editor, monaco: monaco }))
-                onMount?.(state.script.token)
+                onMount?.(token)
             }}
             onChange={(text) => {
                 if (state.editor !== null && state.monaco !== null) {
-                    state.script.applyMarkers(state.editor, state.monaco, undefined, context)
-                    onChange?.(text ?? '', state.script.token)
+                    const model = state.editor.getModel() as MonacoModelWithToken
+                    model.elements = ElementDictionary
+                    model.tokenHolder = { token: null }
+                    const token = StoryScript.applyMarkers(model, state.monaco, undefined, context)
+                    onChange?.(text ?? '', token)
                 }
             }}/>
     )
