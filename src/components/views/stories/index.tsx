@@ -74,8 +74,8 @@ const StoriesView: React.FC = () => {
             <AppBar headerId='stories-header' iconId='library' handleBack={handleBack}>
                 <SettingsButton/>
             </AppBar>
-            <div className={styles.content}>
-                <Loading loaded={!state.loading}>
+            <Loading loaded={!state.loading}>
+                <div className={styles.content}>
                     <EmptyCard
                         href={Navigation.createStoryURL()}
                         header={<LocalizedText id='stories-card-addStory'/>}>
@@ -86,8 +86,8 @@ const StoriesView: React.FC = () => {
                     { state.stories.map((story) => (
                         <StoryCard key={story.id} story={story}/>
                     ))}
-                </Loading>
-            </div>
+                </div>
+            </Loading>
         </div>
     )
 }

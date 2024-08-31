@@ -26,26 +26,26 @@ const FileHomeView: React.FC = () => {
                         <div className={styles.headerBox}>
                             <LocalizedText id='fileHomeView-favorites'/>
                         </div>
-                        <div className={styles.content}>
-                            <Loading loaded={!loadingFavorites}>
+                        <Loading loaded={!loadingFavorites}>
+                            <div className={styles.content}>
                                 { favorites.map(item => item !== null &&
                                     <FileCard key={item.id} file={item}/>
                                 )}
-                            </Loading>
-                        </div>
+                            </div>
+                        </Loading>
                     </>
                 }{ hasRecent &&
                     <>
                         <div className={styles.headerBox}>
                             <LocalizedText id='fileHomeView-recent'/>
                         </div>
-                        <div className={styles.content}>
-                            <Loading loaded={!loadingRecent}>
+                        <Loading loaded={!loadingRecent}>
+                            <div className={styles.content}>
                                 { recent.map(item => item !== null &&
                                     <FileCard key={item.id} file={item}/>
                                 )}
-                            </Loading>
-                        </div>
+                            </div>
+                        </Loading>
                     </>
                 }{ !hasFavorite && !hasRecent &&
                     <>

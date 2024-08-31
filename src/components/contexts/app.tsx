@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useReducer } from 'react'
 import { TextData, type ITextData, type LanguageType } from 'assets'
-import { asBoolean, asEnum, asKeyOf, isKeyOf, keysOf } from 'utils'
+import { asBoolean, asEnum, asKeyOf, asNumber, isKeyOf, keysOf } from 'utils'
 import Palettes from 'assets/palettes'
 import Storage from 'utils/storage'
 import Communication from 'utils/communication'
@@ -19,12 +19,14 @@ interface AppContextState {
     language: LanguageType
     localization: ITextData
     viewMode: ViewMode
-    enableEditorWordWrap: boolean
+    editorWordWrap: boolean
+    editorLineNumbers: boolean
+    editorFontSize: number
     enableColorFileByType: boolean
     hideRolls: boolean
 }
 
-type OptionField = 'language' | 'palette' | 'viewMode' | 'enableColorFileByType' | 'enableEditorWordWrap' | 'hideRolls'
+type OptionField = 'language' | 'palette' | 'viewMode' | 'enableColorFileByType' | 'editorWordWrap' | 'editorLineNumbers' | 'editorFontSize' | 'hideRolls'
 
 interface AppContextDispatch {
     setOption: (field: OptionField, value: any) => void
@@ -44,7 +46,9 @@ const defaultContextState = {
     language: defaultLanguage,
     localization: TextData[defaultLanguage],
     viewMode: ViewMode.SplitView,
-    enableEditorWordWrap: true,
+    editorWordWrap: true,
+    editorLineNumbers: true,
+    editorFontSize: 12,
     enableColorFileByType: true,
     hideRolls: false
 } satisfies AppContextState
@@ -75,7 +79,9 @@ const reducer: React.Reducer<AppContextState, AppContextAction> = (state, action
                 palette: Storage.getKeyOf('palette', Palettes) ?? defaultContextState.palette,
                 language: Storage.getKeyOf('language', TextData) ?? defaultContextState.language,
                 viewMode: Storage.getEnum('viewMode', ViewMode) ?? defaultContextState.viewMode,
-                enableEditorWordWrap: Storage.getBoolean('enableEditorWordWrap') ?? defaultContextState.enableEditorWordWrap,
+                editorWordWrap: Storage.getBoolean('editorWordWrap') ?? defaultContextState.editorWordWrap,
+                editorLineNumbers: Storage.getBoolean('editorLineNumbers') ?? defaultContextState.editorLineNumbers,
+                editorFontSize: Storage.getInt('editorFontSize') ?? defaultContextState.editorFontSize,
                 enableColorFileByType: Storage.getBoolean('enableColorFileByType') ?? defaultContextState.enableColorFileByType,
                 hideRolls: Storage.getBoolean('hideRolls') ?? defaultContextState.hideRolls
             }
@@ -108,10 +114,20 @@ const reducer: React.Reducer<AppContextState, AppContextAction> = (state, action
                     Storage.setBoolean('enableColorFileByType', value)
                     return { ...state, enableColorFileByType: value }
                 }
-                case 'enableEditorWordWrap': {
-                    const value = asBoolean(action.data.value, defaultContextState.enableEditorWordWrap)
-                    Storage.setBoolean('enableEditorWordWrap', value)
-                    return { ...state, enableEditorWordWrap: value }
+                case 'editorWordWrap': {
+                    const value = asBoolean(action.data.value, defaultContextState.editorWordWrap)
+                    Storage.setBoolean('editorWordWrap', value)
+                    return { ...state, editorWordWrap: value }
+                }
+                case 'editorLineNumbers': {
+                    const value = asBoolean(action.data.value, defaultContextState.editorLineNumbers)
+                    Storage.setBoolean('editorLineNumbers', value)
+                    return { ...state, editorLineNumbers: value }
+                }
+                case 'editorFontSize': {
+                    const value = asNumber(action.data.value, defaultContextState.editorFontSize)
+                    Storage.setInt('editorFontSize', value)
+                    return { ...state, editorFontSize: value }
                 }
                 case 'hideRolls': {
                     const value = asBoolean(action.data.value, defaultContextState.hideRolls)

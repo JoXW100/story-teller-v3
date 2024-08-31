@@ -1,6 +1,7 @@
 @import 'styles/fonts.scss';
 @import 'styles/colors.scss';
 @import 'styles/constants.scss';
+@import 'styles/prefabs.scss';
 
 html {
     height: 100vh;
@@ -59,6 +60,16 @@ textarea {
     &:focus {
         outline: none;
     }
+}
+
+select {
+    @include colorBackground(input);
+    @include colorInteractiveControl;
+    @include scroll;
+    border: none;
+    outline: none;
+    font: inherit;
+    cursor: pointer;
 }
 
 button {

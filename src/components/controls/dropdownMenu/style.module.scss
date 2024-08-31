@@ -1,7 +1,7 @@
 @import 'styles/colors.scss';
 @import 'styles/prefabs.scss';
 
-.dropdown {
+select {
     @include colorBackground(input);
     @include colorInteractiveControl;
     @include scroll;
@@ -10,4 +10,3 @@
     font: inherit;
     cursor: pointer;
 }
-

@@ -210,9 +210,13 @@ const TextEditor: React.FC<TextEditorProps> = ({ value, className, context, onMo
             className={className}
             options={{
                 minimap: { enabled: false },
-                wordWrap: app.enableEditorWordWrap ? 'on' : 'off',
+                wordWrap: app.editorWordWrap ? 'on' : 'off',
                 suggest: { showWords: false },
                 automaticLayout: true,
+                fontSize: app.editorFontSize,
+                fontFamily: 'Cascadia Code, Consolas, Courier New, monospace',
+                lineNumbers: app.editorLineNumbers ? 'on' : 'off',
+                lineDecorationsWidth: 0,
                 scrollbar: {
                     alwaysConsumeMouseWheel: false
                 },
