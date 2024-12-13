@@ -5,6 +5,7 @@ import RefreshIcon from '@mui/icons-material/Loop'
 import Elements from 'components/elements'
 import { Context } from 'components/contexts/file'
 import LocalizedText from 'components/controls/localizedText'
+import ImageWithDefault from 'components/controls/image'
 import Navigation from 'utils/navigation'
 import { useCharacterCreatureFacade } from 'utils/hooks/documents'
 import { asBooleanString, isDefined, isNumber } from 'utils'
@@ -17,9 +18,9 @@ import { EncounterCardFactory } from 'structure/database/files/encounter/factory
 import { RollMethodType, RollType } from 'structure/dice'
 import { Die } from 'structure/dice/die'
 import { ModifiedDice } from 'structure/dice/modified'
-import styles from '../styles.module.scss'
 import Random from 'structure/random'
 import DiceFactory from 'structure/dice/factory'
+import styles from '../styles.module.scss'
 
 type EncounterCardProps = React.PropsWithRef<{
     id: string
@@ -94,7 +95,7 @@ const EncounterCardRenderer: React.FC<EncounterCardProps> = ({ id, encounter, cr
                 </button>
             </Link>
             <div className={styles.encounterCardPortrait} >
-                <img className='fill-width' src={facade.portrait} alt='/defaultImage.jpg' draggable={false}/>
+                <ImageWithDefault className='fill-width' href={facade.portrait}/>
             </div>
             <div className={styles.encounterCardRow}>
                 <Elements.b>Initiative:</Elements.b>

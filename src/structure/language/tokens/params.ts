@@ -26,11 +26,11 @@ class ParamsToken extends Token {
         let token = tokenizer.next(true)
         while (token !== null) {
             switch (token.content) {
-                case '\]': {
+                case ']': {
                     this.finalize(tokenizer)
                     return
                 }
-                case '\,': {
+                case ',': {
                     break
                 }
                 default: {

@@ -67,7 +67,7 @@ class CreatureData implements ICreatureData {
     public readonly spells: Record<ObjectId, OptionalAttribute>
     public readonly ritualCaster: boolean
     // Other
-    public readonly abilities: Array<ObjectId | string>
+    public readonly abilities: (ObjectId | string)[]
 
     public constructor(data: Simplify<ICreatureData>) {
         this.name = data.name ?? CreatureData.properties.name.value
@@ -434,7 +434,7 @@ class CreatureData implements ICreatureData {
         }
     }
 
-    public createDescriptionContexts(elements: ElementDefinitions): [description: TokenContext] {
+    public createDescriptionContexts(_elements: ElementDefinitions): [description: TokenContext] {
         const descriptionContext = {
             title: new EmptyToken(this.name),
             name: new EmptyToken(this.name)

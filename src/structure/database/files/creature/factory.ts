@@ -19,7 +19,7 @@ export const CreatureDataFactory: IDatabaseFactory<ICreatureData, CreatureData> 
     simplify: function (data: ICreatureData): Simplify<ICreatureData> {
         return simplifyObjectProperties(data, this.properties(data))
     },
-    properties: function (data: unknown): DataPropertyMap<ICreatureData, CreatureData> {
+    properties: function (_data: unknown): DataPropertyMap<ICreatureData, CreatureData> {
         return CreatureData.properties
     }
 }
@@ -37,7 +37,7 @@ export const CreatureStorageFactory: IDatabaseFactory<ICreatureStorage, Creature
     simplify: function (storage: ICreatureStorage): Simplify<ICreatureStorage> {
         return simplifyObjectProperties(storage, this.properties(storage))
     },
-    properties: function (data: unknown): DataPropertyMap<ICreatureStorage, CreatureStorage> {
+    properties: function (_data: unknown): DataPropertyMap<ICreatureStorage, CreatureStorage> {
         return CreatureStorage.properties
     }
 }

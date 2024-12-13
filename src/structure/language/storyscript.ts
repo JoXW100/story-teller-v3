@@ -91,7 +91,7 @@ class StoryScript {
                         token: '@brackets',
                         switchTo: 'arguments'
                     }],
-                    [/\%\%.*/, 'comment'],
+                    [/%%.*/, 'comment'],
                     [/\$\{/, {
                         token: 'equation',
                         switchTo: 'equation'
@@ -103,8 +103,8 @@ class StoryScript {
                         }
                     }],
                     [/\$\w+~?/, 'variable'],
-                    [/[\{\}\[\]]/, '@brackets'],
-                    [/\~/, 'keyword']
+                    [/[{}[\]]/, '@brackets'],
+                    [/~/, 'keyword']
                 ],
                 arguments: [
                     [/\$\w+/, 'variable'],
@@ -112,9 +112,9 @@ class StoryScript {
                         token: 'equation',
                         switchTo: 'argEquation'
                     }],
-                    [/((?:^|[\[,])\s*)(https?:\/\/[^\],]+)/i, ['@default', 'url']],
-                    [/((?:^|[\[,])\s*)(\w+)(:)/, ['@default', 'key', '@default']],
-                    [/((?:^|[\[,])\s*)([^,:\]\s]+\s*)/, ['@default', 'value']],
+                    [/((?:^|[[,])\s*)(https?:\/\/[^\],]+)/i, ['@default', 'url']],
+                    [/((?:^|[[,])\s*)(\w+)(:)/, ['@default', 'key', '@default']],
+                    [/((?:^|[[,])\s*)([^,:\]\s]+\s*)/, ['@default', 'value']],
                     [/\]/, {
                         token: '@brackets',
                         switchTo: 'root'
@@ -122,7 +122,7 @@ class StoryScript {
                 ],
                 equation: [
                     [/\$\w+/, 'variable'],
-                    [/[0-9\+\-\*\/\s]+/, 'equation'],
+                    [/[0-9+\-*/\s]+/, 'equation'],
                     [/\}/, {
                         token: 'equation',
                         switchTo: 'root'
@@ -130,7 +130,7 @@ class StoryScript {
                 ],
                 argEquation: [
                     [/\$\w+/, 'variable'],
-                    [/[0-9\+\-\*\/\s]+/, 'equation'],
+                    [/[0-9+\-*/\s]+/, 'equation'],
                     [/\}/, {
                         token: 'equation',
                         switchTo: 'arguments'
@@ -142,7 +142,7 @@ class StoryScript {
 
     private static createCompletionItemProvider(monaco: MonacoType): CompletionItemProvider {
         return {
-            provideCompletionItems(model, position, context, token) {
+            provideCompletionItems(model, position, _context, _token) {
                 const tokenHolder = (model as MonacoModelWithToken).tokenHolder
                 const target = tokenHolder.token?.findTokenAt(position)?.[0] ?? null
                 const suggestions = target?.getCompletion(monaco) ?? []
@@ -154,9 +154,9 @@ class StoryScript {
         }
     }
 
-    private static createHoverProvider(monaco: MonacoType): HoverProvider {
+    private static createHoverProvider(_monaco: MonacoType): HoverProvider {
         return {
-            provideHover: async function (model, position, token) {
+            provideHover: async function (model, position, _token) {
                 const tokenHolder = (model as MonacoModelWithToken).tokenHolder
                 if (isDefined(tokenHolder.token)) {
                     const match = tokenHolder.token?.findTokenAt(position)

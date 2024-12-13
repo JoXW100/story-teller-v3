@@ -51,7 +51,7 @@ export function resolveScaling(scaling: Partial<Record<ScalingType, number>>, st
     let flag: boolean = required
     for (const type of keysOf(scaling)) {
         flag = true
-        sum += getScalingValue(type, stats) * scaling[type]!
+        sum += getScalingValue(type, stats) * (scaling[type] ?? 0)
     }
     return flag ? Math.floor(sum) : 1
 }
@@ -81,7 +81,7 @@ export function getSpellLevelValue(level: SpellLevel): number {
     }
 }
 export function getMaxSpellLevel(...levels: SpellLevel[]): SpellLevel {
-    return levels.length > 0 ? getSpellLevelFromValue(Math.max(...levels.map(getSpellLevelValue)))! : SpellLevel.Cantrip
+    return levels.length > 0 ? getSpellLevelFromValue(Math.max(...levels.map(getSpellLevelValue))) ?? SpellLevel.Cantrip : SpellLevel.Cantrip
 }
 
 export function getSpellLevelFromValue(level: number): SpellLevel | null {
@@ -135,7 +135,7 @@ export function getProficiencyLevelValue(proficiency?: ProficiencyLevel): number
     return ProficiencyLevelValueMap[proficiency ?? ProficiencyLevel.None]
 }
 
-export function getMaxProficiencyLevel(...proficiencies: Array<ProficiencyLevel | undefined>): ProficiencyLevel {
+export function getMaxProficiencyLevel(...proficiencies: (ProficiencyLevel | undefined)[]): ProficiencyLevel {
     let maxValue: number = 0
     let maxProficiency: ProficiencyLevel = ProficiencyLevel.None
     for (const proficiency of proficiencies) {

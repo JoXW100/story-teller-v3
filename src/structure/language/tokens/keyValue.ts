@@ -9,8 +9,8 @@ import type { IElement } from 'structure/elements'
 import type { TokenContext } from 'types/language'
 
 class KeyValueToken extends Token {
-    private static readonly BreakExpr = /^\$\{|[\]\,\:]$/i
-    private static readonly BreakValueExpr = /^\$\{|[\]\,\$]$/i
+    private static readonly BreakExpr = /^\$\{|[\],:]$/i
+    private static readonly BreakValueExpr = /^\$\{|[\],$]$/i
     private readonly element: IElement
     private _key: string | null = null
 
@@ -40,14 +40,14 @@ class KeyValueToken extends Token {
             return
         }
         switch (token.content) {
-            case '\]':
-            case '\,': {
+            case ']':
+            case ',': {
                 tokenizer.back()
                 this.children.push(key)
                 this.finalize(tokenizer)
                 break
             }
-            case '\:': {
+            case ':': {
                 this._key = asKeyOf<string>(key.value.trim(), this.element.params)
                 if (this._key === null) {
                     this.finalize(tokenizer, `Invalid parameter: '${key.value}'`)
@@ -67,13 +67,13 @@ class KeyValueToken extends Token {
         let token = tokenizer.next(true)
         while (token !== null) {
             switch (token.content) {
-                case '\]':
-                case '\,': {
+                case ']':
+                case ',': {
                     tokenizer.back()
                     this.finalize(tokenizer)
                     return
                 }
-                case '\$': {
+                case '$': {
                     const variable = new VariableToken(token.startLineNumber, token.startColumn, this.context)
                     variable.parse(tokenizer)
                     this.children.push(variable)

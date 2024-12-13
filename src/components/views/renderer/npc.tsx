@@ -10,7 +10,7 @@ const NPCDocumentRenderer: React.FC = (): React.ReactNode => {
     const translator = useTranslator()
     const data = context.file.data as NPCData
     const [, contentContext] = useMemo(() => data.createContexts(ElementDictionary), [data])
-    const descriptionToken = contentContext.description!
+    const descriptionToken = contentContext.description
     const contentToken = useMemo(() => {
         return StoryScript.tokenize(ElementDictionary, data.content, contentContext).root
     }, [contentContext, data.content])
@@ -37,7 +37,7 @@ const NPCDocumentRenderer: React.FC = (): React.ReactNode => {
                 <div><Elements.b>Weight </Elements.b>{data.weight}</div>
                 <Elements.line width='2px'/>
                 <Elements.h2 underline={false}>Description</Elements.h2>
-                { descriptionToken.build() }
+                { descriptionToken?.build() }
             </Elements.block>
         </Elements.align>
         { !contentToken.isEmpty &&

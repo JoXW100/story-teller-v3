@@ -4,7 +4,7 @@ import { Context } from 'components/contexts/app'
 import Logger from 'utils/logger'
 import { getEnumType, type EnumTypeKey, type EnumTypeKeyValue, type EnumTypeValue } from 'structure/enums'
 
-function translate(data: ITextData, id: LanguageKey, args: Array<string | number> = []): string {
+function translate(data: ITextData, id: LanguageKey, args: (string | number)[] = []): string {
     let text: string = data.values[id]
 
     if (text === undefined) {
@@ -19,7 +19,7 @@ function translate(data: ITextData, id: LanguageKey, args: Array<string | number
     return text
 }
 
-export function useLocalizedText(id: LanguageKey | null | undefined, args?: Array<string | number>): string | undefined {
+export function useLocalizedText(id: LanguageKey | null | undefined, args?: (string | number)[]): string | undefined {
     const [context] = useContext(Context)
     return useMemo(() => {
         if (id === null || id === undefined) {
@@ -30,10 +30,10 @@ export function useLocalizedText(id: LanguageKey | null | undefined, args?: Arra
     }, [context.localization, id, args])
 }
 
-export type TranslationHandler = (id: LanguageKey, args?: Array<string | number>) => string
+export type TranslationHandler = (id: LanguageKey, args?: (string | number)[]) => string
 export function useTranslator(): TranslationHandler {
     const [context] = useContext(Context)
-    return useCallback((id: LanguageKey, args: Array<string | number> = []): string => {
+    return useCallback((id: LanguageKey, args: (string | number)[] = []): string => {
         return translate(context.localization, id, args)
     }, [context.localization])
 }

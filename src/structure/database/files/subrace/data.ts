@@ -54,7 +54,7 @@ class SubraceData implements ISubraceData {
         }
     }
 
-    public createDescriptionContexts(elements: ElementDefinitions): [description: TokenContext] {
+    public createDescriptionContexts(_elements: ElementDefinitions): [description: TokenContext] {
         const descriptionContext = {
             title: new EmptyToken(this.name),
             name: new EmptyToken(this.name)

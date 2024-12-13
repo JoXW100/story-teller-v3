@@ -6,8 +6,8 @@ import { ModifiedDice } from './modified'
 import { asNumber } from 'utils'
 
 const dieMatcher = /^d([0-9]+)$/i
-const diceTestMatcher = /(?:([\+\-])? *(?:([0-9]+)?d([0-9]+)|([0-9]+)))+/i
-const diceMatcher = /([\+\-])? *(?:([0-9]+)?d([0-9]+)|([0-9]+))/ig
+const diceTestMatcher = /(?:([+-])? *(?:([0-9]+)?d([0-9]+)|([0-9]+)))+/i
+const diceMatcher = /([+-])? *(?:([0-9]+)?d([0-9]+)|([0-9]+))/ig
 
 export default abstract class DiceFactory {
     public static test(text: string): boolean {

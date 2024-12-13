@@ -19,7 +19,7 @@ export enum SourceType {
     Class = 'cla',
     Subclass = 'scl',
     Race = 'rce',
-    Subrace = 'rce',
+    Subrace = 'src',
     Condition = 'cnd',
     Item = 'ite',
     Modifier = 'mod'
@@ -38,7 +38,7 @@ export interface IModifierProperties {
 
 export class ModifierEvent<T> {
     private readonly properties: IModifierProperties
-    public readonly subscribers: Array<IModifierEventHandler<T>> = []
+    public readonly subscribers: IModifierEventHandler<T>[] = []
 
     public constructor(properties: IModifierProperties) {
         this.properties = properties

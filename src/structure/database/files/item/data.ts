@@ -28,6 +28,7 @@ abstract class ItemDataBase implements IItemDataBase {
     public readonly charges: Record<string, ChargesData>
     // Modifiers
     public readonly modifiers: ModifierData[]
+    public readonly equippable = false;
 
     public constructor(data: Simplify<IItemDataBase>) {
         this.name = data.name ?? ItemDataBase.properties.name.value
@@ -55,10 +56,6 @@ abstract class ItemDataBase implements IItemDataBase {
 
     public getCategoryText(translator: TranslationHandler): string {
         return translator(`enum-itemType-${this.type}`)
-    }
-
-    public get equippable(): boolean {
-        return false
     }
 
     public static properties: Omit<DataPropertyMap<IItemDataBase, ItemDataBase>, 'type'> = {
@@ -104,7 +101,7 @@ abstract class ItemDataBase implements IItemDataBase {
         }
     }
 
-    public createDescriptionContexts(elements: ElementDefinitions): [description: TokenContext] {
+    public createDescriptionContexts(_elements: ElementDefinitions): [description: TokenContext] {
         const descriptionContext = {
             title: new EmptyToken(this.name),
             name: new EmptyToken(this.name)

@@ -29,7 +29,7 @@ const SubclassRenderer: React.FC = () => {
     const [context] = useContext(Context)
     const data = context.file.data as SubclassData
     const [, contentContext] = useMemo(() => data.createContexts(ElementDictionary), [data])
-    const descriptionToken = contentContext.description!
+    const descriptionToken = contentContext.description
     const contentToken = useMemo(() => {
         return StoryScript.tokenize(ElementDictionary, data.content, contentContext).root
     }, [contentContext, data.content])
@@ -42,7 +42,7 @@ const SubclassRenderer: React.FC = () => {
             : <LocalizedText id='common-missing'/>
         }
         <Elements.line width='2px'/>
-        { !descriptionToken.isEmpty &&
+        { descriptionToken !== null && !descriptionToken.isEmpty &&
             <>
                 { descriptionToken.build() }
                 <Elements.line width='2px'/>

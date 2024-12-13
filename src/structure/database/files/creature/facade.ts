@@ -425,7 +425,7 @@ class CreatureFacade implements ICreatureData {
         return this.modifier.spells.call({ ...this.data.spells }, this.properties, this.storage.choices)
     }
 
-    public get abilities(): Array<ObjectId | string> {
+    public get abilities(): (ObjectId | string)[] {
         return this.data.abilities
     }
 
@@ -594,7 +594,7 @@ class CreatureFacade implements ICreatureData {
         } satisfies IBonusGroup
     }
 
-    public getClassLevel(key: string): number {
+    public getClassLevel(_key: string): number {
         return this.level
     }
 }

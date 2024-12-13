@@ -14,18 +14,41 @@ export function failure<T = unknown>(value: string | null = null): DBResponse<T>
     return { success: false, result: value }
 }
 
-abstract class Database {
-    private static _connection: MongoClient | null = null
-    private static _stories: StoryCollection | null = null
-    private static _documents: FileCollection | null = null
-    private static _debug: DebugHandler | null = null
+export interface IDatabase {
+    readonly isConnected: boolean
+    readonly stories: StoryCollection
+    readonly files: FileCollection
+    readonly debug: DebugHandler
+    connect: (test?: boolean) => Promise<DBResponse<boolean>>
+}
 
-    static get isConnected(): boolean { return this._connection !== null }
-    static get stories(): StoryCollection | null { return this._stories }
-    static get files(): FileCollection | null { return this._documents }
-    static get debug(): DebugHandler | null { return this._debug }
+const Database = {
+    _connection: null as MongoClient | null,
+    _stories: null as StoryCollection | null,
+    _documents: null as FileCollection | null,
+    _debug: null as DebugHandler | null,
 
-    static async connect(test: boolean = false): Promise<DBResponse<boolean>> {
+    get isConnected(): boolean 
+    { 
+        return this._connection !== null 
+    },
+
+    get stories(): StoryCollection | null 
+    { 
+        return this._stories
+    },
+
+    get files(): FileCollection | null 
+    { 
+        return this._documents 
+    },
+
+    get debug(): DebugHandler | null 
+    { 
+        return this._debug 
+    },
+
+    async connect(test: boolean = false): Promise<DBResponse<boolean>> {
         if (!this.isConnected) {
             try {
                 let client: Promise<MongoClient>
@@ -60,4 +83,4 @@ abstract class Database {
     }
 }
 
-export default Database
+export default Database as IDatabase

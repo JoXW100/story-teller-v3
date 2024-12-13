@@ -78,7 +78,7 @@ export interface DialogTypeMap {
     manageConditions: IDialogArgs<IManageConditionsDialogParams, IManageConditionsDialogPromise>
 }
 
-export type DialogArgs<K extends keyof DialogTypeMap> = DialogTypeMap[K]['params'] & { callback: (type: keyof DialogTypeMap[K]['promise'], ...args: any[]) => void }
+export type DialogArgs<K extends keyof DialogTypeMap> = DialogTypeMap[K]['params'] & { callback: (type: keyof DialogTypeMap[K]['promise'], ...args: unknown[]) => void }
 export type OpenDialogHandler<K extends keyof DialogTypeMap> = (type: K, params: DialogTypeMap[K]['params']) => DialogTypeMap[K]['promise']
 export type DialogDetails<K extends keyof DialogTypeMap = keyof DialogTypeMap> = K extends keyof DialogTypeMap ? {
     show: true

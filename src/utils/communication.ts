@@ -27,7 +27,7 @@ abstract class Communication {
     private static storyFactory: IStoryFactory
     private static documentFactory: IDocumentFactory
 
-    public static readonly cache: Record<ObjectId, Document> = {}
+    public static readonly cache = new Map<ObjectId, Document>()
 
     private static async databaseFetch<T>(type: ServerRequestType, method: FetchMethod, params: FetchParams = {}): Promise<DBResponse<T>> {
         try {
@@ -90,8 +90,7 @@ abstract class Communication {
         const response = await this.databaseFetch<IDatabaseStory[]>('getAllStories', 'GET')
         if (response.success) {
             const result: DatabaseStory[] = []
-            for (let i = 0; i < response.result.length; i++) {
-                const story = response.result[i]
+            for (const story of response.result) {
                 if (this.storyFactory.validate(story)) {
                     result.push(this.storyFactory.create(story))
                 }
@@ -106,8 +105,7 @@ abstract class Communication {
         const response = await this.databaseFetch<IDatabaseStory[]>('getAllAvailableSources', 'GET')
         if (response.success) {
             const result: DatabaseStory[] = []
-            for (let i = 0; i < response.result.length; i++) {
-                const story = response.result[i]
+            for (const story of response.result) {
                 if (this.storyFactory.validate(story)) {
                     result.push(this.storyFactory.create(story))
                 }
@@ -125,7 +123,7 @@ abstract class Communication {
         return null
     }
 
-    public static async getLastUpdatedFiles(storyId: ObjectId, count: number = 1): Promise<DBResponse<Array<DocumentTypeMap[DocumentType]>>> {
+    public static async getLastUpdatedFiles(storyId: ObjectId, count: number = 1): Promise<DBResponse<DocumentTypeMap[DocumentType][]>> {
         const response = await this.databaseFetch<IDatabaseFile[]>('getLastUpdatedFiles', 'GET', {
             storyId: storyId,
             count: count
@@ -136,13 +134,13 @@ abstract class Communication {
                 Logger.error('Communication.getLastUpdatedFiles', response.result)
                 return { success: false, result: 'Failed to get file, validation failed' }
             } else {
-                const result: Array<DocumentTypeMap[DocumentType]> = []
+                const result: DocumentTypeMap[DocumentType][] = []
                 for (const document of response.result) {
                     const instance = this.documentFactory.create(document)
                     if (instance === null) {
                         throw new Error('Validated file creation resulted in null value')
                     }
-                    this.cache[instance.id] = instance
+                    this.cache.set(instance.id, instance)
                     result.push(instance as DocumentTypeMap[DocumentType])
                 }
                 return {
@@ -186,11 +184,12 @@ abstract class Communication {
         return response
     }
 
-    public static async getFile(fileId: ObjectId, type?: any): Promise<DBResponse<Document>>
+    public static async getFile(fileId: ObjectId, type?: never): Promise<DBResponse<Document>>
     public static async getFile<T extends DocumentType>(fileId: ObjectId, type: T): Promise<DBResponse<DocumentTypeMap[T]>>
     public static async getFile<T extends DocumentType>(fileId: ObjectId, type?: T): Promise<DBResponse<DocumentTypeMap[T] | Document>> {
-        if (fileId in this.cache && (type === undefined || this.cache[fileId].type === type)) {
-            return { success: true, result: this.cache[fileId] }
+        const file = this.cache.get(fileId)
+        if (file !== undefined && (type === undefined || file.type === type)) {
+            return { success: true, result: file }
         }
 
         const response = await this.databaseFetch<IDatabaseFile>('getFile', 'GET', {
@@ -207,18 +206,17 @@ abstract class Communication {
                     throw new Error('Validated file creation resulted in null value')
                 }
 
-                return { success: true, result: (this.cache[instance.id] = instance) }
+                this.cache.set(instance.id, instance);
+                return { success: true, result: instance }
             }
         }
         return response
     }
 
     public static async getFileOfTypes<T extends readonly DocumentType[]>(fileId: ObjectId, allowedTypes: T): Promise<DBResponse<DocumentTypeMap[T[number]]>> {
-        if (fileId in this.cache) {
-            const file = this.cache[fileId]
-            if (isEnum(file.type, DocumentType) && allowedTypes.includes(file.type)) {
-                return { success: true, result: file as DocumentTypeMap[T[number]] }
-            }
+        const file = this.cache.get(fileId)
+        if (file !== undefined && isEnum(file.type, DocumentType) && allowedTypes.includes(file.type)) {
+            return { success: true, result: file as DocumentTypeMap[T[number]] }
         }
 
         const response = await this.databaseFetch<IDatabaseFile>('getFile', 'GET', {
@@ -235,7 +233,7 @@ abstract class Communication {
                     throw new Error('Validated file creation resulted in null value')
                 }
 
-                this.cache[instance.id] = instance
+                this.cache.set(instance.id, instance)
                 return { success: true, result: instance }
             }
         }
@@ -246,9 +244,9 @@ abstract class Communication {
         const result: Record<ObjectId, DocumentTypeMap[T[number]]> = {}
         const rest = new Set<ObjectId>()
         for (const id of fileIds) {
-            const type = this.cache[id]?.type
+            const type = this.cache.get(id)?.type
             if (isEnum(type, DocumentType) && allowedTypes.includes(type)) {
-                result[id] = this.cache[id] as DocumentTypeMap[T[number]]
+                result[id] = this.cache.get(id) as DocumentTypeMap[T[number]]
             } else {
                 rest.add(id)
             }
@@ -273,7 +271,7 @@ abstract class Communication {
                     if (instance === null) {
                         throw new Error('Validated file creation resulted in null value')
                     }
-                    this.cache[instance.id] = result[instance.id] = instance
+                    this.cache.set(instance.id, result[instance.id] = instance)
                 }
                 return {
                     success: true,
@@ -284,9 +282,9 @@ abstract class Communication {
         return response
     }
 
-    public static async getAllFiles(allowedTypes?: any, requiredFlags?: FlagType[], sources?: readonly ObjectId[]): Promise<DBResponse<Document[]>>
-    public static async getAllFiles<T extends readonly DocumentType[]>(allowedTypes: T, requiredFlags?: readonly FlagType[], sources?: readonly ObjectId[]): Promise<DBResponse<Array<DocumentTypeMap[T[number]]>>>
-    public static async getAllFiles<T extends readonly DocumentType[]>(allowedTypes?: T, requiredFlags?: readonly FlagType[], sources?: readonly ObjectId[]): Promise<DBResponse<Array<DocumentTypeMap[T[number]] | Document>>> {
+    public static async getAllFiles(allowedTypes?: never, requiredFlags?: FlagType[], sources?: readonly ObjectId[]): Promise<DBResponse<Document[]>>
+    public static async getAllFiles<T extends readonly DocumentType[]>(allowedTypes: T, requiredFlags?: readonly FlagType[], sources?: readonly ObjectId[]): Promise<DBResponse<DocumentTypeMap[T[number]][]>>
+    public static async getAllFiles<T extends readonly DocumentType[]>(allowedTypes?: T, requiredFlags?: readonly FlagType[], sources?: readonly ObjectId[]): Promise<DBResponse<(DocumentTypeMap[T[number]] | Document)[]>> {
         const response = await this.databaseFetch<IDatabaseFile[]>('getAll', 'GET', {
             sources: sources ?? [],
             allowedTypes: allowedTypes ?? [],
@@ -304,7 +302,7 @@ abstract class Communication {
                         if (instance === null) {
                             throw new Error('Validated file creation resulted in null value')
                         }
-                        this.cache[value.id] = instance
+                        this.cache.set(value.id, instance)
                         return instance
                     })
                 }
@@ -313,7 +311,7 @@ abstract class Communication {
         return response
     }
 
-    public static async getSubFiles<T extends DocumentType>(parentId: ObjectId, type: T, sources: ObjectId[] = []): Promise<DBResponse<Array<DocumentTypeMap[T]>>> {
+    public static async getSubFiles<T extends DocumentType>(parentId: ObjectId, type: T, sources: ObjectId[] = []): Promise<DBResponse<DocumentTypeMap[T][]>> {
         const response = await this.databaseFetch<IDatabaseFile[]>('getSubFiles', 'GET', {
             parentId: parentId,
             fileType: type,
@@ -331,7 +329,7 @@ abstract class Communication {
                         if (instance === null) {
                             throw new Error('Validated file creation resulted in null value')
                         }
-                        this.cache[value.id] = instance
+                        this.cache.set(value.id, instance)
                         return instance
                     })
                 }
@@ -356,7 +354,7 @@ abstract class Communication {
                         if (instance === null) {
                             throw new Error('Validated file creation resulted in null value')
                         }
-                        this.cache[value.id] = instance
+                        this.cache.set(value.id, instance)
                         return instance
                     })
                 }
@@ -390,7 +388,7 @@ abstract class Communication {
     }
 
     public static async updateFile(fileId: ObjectId, type: DocumentFileType, update: Record<string, unknown>): Promise<DBResponse<boolean>> {
-        delete this.cache[fileId]
+        this.cache.delete(fileId)
         Logger.log('Communication.updateFile', fileId, type, update)
         const response = await this.databaseFetch<boolean>('updateFile', 'PUT', {
             fileId: fileId,
@@ -401,7 +399,7 @@ abstract class Communication {
     }
 
     public static async publishFile(fileId: ObjectId, type: DocumentFileType, publish: boolean): Promise<DBResponse<boolean>> {
-        delete this.cache[fileId]
+        this.cache.delete(fileId)
         Logger.log('Communication.publishFile', fileId, type, publish)
         const response = await this.databaseFetch<boolean>('publishFile', 'PUT', {
             fileId: fileId,
@@ -420,7 +418,7 @@ abstract class Communication {
     }
 
     public static async deleteFile(fileId: ObjectId): Promise<DBResponse<boolean>> {
-        delete this.cache[fileId]
+        this.cache.delete(fileId)
         const response = await this.databaseFetch<boolean>('deleteFile', 'DELETE', {
             fileId: fileId
         })

@@ -5,7 +5,6 @@ import { isKeyOf, keysOf } from 'utils'
 import Logger from 'utils/logger'
 import { FileType, FlagType } from 'structure/database'
 import StoryFactory from 'structure/database/story/factory'
-import type { KeysOfTwo } from 'types'
 import type { IDatabaseStory, DBResponse } from 'types/database'
 
 export interface IDBStory {
@@ -203,7 +202,7 @@ class StoryCollection {
                         flags: '$flags',
                         dateCreated: '$dateCreated',
                         dateUpdated: '$dateUpdated'
-                    } satisfies KeysOfTwo<IDatabaseStory, object>
+                    }
                 }
             ]).toArray()
 
@@ -272,7 +271,7 @@ class StoryCollection {
                         flags: '$flags',
                         dateCreated: '$dateCreated',
                         dateUpdated: '$dateUpdated'
-                    } satisfies KeysOfTwo<IDatabaseStory, object>
+                    }
                 }
             ]).toArray()
             Logger.log('story.getAll', result.length, result.map(x => x.name), result[0])
@@ -317,7 +316,7 @@ class StoryCollection {
                         flags: '$flags',
                         dateCreated: '$dateCreated',
                         dateUpdated: '$dateUpdated'
-                    } satisfies KeysOfTwo<IDatabaseStory, object>
+                    }
                 }
             ]).toArray()
             Logger.log('story.getAll', result.length, result.map(x => x.name))
@@ -347,7 +346,7 @@ class StoryCollection {
                 },
                 {
                     $lookup: {
-                        from: Database.files!.collection.collectionName,
+                        from: Database.files.collection.collectionName,
                         localField: '_id',
                         foreignField: '_storyId',
                         as: 'documents'
@@ -369,7 +368,7 @@ class StoryCollection {
                         flags: '$flags',
                         dateCreated: '$dateCreated',
                         dateUpdated: { $max: ['$dateUpdated', '$documents.dateUpdated'] }
-                    } satisfies KeysOfTwo<IDBStory, object>
+                    }
                 },
                 { $sort: { dateUpdated: -1 } },
                 { $limit: 1 },
@@ -384,7 +383,7 @@ class StoryCollection {
                         flags: '$flags',
                         dateCreated: '$dateCreated',
                         dateUpdated: '$dateUpdated'
-                    } satisfies KeysOfTwo<IDatabaseStory, object>
+                    }
                 }
             ]).toArray()
 
@@ -419,7 +418,7 @@ class StoryCollection {
             const filter = {
                 _id: storyId,
                 _userId: userId
-            } satisfies KeysOfTwo<IDBStory, object>
+            }
             const result = await this.collection.deleteOne(filter)
             const removed = result.deletedCount > 0
             Logger.log('story.delete', removed ? storyId : 'Null')

@@ -108,7 +108,7 @@ class NPCData implements INPCData {
         return texts.join(' ')
     }
 
-    public createDescriptionContexts(elements: ElementDefinitions): [description: TokenContext] {
+    public createDescriptionContexts(_elements: ElementDefinitions): [description: TokenContext] {
         const descriptionContext = {
             title: new EmptyToken(this.name),
             name: new EmptyToken(this.name)

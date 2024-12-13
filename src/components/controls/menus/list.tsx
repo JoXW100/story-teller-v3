@@ -20,16 +20,16 @@ interface IListMenuProps<A, T extends string> {
 interface IListMenuEnumProps<O extends Record<string | number | symbol, React.ReactNode>> {
     className?: string
     itemClassName?: string
-    values: Array<keyof O>
+    values: (keyof O)[]
     type: 'enum'
     options: O
     defaultValue: keyof O
     editEnabled?: boolean
     addLast?: boolean
     disabled?: boolean
-    createComponent?: (value: keyof O, values: Array<keyof O>) => React.ReactNode
-    validateInput?: (value: keyof O, values: Array<keyof O>) => boolean
-    onChange?: (selection: Array<keyof O>) => void
+    createComponent?: (value: keyof O, values: (keyof O)[]) => React.ReactNode
+    validateInput?: (value: keyof O, values: (keyof O)[]) => boolean
+    onChange?: (selection: (keyof O)[]) => void
 }
 
 type ListMenuPropsType = IListMenuProps<string, 'string'> | IListMenuProps<number, 'number'> | IListMenuEnumProps<Record<string | number | symbol, React.ReactNode>>
@@ -64,15 +64,32 @@ const ListMenu: React.FC<ListMenuProps> = (props: ListMenuProps) => {
         }
     }
 
+    const handleOnChange = (values?: ListMenuProps['values']) => {
+        if (!props.onChange) {
+            return;
+        }
+        switch (props.type) {
+            case 'string':
+                props.onChange(values as string[]);
+                return
+            case 'number':
+                props.onChange(values as number[]);
+                return
+            case 'enum':
+                props.onChange(values as (string | number | symbol)[]);
+                return
+        }
+    }
+
     return (
-        <ListTemplateMenu
+        <ListTemplateMenu<ListMenuProps['defaultValue'], ListMenuProps['defaultValue'], ListMenuProps>
             className={props.className}
             defaultValue={props.defaultValue}
             values={props.values}
             addLast={props.addLast}
             createValue={handleCreateValue}
             validateInput={handleValidateInput}
-            onChange={props.onChange}
+            onChange={handleOnChange}
             Component={Component}
             EditComponent={EditComponent}
             params={props}

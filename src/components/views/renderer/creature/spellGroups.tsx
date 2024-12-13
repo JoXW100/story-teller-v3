@@ -21,7 +21,7 @@ const SpellGroups: React.FC<SpellGroupsProps> = ({ facade, spells, spellSlots, e
     const stats = useMemo(() => facade.createProperties(), [facade])
     const options = useLocalizedEnums('spellLevel')
     const categories = useMemo(() => {
-        const categories: Partial<Record<SpellLevel, Array<keyof typeof spells>>> = {}
+        const categories: Partial<Record<SpellLevel, (keyof typeof spells)[]>> = {}
         for (const key of keysOf(spellSlots)) {
             categories[key] = []
         }

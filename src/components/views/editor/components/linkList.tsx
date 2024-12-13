@@ -49,7 +49,7 @@ const LinkListComponent: React.FC<LinkListComponentParams> = ({ field, labelId, 
         return null
     }
 
-    const handleChange = (values: Array<ObjectId | string>): void => {
+    const handleChange = (values: (ObjectId | string)[]): void => {
         dispatch.setData(field, values)
     }
 

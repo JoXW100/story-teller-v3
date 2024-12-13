@@ -1,3 +1,5 @@
+import { ValueOf } from "types"
+
 export enum MagicSchool {
     Abjuration = 'abjuration',
     Conjuration = 'conjuration',
@@ -60,7 +62,7 @@ export enum Optional {
 }
 
 export const OptionalAttribute = { ...Attribute, ...Optional }
-// eslint-disable-next-line @typescript-eslint/no-redeclare
+ 
 export type OptionalAttribute = Attribute | Optional
 
 export enum Alignment {
@@ -251,111 +253,111 @@ export enum WeaponTypeValue {
     Sling = 'sling'
 }
 
-export enum SimpleWeapon {
-    Club = WeaponTypeValue.Club,
-    Dagger = WeaponTypeValue.Dagger,
-    Greatclub = WeaponTypeValue.Greatclub,
-    Handaxe = WeaponTypeValue.Handaxe,
-    Javelin = WeaponTypeValue.Javelin,
-    LightHammer = WeaponTypeValue.LightHammer,
-    Mace = WeaponTypeValue.Mace,
-    Quarterstaff = WeaponTypeValue.Quarterstaff,
-    Sickle = WeaponTypeValue.Sickle,
-    Spear = WeaponTypeValue.Spear
-}
+export const SimpleWeapon = {
+    Club: WeaponTypeValue.Club,
+    Dagger: WeaponTypeValue.Dagger,
+    Greatclub: WeaponTypeValue.Greatclub,
+    Handaxe: WeaponTypeValue.Handaxe,
+    Javelin: WeaponTypeValue.Javelin,
+    LightHammer: WeaponTypeValue.LightHammer,
+    Mace: WeaponTypeValue.Mace,
+    Quarterstaff: WeaponTypeValue.Quarterstaff,
+    Sickle: WeaponTypeValue.Sickle,
+    Spear: WeaponTypeValue.Spear
+} as const
 
-export enum MartialWeapon {
-    Battleaxe = WeaponTypeValue.Battleaxe,
-    Flail = WeaponTypeValue.Flail,
-    Glaive = WeaponTypeValue.Glaive,
-    Greataxe = WeaponTypeValue.Greataxe,
-    Greatsword = WeaponTypeValue.Greatsword,
-    Halberd = WeaponTypeValue.Halberd,
-    Lance = WeaponTypeValue.Lance,
-    Longsword = WeaponTypeValue.Longsword,
-    Maul = WeaponTypeValue.Maul,
-    Morningstar = WeaponTypeValue.Morningstar,
-    Pike = WeaponTypeValue.Pike,
-    Rapier = WeaponTypeValue.Rapier,
-    Scimitar = WeaponTypeValue.Scimitar,
-    Shortsword = WeaponTypeValue.Shortsword,
-    Trident = WeaponTypeValue.Trident,
-    WarPick = WeaponTypeValue.WarPick,
-    Warhammer = WeaponTypeValue.Warhammer,
-    Whip = WeaponTypeValue.Whip,
-    Blowgun = WeaponTypeValue.Blowgun,
-    HandCrossbow = WeaponTypeValue.HandCrossbow,
-    HeavyCrossbow = WeaponTypeValue.HeavyCrossbow,
-    Longbow = WeaponTypeValue.Longbow,
-    Net = WeaponTypeValue.Net
-}
+export const MartialWeapon = {
+    Battleaxe: WeaponTypeValue.Battleaxe,
+    Flail: WeaponTypeValue.Flail,
+    Glaive: WeaponTypeValue.Glaive,
+    Greataxe: WeaponTypeValue.Greataxe,
+    Greatsword: WeaponTypeValue.Greatsword,
+    Halberd: WeaponTypeValue.Halberd,
+    Lance: WeaponTypeValue.Lance,
+    Longsword: WeaponTypeValue.Longsword,
+    Maul: WeaponTypeValue.Maul,
+    Morningstar: WeaponTypeValue.Morningstar,
+    Pike: WeaponTypeValue.Pike,
+    Rapier: WeaponTypeValue.Rapier,
+    Scimitar: WeaponTypeValue.Scimitar,
+    Shortsword: WeaponTypeValue.Shortsword,
+    Trident: WeaponTypeValue.Trident,
+    WarPick: WeaponTypeValue.WarPick,
+    Warhammer: WeaponTypeValue.Warhammer,
+    Whip: WeaponTypeValue.Whip,
+    Blowgun: WeaponTypeValue.Blowgun,
+    HandCrossbow: WeaponTypeValue.HandCrossbow,
+    HeavyCrossbow: WeaponTypeValue.HeavyCrossbow,
+    Longbow: WeaponTypeValue.Longbow,
+    Net: WeaponTypeValue.Net
+} as const
 
-export enum WeaponTypeCategory {
-    Simple = WeaponTypeValue.Simple,
-    Martial = WeaponTypeValue.Martial,
-    Improvised = WeaponTypeValue.Improvised
-}
+export const WeaponTypeCategory = {
+    Simple: WeaponTypeValue.Simple,
+    Martial: WeaponTypeValue.Martial,
+    Improvised: WeaponTypeValue.Improvised
+} as const
 
-export enum MeleeWeaponType {
-    Battleaxe = WeaponTypeValue.Battleaxe,
-    Club = WeaponTypeValue.Club,
-    Flail = WeaponTypeValue.Flail,
-    Glaive = WeaponTypeValue.Glaive,
-    Greataxe = WeaponTypeValue.Greataxe,
-    Greatclub = WeaponTypeValue.Greatclub,
-    Greatsword = WeaponTypeValue.Greatsword,
-    Halberd = WeaponTypeValue.Halberd,
-    Lance = WeaponTypeValue.Lance,
-    Longsword = WeaponTypeValue.Longsword,
-    Mace = WeaponTypeValue.Mace,
-    Maul = WeaponTypeValue.Maul,
-    Morningstar = WeaponTypeValue.Morningstar,
-    Pike = WeaponTypeValue.Pike,
-    Quarterstaff = WeaponTypeValue.Quarterstaff,
-    Rapier = WeaponTypeValue.Rapier,
-    Scimitar = WeaponTypeValue.Scimitar,
-    Shortsword = WeaponTypeValue.Shortsword,
-    Sickle = WeaponTypeValue.Sickle,
-    WarPick = WeaponTypeValue.WarPick,
-    Warhammer = WeaponTypeValue.Warhammer,
-    Whip = WeaponTypeValue.Whip
-}
+export const MeleeWeaponType = {
+    Battleaxe: WeaponTypeValue.Battleaxe,
+    Club: WeaponTypeValue.Club,
+    Flail: WeaponTypeValue.Flail,
+    Glaive: WeaponTypeValue.Glaive,
+    Greataxe: WeaponTypeValue.Greataxe,
+    Greatclub: WeaponTypeValue.Greatclub,
+    Greatsword: WeaponTypeValue.Greatsword,
+    Halberd: WeaponTypeValue.Halberd,
+    Lance: WeaponTypeValue.Lance,
+    Longsword: WeaponTypeValue.Longsword,
+    Mace: WeaponTypeValue.Mace,
+    Maul: WeaponTypeValue.Maul,
+    Morningstar: WeaponTypeValue.Morningstar,
+    Pike: WeaponTypeValue.Pike,
+    Quarterstaff: WeaponTypeValue.Quarterstaff,
+    Rapier: WeaponTypeValue.Rapier,
+    Scimitar: WeaponTypeValue.Scimitar,
+    Shortsword: WeaponTypeValue.Shortsword,
+    Sickle: WeaponTypeValue.Sickle,
+    WarPick: WeaponTypeValue.WarPick,
+    Warhammer: WeaponTypeValue.Warhammer,
+    Whip: WeaponTypeValue.Whip
+} as const
 
-export enum ThrownWeaponType {
-    Dagger = WeaponTypeValue.Dagger,
-    Dart = WeaponTypeValue.Dart,
-    Handaxe = WeaponTypeValue.Handaxe,
-    Javelin = WeaponTypeValue.Javelin,
-    LightHammer = WeaponTypeValue.LightHammer,
-    Spear = WeaponTypeValue.Spear,
-    Trident = WeaponTypeValue.Trident
-}
+export const ThrownWeaponType = {
+    Dagger: WeaponTypeValue.Dagger,
+    Dart: WeaponTypeValue.Dart,
+    Handaxe: WeaponTypeValue.Handaxe,
+    Javelin: WeaponTypeValue.Javelin,
+    LightHammer: WeaponTypeValue.LightHammer,
+    Spear: WeaponTypeValue.Spear,
+    Trident: WeaponTypeValue.Trident
+} as const
 
-export enum RangedWeaponType {
-    Blowgun = WeaponTypeValue.Blowgun,
-    HandCrossbow = WeaponTypeValue.HandCrossbow,
-    HeavyCrossbow = WeaponTypeValue.HeavyCrossbow,
-    LightCrossbow = WeaponTypeValue.LightCrossbow,
-    Longbow = WeaponTypeValue.Longbow,
-    Net = WeaponTypeValue.Net,
-    Shortbow = WeaponTypeValue.Shortbow,
-    Sling = WeaponTypeValue.Sling
-}
+export const RangedWeaponType = {
+    Blowgun: WeaponTypeValue.Blowgun,
+    HandCrossbow: WeaponTypeValue.HandCrossbow,
+    HeavyCrossbow: WeaponTypeValue.HeavyCrossbow,
+    LightCrossbow: WeaponTypeValue.LightCrossbow,
+    Longbow: WeaponTypeValue.Longbow,
+    Net: WeaponTypeValue.Net,
+    Shortbow: WeaponTypeValue.Shortbow,
+    Sling: WeaponTypeValue.Sling
+} as const
 
 export const WeaponType = {
     ...MeleeWeaponType,
     ...ThrownWeaponType,
     ...RangedWeaponType
-}
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export type WeaponType = MeleeWeaponType | ThrownWeaponType | RangedWeaponType
+} as const
+
+export type WeaponType = ValueOf<typeof MeleeWeaponType> | ValueOf<typeof ThrownWeaponType> | ValueOf<typeof RangedWeaponType>
 
 export const WeaponCategoryType = {
     ...WeaponType,
     ...WeaponTypeCategory
-}
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export type WeaponCategoryType = WeaponType | WeaponTypeCategory
+} as const
+
+export type WeaponCategoryType = WeaponType | ValueOf<typeof WeaponTypeCategory>
 
 export enum ArtisansTools {
     AlchemistsSupplies = 'alchemistsSupplies',
@@ -422,7 +424,7 @@ export const ToolType = {
     ...MusicalInstrument,
     ...MiscellaneousTools
 }
-// eslint-disable-next-line @typescript-eslint/no-redeclare
+ 
 export type ToolType = ToolCategory | ArtisansTools | GamingSet | MusicalInstrument | MiscellaneousTools
 
 export enum Language {
@@ -478,7 +480,7 @@ export const ProficiencyLevel = {
     ...ProficiencyLevelBasic,
     ...ProficiencyLevelExpanded
 }
-// eslint-disable-next-line @typescript-eslint/no-redeclare
+ 
 export type ProficiencyLevel = ProficiencyLevelBasic | ProficiencyLevelExpanded
 
 export enum RestType {

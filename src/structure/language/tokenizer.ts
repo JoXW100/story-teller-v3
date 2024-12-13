@@ -2,7 +2,7 @@ import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { MarkerData, ITokenData } from 'types/language'
 
 class Tokenizer {
-    private static readonly TokenizationExpr = /(%%|\$\{|\:\/\/|[^\w]|\w+)/i
+    private static readonly TokenizationExpr = /(%%|\$\{|:\/\/|[^\w]|\w+)/i
     private static readonly WhiteSpaceExpr = /^\s*$/
 
     public readonly elements: ElementDefinitions
@@ -65,7 +65,7 @@ class Tokenizer {
                 case '%%': {
                     return this.nextLine(ignoreWhiteSpace)
                 }
-                case '\~': {
+                case '~': {
                     const column = 1 + match.index - this.lineIndex
                     return (this.current = { ...this.current, startColumn: column, endColumn: column, content: ' ' })
                 }

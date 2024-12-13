@@ -13,7 +13,8 @@ class EmptyToken extends Token {
         return true
     }
 
-    public parse(tokenizer: Tokenizer): void {
+    public parse(_tokenizer: Tokenizer): void {
+        
     }
 
     public build(): React.ReactNode {

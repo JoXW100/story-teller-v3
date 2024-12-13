@@ -8,9 +8,9 @@ import { CalcMode, type CalcValue } from 'structure/database'
  */
 export function uniqueArray<T>(array: T[]): T[] {
     const result = new Set<T>()
-    for (let i = 0; i < array.length; i++) {
-        if (!result.has(array[i])) {
-            result.add(array[i])
+    for (const item of array) {
+        if (!result.has(item)) {
+            result.add(item)
         }
     }
     return Array.from(result)
@@ -26,25 +26,25 @@ export function uniqueArray<T>(array: T[]): T[] {
 export function excludeArray<T>(array: T[], exclude: Iterable<T>): T[] {
     const excludeSet = new Set<T>(exclude)
     const result = new Array<T>()
-    for (let i = 0; i < array.length; i++) {
-        if (!excludeSet.has(array[i])) {
-            result.push(array[i])
+    for (const item of array) {
+        if (!excludeSet.has(item)) {
+            result.push(item)
         }
     }
     return result
 }
 
-export function keysOf<T extends string | number | symbol>(value: Partial<Record<T, any>>): T[] {
+export function keysOf<T extends string | number | symbol>(value: Partial<Record<T, unknown>>): T[] {
     return Object.keys(value) as T[]
 }
 
-export function isKeyOf<K, T extends string | number | symbol>(key: K, value: Partial<Record<T, any>>): key is T & K {
+export function isKeyOf<K, T extends string | number | symbol>(key: K, value: Partial<Record<T, unknown>>): key is T & K {
     return String(key) in value
 }
 
-export function asKeyOf<T extends string | number | symbol>(key: unknown, value: Partial<Record<T, any>>): T | null
-export function asKeyOf<T extends string | number | symbol, O>(key: unknown, value: Partial<Record<T, any>>, other: O): T | O
-export function asKeyOf<T extends string | number | symbol, O>(key: unknown, value: Partial<Record<T, any>>, other: O | null = null): T | O | null {
+export function asKeyOf<T extends string | number | symbol>(key: unknown, value: Partial<Record<T, unknown>>): T | null
+export function asKeyOf<T extends string | number | symbol, O>(key: unknown, value: Partial<Record<T, unknown>>, other: O): T | O
+export function asKeyOf<T extends string | number | symbol, O>(key: unknown, value: Partial<Record<T, unknown>>, other: O | null = null): T | O | null {
     return isKeyOf(key, value) ? key : other
 }
 
@@ -91,7 +91,7 @@ export function asNumber<O>(value: unknown, other: O | number = NaN): number | O
 export function asString(value: unknown): string | null
 export function asString<O>(value: unknown, other: O): string | O
 export function asString<O>(value: unknown, other: O | null = null): string | O | null {
-    return isString(value) ? value : null
+    return isString(value) ? value : other
 }
 
 export function isBoolean(value: unknown): value is boolean {
@@ -132,7 +132,7 @@ export function isRecordOrNull<T = unknown>(value: unknown, validate?: (key: str
     return value === null || isRecord(value, validate)
 }
 
-export function nullifyEmptyRecord<T extends Record<any, any>>(value: T): T | null {
+export function nullifyEmptyRecord<T extends object>(value: T): T | null {
     return Object.keys(value).length > 0 ? value : null
 }
 
@@ -188,7 +188,7 @@ export function asBooleanString(value: boolean): BooleanString {
  * @returns The value at the index in the value or null if it does not exist
  */
 export function valueAtKey<T extends string | number>(value: object, key: T): unknown {
-    return (value as any)[key] ?? null
+    return (value as Record<T, unknown>)[key] ?? null
 }
 
 /**
@@ -247,7 +247,7 @@ export function getRelativeFieldObject(field: string, data: object): { key: stri
     }
 }
 
-export function createField(...parts: Array<string | undefined>): string {
+export function createField(...parts: (string | undefined)[]): string {
     let field = ''
     let flag = true
     for (const part of parts) {

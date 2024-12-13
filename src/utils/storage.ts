@@ -1,60 +1,60 @@
 import { asEnum, asKeyOf } from 'utils'
 import Logger from './logger'
 
-abstract class Storage {
+const Storage = {
     /** Sets the value of the item at the given key */
-    static setString(key: string, value: string): boolean {
+    setString(key: string, value: string): boolean {
         if (typeof window !== 'undefined') {
             window.localStorage.setItem(key, value)
             return true
         }
         return false
-    }
+    },
 
     /** Sets the value of the item at the given key */
-    static setInt(key: string, value: number): boolean {
+    setInt(key: string, value: number): boolean {
         if (typeof window !== 'undefined') {
             window.localStorage.setItem(key, value.toString())
             return true
         }
         return false
-    }
+    },
 
     /** Sets the value of the item at the given key */
-    static setBoolean(key: string, value: boolean): boolean {
+    setBoolean(key: string, value: boolean): boolean {
         if (typeof window !== 'undefined') {
             window.localStorage.setItem(key, value ? 'true' : 'false')
             return true
         }
         return false
-    }
+    },
 
     /** Sets the value of the item at the given key */
-    static setObject<T extends object>(key: string, value: T): boolean {
+    setObject<T extends object>(key: string, value: T): boolean {
         if (typeof window !== 'undefined') {
             window.localStorage.setItem(key, JSON.stringify(value))
             return true
         }
         return false
-    }
+    },
 
     /** Gets the value of the item at the given key */
-    static getString(key: string): string | null {
+    getString(key: string): string | null {
         if (typeof window !== 'undefined') {
             return window.localStorage.getItem(key)
         }
         return null
-    }
+    },
 
-    static getKeyOf<T extends Record<string, any>>(key: string, type: T): keyof T | null {
+    getKeyOf<T extends Record<string, unknown>>(key: string, type: T): keyof T | null {
         if (typeof window !== 'undefined') {
             const value = window.localStorage.getItem(key)
             return asKeyOf(value, type)
         }
         return null
-    }
+    },
 
-    static getEnum<T extends Record<string, string | number | symbol>>(
+    getEnum<T extends Record<string, string | number | symbol>>(
         key: string,
         type: T
     ): T[keyof T] | null {
@@ -63,10 +63,10 @@ abstract class Storage {
             return asEnum(value, type)
         }
         return null
-    }
+    },
 
     /** Gets the value of the item at the given key */
-    static getInt(key: string): number | null {
+    getInt(key: string): number | null {
         if (typeof window !== 'undefined') {
             const value = window.localStorage.getItem(key)
             if (value !== null) {
@@ -75,10 +75,10 @@ abstract class Storage {
             }
         }
         return null
-    }
+    },
 
     /** Gets the value of the item at the given key */
-    static getBoolean(key: string): boolean | null {
+    getBoolean(key: string): boolean | null {
         if (typeof window !== 'undefined') {
             const value = window.localStorage.getItem(key)
             if (value !== null) {
@@ -86,10 +86,10 @@ abstract class Storage {
             }
         }
         return null
-    }
+    },
 
     /** Sets the value of the item at the given key */
-    static getObject<T extends object>(key: string): T | null {
+    getObject<T extends object>(key: string): T | null {
         if (typeof window !== 'undefined') {
             const value = window.localStorage.getItem(key)
             if (value !== null) {
@@ -97,9 +97,9 @@ abstract class Storage {
             }
         }
         return null
-    }
+    },
 
-    static delete(key: string): boolean {
+    delete(key: string): boolean {
         if (typeof window !== 'undefined') {
             window.localStorage.removeItem(key)
             Logger.warn('storage.delete', key)
@@ -107,6 +107,6 @@ abstract class Storage {
         }
         return false
     }
-}
+} as const
 
 export default Storage

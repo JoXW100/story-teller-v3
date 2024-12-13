@@ -59,7 +59,6 @@ export const ElementDictionary: ElementDefinitions = {
     ...Variable.element
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type ElementsType = { [K in keyof typeof ElementDictionary]: Exclude<typeof ElementDictionary[K]['element'], undefined> }
 const Elements = keysOf(ElementDictionary).reduce<Partial<ElementsType>>((prev, key) => (
     { ...prev, [key]: ElementDictionary[key].element }

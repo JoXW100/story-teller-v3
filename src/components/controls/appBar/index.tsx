@@ -8,7 +8,7 @@ import styles from './style.module.scss'
 
 type AppBarProps = React.PropsWithChildren<{
     headerId: LanguageKey
-    headerArgs?: Array<string | number>
+    headerArgs?: (string | number)[]
     iconId: IconType
     handleBack?: () => void
 }>

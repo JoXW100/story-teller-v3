@@ -4,7 +4,7 @@ import { useLocalizedText } from 'utils/hooks/localization'
 type LocalizedTextProps = React.PropsWithRef<{
     id: LanguageKey
     className?: string
-    args?: Array<string | number>
+    args?: (string | number)[]
 }>
 
 const LocalizedText: React.FC<LocalizedTextProps> = ({ id, args = [], className }) => {

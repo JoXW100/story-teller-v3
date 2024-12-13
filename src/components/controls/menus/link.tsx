@@ -8,8 +8,8 @@ import Logger from 'utils/logger'
 import Navigation from 'utils/navigation'
 import type DatabaseStory from 'structure/database/story'
 import type { DocumentType } from 'structure/database'
-import type { DocumentTypeMap } from 'structure/database/files/factory'
 import type { ObjectId } from 'types'
+import { DocumentTypeMap } from 'types/database/files/factory'
 
 interface ListMenuPropsBase<T> {
     story: DatabaseStory
@@ -39,12 +39,12 @@ type LinkListMenuComponent = React.PropsWithRef<{
     story: DatabaseStory
     itemClassName?: string
     editClassName?: string
-    files: Array<DocumentTypeMap[DocumentType] | null>
+    files: (DocumentTypeMap[DocumentType] | null)[]
     allowedTypes: readonly DocumentType[]
     placeholder?: string
     allowText: boolean
     disabled: boolean
-    onChange: (selection: Array<string | ObjectId>) => void
+    onChange: (selection: (string | ObjectId)[]) => void
     parseText: (value: string) => DocumentTypeMap[DocumentType] | null
 }>
 
@@ -60,7 +60,7 @@ const LinkListMenu: React.FC<LinkListMenuProps> = (props) => {
         Logger.throw('LinkListMenu', 'LinkListMenu with no accepted filetypes, expected at least one', props.allowedTypes)
     }
 
-    const handleChange = (items: Array<string | ObjectId>): void => {
+    const handleChange = (items: (string | ObjectId)[]): void => {
         if (props.allowText) {
             props.onChange(items)
         } else {
@@ -68,7 +68,7 @@ const LinkListMenu: React.FC<LinkListMenuProps> = (props) => {
         }
     }
 
-    const handleValidate = (value: string | ObjectId, values: Array<string | ObjectId>): boolean => {
+    const handleValidate = (value: string | ObjectId, values: (string | ObjectId)[]): boolean => {
         if (props.disabled === true) {
             return false
         }

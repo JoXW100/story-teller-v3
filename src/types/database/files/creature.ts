@@ -63,7 +63,7 @@ export interface ICreatureData extends IDatabaseFileData {
     readonly spellSlots: Partial<Record<SpellLevel, number>>
     readonly ritualCaster: boolean
     // Abilities
-    readonly abilities: Array<ObjectId | string>
+    readonly abilities: (ObjectId | string)[]
 }
 
 export interface ICreatureStorage extends IDatabaseFileStorage {

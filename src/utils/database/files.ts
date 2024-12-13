@@ -6,7 +6,6 @@ import Logger from 'utils/logger'
 import { DocumentFileType, FileType, FlagType } from 'structure/database'
 import DatabaseFile from 'structure/database/files'
 import DocumentFactory from 'structure/database/files/factory'
-import type { KeysOfTwo } from 'types'
 import type { DBResponse, IFileStructure, IDatabaseFile } from 'types/database'
 import { AbilityType } from 'structure/database/files/ability/common'
 
@@ -132,7 +131,7 @@ class FileCollection {
                 return failure('Failed data validation')
             }
 
-            const response = await Database.stories!.has(userId, storyId)
+            const response = await Database.stories.has(userId, storyId)
             if (!response.success || !response.result) {
                 Logger.warn('file.add', 'Could not validate story')
                 return failure('Could not validate story')
@@ -192,7 +191,7 @@ class FileCollection {
                     $match: {
                         _userId: userId,
                         _id: fileId
-                    } satisfies KeysOfTwo<IDatabaseFile, object>
+                    }
                 },
                 {
                     $lookup: {
@@ -222,7 +221,7 @@ class FileCollection {
                         name: name,
                         dateCreated: time,
                         dateUpdated: time
-                    } satisfies KeysOfTwo<IDatabaseFile, object>
+                    }
                 },
                 { $project: { holder: 0 } },
                 {
@@ -273,7 +272,7 @@ class FileCollection {
                 _userId: userId,
                 _id: fileId,
                 type: type
-            } satisfies KeysOfTwo<IDatabaseFile, object>
+            }
 
             const result = await this.collection.updateOne(filter, query)
 
@@ -323,7 +322,7 @@ class FileCollection {
                 _userId: userId,
                 _id: fileId,
                 type: type
-            } satisfies KeysOfTwo<IDatabaseFile, object>
+            }
 
             const result = await this.collection.updateOne(filter, query)
 
@@ -359,7 +358,7 @@ class FileCollection {
                     $match: {
                         _userId: userId,
                         _id: fileId
-                    } satisfies KeysOfTwo<IDatabaseFile, object>
+                    }
                 },
                 {
                     $lookup: {
@@ -468,7 +467,7 @@ class FileCollection {
                         type: allowedTypes.length > 0
                             ? { $in: allowedTypes }
                             : { $nin: [FileType.Root, FileType.Empty] }
-                    } satisfies KeysOfTwo<IDatabaseFile, object>
+                    }
                 },
                 ...this.getSubscribedFilter(userId),
                 ...this.getFileProjection(userId)
@@ -509,7 +508,7 @@ class FileCollection {
                             : { $nin: [FileType.Root, FileType.Empty] },
                         ...(sources.length > 0 && { _storyId: { $in: sources } }),
                         ...(requiredFlags.length > 0 && { flags: { $in: requiredFlags } })
-                    } satisfies KeysOfTwo<IDatabaseFile, object>
+                    }
                 },
                 ...this.getSubscribedFilter(userId),
                 ...this.getFileProjection(userId)
@@ -544,7 +543,7 @@ class FileCollection {
                         type: type,
                         ...(sources.length > 0 && { _storyId: { $in: sources } }),
                         'data.parentFile': String(parentId)
-                    } satisfies KeysOfTwo<IDatabaseFile, object>
+                    }
                 },
                 ...this.getSubscribedFilter(userId),
                 ...this.getFileProjection(userId)
@@ -577,7 +576,7 @@ class FileCollection {
                         type: DocumentFileType.Ability,
                         'data.type': AbilityType.Custom,
                         'data.category': category
-                    } satisfies KeysOfTwo<IDatabaseFile, object>
+                    }
                 },
                 ...this.getSubscribedFilter(userId),
                 ...this.getFileProjection(userId)
@@ -606,7 +605,7 @@ class FileCollection {
             const filter = {
                 _userId: userId,
                 _id: fileId
-            } satisfies KeysOfTwo<IDBFile, object>
+            }
 
             const result = await this.collection.deleteOne(filter)
 
@@ -638,7 +637,7 @@ class FileCollection {
             const filter = {
                 _userId: userId,
                 _storyId: storyId
-            } satisfies KeysOfTwo<IDBFile, object>
+            }
 
             const result = await this.collection.deleteMany(filter)
 
@@ -708,7 +707,7 @@ class FileCollection {
                         flags: { $ifNull: ['$flags', []] },
                         open: { $ifNull: ['$data.open', false] },
                         children: []
-                    } satisfies KeysOfTwo<IFileStructure, object>
+                    }
                 }
             ]).toArray())
 
@@ -779,7 +778,7 @@ class FileCollection {
         return [
             {
                 $lookup: {
-                    from: Database.stories!.collection.collectionName,
+                    from: Database.stories.collection.collectionName,
                     localField: '_storyId',
                     foreignField: '_id',
                     as: 'story'

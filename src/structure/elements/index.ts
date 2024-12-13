@@ -26,7 +26,7 @@ export abstract class Element<T extends Record<string, any> = any> implements IE
         this.element = element
     }
 
-    public init(token: CommandToken): void {
+    public init(_token: CommandToken): void {
     }
 
     public parse(token: CommandToken, key?: string): React.ReactNode {

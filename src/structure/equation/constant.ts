@@ -9,7 +9,7 @@ class Constant extends SymbolicExpression {
         this.value = value
     }
 
-    public eval(environment: TokenContext): number {
+    public eval(_environment: TokenContext): number {
         return this.value
     }
 }

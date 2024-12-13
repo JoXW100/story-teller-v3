@@ -80,8 +80,7 @@ function toStringOrNull(value: unknown): string | null {
         throw new DBError('toStringOrNull', value)
     }
 }
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 function toNumber(value: unknown): number {
     const res = Number(value)
     if (isNaN(res)) {
@@ -98,7 +97,7 @@ function toEnum<T extends Enum>(value: unknown, type: T): T[keyof T] {
     }
 }
 
-function toEnumArray<T extends Enum>(value: unknown, type: T): Array<T[keyof T]> {
+function toEnumArray<T extends Enum>(value: unknown, type: T): T[keyof T][] {
     try {
         if (value === '') {
             return []

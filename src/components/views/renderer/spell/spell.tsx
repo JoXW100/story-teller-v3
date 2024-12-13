@@ -23,7 +23,7 @@ export type SpellRendererProps = React.PropsWithRef<{
     damageBonuses: IBonusGroup
 }>
 
-const SpellRenderer: React.FC<SpellRendererProps> = ({ data, properties, attackBonuses, damageBonuses }) => {
+const SpellRenderer: React.FC<SpellRendererProps> = ({ data, properties, damageBonuses }) => {
     const [upcastLevel, setUpcastLevel] = useState(data.level)
     const translator = useTranslator()
     const targetIconTooltips = data.targetIcon !== null ? translator(`icon-${data.targetIcon}`) : null

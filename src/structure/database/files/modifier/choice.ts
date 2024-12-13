@@ -24,7 +24,7 @@ export const ModifierChoiceDataFactory: IDatabaseFactory<IModifierChoiceData, Mo
     simplify: function (data: IModifierChoiceData): Simplify<ModifierChoiceData> {
         return simplifyObjectProperties(data, this.properties(data))
     },
-    properties: function (data: unknown): DataPropertyMap<IModifierChoiceData, ModifierChoiceData> {
+    properties: function (_data: unknown): DataPropertyMap<IModifierChoiceData, ModifierChoiceData> {
         return ModifierChoiceData.properties
     }
 }

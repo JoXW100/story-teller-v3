@@ -10,7 +10,7 @@ export interface IRollEvent {
 }
 
 interface RollContextState {
-    rollHistory: Array<IRollEvent | null>
+    rollHistory: (IRollEvent | null)[]
 }
 
 interface RollContextDispatch {

@@ -6,7 +6,7 @@ type DialogParams = React.PropsWithChildren<{
     onClose?: React.ReactEventHandler<HTMLDialogElement>
 }>
 
-const Dialog: React.FC<DialogParams> = ({ id, onClose, children }) => {
+const Dialog: React.FC<DialogParams> = ({ onClose, children }) => {
     return (
         <MDialog open fullScreen onClose={onClose} classes={{
             container: styles.container,

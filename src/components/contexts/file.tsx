@@ -17,7 +17,7 @@ import type { Document, DocumentDataMap } from 'types/database/files/factory'
 export interface IEditorPageData {
     pageKey: EditorPageKeyType
     root: string
-    name: React.ReactNode
+    name: string
 }
 
 interface FileContextState {
@@ -266,7 +266,6 @@ const FileContext: React.FC<FileContextProps> = ({ children, fileId }) => {
             const routeChangeHandler = (url: string): void => {
                 if (state.buffer.requestIsQueued && Router.pathname !== url && !confirm(warningMsg)) {
                     Router.events.emit('routeChangeError')
-                    // eslint-disable-next-line @typescript-eslint/no-throw-literal
                     throw 'Route change was aborted (this error can be safely ignored)'
                 }
             }

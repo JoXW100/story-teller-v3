@@ -7,8 +7,8 @@ import { asBooleanString, asObjectId, isObjectId, keysOf } from 'utils'
 import { useFilesOfType } from 'utils/hooks/files'
 import type DatabaseStory from 'structure/database/story'
 import type { DocumentType } from 'structure/database'
-import type { DocumentTypeMap } from 'structure/database/files/factory'
 import type { EnumValue, ObjectId } from 'types'
+import type { DocumentTypeMap } from 'types/database/files/factory'
 
 export interface ILinkRecordMenuTextProps {
     type: 'text'
@@ -59,7 +59,7 @@ type RecordMenuComponentProps = React.PropsWithRef<{
     itemClassName?: string
     editClassName?: string
     ids: ObjectId[]
-    files: Array<DocumentTypeMap[DocumentType] | null>
+    files: (DocumentTypeMap[DocumentType] | null)[]
     allowedTypes: readonly DocumentType[]
     placeholder?: string
 } & LinkRecordMenuPropsType>
@@ -68,7 +68,7 @@ function LinkRecordMenu(props: LinkRecordMenuProps): React.ReactNode {
     const ids = useMemo(() => keysOf(props.value), [props.value])
     const [files] = useFilesOfType(ids, props.allowedTypes)
 
-    const handleChange = (newValues: Array<string | null>): void => {
+    const handleChange = (newValues: (string | null)[]): void => {
         if (props.onChange === undefined) {
             return
         }

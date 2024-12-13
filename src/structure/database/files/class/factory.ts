@@ -18,7 +18,7 @@ const ClassDataFactory: IDatabaseFactory<IClassData, ClassData> = {
     simplify: function (data: IClassData): Simplify<IClassData> {
         return simplifyObjectProperties(data, this.properties(data))
     },
-    properties: function (data: unknown): DataPropertyMap<IClassData, ClassData> {
+    properties: function (_data: unknown): DataPropertyMap<IClassData, ClassData> {
         return ClassData.properties
     }
 }

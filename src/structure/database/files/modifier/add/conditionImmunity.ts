@@ -64,7 +64,7 @@ class ModifierAddConditionImmunityData extends ModifierAddDataBase implements IM
                     choice = self.binding.value
                 }
 
-                if (choice === null || (choice in value && value[choice]!.some(binding => binding.description === self.notes))) {
+                if (choice === null || value[choice]?.some(binding => binding.description === self.notes)) {
                     return value
                 }
 

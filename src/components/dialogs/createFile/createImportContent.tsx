@@ -8,7 +8,7 @@ import SearchBar from 'components/controls/searchBar'
 import Loading from 'components/controls/loading'
 import type { CreateContentProps } from '.'
 import { Open5eCompendiumData } from 'assets'
-import { asNumber } from 'utils'
+import { asNumber, asString } from 'utils'
 import { useLocalizedText } from 'utils/hooks/localization'
 import Navigation from 'utils/navigation'
 import Communication from 'utils/communication'
@@ -35,12 +35,12 @@ interface SortingMethod {
 }
 
 const spellFilterItems = ['C', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-const hpSplitExpr = /^([0-9]+)d([0-9]+) *([\+\-][0-9]+)?/
+const hpSplitExpr = /^([0-9]+)d([0-9]+) *([+-][0-9]+)?/
 const castingTimeSplitExpr = /^([0-9]+) *([a-z]+)/i
 const itemsPerPage = 100
 
-const splitHP = (hp?: string): { num: number, dice: number, mod: number } => {
-    const res = hpSplitExpr.exec(hp ?? '') ?? []
+const splitHP = (hp?: unknown): { num: number, dice: number, mod: number } => {
+    const res = hpSplitExpr.exec(asString(hp) ?? '') ?? []
     return {
         num: asNumber(res[1], 0),
         dice: asNumber(res[2], 0),
@@ -48,8 +48,8 @@ const splitHP = (hp?: string): { num: number, dice: number, mod: number } => {
     }
 }
 
-const splitCastingTime = (castingTime?: string): { num: number, type: string } => {
-    const res = castingTimeSplitExpr.exec(castingTime ?? '') ?? []
+const splitCastingTime = (castingTime?: unknown): { num: number, type: string } => {
+    const res = castingTimeSplitExpr.exec(asString(castingTime) ?? '') ?? []
     return {
         num: asNumber(res[1], 0),
         type: res[2] ?? ''
@@ -164,13 +164,13 @@ const CreateImportContent: React.FC<CreateContentProps> = ({ callback, close }) 
         if (state.sorting.field !== null && typeof a[state.sorting.field] === typeof '') {
             const numA = Number(a[state.sorting.field])
             if (!isNaN(numA)) {
-                const numB = parseInt(b[state.sorting.field])
+                const numB = parseInt(String(b[state.sorting.field]))
                 val = numA - numB
-            } else if (hpSplitExpr.test(a[state.sorting.field])) {
+            } else if (hpSplitExpr.test(String(a[state.sorting.field]))) {
                 const hpA = splitHP(a[state.sorting.field])
                 const hpB = splitHP(b[state.sorting.field])
                 val = ((hpA.num * (hpA.dice + 1) / 2) + hpA.mod) - ((hpB.num * (hpB.dice + 1) / 2 + hpB.mod))
-            } else if (castingTimeSplitExpr.test(a[state.sorting.field])) {
+            } else if (castingTimeSplitExpr.test(String(a[state.sorting.field]))) {
                 const timeA = splitCastingTime(a[state.sorting.field])
                 const timeB = splitCastingTime(b[state.sorting.field])
                 val = timeA.type.localeCompare(timeB.type)
@@ -178,10 +178,10 @@ const CreateImportContent: React.FC<CreateContentProps> = ({ callback, close }) 
                     val = timeA.num - timeB.num
                 }
             } else {
-                val = String(a[state.sorting.field]).localeCompare(b[state.sorting.field])
+                val = String(a[state.sorting.field]).localeCompare(String(b[state.sorting.field]))
             }
         } else if (state.sorting.field !== null) {
-            val = Number(a[state.sorting.field]) - b[state.sorting.field]
+            val = Number(a[state.sorting.field]) - Number(b[state.sorting.field])
         }
         return state.sorting.direction === 'descending' ? val : -val
     }
@@ -315,7 +315,7 @@ const CreateImportContent: React.FC<CreateContentProps> = ({ callback, close }) 
                                             onClick={() => { handleItemCLick(item) }}
                                             data={state.selected?.slug === item.slug ? 'selected' : undefined }>
                                             { state.menu.fields.map((field) => (
-                                                <td key={field}>{item[field]}</td>
+                                                <td key={field}>{item[field] as React.ReactNode}</td>
                                             ))}
                                             <Tooltip placement='left' title={<LocalizedText id='dialog-createFile-openExternal' args={[item.name]}/>}>
                                                 <td onClick={(e) => { handleNavigateClick(e, item) }}>

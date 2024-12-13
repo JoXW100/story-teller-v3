@@ -61,8 +61,8 @@ class ModifierSetArmorClassBaseData extends ModifierSetDataBase implements IModi
                 const bonus = asNumber(variables['ac.bonus'], 0)
                 let sum = 10
                 for (const attr of keysOf(modifier.values)) {
-                    const value = getScalingValue(attr, properties) * modifier.values[attr]!
-                    sum += attr in modifier.maxValues ? Math.min(value, modifier.maxValues[attr]!) : value
+                    const value = getScalingValue(attr, properties) * (modifier.values[attr] ?? 0)
+                    sum += attr in modifier.maxValues ? Math.min(value, (modifier.maxValues[attr] ?? 0)) : value
                 }
                 return sum + bonus
             }

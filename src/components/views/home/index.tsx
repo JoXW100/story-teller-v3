@@ -36,7 +36,7 @@ const HomeView: React.FC = () => {
     })
 
     const continueButtonStyle: React.CSSProperties | undefined = isDefined(state.lastStory?.image)
-        ? { backgroundImage: `url(${state.lastStory.image}), url('/library.jpg'), url('/library.jpg')` }
+        ? { backgroundImage: `url(${state.lastStory.image}), url('https://utfs.io/f/zMULclXHF285X3XgMph590X7VxLA64HQiWGqsTBhElDCkSUp'), url('https://utfs.io/f/zMULclXHF285X3XgMph590X7VxLA64HQiWGqsTBhElDCkSUp')` }
         : undefined
 
     const cardButtonClickHandler: React.MouseEventHandler<HTMLButtonElement> = (e) => {

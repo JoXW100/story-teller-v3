@@ -8,7 +8,7 @@ type EmptyCardProps = React.PropsWithChildren<{
 
 const EmptyCard: React.FC<EmptyCardProps> = ({ header, href, children }) => {
     const router = useRouter()
-    const handleClick: React.MouseEventHandler<HTMLDivElement> = (e) => {
+    const handleClick: React.MouseEventHandler<HTMLDivElement> = () => {
         void router.push(href)
     }
 

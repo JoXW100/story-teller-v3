@@ -12,7 +12,7 @@ const ItemDocumentRenderer: React.FC = (): React.ReactNode => {
     const translator = useTranslator()
     const options = useLocalizedEnums('rarity')
     const [, contentContext] = useMemo(() => data.createContexts(ElementDictionary), [data])
-    const descriptionToken = contentContext.description!
+    const descriptionToken = contentContext.description
     const contentToken = useMemo(() => {
         return StoryScript.tokenize(ElementDictionary, data.content, contentContext).root
     }, [contentContext, data.content])
@@ -27,7 +27,7 @@ const ItemDocumentRenderer: React.FC = (): React.ReactNode => {
         <Elements.h3 underline={false}>
             <LocalizedText id='render-item-description'/>
         </Elements.h3>
-        { descriptionToken.build() }
+        { descriptionToken?.build() }
         { !contentToken.isEmpty &&
             <>
                 <Elements.line width='2px'/>

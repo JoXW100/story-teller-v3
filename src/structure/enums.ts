@@ -239,5 +239,5 @@ export type ExtractEnumType<T> = T extends EnumTypeKey
 export function getEnumType<T extends EnumTypeKey> (key: T): ExtractEnumType<T>
 export function getEnumType<T extends string>(key: string): ExtractEnumType<T> | null
 export function getEnumType<T extends EnumTypeKey> (key: T): T extends EnumTypeKey ? ExtractEnumType<T> : IEnumType | null {
-    return EnumTypes[key] as any ?? null
+    return EnumTypes[key] as T extends EnumTypeKey ? ExtractEnumType<T> : IEnumType ?? null
 }

@@ -26,11 +26,11 @@ const TableComponent: React.FC<TableElementParams> = ({ th = [], tc = [], color,
     const content = new Array<React.ReactNode[]>(rows)
     let row = 0
     let column = 0
-    for (let i = 0; i < tc.length; i++) {
+    for (const cell of tc) {
         if (!Array.isArray(content[row])) {
             content[row] = []
         }
-        content[row][column] = tc[i]
+        content[row][column] = cell
         if (++column >= th.length) {
             ++row
             column = 0

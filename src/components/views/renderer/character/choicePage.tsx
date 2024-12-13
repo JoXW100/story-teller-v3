@@ -14,11 +14,11 @@ import { useAbilitiesOfCategory, useFilesOfType, useSubFiles } from 'utils/hooks
 import { useLocalizedEnums } from 'utils/hooks/localization'
 import StoryScript from 'structure/language/storyscript'
 import { DocumentType } from 'structure/database'
-import type { DocumentTypeMap } from 'structure/database/files/factory'
 import type RaceData from 'structure/database/files/race/data'
 import type ClassData from 'structure/database/files/class/data'
 import type CharacterFacade from 'structure/database/files/character/facade'
 import type { ObjectId } from 'types'
+import type { DocumentTypeMap } from 'types/database/files/factory'
 import type { IEditorChoiceData, IEditorDocumentChoiceData, IEditorEnumChoiceData, IEditorLinkedChoiceData, IEditorValueChoiceData } from 'types/database/choice'
 import styles from '../styles.module.scss'
 
@@ -91,7 +91,7 @@ export const ModifierChoiceEnumItem: React.FC<ModifierChoiceEnumItemProps> = ({ 
         }
         return options
     }, [data, optionOptions])
-    const value = getValueArray(facade.storage.choices[choiceKey], (value) => isKeyOf(value, options)) as Array<keyof typeof options>
+    const value = getValueArray(facade.storage.choices[choiceKey], (value) => isKeyOf(value, options)) as (keyof typeof options)[]
 
     const handleChange = (value: unknown): void => {
         const choices: Record<string, unknown> = {}
@@ -150,7 +150,7 @@ export const ModifierChoiceValueItem: React.FC<ModifierChoiceValueItemProps> = (
         }
         return options
     }, [data])
-    const value = getValueArray(facade.storage.choices[choiceKey], (value) => isKeyOf(value, options)) as Array<keyof typeof options>
+    const value = getValueArray(facade.storage.choices[choiceKey], (value) => isKeyOf(value, options)) as (keyof typeof options)[]
 
     const handleChange = (value: unknown): void => {
         const choices: Record<string, unknown> = {}
@@ -257,7 +257,7 @@ export const ModifierOptionsDocumentItem: React.FC<ModifierChoiceDocumentItemPro
         }
         return options
     }, [data, files])
-    const value = getValueArray(facade.storage.choices[choiceKey], (value) => isKeyOf(value, options)) as Array<keyof typeof options>
+    const value = getValueArray(facade.storage.choices[choiceKey], (value) => isKeyOf(value, options)) as (keyof typeof options)[]
 
     const handleChange = (value: unknown): void => {
         const choices: Record<string, unknown> = {}
@@ -325,7 +325,7 @@ export const ModifierChoiceLinkedItem: React.FC<ModifierChoiceExternalItemProps>
         }
         return options
     }, [data, external])
-    const value = getValueArray(facade.storage.choices[choiceKey], (value) => isKeyOf(value, options)) as Array<keyof typeof options>
+    const value = getValueArray(facade.storage.choices[choiceKey], (value) => isKeyOf(value, options)) as (keyof typeof options)[]
 
     const handleChange = (value: unknown): void => {
         const choices: Record<string, unknown> = {}
@@ -377,12 +377,11 @@ export const SubclassChoiceItem: React.FC<SubclassChoiceItemProps> = ({ facade, 
             return options
         }
 
-        for (let i = 0; i < subclasses.length; i++) {
-            const value = subclasses[i]
-            if (value === null) {
+        for (const subclass of subclasses) {
+            if (subclass === null) {
                 continue
             }
-            options[value.id] = value.getTitle()
+            options[subclass.id] = subclass.getTitle()
         }
         return options
     }, [data, subclasses])
@@ -443,13 +442,11 @@ export const SubraceChoiceItem: React.FC<SubraceChoiceItemProps> = ({ facade, id
         if (data === null) {
             return options
         }
-
-        for (let i = 0; i < subraces.length; i++) {
-            const value = subraces[i]
-            if (value === null) {
+        for (const subrace of subraces) {
+            if (subrace === null) {
                 continue
             }
-            options[value.id] = value.getTitle()
+            options[subrace.id] = subrace.getTitle()
         }
         return options
     }, [data, subraces])

@@ -14,14 +14,16 @@ import styles from '../styles.module.scss'
 function getSkillAdvantageBindingSources(skill: Skill, sources: Partial<Record<AdvantageBinding, readonly ISourceBinding[]>>): ISourceBinding[] {
     const skillBinding = getSkillAdvantageBinding(skill)
     const result: ISourceBinding[] = []
-    if (skillBinding in sources) {
-        for (const source of sources[skillBinding]!) {
+    const bindingSources = sources[skillBinding];
+    if (bindingSources !== undefined) {
+        for (const source of bindingSources) {
             result.push(source)
         }
     }
     const attrBinding = getSkillAttributeCheckAdvantageBinding(skill)
-    if (attrBinding in sources) {
-        for (const source of sources[attrBinding]!) {
+    const attrSources = sources[attrBinding];
+    if (attrSources !== undefined) {
+        for (const source of attrSources) {
             result.push(source)
         }
     }

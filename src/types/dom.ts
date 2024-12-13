@@ -25,7 +25,6 @@ interface CustomEventMap extends DocumentEventMap {
     'contextMenu': CustomEvent<ContextEventDetails>
 }
 
-/* eslint-disable @typescript-eslint/method-signature-style */
 declare global {
     interface Document {
         addEventListener<K extends keyof CustomEventMap>(type: K, listener: (this: Document, ev: CustomEventMap[K]) => void): void

@@ -193,7 +193,7 @@ a > .square {
 
 #continueButton {
     & > div {
-        background-image: url('/library.jpg'), url('/library.jpg');
+        background-image: url('https://utfs.io/f/zMULclXHF285X3XgMph590X7VxLA64HQiWGqsTBhElDCkSUp'), url('https://utfs.io/f/zMULclXHF285X3XgMph590X7VxLA64HQiWGqsTBhElDCkSUp');
         background-position: left, right;
         background-size: 100%, auto;
     }
@@ -201,14 +201,14 @@ a > .square {
 
 #storiesButton {
     & > div {
-        background-image: url('/library.jpg');
+        background-image: url('https://utfs.io/f/zMULclXHF285X3XgMph590X7VxLA64HQiWGqsTBhElDCkSUp');
         background-size: contain;
     }
 }
 
 #galleryButton {
     & > div {
-        background-image: url('/gallery.jpg');
+        background-image: url('https://utfs.io/f/zMULclXHF285M0BB54lMKrnszTPWUkIS2RiAGE3hgBb1QNL9');
         background-position: left, center, right;
         background-size: auto 100%;
     }
@@ -216,7 +216,7 @@ a > .square {
 
 #mapButton {
     & > div {
-        background-image: url('/experimental.jpg'), url('/experimental_repeat.jpg');
+        background-image: url('https://utfs.io/f/zMULclXHF285RarQaaJ4sZPU5Ah4B1eJkbgIujNlT90OCEKw'), url('https://utfs.io/f/zMULclXHF285D9KCiO75wvxifrpoUNRm5kslECYtT2uHgnd1');
         background-position: left, right;
         background-size: auto 100%;
         background-repeat: no-repeat, repeat-x;

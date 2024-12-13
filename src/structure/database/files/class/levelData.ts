@@ -12,7 +12,14 @@ export enum LevelModifyType {
     Add = 'add'
 }
 
-export function resolveAggregateClassDataSpellInfo(data: ClassLevelData[]): [learnedSlots: number, preparationSlots: number, spellSlots: Partial<Record<SpellLevel, number>>, maxSpellLevel: SpellLevel] {
+export interface IAggregateClassDataSpellInfo {
+    learnedSlots: number
+    preparationSlots: number
+    spellSlots: Partial<Record<SpellLevel, number>>
+    maxSpellLevel: SpellLevel
+}
+
+export function resolveAggregateClassDataSpellInfo(data: ClassLevelData[]): IAggregateClassDataSpellInfo {
     let learnedSlots = 0
     let preparationSlots = 0
     let spellSlots: Partial<Record<SpellLevel, number>> = {}
@@ -32,7 +39,12 @@ export function resolveAggregateClassDataSpellInfo(data: ClassLevelData[]): [lea
                 break
         }
     }
-    return [learnedSlots, preparationSlots, spellSlots, getMaxSpellLevel(...keysOf(spellSlots))]
+    return {
+        learnedSlots,
+        preparationSlots,
+        spellSlots,
+        maxSpellLevel: getMaxSpellLevel(...keysOf(spellSlots))
+    }
 }
 
 class ClassLevelData implements IClassLevelData {

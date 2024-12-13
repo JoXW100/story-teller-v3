@@ -98,7 +98,7 @@ function createEditorValue(value: ConditionValue): ConditionEditorValue {
     return { type: ConditionValueType.Constant, value: 0 }
 }
 
-const ConditionComponent: React.FC<ConditionComponentParams> = ({ field, labelId, labelArgs, deps = [] }) => {
+const ConditionComponent: React.FC<ConditionComponentParams> = ({ field, labelId, labelArgs }) => {
     const [context] = useContext(Context)
     if (!isRecord(context.file.data)) {
         Logger.throw('Editor.ConditionComponent', 'Data of incorrect type', context.file.data)

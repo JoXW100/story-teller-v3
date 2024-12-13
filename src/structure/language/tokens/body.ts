@@ -7,7 +7,7 @@ import TextToken from './text'
 import type { TokenContext } from 'types/language'
 
 class BodyToken extends Token {
-    private static readonly BreakExpr = /^\$\{|[\}\\\$]$/
+    private static readonly BreakExpr = /^\$\{|[}\\$]$/
 
     public constructor(startLineNumber?: number, startColumn?: number, context?: TokenContext) {
         super(startLineNumber, startColumn, { ...context })
@@ -17,7 +17,7 @@ class BodyToken extends Token {
         let token = tokenizer.next(true)
         while (token !== null) {
             switch (token.content) {
-                case '\}':
+                case '}':
                     this.finalize(tokenizer)
                     return
                 case '\\': {
@@ -26,7 +26,7 @@ class BodyToken extends Token {
                     this.children.push(command)
                     break
                 }
-                case '\$': {
+                case '$': {
                     const variable = new VariableToken(token.startLineNumber, token.startColumn, this.context)
                     variable.parse(tokenizer)
                     this.children.push(variable)

@@ -62,22 +62,23 @@ class DebugHandler {
     public readonly test: boolean
     private readonly collections: Record<CollectionName, IDebugCollections>
 
-    private get currentFilesCollection(): Collection<IDBFile> { return Database.files!.collection }
-    private get currentStoriesCollection(): Collection<IDBStory> { return Database.stories!.collection }
+    private get currentFilesCollection(): Collection<IDBFile> { return Database.files.collection }
+    private get currentStoriesCollection(): Collection<IDBStory> { return Database.stories.collection }
 
     constructor (database: Db, test: boolean) {
         this.test = test
-        this.collections = {} as any
+        const collections: Partial<Record<CollectionName, IDebugCollections>> = {}
         for (const name of keysOf(Collections)) {
-            this.collections[name] = {
+            collections[name] = {
                 main: database.collection(Collections[name].main),
                 temp: database.collection(Collections[name].temp),
                 backup: database.collection(Collections[name].backup)
             }
         }
+        this.collections = collections as Record<CollectionName, IDebugCollections>
     }
 
-    async run(data: Record<string, unknown>): Promise<DBResponse<boolean>> {
+    async run(_: Record<string, unknown>): Promise<DBResponse<boolean>> {
         if (process.env.NODE_ENV !== 'development') {
             return fail('Debug not enabled')
         }
@@ -502,7 +503,7 @@ class DebugHandler {
                 }
             }
         }
-        const abilities: Array<ObjectId | string> = []
+        const abilities: (ObjectId | string)[] = []
         if (metadata.abilities !== undefined) {
             for (const id of metadata.abilities) {
                 abilities.push(id as ObjectId | string)
@@ -681,7 +682,7 @@ class DebugHandler {
     }
 
     private toClassData(metadata: IClassMetadata, content: IFileContent): IClassData {
-        const levels: Record<ClassLevel, IClassLevelData> = {} as any
+        const levels: Partial<Record<ClassLevel, IClassLevelData>> = {}
         for (let i = 1; i <= 20; i++) {
             const level = String(i) as ClassLevel
             const slots: Partial<Record<SpellLevel, number>> = {}
@@ -707,7 +708,7 @@ class DebugHandler {
             content: asString(content.text, ''),
             hitDie: this.convertDiceType(metadata.hitDice),
             subclassLevel: asEnum(String(metadata.subclassLevel ?? 1), ClassLevel, ClassLevel.Level1),
-            levels: levels,
+            levels: levels as Record<ClassLevel, IClassLevelData>,
             proficienciesSave: {},
             proficienciesTool: {},
             proficienciesArmor: {},

@@ -15,7 +15,7 @@ interface Beyond20Dice {
     faces: number
     formula: string
     modifiers?: string
-    rolls: Array<{ roll: number }>
+    rolls: { roll: number }[]
     total: number
 }
 
@@ -23,7 +23,7 @@ interface Beyond20Roll {
     total?: number
     discarded?: boolean
     formula?: string
-    parts?: Array<Beyond20Dice | number | string>
+    parts?: (Beyond20Dice | number | string)[]
     'critical-success'?: boolean
     'critical-failure'?: boolean
 }
@@ -61,12 +61,12 @@ interface Beyond20RollRequest {
     }
     title?: string
     source?: string
-    attributes?: Record<string, any>
+    attributes?: Record<string, unknown>
     open?: boolean
     description?: string
-    roll_info?: Array<[name: string, value: any]>
+    roll_info?: [name: string, value: unknown][]
     attack_rolls?: Beyond20Roll[]
-    damage_rolls?: Array<[name: string, roll: Beyond20Roll, flag?: number]>
+    damage_rolls?: [name: string, roll: Beyond20Roll, flag?: number][]
     total_damages?: Record<string, Beyond20Roll>
     play_sound?: boolean
     whisper?: WhisperType
@@ -100,15 +100,16 @@ abstract class Beyond20 {
     private static getParts(roll: IDiceRoll): Beyond20Dice[] {
         const parts: Partial<Record<DieType, IDiceTypeValuePair[]>> = {}
         for (const die of roll.rolls) {
-            if (die.type in parts) {
-                parts[die.type]!.push(die)
+            const collection = parts[die.type]
+            if (collection !== undefined) {
+                collection.push(die)
             } else {
                 parts[die.type] = [die]
             }
         }
 
         return keysOf(parts).map<Beyond20Dice>(type => {
-            const result = parts[type]!
+            const result = parts[type] ?? []
             const num = result.length
             return {
                 amount: num,

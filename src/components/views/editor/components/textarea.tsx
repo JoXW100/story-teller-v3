@@ -35,7 +35,7 @@ const TextareaComponent: React.FC<TextareaComponentParams> = ({ field, labelId, 
         return null
     }
 
-    const handleInput = (value: string, token: IToken | null): void => {
+    const handleInput = (value: string, _token: IToken | null): void => {
         dispatch.setData(field, value)
     }
 

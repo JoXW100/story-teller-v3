@@ -11,12 +11,13 @@ import { isObjectId, keysOf } from 'utils'
 import { getSpellLevelValue } from 'utils/calculations'
 import { useLocalizedText } from 'utils/hooks/localization'
 import { DocumentFileType, type DocumentType } from 'structure/database'
-import type { DocumentTypeMap } from 'structure/database/files/factory'
 import type CharacterFacade from 'structure/database/files/character/facade'
 import SpellDocument from 'structure/database/files/spell'
 import type { SpellData } from 'structure/database/files/spell/factory'
 import { OptionalAttribute, SpellLevel, SpellPreparationType } from 'structure/dnd'
+import { IAggregateClassDataSpellInfo } from 'structure/database/files/class/levelData'
 import type { ObjectId } from 'types'
+import { DocumentTypeMap } from 'types/database/files/factory'
 import styles from '../styles.module.scss'
 
 type CharacterSpellPageProps = React.PropsWithRef<{
@@ -84,9 +85,14 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
         }
         return [knownCantrips, knownSpells, preparedSpells, numKnownCantrips, numKnownSpells, numPreparedSpells]
     }, [preparations, selectedClass, spells])
-    const [learnedSlots, preparationSlots, spellSlots, maxSpellLevels] = useMemo(() => {
+    const { learnedSlots, preparationSlots, spellSlots, maxSpellLevel } = useMemo<IAggregateClassDataSpellInfo>(() => {
         if (selectedClass === null) {
-            return [0, 0, {}, SpellLevel.Cantrip]
+            return {
+                learnedSlots: 0,
+                preparationSlots: 0,
+                spellSlots: {},
+                maxSpellLevel: SpellLevel.Cantrip
+            }
         }
         return facade.getClassSpellSlotInfo(selectedClass)
     }, [facade, selectedClass])
@@ -161,7 +167,7 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
     const handleValidateAdd = (value: DocumentTypeMap[DocumentType]): boolean => {
         return selectedClass !== null && (!(selectedClass in preparations) || (
             value instanceof SpellDocument && !(value.id in preparations[selectedClass]) &&
-                getSpellLevelValue(value.data.level) <= getSpellLevelValue(maxSpellLevels) && (
+                getSpellLevelValue(value.data.level) <= getSpellLevelValue(maxSpellLevel) && (
                 (value.data.level !== SpellLevel.Cantrip && numKnownSpells < learnedSlots) ||
                 (value.data.level === SpellLevel.Cantrip && numKnownCantrips < (spellSlots[SpellLevel.Cantrip] ?? 0))
             )))
@@ -180,8 +186,8 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
                     <SpellList
                         header={<LocalizedText id='render-spellList-knownSpells' args={[numKnownSpells, learnedSlots]}/>}
                         spells={knownSpells}
-                        maxLevel={maxSpellLevels}
-                        validate={(id) => knownSpells[id].levelValue <= getSpellLevelValue(maxSpellLevels)}
+                        maxLevel={maxSpellLevel}
+                        validate={(id) => knownSpells[id].levelValue <= getSpellLevelValue(maxSpellLevel)}
                         removeIsDisabled={(id) => preparations[selectedClass][id] !== SpellPreparationType.Learned}
                         prepareIsDisabled={(id) => preparations[selectedClass][id] !== SpellPreparationType.Learned}
                         handleRemove={handleRemoveSpell}
@@ -195,8 +201,8 @@ const CharacterSpellPage: React.FC<CharacterSpellPageProps> = ({ facade, spells,
                     <SpellList
                         header={<LocalizedText id='render-spellList-preparedSpells' args={[numPreparedSpells, preparationSlots]}/>}
                         spells={preparedSpells}
-                        maxLevel={maxSpellLevels}
-                        validate={(id) => spells[id].levelValue <= getSpellLevelValue(maxSpellLevels) && spells[id].level !== SpellLevel.Cantrip}
+                        maxLevel={maxSpellLevel}
+                        validate={(id) => spells[id].levelValue <= getSpellLevelValue(maxSpellLevel) && spells[id].level !== SpellLevel.Cantrip}
                         removeIsDisabled={(id) => id in facade.spells || preparations[id][selectedClass] === SpellPreparationType.AlwaysPrepared}
                         handleRemove={handleRemovePrepared}/>
                     <CollapsibleGroup header={<LocalizedText id='render-spellPage-addSpell'/>}>

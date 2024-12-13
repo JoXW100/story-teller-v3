@@ -41,7 +41,7 @@ export const SpellToggleRenderer: React.FC<SpellToggleRendererProps> = ({ data, 
                 data={spell}
                 properties={properties}
                 attackBonuses={attackBonuses}
-                damageBonuses={attackBonuses}/>
+                damageBonuses={damageBonuses}/>
         </div>
     )
 }

@@ -10,7 +10,7 @@ const RaceDocumentRenderer: React.FC = (): React.ReactNode => {
     const translator = useTranslator()
     const data = context.file.data as RaceData
     const [, contentContext] = useMemo(() => data.createContexts(ElementDictionary), [data])
-    const descriptionToken = contentContext.description!
+    const descriptionToken = contentContext.description
     const contentToken = useMemo(() => {
         return StoryScript.tokenize(ElementDictionary, data.content, contentContext).root
     }, [contentContext, data.content])
@@ -19,7 +19,7 @@ const RaceDocumentRenderer: React.FC = (): React.ReactNode => {
         <Elements.h1 underline>{data.name}</Elements.h1>
         {`${data.getSizeText(translator)} ${data.getTypeText(translator)}`}
         <Elements.line width='2px'/>
-        { descriptionToken.build() }
+        { descriptionToken?.build() }
         <Elements.line width='2px'/>
         { contentToken.build() }
     </>

@@ -35,7 +35,9 @@ const ContextMenu: React.FC = () => {
     })
 
     const clickHandler = useCallback(() => {
-        state.show && setState((state) => ({ ...state, show: false }))
+        if (state.show) {
+            setState((state) => ({ ...state, show: false }))   
+        }
     }, [state.show])
 
     const contextHandler = useCallback((ev: ContextMenuEvent) => {

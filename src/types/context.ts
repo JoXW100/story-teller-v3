@@ -1,4 +1,4 @@
-export type ContextProvider<A extends Record<string, any>, B extends Record<string, any> | undefined = undefined> = B extends undefined
+export type ContextProvider<A, B = undefined> = B extends undefined
     ? [data: A]
     : [data: A, dispatch: B]
 
@@ -19,5 +19,5 @@ export interface DispatchActionNoData<T extends string> {
 
 export interface ISetFieldData<T extends string = string> {
     field: T
-    value: any
+    value: unknown
 }

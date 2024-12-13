@@ -134,7 +134,7 @@ const ConditionFactory: IDatabaseFactory<ICondition, Condition> = {
             }
         }
     },
-    properties: function (data: unknown): DataPropertyMap<ICondition, Condition> {
+    properties: function (_data: unknown): DataPropertyMap<ICondition, Condition> {
         return {}
     }
 }

@@ -2,14 +2,14 @@ export interface IOpen5eItemInfo {
     slug: string
     name: string
     level_int?: number
-    [key: string]: any
+    [key: string]: unknown
 }
 
 export interface ICompendiumMenuItem {
     title: string
     type: string
     fields: string[]
-    sortFields: Array<string | null>
+    sortFields: (string | null)[]
     headers: string[]
     query?: Record<string, string | number>
     subItems?: ICompendiumMenuItem[]

@@ -4,14 +4,14 @@ import type { IDatabaseFile } from 'types/database'
 import type { DialogDetails, IConfirmationDialogPromise, ICreateFileDialogPromise, IDialogPromise, IManageConditionsDialogPromise, ISelectFileDialogPromise } from 'types/dialog'
 
 export class DialogPromise<T extends IDialogPromise = IDialogPromise> implements IDialogPromise {
-    protected readonly handlers: Partial<Record<keyof T, ((...args: any[]) => void) | null>> = {}
+    protected readonly handlers: Partial<Record<keyof T, ((...args: never[]) => void) | null>> = {}
 
     public onClose(handler: () => void): this {
         this.handlers.onClose = handler
         return this
     }
 
-    public invoke<K extends keyof T>(event: K, ...args: any[]): void {
+    public invoke<K extends keyof T>(event: K, ...args: never[]): void {
         this.handlers[event]?.(...args)
     }
 

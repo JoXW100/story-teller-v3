@@ -66,7 +66,7 @@ export interface ICalcValueOverride {
 export type CalcValue = ICalcValueAuto | ICalcValueModify | ICalcValueOverride
 
 export const DocumentFileType = { ...DocumentType, ...FileType }
-// eslint-disable-next-line @typescript-eslint/no-redeclare
+ 
 export type DocumentFileType = DocumentType | FileType
 
 export const EmptyProperties: IProperties = {

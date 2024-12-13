@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/array-type */
 import { DiceBase, type IDiceRoll } from '.'
 import type Random from 'structure/random'
 
@@ -42,13 +43,13 @@ export class DiceCollection extends DiceBase {
 
     public override rollOnceValue(generator?: Random): number {
         let sum = 0
-        for (let i = 0; i < this.collection.length; i++) {
-            switch (this.collection[i].operator) {
+        for (const item of this.collection) {
+            switch (item.operator) {
                 case DiceOperator.Add:
-                    sum += this.collection[i].value.rollOnceValue(generator)
+                    sum += item.value.rollOnceValue(generator)
                     break
                 case DiceOperator.Subtract:
-                    sum -= this.collection[i].value.rollOnceValue(generator)
+                    sum -= item.value.rollOnceValue(generator)
                     break
                 default:
                     break

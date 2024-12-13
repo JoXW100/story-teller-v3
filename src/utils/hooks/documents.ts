@@ -186,9 +186,9 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
     }
 
     let subrace: SubraceDocument | null = null
-    if (subraceId !== null) {
+    if (race !== null && subraceId !== null) {
         const subraceResponse = await Communication.getFileOfTypes(subraceId, [DocumentType.Subrace])
-        if (subraceResponse.success && subraceResponse.result.data.parentFile === race!.id) {
+        if (subraceResponse.success && subraceResponse.result.data.parentFile === race.id) {
             subrace = subraceResponse.result
         }
     }
@@ -254,20 +254,20 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
         }
     }
 
-    if (race !== null) {
+    if (race !== null && raceId !== null) {
         for (let i = 0; i < race.data.modifiers.length; i++) {
             const value = race.data.modifiers[i]
             const key = `race.${i}`
             value.apply(modifier, key)
-            modifier.addSource(key, SourceType.Race, raceId!)
+            modifier.addSource(key, SourceType.Race, raceId)
         }
     }
-    if (subrace !== null) {
+    if (subrace !== null && subraceId !== null) {
         for (let i = 0; i < subrace.data.modifiers.length; i++) {
             const value = subrace.data.modifiers[i]
             const key = `subrace.${i}`
             value.apply(modifier, key)
-            modifier.addSource(key, SourceType.Subrace, subraceId!)
+            modifier.addSource(key, SourceType.Subrace, subraceId)
         }
     }
 
@@ -350,7 +350,7 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
     return current
 }
 
-export function useAbilities(ids: Array<ObjectId | string | null>): AbilitiesState {
+export function useAbilities(ids: (ObjectId | string | null)[]): AbilitiesState {
     const [state, setState] = useState<AbilitiesState>([{}, true])
 
     useEffect(() => {
@@ -397,7 +397,7 @@ export function useAbilities(ids: Array<ObjectId | string | null>): AbilitiesSta
     return state
 }
 
-export function useSpells(ids: Array<ObjectId | null>, preparations?: Record<ObjectId, SpellPreparationType>): SpellsState {
+export function useSpells(ids: (ObjectId | null)[], preparations?: Record<ObjectId, SpellPreparationType>): SpellsState {
     const [state, setState] = useState<SpellsState>([{}, true])
 
     useEffect(() => {
@@ -438,7 +438,7 @@ export function useSpells(ids: Array<ObjectId | null>, preparations?: Record<Obj
     return state
 }
 
-export function useClasses(ids: Record<ObjectId, any>): ClassesState {
+export function useClasses(ids: Record<ObjectId, unknown>): ClassesState {
     const [state, setState] = useState<ClassesState>([{}, true])
 
     useEffect(() => {

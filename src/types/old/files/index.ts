@@ -20,7 +20,6 @@ interface ISubPageItemMetadata {
     id: string
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface IFileStorage {
 
 }

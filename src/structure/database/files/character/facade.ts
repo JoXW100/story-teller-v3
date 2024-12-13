@@ -7,7 +7,7 @@ import type SubclassData from '../subclass/data'
 import type Modifier from '../modifier/modifier'
 import type { ItemData } from '../item/factory'
 import CreatureFacade from '../creature/facade'
-import { LevelModifyType, resolveAggregateClassDataSpellInfo } from '../class/levelData'
+import { IAggregateClassDataSpellInfo, LevelModifyType, resolveAggregateClassDataSpellInfo } from '../class/levelData'
 import type ClassLevelData from '../class/levelData'
 import type ConditionData from '../condition/data'
 import { SourceType } from '../modifier/modifier'
@@ -341,14 +341,14 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
         return result
     }
 
-    public getClassSpellSlotInfo(classId: ObjectId): [learnedSlots: number, preparationSlots: number, spellSlots: Partial<Record<SpellLevel, number>>, maxSpellLevel: SpellLevel] {
-        let [learnedSlots, preparationSlots, spellSlots, maxSpellLevel] = resolveAggregateClassDataSpellInfo(this.getClassLevelData(classId))
+    public getClassSpellSlotInfo(classId: ObjectId): IAggregateClassDataSpellInfo {
+        const info = resolveAggregateClassDataSpellInfo(this.getClassLevelData(classId))
         if (classId in this.classesData) {
             const classData = this.classesData[classId]
-            learnedSlots += this.getAttributeModifier(classData.learnedSlotsScaling)
-            preparationSlots += this.getAttributeModifier(classData.preparationSlotsScaling)
+            info.learnedSlots += this.getAttributeModifier(classData.learnedSlotsScaling)
+            info.preparationSlots += this.getAttributeModifier(classData.preparationSlotsScaling)
         }
-        return [learnedSlots, preparationSlots, spellSlots, maxSpellLevel]
+        return info
     }
 
     public override getClassLevel(key: string): number {

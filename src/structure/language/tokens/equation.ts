@@ -34,13 +34,13 @@ class EquationToken extends Token {
         }
 
         switch (token.content) {
-            case '\}':
-            case '\)': {
+            case '}':
+            case ')': {
                 return null
             }
-            case '\(': {
+            case '(': {
                 const result = this.parsePrimary(tokenizer)
-                if (tokenizer.token.content !== '\)') {
+                if (tokenizer.token.content !== ')') {
                     this.finalize(tokenizer, "Unbalanced parenthesis, expected ')'")
                     return null
                 } else if (result === null) {
@@ -49,7 +49,7 @@ class EquationToken extends Token {
                     return this.parseOperator(tokenizer, result)
                 }
             }
-            case '\-': {
+            case '-': {
                 const expr = this.parsePrimary(tokenizer)
                 if (expr === null) {
                     return null
@@ -57,7 +57,7 @@ class EquationToken extends Token {
                     return new Negation(expr)
                 }
             }
-            case '\$': {
+            case '$': {
                 const nameToken = tokenizer.next()
                 if (nameToken === null) {
                     return null
@@ -88,11 +88,11 @@ class EquationToken extends Token {
         }
 
         switch (token.content) {
-            case '\}':
-            case '\)': {
+            case '}':
+            case ')': {
                 return lhs
             }
-            case '\/': {
+            case '/': {
                 const rhs = this.parsePrimary(tokenizer)
                 if (rhs === null) {
                     return lhs
@@ -100,7 +100,7 @@ class EquationToken extends Token {
                     return new Division(lhs, rhs)
                 }
             }
-            case '\*': {
+            case '*': {
                 const rhs = this.parsePrimary(tokenizer)
                 if (rhs === null) {
                     return lhs
@@ -108,7 +108,7 @@ class EquationToken extends Token {
                     return new Multiplication(lhs, rhs)
                 }
             }
-            case '\+': {
+            case '+': {
                 const rhs = this.parsePrimary(tokenizer)
                 if (rhs === null) {
                     return lhs
@@ -116,7 +116,7 @@ class EquationToken extends Token {
                     return new Addition(lhs, rhs)
                 }
             }
-            case '\-': {
+            case '-': {
                 const rhs = this.parsePrimary(tokenizer)
                 if (rhs === null) {
                     return lhs

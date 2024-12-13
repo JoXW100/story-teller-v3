@@ -369,7 +369,7 @@ function createEffects(res: Open5eSpell): Record<string, IEffect> {
             let prevLevel = 0
             let prevKey: keyof typeof effects = 'main'
             let prevDie: DieType = effects.main.die
-            let prevDieCount: number = effects.main.dieCount[ScalingType.Constant]!
+            let prevDieCount: number = effects.main.dieCount[ScalingType.Constant] ?? 0
             while ((hit = expr.exec(res.higher_level)) != null) {
                 const level = asNumber(hit[1])
                 const higherDie = parseDieType(hit[3], DieType.None)

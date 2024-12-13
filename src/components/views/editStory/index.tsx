@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import LocalizedText from 'components/controls/localizedText'
 import Loading from 'components/controls/loading'
 import AppBar from 'components/controls/appBar'
+import ImageWithDefault from 'components/controls/image'
 import SettingsButton from 'components/controls/settingsButton'
 import Checkbox from 'components/controls/checkbox'
 import ListMenu from 'components/controls/menus/list'
@@ -283,7 +284,7 @@ const CreateStoryView: React.FC<CreateStoryViewProps> = ({ storyId = null }) => 
                     <div className={styles.item}>
                         <LocalizedText className='no-line-break' id='create-story-label-image'/>
                         <input type='url' value={state.image} onChange={imageChangeHandler} error={asBooleanString(state.url === DefaultImageURL)}/>
-                        <img src={state.url} alt=''/>
+                        <ImageWithDefault href={state.url}/>
                     </div>
                     <div className={styles.item}>
                         <LocalizedText className='no-line-break' id='create-story-label-sources'/>

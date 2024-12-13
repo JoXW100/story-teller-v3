@@ -1,4 +1,5 @@
 import { useMemo, type CSSProperties } from 'react'
+import ImageWithDefault from 'components/controls/image'
 import ImageElement, { type ImageElementParams } from 'structure/elements/image'
 import { asBooleanString } from 'utils'
 import styles from './styles.module.scss'
@@ -21,7 +22,7 @@ const ImageComponent: React.FC<ImageElementParams> = ({ href = '', border, weigh
             className={styles.image}
             style={style}
             data={asBooleanString(border)}>
-            <img src={href.length > 0 ? href : '/defaultImage.jpg'} alt='Missing image'/>
+            <ImageWithDefault href={href}/>
         </div>
     )
 }
