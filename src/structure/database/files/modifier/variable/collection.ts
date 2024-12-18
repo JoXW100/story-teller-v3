@@ -42,7 +42,6 @@ class ModifierVariableCollectionData extends ModifierVariableDataBase implements
         modifier.variables.subscribe({
             key: key,
             data: this,
-            target: self,
             apply: function (value, choices): Record<string, string> {
                 const modifier = this.data as ModifierVariableCollectionData
                 let selected: string[]

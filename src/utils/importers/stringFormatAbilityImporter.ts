@@ -11,7 +11,7 @@ import type { IAbilityAttackDataBase, IAbilityData, IAbilityFeatureData } from '
 
 const roll20AbilityExpr = /^(?:([\w ]+): *)?([^.]+)\. *(?:([a-z ]+): *([+-][0-9]+) *to hit,?.*[a-z ]+([0-9]+(?:\/[0-9]+)?)[^.]+\.,? *([^.]+)[^:]+: *(?:[0-9]+)? *\(([0-9]+)d([0-9]+) *([+-] *[0-9]+)?\) *(\w+)[^.]+. *)/mi
 const roll20FeatureSimpleExpr = /^(?:([\w ]+): *)?([^.]+)\. *([\s\S]*)/mi
-const rollTextExpr = /([0-9]+d[0-9]+(?: *[+-]? *[0-9]+)?)( *)/ig
+const rollTextExpr = /([0-9]*d[0-9]+(?: *[+-]? *[0-9]+)?)( *)/ig
 const checkTextExpr = /DC +([0-9]+) *(?:(\w+)?( *))/ig
 
 function getAbilityType(ability: string): AbilityType {

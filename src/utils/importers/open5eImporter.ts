@@ -17,12 +17,13 @@ import { type IEffectCondition } from 'types/database/effectCondition'
 import { type IArea, type IAreaCone, type IAreaCube, type IAreaCuboid, type IAreaCylinder, type IAreaLine, type IAreaNone, type IAreaRectangle, type IAreaSphere, type IAreaSquare } from 'types/database/area'
 import { type IDamageEffect, type IEffect, type ITextEffect } from 'types/database/effect'
 
-const castTimeExpr = /([0-9]+)? *([A-z-]+)/
-const durationMatchExpr = /([0-9]+)? *([A-z]+)/g
-const areaMatchExpr = /([0-9]+)[- ]*(?:foot|feet)[- ]*([A-z]+)[- ]*(sphere|centered|cylinder)?/g
-const damageMatchExpr = /([0-9]+)d([0-9]+)[ -]+([A-z]+) *damage/
-const conditionMatchExpr = /(?:([A-z]+) (saving[- ]*throw)|(ranged|melee) (spell[- ]*attack))/
-const higherLevelIncreaseMatchExpr = /([A-z]+) increases by ([0-9]+)d([0-9]+)/i
+const castTimeExpr = /([0-9]+)? *([a-z-]+)/i
+const durationMatchExpr = /([0-9]+)? *([a-z]+)/ig
+const areaMatchExpr = /([0-9]+)[- ]*(?:foot|feet)[- ]*([A-z]+)[- ]*(sphere|centered|cylinder)?/ig
+const damageMatchExpr = /([0-9]+)d([0-9]+)[ -]+([A-z]+) *damage/i
+const multipleMatchExpr = /([a-z]+) creatures?/i
+const conditionMatchExpr = /(?:([a-z]+)? *(saving[- ]*throw|spell[- ]*attack))/i
+const higherLevelIncreaseMatchExpr = /([a-z]+) *\([^)]+\) *increases by ([0-9]+)d([0-9]+)/i
 const higherLevelMatchExpr = /([0-9]+)th level \(([0-9]+)d([0-9]+)\)/ig
 
 interface Open5eSpell {
@@ -140,23 +141,20 @@ export const getAttribute = (attribute: string): Attribute => {
 }
 
 export const getCondition = (desc: string): { condition: EffectConditionType, saveAttr?: Attribute } => {
-    const res = conditionMatchExpr.exec(desc.toLowerCase())
-    if (res != null) {
-        switch (res[2]) {
-            case 'saving throw':
-            case 'saving-throw':
-                return {
-                    condition: EffectConditionType.Save,
-                    saveAttr: getAttribute(res[1])
-                }
-            case 'spell attack':
-            case 'spell-attack':
-                return { condition: EffectConditionType.Hit }
-            default:
-                break
-        }
+    const res = conditionMatchExpr.exec(desc)
+    switch (res?.[2]?.toLowerCase()) {
+        case 'saving throw':
+        case 'saving-throw':
+            return {
+                condition: EffectConditionType.Save,
+                saveAttr: getAttribute(res[1])
+            }
+        case 'spell attack':
+        case 'spell-attack':
+            return { condition: EffectConditionType.Hit }
+        default:
+            return { condition: EffectConditionType.None }
     }
-    return { condition: EffectConditionType.None }
 }
 
 export const getDamage = (desc: string): { damageType: DamageType, effectDie: DieType, effectDieNum: number } => {
@@ -164,7 +162,7 @@ export const getDamage = (desc: string): { damageType: DamageType, effectDie: Di
     let effectDie: DieType = DieType.None
     let damageType: DamageType = DamageType.None
 
-    const res = damageMatchExpr.exec(desc.toLowerCase())
+    const res = damageMatchExpr.exec(desc)
     if (res !== null) {
         effectDieNum = asNumber(res[1], effectDieNum)
         effectDie = parseDieType(res[2], DieType.None)
@@ -296,7 +294,7 @@ function createCondition(res: Open5eSpell): IEffectCondition {
     }
 }
 
-function createTargetArea(res: Open5eSpell): [TargetType, IArea] {
+function createTargetArea(res: Open5eSpell): [TargetType, IArea, number] {
     const { area, areaSize, areaHeight } = getArea(res.desc)
     let result: IArea
 
@@ -330,7 +328,29 @@ function createTargetArea(res: Open5eSpell): [TargetType, IArea] {
             break
     }
 
-    return [getTarget(area, res.range), result]
+    let target = getTarget(area, res.range);
+    let count = 1
+    if (target == TargetType.Single) {
+        const multipleMatch = multipleMatchExpr.exec(res.desc);
+        if (multipleMatch != null) {
+            target = TargetType.Multiple
+            switch (multipleMatch[1]) {
+                case "one": count = 1; break;
+                case "two": count = 2; break;
+                case "three": count = 3; break;
+                case "four": count = 4; break;
+                case "five": count = 5; break;
+                case "six": count = 6; break;
+                case "seven": count = 7; break;
+                case "eight": count = 8; break;
+                case "nine": count = 9; break;
+                case "ten": count = 10; break;
+                default: count = asNumber(multipleMatch[1], 0); break;
+            }
+        }
+    }
+    
+    return [target, result, count]
 }
 
 function createEffects(res: Open5eSpell): Record<string, IEffect> {
@@ -436,7 +456,7 @@ export const open5eSpellImporter = async (id: string): Promise<ISpellData | null
     const res = await Communication.open5eFetchOne<Open5eSpell>('spells', id)
     if (res === null) { return null }
 
-    const [target, area] = createTargetArea(res)
+    const [target, area, targetCount] = createTargetArea(res)
     const components = res.components.toLowerCase()
 
     const data: ISpellDataBase = {
@@ -502,7 +522,7 @@ export const open5eSpellImporter = async (id: string): Promise<ISpellData | null
                 ...data,
                 target: target,
                 range: getRange(res.range),
-                count: 1,
+                count: targetCount,
                 condition: createCondition(res),
                 effects: createEffects(res)
             } satisfies ISpellMultipleData

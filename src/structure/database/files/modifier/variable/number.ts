@@ -41,7 +41,6 @@ class ModifierVariableNumberData extends ModifierVariableDataBase implements IMo
         modifier.variables.subscribe({
             key: key,
             data: this,
-            target: self,
             apply: function (value, choices): Record<string, string> {
                 const modifier = this.data as ModifierVariableNumberData
                 let choice: number
