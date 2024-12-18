@@ -429,6 +429,7 @@ export type ToolType = ToolCategory | ArtisansTools | GamingSet | MusicalInstrum
 
 export enum Language {
     All = 'all',
+    Telepathy = 'telepathy',
     Abyssal = 'abyssal',
     Celestial = 'celestial',
     Common = 'common',

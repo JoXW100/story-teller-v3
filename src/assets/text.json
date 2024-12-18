@@ -897,6 +897,7 @@
             "enum-weaponTypeCategory-martial": "Martial",
             "enum-weaponTypeCategory-improvised": "Improvised",
             "enum-language-all": "All",
+            "enum-language-telepathy": "Telepathy",
             "enum-language-abyssal": "Abyssal",
             "enum-language-celestial": "Celestial",
             "enum-language-common": "Common",

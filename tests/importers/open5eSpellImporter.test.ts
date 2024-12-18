@@ -82,6 +82,7 @@ describe('Open5e Importer Tests', () => {
             expect(result.componentVerbal).toEqual(true)
             expect(result.materials).toEqual("A drop of blood.")
             expect(result.range).toBe(30)
+            expect(result.count).toBe(3)
 
             expect(result.condition).toEqual({
                 attribute: Attribute.CHA,

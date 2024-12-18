@@ -1,17 +1,15 @@
 import { toRichText } from './stringFormatAbilityImporter'
-import { asEnum, asNumber, capitalizeFirstLetter, isString, keysOf } from 'utils'
+import { asEnum, asNumber, capitalizeFirstLetter, isEnum, isString, keysOf } from 'utils'
 import Communication from 'utils/communication'
 import Logger from 'utils/logger'
 import { getSpellLevelFromValue } from 'utils/calculations'
 import { DieType, parseDieType } from 'structure/dice'
-import { CalcMode } from 'structure/database'
-import { AreaType, Attribute, CastingTime, DamageType, Duration, MagicSchool, ScalingType, Skill, SpellLevel, TargetType } from 'structure/dnd'
+import { CalcMode, createCalcValue } from 'structure/database'
+import { ActionType, Alignment, AreaType, Attribute, CastingTime, CreatureType, DamageBinding, DamageType, Duration, Language, MagicSchool, MovementType, OptionalAttribute, ProficiencyLevel, ProficiencyLevelBasic, ScalingType, Sense, SizeType, Skill, SpellLevel, TargetType } from 'structure/dnd'
 import { EffectConditionType } from 'structure/database/effectCondition'
-import CreatureData from 'structure/database/files/creature/data'
-import type { Editable } from 'types'
-import type { ICreatureData } from 'types/database/files/creature'
+import type { ICreatureData, ISourceBinding } from 'types/database/files/creature'
 import type { ISpellAreaData, ISpellData, ISpellDataBase, ISpellMultipleData, ISpellNoneData, ISpellSelfData, ISpellSingleData, ISpellTouchData } from 'types/database/files/spell'
-import type { IOpen5eCreature } from 'types/open5eCompendium'
+import type { IOpen5eCreature, IOpen5eCreatureAction } from 'types/open5eCompendium'
 import { EffectCategory, EffectType } from 'structure/database/effect/common'
 import { type IEffectCondition } from 'types/database/effectCondition'
 import { type IArea, type IAreaCone, type IAreaCube, type IAreaCuboid, type IAreaCylinder, type IAreaLine, type IAreaNone, type IAreaRectangle, type IAreaSphere, type IAreaSquare } from 'types/database/area'
@@ -25,6 +23,8 @@ const multipleMatchExpr = /([a-z]+) creatures?/i
 const conditionMatchExpr = /(?:([a-z]+)? *(saving[- ]*throw|spell[- ]*attack))/i
 const higherLevelIncreaseMatchExpr = /([a-z]+) *\([^)]+\) *increases by ([0-9]+)d([0-9]+)/i
 const higherLevelMatchExpr = /([0-9]+)th level \(([0-9]+)d([0-9]+)\)/ig
+const hpSplitExpr = /([0-9]+)(d[0-9]+)([+-][0-9]+)?/
+const sensesExpr = /([a-z]+) +([0-9]+)/i;
 
 interface Open5eSpell {
     archetype: string
@@ -53,7 +53,7 @@ interface Open5eSpell {
     document__title: string
 }
 
-export const getCastingTime = (time: string): { time: CastingTime, timeCustom: string, timeValue: number } => {
+const getCastingTime = (time: string): { time: CastingTime, timeCustom: string, timeValue: number } => {
     const res = castTimeExpr.exec(time.toLowerCase()) ?? []
     const type = asEnum(res[2], CastingTime, CastingTime.Custom)
     return {
@@ -63,7 +63,7 @@ export const getCastingTime = (time: string): { time: CastingTime, timeCustom: s
     }
 }
 
-export const getDuration = (duration: string): { duration: Duration, durationCustom: string, durationValue: number } => {
+const getDuration = (duration: string): { duration: Duration, durationCustom: string, durationValue: number } => {
     const expr = new RegExp(durationMatchExpr)
     let value: number = 0
     let type: Duration = Duration.Custom
@@ -105,7 +105,7 @@ export const getDuration = (duration: string): { duration: Duration, durationCus
     }
 }
 
-export const getRange = (range: string): number => {
+const getRange = (range: string): number => {
     if (range.includes('touch')) {
         return 5
     }
@@ -114,7 +114,7 @@ export const getRange = (range: string): number => {
     return asNumber(res[1], 0)
 }
 
-export const getAttribute = (attribute: string): Attribute => {
+const getAttribute = (attribute: string): Attribute => {
     switch (attribute) {
         case 'charisma':
         case 'cha':
@@ -140,7 +140,7 @@ export const getAttribute = (attribute: string): Attribute => {
     }
 }
 
-export const getCondition = (desc: string): { condition: EffectConditionType, saveAttr?: Attribute } => {
+const getCondition = (desc: string): { condition: EffectConditionType, saveAttr?: Attribute } => {
     const res = conditionMatchExpr.exec(desc)
     switch (res?.[2]?.toLowerCase()) {
         case 'saving throw':
@@ -157,7 +157,7 @@ export const getCondition = (desc: string): { condition: EffectConditionType, sa
     }
 }
 
-export const getDamage = (desc: string): { damageType: DamageType, effectDie: DieType, effectDieNum: number } => {
+const getDamage = (desc: string): { damageType: DamageType, effectDie: DieType, effectDieNum: number } => {
     let effectDieNum: number = 1
     let effectDie: DieType = DieType.None
     let damageType: DamageType = DamageType.None
@@ -176,7 +176,7 @@ export const getDamage = (desc: string): { damageType: DamageType, effectDie: Di
     }
 }
 
-export const getArea = (content: string): { area: AreaType, areaSize: number, areaHeight?: number } => {
+const getArea = (content: string): { area: AreaType, areaSize: number, areaHeight?: number } => {
     let area: AreaType = AreaType.None
     let size: number = 0
     let height: number = 0
@@ -232,7 +232,7 @@ export const getArea = (content: string): { area: AreaType, areaSize: number, ar
     return { area: area, areaSize: size, areaHeight: height }
 }
 
-export const getTarget = (area: AreaType, range: string): TargetType => {
+const getTarget = (area: AreaType, range: string): TargetType => {
     if (range.toLowerCase() === 'touch') {
         return TargetType.Touch
     }
@@ -255,29 +255,323 @@ export const getTarget = (area: AreaType, range: string): TargetType => {
     }
 }
 
+const getAlignment = (value: IOpen5eCreature): Alignment => {
+    const alignment = value.alignment?.toLowerCase() ?? ''
+    switch (true) {
+        case alignment.includes('unaligned'): return Alignment.Unaligned
+        case alignment.includes('any'): return Alignment.Any
+        case alignment.includes('chaotic evil'): return Alignment.ChaoticEvil
+        case alignment.includes('chaotic good'): return Alignment.ChaoticGood
+        case alignment.includes('non-lawful'):
+        case alignment.includes('chaotic neutral'): return Alignment.ChaoticNeutral
+        case alignment.includes('lawful evil'): return Alignment.LawfulEvil
+        case alignment.includes('lawful good'): return Alignment.LawfulGood
+        case alignment.includes('non-chaotic'):
+        case alignment.includes('lawful neutral'): return Alignment.LawfulNeutral
+        case alignment.includes('non-good'):
+        case alignment.includes('neutral evil'): return Alignment.NeutralEvil
+        case alignment.includes('non-evil'):
+        case alignment.includes('neutral good'): return Alignment.NeutralGood
+        case alignment.includes('true neutral'):
+        case alignment.includes('neutral'): return Alignment.TrueNeutral
+        default: return Alignment.None
+    }
+}
+
+const getHitDie = (value: IOpen5eCreature): { level: number, hitDie: DieType } => {
+    let level = 0
+    let hitDie = DieType.None
+    if (value.hit_dice !== null) {
+        const res = hpSplitExpr.exec(value.hit_dice) ?? []
+        level = asNumber(res[1])
+        hitDie = asEnum(res[2], DieType, DieType.None)
+    }
+    return { level, hitDie }
+}
+
+const getSpeed = (value: IOpen5eCreature): Partial<Record<MovementType, number>> => {
+    const speedData = value.speed ?? {}
+    return Object.keys(speedData).reduce((prev, val) =>
+        isEnum(val.toLowerCase(), MovementType)
+            ? { ...prev, [val]: speedData[val] }
+            : { ...prev }
+    , {})
+}
+
+const getSenses = (value: IOpen5eCreature): Partial<Record<Sense, number>> => {
+    const senseData = value.senses ?? ''
+    const res: Partial<Record<Sense, number>> = {}
+    const parts = senseData.toLowerCase().split(/\.,?/g)
+    for (const part of parts) {
+        const match = sensesExpr.exec(part)
+        if (match?.[0] !== undefined) {
+            const num = parseInt(match[2])
+            Logger.log('Open5eCreatureData.senses', match)
+            switch (match[1]?.toLowerCase()) {
+                case 'blindsight':
+                    res[Sense.BlindSight] = isNaN(num) ? num : 0
+                    break
+                case 'darkvission':
+                    res[Sense.DarkVision] = isNaN(num) ? num : 0
+                    break
+                case 'tremorsense':
+                    res[Sense.TremorSense] = isNaN(num) ? num : 0
+                    break
+                case 'truesight':
+                    res[Sense.TrueSight] = isNaN(num) ? num : 0
+                    break
+                default:
+                    break
+            }
+        }
+    }
+    return res
+}
+
+const getProficienciesSave  = (value: IOpen5eCreature): Partial<Record<Attribute, ProficiencyLevel>> => {
+    const saves: Partial<Record<Attribute, ProficiencyLevel>> = {}
+    if (value.strength_save !== null) {
+        saves[Attribute.STR] = ProficiencyLevel.Proficient
+    }
+    if (value.dexterity_save !== null) {
+        saves[Attribute.DEX] = ProficiencyLevel.Proficient
+    }
+    if (value.constitution_save !== null) {
+        saves[Attribute.CON] = ProficiencyLevel.Proficient
+    }
+    if (value.intelligence_save !== null) {
+        saves[Attribute.INT] = ProficiencyLevel.Proficient
+    }
+    if (value.wisdom_save !== null) {
+        saves[Attribute.WIS] = ProficiencyLevel.Proficient
+    }
+    if (value.charisma_save !== null) {
+        saves[Attribute.CHA] = ProficiencyLevel.Proficient
+    }
+    return saves
+}
+
+const proficienciesSkill  = (value: IOpen5eCreature): Partial<Record<Skill, ProficiencyLevel>> => {
+    const skills = value.skills ?? {}
+    const res: Partial<Record<Skill, ProficiencyLevel>> = {}
+    for (const key of Object.keys(skills)) {
+        switch (key.toLowerCase()) {
+            case 'acrobatics': // TODO: Verify
+                res[Skill.Acrobatics] = ProficiencyLevel.Proficient
+                break
+            case 'animal_handling': // TODO: Verify
+                res[Skill.AnimalHandling] = ProficiencyLevel.Proficient
+                break
+            case 'arcana': // TODO: Verify
+                res[Skill.Arcana] = ProficiencyLevel.Proficient
+                break
+            case 'athletics': // TODO: Verify
+                res[Skill.Athletics] = ProficiencyLevel.Proficient
+                break
+            case 'deception': // TODO: Verify
+                res[Skill.Deception] = ProficiencyLevel.Proficient
+                break
+            case 'history':
+                res[Skill.History] = ProficiencyLevel.Proficient
+                break
+            case 'insight': // TODO: Verify
+                res[Skill.Insight] = ProficiencyLevel.Proficient
+                break
+            case 'intimidation': // TODO: Verify
+                res[Skill.Intimidation] = ProficiencyLevel.Proficient
+                break
+            case 'investigation': // TODO: Verify
+                res[Skill.Investigation] = ProficiencyLevel.Proficient
+                break
+            case 'medicine': // TODO: Verify
+                res[Skill.Medicine] = ProficiencyLevel.Proficient
+                break
+            case 'nature': // TODO: Verify
+                res[Skill.Nature] = ProficiencyLevel.Proficient
+                break
+            case 'perception':
+                res[Skill.Perception] = ProficiencyLevel.Proficient
+                break
+            case 'performance': // TODO: Verify
+                res[Skill.Performance] = ProficiencyLevel.Proficient
+                break
+            case 'persuasion': // TODO: Verify
+                res[Skill.Persuasion] = ProficiencyLevel.Proficient
+                break
+            case 'religion': // TODO: Verify
+                res[Skill.Religion] = ProficiencyLevel.Proficient
+                break
+            case 'sleightOfHand': // TODO: Verify
+                res[Skill.SleightOfHand] = ProficiencyLevel.Proficient
+                break
+            case 'stealth':
+                res[Skill.Stealth] = ProficiencyLevel.Proficient
+                break
+            case 'survival': // TODO: Verify
+                res[Skill.Survival] = ProficiencyLevel.Proficient
+                break
+            default:
+                Logger.warn('Open5eCreatureData.proficienciesSkill', `Unknown Skill: '${key}'`)
+                break
+        }
+    }
+    return res
+}
+
+const proficienciesLanguage = (value: IOpen5eCreature): Partial<Record<Language, ProficiencyLevelBasic>> => {
+    const languages = value.languages?.toLowerCase().split(/, */g) ?? []
+    const res: Partial<Record<Language, ProficiencyLevelBasic>> = {}
+    for (const language of languages) {
+        if (isEnum(language, Language)) {
+            res[language] = ProficiencyLevelBasic.Proficient
+        } else {
+            Logger.warn('Open5eCreatureData.proficienciesLanguage', `Unknown Language: '${language}'`)
+        }
+    }
+    return res
+}
+
+const getResistances = (value: IOpen5eCreature): Partial<Record<DamageBinding, readonly ISourceBinding[]>> => {
+    // TODO: Implement
+    if (value.damage_resistances !== null && value.damage_resistances.length > 0) {
+        Logger.warn('Open5eCreatureData.getResistances', `Creature had unrecognized damage resistances ${value.damage_resistances}.`)
+    }
+    return {}
+}
+
+const getVulnerabilities = (value: IOpen5eCreature): Partial<Record<DamageBinding, readonly ISourceBinding[]>> => {
+    // TODO: Implement
+    if (value.damage_vulnerabilities !== null && value.damage_vulnerabilities.length > 0) {
+        Logger.warn('Open5eCreatureData.getVulnerabilities', `Creature had unrecognized damage vulnerabilities ${value.damage_vulnerabilities}.`)
+    }
+    return {}
+}
+
+const getDamageImmunities = (value: IOpen5eCreature): Partial<Record<DamageBinding, readonly ISourceBinding[]>> => {
+    // TODO: Implement
+    if (value.damage_immunities !== null && value.damage_immunities.length > 0) {
+        Logger.warn('Open5eCreatureData.getDamageImmunities', `Creature had unrecognized damage immunities ${value.damage_immunities}.`)
+    }
+    return {}
+}
+
+const getConditionImmunities = (value: IOpen5eCreature): Partial<Record<DamageBinding, readonly ISourceBinding[]>> => {
+    // TODO: Implement
+    if (value.condition_immunities !== null && value.condition_immunities.length > 0) {
+        Logger.warn('Open5eCreatureData.getConditionImmunities', `Creature had unrecognized condition immunities ${value.condition_immunities}.`)
+    }
+    return {}
+}
+
+const getSpellAttribute = (value: IOpen5eCreature): OptionalAttribute => {
+    if (!Array.isArray(value.spell_list) || value.spell_list.length <= 0) {
+        return OptionalAttribute.None
+    }
+
+    let maxValue = -99
+    let res: OptionalAttribute = OptionalAttribute.None
+    const collection = {
+        [OptionalAttribute.INT]: asNumber(value.intelligence),
+        [OptionalAttribute.WIS]: asNumber(value.wisdom),
+        [OptionalAttribute.CHA]: asNumber(value.charisma),
+    }
+    for (const attr of keysOf(collection)) {
+        const value = collection[attr]
+        if (value > maxValue) {
+            maxValue = value
+            res = attr
+        }
+    }
+    return res
+}
+
+const getAbilities = (value: IOpen5eCreature): string[] => {
+    let actions: IOpen5eCreatureAction[] = []
+    if (Array.isArray(value.actions)) {
+        actions = [...actions, ...value.actions]
+    }
+    if (Array.isArray(value.special_abilities)) {
+        actions = [...actions, ...value.special_abilities]
+    }
+    if (Array.isArray(value.legendary_actions)) {
+        actions = [...actions, ...value.legendary_actions
+            .map(val => ({ ...val, name: `${ActionType.Legendary}: ${val.name}` }))
+        ]
+    }
+    if (Array.isArray(value.reactions)) {
+        actions = [...actions, ...value.reactions
+            .map(val => ({ ...val, name: `${ActionType.Reaction}: ${val.name}` }))
+        ]
+    }
+    return actions.map((x) => `${x.name}. ${x.desc}`)
+}
+
 export const open5eCreatureImporter = async (id: string): Promise<ICreatureData | null> => {
     const res = await Communication.open5eFetchOne<IOpen5eCreature>('monsters', id)
     if (res === null) {
         return null
     }
 
-    try {
-        const data: Partial<Editable<ICreatureData, keyof ICreatureData>> = {
-            name: res.name,
-            description: res.desc
-        }
+    const { level, hitDie } = getHitDie(res)
 
-        if (res.armor_class !== undefined) {
-            data.ac = { mode: CalcMode.Override, value: res.armor_class }
-        }
-
-        const metadata = new CreatureData(data)
-        Logger.log('toCreature', { file: res, result: metadata })
-        return metadata
-    } catch (error: unknown) {
-        Logger.throw('open5eCreatureImporter', error)
-        return null
+    const data: ICreatureData = {
+        name: res.name,
+        description: res.desc,
+        content: "",
+        portrait: res.img_main ?? "",
+        // Info
+        type: asEnum(res.type.toLowerCase(), CreatureType, CreatureType.None),
+        size: asEnum(res.size.toLowerCase(), SizeType, SizeType.Medium),
+        alignment: getAlignment(res),
+        challenge: asNumber(res.cr, 0),
+        xp: 0,
+        // Stats
+        level: level,
+        hitDie: hitDie,
+        health: { mode: CalcMode.Override, value: asNumber(res.hit_points, 0) },
+        ac: { mode: CalcMode.Override, value: asNumber(res.armor_class, 0) },
+        proficiency: createCalcValue(),
+        initiative: createCalcValue(),
+        speed: getSpeed(res),
+        senses: getSenses(res),
+        // Attributes
+        str: asNumber(res.strength, 0),
+        dex: asNumber(res.dexterity, 0),
+        con: asNumber(res.constitution, 0),
+        int: asNumber(res.intelligence, 0),
+        cha: asNumber(res.charisma, 0),
+        wis: asNumber(res.wisdom, 0),
+        // Passives
+        passivePerception: createCalcValue(),
+        passiveInvestigation: createCalcValue(),
+        passiveInsight: createCalcValue(),
+        // Proficiencies
+        proficienciesSave: getProficienciesSave(res),
+        proficienciesSkill: proficienciesSkill(res),
+        proficienciesTool: {},
+        proficienciesLanguage: proficienciesLanguage(res),
+        proficienciesArmor: {},
+        proficienciesWeapon: {},
+        // Advantages
+        advantages: {},
+        disadvantages: {},
+        // Resistances
+        resistances: getResistances(res),
+        vulnerabilities: getVulnerabilities(res),
+        damageImmunities: getDamageImmunities(res),
+        conditionImmunities: getConditionImmunities(res),
+        // Spells
+        spellAttribute: getSpellAttribute(res),
+        casterLevel: createCalcValue(),
+        spells: {},
+        spellSlots: {},
+        ritualCaster: false,
+        // Abilities
+        abilities: getAbilities(res)
     }
+
+    Logger.log('toCreature', { file: res, result: data })
+    return data
 }
 
 function createCondition(res: Open5eSpell): IEffectCondition {
@@ -291,6 +585,32 @@ function createCondition(res: Open5eSpell): IEffectCondition {
             return { type: condition, attribute: saveAttr ?? Attribute.STR, scaling: { [ScalingType.SpellModifier]: 1, [ScalingType.Proficiency]: 1 } }
         case EffectConditionType.Check:
             return { type: condition, skill: Skill.Acrobatics, scaling: { [ScalingType.SpellModifier]: 1, [ScalingType.Proficiency]: 1 } }
+    }
+}
+
+function parseNumberString(value: string): number {
+    switch (value) {
+        case "one": return 1
+        case "two": return 2
+        case "three": return 3
+        case "four": return 4
+        case "five": return 5
+        case "six": return 6
+        case "seven": return 7
+        case "eight": return 8
+        case "nine": return 9
+        case "ten": return 10
+        case "eleven": return 11
+        case "twelve": return 12
+        case "thirteen": return 13
+        case "fourteen": return 14
+        case "fifteen": return 15
+        case "sixteen": return 16
+        case "seventeen": return 17
+        case "eighteen": return 18
+        case "nineteen": return 19
+        case "twenty": return 20
+        default: return asNumber(value, 0);;
     }
 }
 
@@ -334,19 +654,7 @@ function createTargetArea(res: Open5eSpell): [TargetType, IArea, number] {
         const multipleMatch = multipleMatchExpr.exec(res.desc);
         if (multipleMatch != null) {
             target = TargetType.Multiple
-            switch (multipleMatch[1]) {
-                case "one": count = 1; break;
-                case "two": count = 2; break;
-                case "three": count = 3; break;
-                case "four": count = 4; break;
-                case "five": count = 5; break;
-                case "six": count = 6; break;
-                case "seven": count = 7; break;
-                case "eight": count = 8; break;
-                case "nine": count = 9; break;
-                case "ten": count = 10; break;
-                default: count = asNumber(multipleMatch[1], 0); break;
-            }
+            count = parseNumberString(multipleMatch[1])
         }
     }
     
