@@ -119,10 +119,9 @@ a > .square {
 }
 
 .icon {
-    @extend .square;
     @extend .center-flex;
     height: $iconNormalSize !important;
-    width: auto;
+    width: $iconNormalSize !important;
     margin: auto;
 
     & > svg {
@@ -132,10 +131,9 @@ a > .square {
 }
 
 .small-icon {
-    @extend .square;
     @extend .center-flex;
     height: $iconSmallSize !important;
-    width: auto;
+    width: $iconSmallSize !important;
     margin: auto;
 
     & > svg {

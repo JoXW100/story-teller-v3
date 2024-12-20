@@ -28,7 +28,7 @@ abstract class ItemDataBase implements IItemDataBase {
     public readonly charges: Record<string, ChargesData>
     // Modifiers
     public readonly modifiers: ModifierData[]
-    public readonly equippable = false;
+    public readonly equippable: boolean = false;
 
     public constructor(data: Simplify<IItemDataBase>) {
         this.name = data.name ?? ItemDataBase.properties.name.value

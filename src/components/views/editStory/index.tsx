@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import LocalizedText from 'components/controls/localizedText'
 import Loading from 'components/controls/loading'
 import AppBar from 'components/controls/appBar'
-import ImageWithDefault from 'components/controls/image'
+import ImageWithDefault, { DefaultImageHref } from 'components/controls/image'
 import SettingsButton from 'components/controls/settingsButton'
 import Checkbox from 'components/controls/checkbox'
 import ListMenu from 'components/controls/menus/list'
@@ -33,12 +33,11 @@ interface CreateStoryViewProps {
     storyId?: ObjectId | null
 }
 
-const DefaultImageURL: string = '/defaultImage.jpg'
 const DefaultState: CreateStoryState = {
     name: '',
     description: '',
     image: '',
-    url: DefaultImageURL,
+    url: DefaultImageHref,
     sources: [],
     flags: [],
     hasChanges: false,
@@ -131,7 +130,7 @@ const CreateStoryView: React.FC<CreateStoryViewProps> = ({ storyId = null }) => 
                     setState((state) => ({ ...state, loading: false }))
                 })
         } else {
-            const image = state.url === DefaultImageURL ? null : state.url
+            const image = state.url === DefaultImageHref ? null : state.url
             Communication.addStory(state.name, state.description, image, state.sources, state.flags)
                 .then((response) => {
                     if (response.success) {
@@ -211,8 +210,8 @@ const CreateStoryView: React.FC<CreateStoryViewProps> = ({ storyId = null }) => 
             if (isValidURL(state.image)) {
                 return { ...state, url: state.image }
             }
-            if (state.url !== DefaultImageURL) {
-                return { ...state, url: DefaultImageURL }
+            if (state.url !== DefaultImageHref) {
+                return { ...state, url: DefaultImageHref }
             }
             return state
         })
@@ -283,7 +282,7 @@ const CreateStoryView: React.FC<CreateStoryViewProps> = ({ storyId = null }) => 
                     </div>
                     <div className={styles.item}>
                         <LocalizedText className='no-line-break' id='create-story-label-image'/>
-                        <input type='url' value={state.image} onChange={imageChangeHandler} error={asBooleanString(state.url === DefaultImageURL)}/>
+                        <input type='url' value={state.image} onChange={imageChangeHandler} error={asBooleanString(state.url === DefaultImageHref)}/>
                         <ImageWithDefault href={state.url}/>
                     </div>
                     <div className={styles.item}>

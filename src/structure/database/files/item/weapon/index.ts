@@ -11,6 +11,7 @@ import type { IItemWeaponDataBase } from 'types/database/files/item'
 
 abstract class ItemWeaponDataBase extends ItemDataBase implements IItemWeaponDataBase {
     public override readonly type = ItemType.Weapon
+    public override readonly equippable = true;
     public abstract readonly subtype: WeaponType
     public readonly notes: string
     // Damage
@@ -64,10 +65,6 @@ abstract class ItemWeaponDataBase extends ItemDataBase implements IItemWeaponDat
 
     public override getCategoryText(translator: TranslationHandler): string {
         return translator(`enum-weaponType-${this.subtype}`)
-    }
-
-    public override get equippable(): boolean {
-        return true
     }
 
     public static properties: Omit<DataPropertyMap<IItemWeaponDataBase, ItemWeaponDataBase>, 'subtype'> = {

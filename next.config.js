@@ -3,8 +3,14 @@ const { version } = require('./package.json');
 
 module.exports = {
     reactStrictMode: true,
-    env: {
-        version
+    env: { version },
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: "**",
+            }
+        ]
     },
     webpack(config) {
         config.module.rules.push({

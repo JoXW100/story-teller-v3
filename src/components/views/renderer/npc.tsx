@@ -43,7 +43,7 @@ const NPCDocumentRenderer: React.FC = (): React.ReactNode => {
         { !contentToken.isEmpty &&
             <>
                 <Elements.line width='2px'/>
-                contentToken.build()
+                { contentToken.build() }
             </>
         }
     </>

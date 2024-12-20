@@ -166,14 +166,16 @@
 .image {
     display: flex;
     width: 100%;
-    height: fit-content;
+    position: relative;
+
+    & > img {
+        position: unset !important;
+    }
 
     &[data=true] {
         @include colorBorder(second);
         border: 2px solid;
     }
-
-    & > img { width: 100%; }
 }
 
 .header {

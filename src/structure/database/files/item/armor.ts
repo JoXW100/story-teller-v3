@@ -8,6 +8,7 @@ import type { IItemArmorData } from 'types/database/files/item'
 
 class ItemArmorData extends ItemDataBase implements IItemArmorData {
     public override readonly type = ItemType.Armor
+    public override readonly equippable = true;
     public readonly subtype: ArmorType
     public readonly ac: number
     public readonly disadvantageStealth: boolean
@@ -21,10 +22,6 @@ class ItemArmorData extends ItemDataBase implements IItemArmorData {
 
     public override getCategoryText(translator: TranslationHandler): string {
         return translator(`enum-armor-${this.subtype}`)
-    }
-
-    public override get equippable(): boolean {
-        return true
     }
 
     public static properties: DataPropertyMap<IItemArmorData, ItemArmorData> = {

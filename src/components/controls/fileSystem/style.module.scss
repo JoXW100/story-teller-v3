@@ -20,7 +20,6 @@
 
     & > .body {
         @include scroll();
-        overflow-y: auto;
         overflow-x: hidden;
         padding-bottom: 1cm;
     }

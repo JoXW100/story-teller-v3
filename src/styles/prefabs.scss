@@ -34,6 +34,10 @@
 @mixin scroll {
     cursor: auto;
     overflow: scroll;
+    scrollbar-width: thin;
+    scrollbar-track-color: colorInGroup(main, 'decoration');
+    scrollbar-color: colorInGroup(main, 'background');
+    scrollbar-base-color: colorInGroup(main, 'decoration');
 
     &::-webkit-scrollbar {
         width: $scrollBarWidth;
@@ -45,6 +49,10 @@
     }
 
     &::-webkit-scrollbar-track {
+        @include colorDecoration(main);
+    }
+
+    &::-webkit-scrollbar-track-piece {
         @include colorDecoration(main);
     }
 

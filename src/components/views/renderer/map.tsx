@@ -24,7 +24,7 @@ const MapDocumentRenderer: React.FC = () => {
         <Elements.h1 underline>{file.getTitle()}</Elements.h1>
         { !descriptionToken.isEmpty &&
             <>
-                {descriptionToken.build()}
+                { descriptionToken.build() }
                 <Elements.line width='2px'/>
             </>
         }

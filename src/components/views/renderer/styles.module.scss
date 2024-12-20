@@ -306,7 +306,7 @@ $size: $iconSmallSize;
         text-align: right;
         border-radius: 8px;
         padding: 0 8px;
-
+        appearance: textfield;
         &::-webkit-outer-spin-button,
         &::-webkit-inner-spin-button {
             display: none;
@@ -327,6 +327,7 @@ $size: $iconSmallSize;
 
 .encounterCardPortrait {
     @include centerFlex;
+    position: relative;
     overflow: hidden;
     margin: 3px;
     aspect-ratio: 1;

@@ -265,6 +265,7 @@ export const SimpleWeapon = {
     Sickle: WeaponTypeValue.Sickle,
     Spear: WeaponTypeValue.Spear
 } as const
+export type SimpleWeapon = ValueOf<typeof SimpleWeapon>
 
 export const MartialWeapon = {
     Battleaxe: WeaponTypeValue.Battleaxe,
@@ -291,12 +292,14 @@ export const MartialWeapon = {
     Longbow: WeaponTypeValue.Longbow,
     Net: WeaponTypeValue.Net
 } as const
+export type MartialWeapon = ValueOf<typeof MartialWeapon>
 
 export const WeaponTypeCategory = {
     Simple: WeaponTypeValue.Simple,
     Martial: WeaponTypeValue.Martial,
     Improvised: WeaponTypeValue.Improvised
 } as const
+export type WeaponTypeCategory = ValueOf<typeof WeaponTypeCategory>
 
 export const MeleeWeaponType = {
     Battleaxe: WeaponTypeValue.Battleaxe,
@@ -322,6 +325,7 @@ export const MeleeWeaponType = {
     Warhammer: WeaponTypeValue.Warhammer,
     Whip: WeaponTypeValue.Whip
 } as const
+export type MeleeWeaponType = ValueOf<typeof MeleeWeaponType>
 
 export const ThrownWeaponType = {
     Dagger: WeaponTypeValue.Dagger,
@@ -332,6 +336,7 @@ export const ThrownWeaponType = {
     Spear: WeaponTypeValue.Spear,
     Trident: WeaponTypeValue.Trident
 } as const
+export type ThrownWeaponType = ValueOf<typeof ThrownWeaponType>
 
 export const RangedWeaponType = {
     Blowgun: WeaponTypeValue.Blowgun,
@@ -343,6 +348,7 @@ export const RangedWeaponType = {
     Shortbow: WeaponTypeValue.Shortbow,
     Sling: WeaponTypeValue.Sling
 } as const
+export type RangedWeaponType = ValueOf<typeof RangedWeaponType>
 
 export const WeaponType = {
     ...MeleeWeaponType,
@@ -350,14 +356,14 @@ export const WeaponType = {
     ...RangedWeaponType
 } as const
 
-export type WeaponType = ValueOf<typeof MeleeWeaponType> | ValueOf<typeof ThrownWeaponType> | ValueOf<typeof RangedWeaponType>
+export type WeaponType = MeleeWeaponType | ThrownWeaponType | RangedWeaponType
 
 export const WeaponCategoryType = {
     ...WeaponType,
     ...WeaponTypeCategory
 } as const
 
-export type WeaponCategoryType = WeaponType | ValueOf<typeof WeaponTypeCategory>
+export type WeaponCategoryType = WeaponType | WeaponTypeCategory
 
 export enum ArtisansTools {
     AlchemistsSupplies = 'alchemistsSupplies',
