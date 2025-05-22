@@ -33,7 +33,7 @@ export class DiceGroup extends DiceBase {
         }
     }
 
-    public override rollOnce(generator?: Random, group: string = '0'): IDiceRoll {
+    public override roll(generator?: Random, count: number = 1, group: string = '0'): IDiceRoll {
         const result: IDiceRoll = {
             dice: this,
             sum: 0,
@@ -42,27 +42,15 @@ export class DiceGroup extends DiceBase {
         }
         const types = keysOf(this.collection)
         for (const type of types) {
-            const x: number = this.collection[type] ?? 0
+            const rollCount: number = (this.collection[type] ?? 0) * count;
             const dice = Die.parse(type)
-            for (let i = 0; i < x; i++) {
-                const value = dice.rollOnceValue(generator)
+            for (let i = 0; i < rollCount; i++) {
+                const value = dice.roll(generator,).sum
                 result.sum += value
                 result.rolls.push({ type: type, group: group, value: value })
             }
         }
         return result
-    }
-
-    public override rollOnceValue(generator?: Random): number {
-        let sum: number = 0
-        for (const type of keysOf(this.collection)) {
-            const x: number = this.collection[type] ?? 0
-            const dice = Die.parse(type)
-            for (let i = 0; i < x; i++) {
-                sum += dice.rollOnceValue(generator)
-            }
-        }
-        return sum
     }
 
     public override stringify(): string {

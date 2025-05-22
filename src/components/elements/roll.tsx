@@ -10,6 +10,7 @@ import DiceFactory from 'structure/dice/factory'
 import { ModifiedDice } from 'structure/dice/modified'
 import RollElement, { type RollElementParams } from 'structure/elements/roll'
 import styles from './styles.module.scss'
+import { createDiceRollResult } from 'structure/dice/rolling'
 
 const RollComponent: React.FC<RollElementParams> = ({ children, dice, critRange, mode, type, desc, details, tooltips }) => {
     const [, dispatch] = useContext(Context)
@@ -26,7 +27,7 @@ const RollComponent: React.FC<RollElementParams> = ({ children, dice, critRange,
     const roll = (method: RollMethodType): void => {
         dispatch.roll({
             method: method,
-            result: diceObject.roll(method),
+            result: createDiceRollResult(diceObject, method),
             type: type,
             critRange: critRange,
             description: desc,

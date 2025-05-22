@@ -1,5 +1,6 @@
 import { expectNotToBeNull } from 'utils/tests'
 import { DieType, RollMethodType } from 'structure/dice'
+import { createDiceRollResult } from 'structure/dice/rolling'
 import { Die } from 'structure/dice/die'
 import DiceFactory from 'structure/dice/factory'
 
@@ -55,30 +56,56 @@ describe('Dice parsing', () => {
 })
 
 describe('Dice rolling', () => {
-    test('Test die rollOnceValue', () => {
+    test('Test die roll', () => {
         const die1 = Die.parse(DieType.D20)
-        const value = die1.rollOnceValue()
-        expect(value).toBeGreaterThanOrEqual(1)
-        expect(value).toBeLessThanOrEqual(20)
-    })
-
-    test('Test die rollOnce', () => {
-        const die1 = Die.parse(DieType.D20)
-        const value = die1.rollOnce()
+        const value = die1.roll()
 
         expect(value.rolls.length).toBe(1)
+        expect(value.modifier).toBe(0)
         expect(value.rolls[0].type).toBe(DieType.D20)
         expect(value.rolls[0].value).toBeGreaterThanOrEqual(1)
         expect(value.rolls[0].value).toBeLessThanOrEqual(20)
     })
 
-    test('Test die roll', () => {
+    test('Test createDiceRollResult defaults', () => {
         const die1 = Die.parse(DieType.D20)
-        const value = die1.roll()
+        const value = createDiceRollResult(die1)
 
         expect(value.method).toBe(RollMethodType.Normal)
-        expect(value.selected).toBe(0)
         expect(value.rolls.length).toBe(1)
+        expect(value.rolls[0].rolls.length).toBe(1)
+        expect(value.rolls[0].rolls[0].type).toBe(DieType.D20)
+
+        const sum = value.rolls[value.selected].rolls.reduce((prev, cur) => prev + cur.value, 0)
+        expect(value.rolls[value.selected].sum).toBe(sum)
+    })
+
+    test('Test createDiceRollResult sum of two', () => {
+        const die1 = Die.parse(DieType.D20)
+        const value = createDiceRollResult(die1, RollMethodType.SumOfTwo)
+
+        expect(value.method).toBe(RollMethodType.SumOfTwo)
+        expect(value.rolls.length).toBe(1)
+        expect(value.rolls[0].rolls.length).toBe(2)
+        expect(value.rolls[0].rolls[0].type).toBe(DieType.D20)
+
+        const sum = value.rolls[value.selected].rolls.reduce((prev, cur) => prev + cur.value, 0)
+        expect(value.rolls[value.selected].sum).toBe(sum)
+    })
+
+    test('Test createDiceRollResult best of three', () => {
+        const die1 = Die.parse(DieType.D20)
+        const value = createDiceRollResult(die1, RollMethodType.BestOfThree)
+
+        const index = value.rolls.reduce((acc, curr, index) => (
+            acc.max < curr.sum 
+            ? { max: curr.sum, index: index }
+            : acc
+        ), { max: 0, index: 0 }).index;
+
+        expect(value.method).toBe(RollMethodType.BestOfThree)
+        expect(value.selected).toBe(index)
+        expect(value.rolls.length).toBe(3)
         expect(value.rolls[0].rolls.length).toBe(1)
         expect(value.rolls[0].rolls[0].type).toBe(DieType.D20)
 
@@ -92,7 +119,7 @@ describe('Dice parsing', () => {
         const input = '2d4'
         const dice = DiceFactory.parse(input)
         if (expectNotToBeNull(dice)) {
-            const result = dice.rollOnce()
+            const result = dice.roll()
             expect(result.rolls.length).toBe(2)
             for (const res of result.rolls) {
                 expect(res.type).toBe(DieType.D4)
@@ -106,7 +133,7 @@ describe('Dice parsing', () => {
         const input = 'd4'
         const dice = DiceFactory.parse(input)
         if (expectNotToBeNull(dice)) {
-            const result = dice.rollOnce()
+            const result = dice.roll()
             expect(result.rolls.length).toBe(1)
             expect(result.rolls[0].type).toBe(DieType.D4)
             expect(result.rolls[0].value).toBeGreaterThanOrEqual(1)
@@ -118,7 +145,7 @@ describe('Dice parsing', () => {
         const input = '1d8 + 1d6 + 4d6'
         const dice = DiceFactory.parse(input)
         if (expectNotToBeNull(dice)) {
-            const result = dice.rollOnce()
+            const result = dice.roll()
             expect(result.rolls.length).toBe(6)
             expect(result.rolls[0].type).toBe(DieType.D8)
             expect(result.rolls[0].value).toBeGreaterThanOrEqual(1)
@@ -136,7 +163,7 @@ describe('Dice parsing', () => {
         const input = '1d4 + 1d6 + 1d8  - 2d10'
         const dice = DiceFactory.parse(input)
         if (expectNotToBeNull(dice)) {
-            const result = dice.rollOnce()
+            const result = dice.roll()
             expect(result.rolls.length).toBe(5)
             expect(result.rolls[0].type).toBe(DieType.D4)
             expect(result.rolls[1].type).toBe(DieType.D6)
@@ -153,11 +180,11 @@ describe('Dice evaluation', () => {
         const dice = DiceFactory.parse(input)
         if (expectNotToBeNull(dice)) {
             setupDeterministicRandom(1)
-            const result1 = dice.rollOnceValue()
+            const result1 = dice.roll()
             setupDeterministicRandom(0)
-            const result2 = dice.rollOnceValue()
-            expect(result1).toBe(4 + 6 + 8 - 10)
-            expect(result2).toBe(1 + 1 + 1 - 1)
+            const result2 = dice.roll()
+            expect(result1.sum).toBe(4 + 6 + 8 - 10)
+            expect(result2.sum).toBe(1 + 1 + 1 - 1)
         }
     })
 })

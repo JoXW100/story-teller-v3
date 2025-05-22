@@ -70,72 +70,8 @@ export interface IRollContext {
 export abstract class DiceBase {
     public abstract readonly modifier: number
 
-    public roll(method: RollMethodType = RollMethodType.Normal, generator?: Random, group: string = '0'): IDiceRollResult {
-        const numRolls = DiceBase.numRollsForRollMethod(method)
-        return DiceBase.createRollResult(this, Array.from({ length: numRolls }).map(() => (
-            this.rollOnce(generator, group)
-        )), method)
-    }
-
-    public abstract rollOnce(generator?: Random, group?: string): IDiceRoll
-    public abstract rollOnceValue(generator?: Random): number
+    public abstract roll(generator?: Random, count?: number, group?: string): IDiceRoll
     public abstract stringify(): string
-
-    protected static numRollsForRollMethod(method: RollMethodType): number {
-        switch (method) {
-            case RollMethodType.Normal:
-                return 1
-            case RollMethodType.BestOfTwo:
-            case RollMethodType.WorstOfTwo:
-            case RollMethodType.SumOfTwo:
-                return 2
-            case RollMethodType.BestOfThree:
-            case RollMethodType.WorstOfThree:
-            case RollMethodType.SumOfThree:
-                return 3
-            default:
-                return 0
-        }
-    }
-
-    protected static createRollResult(dice: IDiceRollResult['dice'], rolls: IDiceRollResult['rolls'], method: RollMethodType): IDiceRollResult {
-        let sum: number = 0
-        let selected: number = 0
-        for (let i = 0; i < rolls.length; i++) {
-            const roll = rolls[i]
-            switch (method) {
-                case RollMethodType.BestOfTwo:
-                case RollMethodType.BestOfThree:
-                    if (roll.sum > sum) {
-                        sum = roll.sum
-                        selected = i
-                    }
-                    break
-                case RollMethodType.WorstOfTwo:
-                case RollMethodType.WorstOfThree:
-                    if (roll.sum < sum) {
-                        sum = roll.sum
-                        selected = i
-                    }
-                    break
-                case RollMethodType.SumOfTwo:
-                case RollMethodType.SumOfThree:
-                    sum += roll.sum
-                    break
-                case RollMethodType.Normal:
-                default:
-                    sum = roll.sum
-                    selected = i
-                    break
-            }
-        }
-        return {
-            dice: dice,
-            selected: selected,
-            method: method,
-            rolls: rolls
-        }
-    }
 }
 
 export function isFail(result: IDiceRoll): boolean {

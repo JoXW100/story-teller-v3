@@ -74,7 +74,7 @@ const EncounterDocumentRenderer: React.FC = (): React.ReactNode => {
             if (creature !== null) {
                 for (let i = 0; i < encounter.data.creatures[creature.id]; i++) {
                     const key = `${creature.id}.${i}`
-                    value[key] = new EncounterCard({ ...encounter.storage.cards[key] ?? {}, initiative: die.rollOnceValue() })
+                    value[key] = new EncounterCard({ ...encounter.storage.cards[key] ?? {}, initiative: die.roll().sum })
                 }
             }
         }

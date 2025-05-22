@@ -26,36 +26,32 @@ export class DiceCollection extends DiceBase {
         this.collection.push({ value: dice, operator: operator })
     }
 
-    public override rollOnce(generator?: Random, group: string = '0'): IDiceRoll {
+    public override roll(generator?: Random, count: number = 1, group: string = '0'): IDiceRoll {
         const result: IDiceRoll = {
             dice: this,
             sum: 0,
             modifier: 0,
             rolls: []
         }
+        
         for (let i = 0; i < this.collection.length; i++) {
-            const res = this.collection[i].value.rollOnce(generator, `${group}.${i}`)
-            result.sum += res.sum
-            result.rolls.push(...res.rolls)
-        }
-        return result
-    }
-
-    public override rollOnceValue(generator?: Random): number {
-        let sum = 0
-        for (const item of this.collection) {
+            const item = this.collection[i];
+            const res = item.value.roll(generator, count, `${group}.${i}`)
             switch (item.operator) {
                 case DiceOperator.Add:
-                    sum += item.value.rollOnceValue(generator)
+                    result.sum += res.sum
                     break
                 case DiceOperator.Subtract:
-                    sum -= item.value.rollOnceValue(generator)
+                    result.sum -= res.sum
                     break
                 default:
                     break
             }
+            result.rolls.push(...res.rolls)
         }
-        return Math.max(sum, 0)
+        
+        result.sum = Math.max(result.sum, 0)
+        return result
     }
 
     public override stringify(): string {

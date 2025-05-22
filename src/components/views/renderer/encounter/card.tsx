@@ -18,6 +18,7 @@ import { EncounterCardFactory } from 'structure/database/files/encounter/factory
 import { RollMethodType, RollType } from 'structure/dice'
 import { Die } from 'structure/dice/die'
 import { ModifiedDice } from 'structure/dice/modified'
+import { createDiceRollResult } from 'structure/dice/rolling'
 import Random from 'structure/random'
 import DiceFactory from 'structure/dice/factory'
 import styles from '../styles.module.scss'
@@ -42,7 +43,7 @@ const EncounterCardRenderer: React.FC<EncounterCardProps> = ({ id, encounter, cr
             const dice = DiceFactory.parse(facade.healthRoll)
             if (dice !== null) {
                 const random = new Random(card.randomMaxHealth)
-                return dice.rollOnceValue(random)
+                return dice.roll(random).sum
             }
         }
         return facade.healthValue
@@ -61,7 +62,8 @@ const EncounterCardRenderer: React.FC<EncounterCardProps> = ({ id, encounter, cr
 
     const handleRollInitiative: React.MouseEventHandler<HTMLButtonElement> = () => {
         const collection = new ModifiedDice(new Die(20), initiativeBonus)
-        const result = collection.roll()
+        const result = createDiceRollResult(collection)
+
         Beyond20.sendRoll({
             method: RollMethodType.Normal,
             result: result,

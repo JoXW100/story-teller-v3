@@ -1,4 +1,4 @@
-import { DieType, DiceBase, numberFromDieType, parseDieType, type IDiceRoll } from '.'
+import { DieType, DiceBase, numberFromDieType, parseDieType, type IDiceRoll, IDiceTypeValuePair } from '.'
 import type Random from 'structure/random'
 
 export class Die extends DiceBase {
@@ -18,18 +18,20 @@ export class Die extends DiceBase {
         }
     }
 
-    public override rollOnce(generator?: Random, group: string = '0'): IDiceRoll {
-        const value = this.rollOnceValue(generator)
+    public override roll(generator?: Random, count: number = 1, group: string = '0'): IDiceRoll {
+        let sum = 0;
+        const rolls: IDiceTypeValuePair[] = Array.from({ length: count }).map(() => {
+            const value = Math.ceil((generator?.random() ?? Math.random()) * this.size)
+            sum += value
+            return { type: this.type, group: group, value: value }
+        })
+
         return {
             dice: this,
-            sum: value,
+            sum: sum,
             modifier: 0,
-            rolls: [{ type: this.type, group: group, value: value }]
+            rolls: rolls
         }
-    }
-
-    public override rollOnceValue(generator?: Random): number {
-        return Math.ceil((generator?.random() ?? Math.random()) * this.size)
     }
 
     public override stringify(): string {

@@ -17,15 +17,11 @@ export class ModifiedDice extends DiceBase {
         this.modifier = modifier
     }
 
-    public override rollOnce(generator?: Random, group: string = '0'): IDiceRoll {
-        const result = this.dice.rollOnce(generator, group)
+    public override roll(generator?: Random, count: number = 1, group: string = '0'): IDiceRoll {
+        const result = this.dice.roll(generator, count, group)
         result.sum += this.modifier
         result.modifier = this.modifier
         return result
-    }
-
-    public override rollOnceValue(generator?: Random): number {
-        return this.dice.rollOnceValue(generator) + this.modifier
     }
 
     public override stringify(): string {

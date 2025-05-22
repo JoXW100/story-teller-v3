@@ -21,7 +21,7 @@ export class ConditionDocument extends DatabaseFile<DocumentType.Condition, Cond
     }
 
     public override getTokenizedDescription(elements: ElementDefinitions): IToken {
-        const [description] = this.data.createContexts(elements)
+        const [description] = this.data.createContexts()
         return StoryScript.tokenize(elements, this.data.description, description).root
     }
 
