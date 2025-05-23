@@ -1,3 +1,4 @@
+@use "sass:map";
 @use 'colors.scss' as *;
 @use 'fonts.scss' as *;
 @use 'constants.scss' as *;
@@ -186,7 +187,7 @@
     align-items: center;
 
     &[data=true] {
-        border-bottom: 2px solid map-get($palette, border);
+        border-bottom: 2px solid map.get($palette, border);
         margin-bottom: 6px;
     }
 }

@@ -1,3 +1,5 @@
+@use "sass:map";
+
 $palette: (
     background: var(--color-background),
     accents: var(--color-accents),
@@ -122,11 +124,11 @@ $grouped-palette: (
 );
 
 @function color($colorName) {
-    @return map-get($palette, $colorName);
+    @return map.get($palette, $colorName);
 }
 
 @function colorInGroup($group, $colorName) {
-    @return map-get(map-get($grouped-palette, $group), $colorName);
+    @return map.get(map.get($grouped-palette, $group), $colorName);
 }
 
 @mixin colorDefaultBackground {
