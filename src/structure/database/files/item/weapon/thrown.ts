@@ -13,12 +13,14 @@ class ItemWeaponThrownData extends ItemWeaponDataBase implements IItemWeaponThro
     public override readonly subtype: ThrownWeaponType
     public readonly reach: number
     public readonly range: number
+    public readonly rangeLong: number
 
     public constructor(data: Simplify<IItemWeaponThrownData>) {
         super(data)
         this.subtype = data.subtype ?? ItemWeaponThrownData.properties.subtype.value
-        this.reach = data.range ?? ItemWeaponThrownData.properties.reach.value
+        this.reach = data.reach ?? ItemWeaponThrownData.properties.reach.value
         this.range = data.range ?? ItemWeaponThrownData.properties.range.value
+        this.rangeLong = data.rangeLong ?? ItemWeaponThrownData.properties.rangeLong.value
     }
 
     public override createAbility(): AbilityThrownAttackData | null {
@@ -31,6 +33,7 @@ class ItemWeaponThrownData extends ItemWeaponDataBase implements IItemWeaponThro
             charges: this.charges,
             reach: this.reach,
             range: this.range,
+            rangeLong: this.rangeLong,
             condition: {
                 type: EffectConditionType.Hit,
                 scaling: this.hitScaling
@@ -72,6 +75,10 @@ class ItemWeaponThrownData extends ItemWeaponDataBase implements IItemWeaponThro
         },
         range: {
             value: 30,
+            validate: isNumber
+        },
+        rangeLong: {
+            value: 60,
             validate: isNumber
         }
     }

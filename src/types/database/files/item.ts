@@ -69,6 +69,7 @@ export interface IItemWeaponThrownData extends IItemWeaponDataBase {
     readonly subtype: ThrownWeaponType
     readonly reach: number
     readonly range: number
+    readonly rangeLong: number
 }
 
 export type IItemWeaponData = IItemWeaponMeleeData | IItemWeaponRangedData | IItemWeaponThrownData

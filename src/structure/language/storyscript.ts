@@ -160,7 +160,6 @@ class StoryScript {
                 const tokenHolder = (model as MonacoModelWithToken).tokenHolder
                 if (isDefined(tokenHolder.token)) {
                     const match = tokenHolder.token?.findTokenAt(position)
-                    console.log('createHoverProvider.getHoverText', match)
                     if (match === undefined || match.length < 1) {
                         return undefined
                     }

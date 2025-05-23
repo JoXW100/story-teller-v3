@@ -97,6 +97,7 @@ const ItemDocumentEditor: React.FC = () => {
                             <>
                                 <NumberComponent field='reach' labelId='editor-reach'/>
                                 <NumberComponent field='range' labelId='editor-range'/>
+                                <NumberComponent field='rangeLong' labelId='editor-rangeLong'/>
                             </>
                         }
                         <SelectionInputComponent
