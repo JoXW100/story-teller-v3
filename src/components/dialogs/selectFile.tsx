@@ -88,14 +88,14 @@ const SelectFileDialog: React.FC<DialogArgs<'selectFile'>> = ({ id, allowedTypes
                         <LocalizedText className={styles.dialogHeaderText} id='dialog-selectFile-header'/>
                         <SearchBar className='fill' value={state.search} onChange={setSearch}/>
                         <Tooltip title={<LocalizedText id='common-reload'/>}>
-                            <span className='fill-height square'>
+                            <span className='fill'>
                                 <button className='center-flex fill' id='selectFile-reload' onClick={loadContent} disabled={state.loading}>
                                     <ReloadIcon className='small-icon'/>
                                 </button>
                             </span>
                         </Tooltip>
                         <Tooltip title={<LocalizedText id='common-close'/>}>
-                            <span className='fill-height square'>
+                            <span className='fill'>
                                 <button className='center-flex fill' id='selectFile-close' onClick={handleClose}>
                                     <CloseIcon className='small-icon'/>
                                 </button>
