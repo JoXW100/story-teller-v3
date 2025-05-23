@@ -38,7 +38,7 @@ const ChargesEditor: React.FC = () => {
             </GroupComponent>
             <GroupComponent header={<LocalizedText id='editor-header-condition'/>} open>
                 <ConditionComponent
-                    field={createField(field, 'conditionValue')}
+                    field={createField(field, 'condition')}
                     labelId='editor-header-condition' />
             </GroupComponent>
         </div>
