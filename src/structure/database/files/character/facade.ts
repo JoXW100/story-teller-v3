@@ -352,7 +352,7 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
     }
 
     public override getClassLevel(key: string): number {
-        const source = this.modifier.findSource(key, source => source.type !== SourceType.Class)
+        const source = this.modifier.findSource(key, source => source.type === SourceType.Class)
         if (source !== null && isKeyOf(source.key, this.data.classes)) {
             return asNumber(this.data.classes[source.key], 0)
         }
