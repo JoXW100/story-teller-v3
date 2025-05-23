@@ -1,5 +1,5 @@
-@import 'styles/colors.scss';
-@import 'styles/constants.scss';
+@use 'colors.scss' as *;
+@use 'constants.scss' as *;
 
 .dropdown {
     height: $iconSmallSize;

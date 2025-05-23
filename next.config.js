@@ -1,5 +1,6 @@
 /* eslint-disable */
 const { version } = require('./package.json');
+const path = require('path');
 
 module.exports = {
     reactStrictMode: true,
@@ -11,6 +12,9 @@ module.exports = {
                 hostname: "**",
             }
         ]
+    },
+    sassOptions: {
+        includePaths: [path.join(__dirname, 'src/styles')]
     },
     webpack(config) {
         config.module.rules.push({

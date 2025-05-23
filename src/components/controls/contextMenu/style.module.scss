@@ -1,6 +1,6 @@
-@import 'styles/colors.scss';
-@import 'styles/fonts.scss';
-@import 'styles/constants.scss';
+@use 'colors.scss' as *;
+@use 'fonts.scss' as *;
+@use 'constants.scss' as *;
 
 .main {
     @include colorWithShadow(input);

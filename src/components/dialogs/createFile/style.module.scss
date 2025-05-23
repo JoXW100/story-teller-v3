@@ -1,7 +1,7 @@
-@import 'styles/colors.scss';
-@import 'styles/constants.scss';
-@import 'styles/prefabs.scss';
-@import 'styles/fonts.scss';
+@use 'colors.scss' as *;
+@use 'constants.scss' as *;
+@use 'prefabs.scss' as *;
+@use 'fonts.scss' as *;
 
 $navbarWidth: 35px;
 

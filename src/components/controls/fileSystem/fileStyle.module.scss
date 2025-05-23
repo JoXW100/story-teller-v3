@@ -1,6 +1,6 @@
-@import 'styles/colors.scss';
-@import 'styles/fonts.scss';
-@import 'styles/prefabs.scss';
+@use 'colors.scss' as *;
+@use 'fonts.scss' as *;
+@use 'prefabs.scss' as *;
 
 .file {
     @include colorDecoration(second);

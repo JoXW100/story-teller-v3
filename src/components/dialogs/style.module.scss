@@ -1,7 +1,7 @@
-@import 'styles/fonts.scss';
-@import 'styles/colors.scss';
-@import 'styles/prefabs.scss';
-@import 'styles/constants.scss';
+@use 'fonts.scss' as *;
+@use 'colors.scss' as *;
+@use 'prefabs.scss' as *;
+@use 'constants.scss' as *;
 
 .paper {
     @include centerFlex;

@@ -1,7 +1,6 @@
 $fontNormal: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
 $fontDocument: 'Mrs Eaves';
 
-
 @mixin fontNoLineBreak {
     white-space: pre;
     text-overflow: ellipsis;

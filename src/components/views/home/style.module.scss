@@ -1,8 +1,8 @@
-@import 'styles/fonts.scss';
-@import 'styles/colors.scss';
-@import 'styles/prefabs.scss';
-@import 'styles/constants.scss';
-@import 'styles/common.scss';
+@use 'fonts.scss' as *;
+@use 'colors.scss' as *;
+@use 'prefabs.scss' as *;
+@use 'constants.scss' as *;
+@use 'common.scss' as *;
 
 .view {
     @include scroll;

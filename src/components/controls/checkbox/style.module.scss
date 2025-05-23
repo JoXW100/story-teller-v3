@@ -1,4 +1,4 @@
-@import 'styles/colors.scss';
+@use 'colors.scss' as *;
 
 .main {
     @include colorBackground(input);

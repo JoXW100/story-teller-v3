@@ -1,6 +1,7 @@
-@import 'styles/colors.scss';
-@import 'styles/prefabs.scss';
-@import 'styles/animations.scss';
+@use 'colors.scss' as *;
+@use 'constants.scss' as *;
+@use 'prefabs.scss' as *;
+@use 'animations.scss' as *;
 
 .main {
     @include colorWithShadow(second);

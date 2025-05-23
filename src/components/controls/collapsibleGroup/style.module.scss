@@ -1,6 +1,6 @@
-@import 'styles/colors.scss';
-@import 'styles/constants.scss';
-@import 'styles/fonts.scss';
+@use 'colors.scss' as *;
+@use 'constants.scss' as *;
+@use 'fonts.scss' as *;
 
 .collapsibleGroup {
     font: inherit;
