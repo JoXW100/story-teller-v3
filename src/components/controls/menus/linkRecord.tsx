@@ -59,7 +59,7 @@ type RecordMenuComponentProps = React.PropsWithRef<{
     itemClassName?: string
     editClassName?: string
     ids: ObjectId[]
-    files: (DocumentTypeMap[DocumentType] | null)[]
+    files: Record<ObjectId, DocumentTypeMap[DocumentType]>
     allowedTypes: readonly DocumentType[]
     placeholder?: string
 } & LinkRecordMenuPropsType>
@@ -67,6 +67,16 @@ type RecordMenuComponentProps = React.PropsWithRef<{
 function LinkRecordMenu(props: LinkRecordMenuProps): React.ReactNode {
     const ids = useMemo(() => keysOf(props.value), [props.value])
     const [files] = useFilesOfType(ids, props.allowedTypes)
+    const filesMap = useMemo(() => {
+        const values: Record<ObjectId, DocumentTypeMap[DocumentType]> = {}
+        for (const file of files) {
+            if (file === null)
+                continue;
+
+            values[file.id] = file
+        }
+        return values
+    }, [files])
 
     const handleChange = (newValues: (string | null)[]): void => {
         if (props.onChange === undefined) {
@@ -99,13 +109,13 @@ function LinkRecordMenu(props: LinkRecordMenuProps): React.ReactNode {
             validateInput={handleValidate}
             Component={ItemComponent}
             EditComponent={EditComponent}
-            params={{ ...props, ids: ids, files: files }}/>
+            params={{ ...props, ids: ids, files: filesMap }}/>
     )
 }
 
 function ItemComponent({ index, params }: ListTemplateComponentProps<string | null, string | null, RecordMenuComponentProps>): React.ReactNode {
     const id = params.ids[index] ?? null
-    const file = params.files[index] ?? null
+    const file = params.files[id] ?? null
     const value = params.value[id] ?? ''
 
     const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
