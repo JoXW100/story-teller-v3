@@ -300,6 +300,8 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
         }
     }
 
+    const abilities: Record<ObjectId | string, AbilityData> = {}
+
     for (const itemId of keysOf(items)) {
         const itemData = items[itemId]
         if (character.storage.inventory[itemId]?.equipped && (!itemData.attunement || character.storage.attunement.includes(itemId))) {
@@ -310,10 +312,17 @@ async function fetchCharacterData(character: CharacterDocument, current: ICharac
                 modifier.addSource(key, SourceType.Item, itemId)
             }
         }
+
+        if (itemId in abilities)
+            continue
+        
+        const ability = itemData.createAbility()
+        if (ability !== null) {
+            abilities[itemId] = ability;
+        }
     }
 
     let properties: IProperties = EmptyProperties
-    const abilities: Record<ObjectId | string, AbilityData> = {}
     // Start ability/modifier fetch loop
     for (let depth = 0; depth < 100; depth++) {
         // Find new abilities to fetch

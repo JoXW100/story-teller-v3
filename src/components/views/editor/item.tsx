@@ -14,8 +14,9 @@ import TextareaComponent from './components/textarea'
 import ModifiersInputComponent from './components/modifiersInput'
 import { ElementDictionary } from 'components/elements'
 import { isEnum } from 'utils'
-import ItemDocument from 'structure/database/files/item'
+import { DieType } from 'structure/dice'
 import { ItemType, MeleeWeaponType, RangedWeaponType, ThrownWeaponType } from 'structure/dnd'
+import ItemDocument from 'structure/database/files/item'
 import EffectFactory from 'structure/database/effect/factory'
 import styles from './style.module.scss'
 
@@ -66,6 +67,18 @@ const ItemDocumentEditor: React.FC = () => {
                             optionsType='scaling'
                             labelId='editor-scaling'
                             fill/>
+                        <EnumComponent
+                            field='damageDie'
+                            type='die'
+                            labelId='editor-die'/>
+                        { context.file.data.damageDie !== DieType.None &&
+                            <SelectionInputComponent
+                                field='damageDieCount'
+                                type='number'
+                                optionsType='scaling'
+                                labelId='editor-dieCount'
+                                fill/>
+                        }
                         <EditItemRecordComponent
                             field='effects'
                             labelId='editor-effects'
