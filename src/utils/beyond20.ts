@@ -122,6 +122,7 @@ abstract class Beyond20 {
     }
 
     public static sendAttackRoll (roll: IRollContext): void {
+        console.log("sendAttackRoll", roll)
         this.sendMessage({
             action: 'rendered-roll',
             request: { type: 'attack' },

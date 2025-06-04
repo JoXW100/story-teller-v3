@@ -4,10 +4,11 @@ import IconMap from 'assets/icons'
 import { Context } from 'components/contexts/roll'
 import { DieType, RollMethodType, RollType } from 'structure/dice'
 import Icon from '../icon'
+import LocalizedText from '../localizedText'
 import { asBooleanString, asKeyOf, keysOf } from 'utils'
 import { DiceGroup } from 'structure/dice/group'
+import { createDiceRollResult } from 'structure/dice/rolling'
 import styles from './style.module.scss'
-import LocalizedText from '../localizedText'
 
 type DicePanelProps = React.PropsWithRef<{ open: boolean }>
 
@@ -26,7 +27,7 @@ const DicePanel = ({ open }: DicePanelProps): JSX.Element => {
         }
         dispatch.roll({
             method: RollMethodType.Normal,
-            result: collection.roll(),
+            result: createDiceRollResult(collection),
             type: RollType.Generic,
             description: 'Roll'
         })
