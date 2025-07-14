@@ -10,7 +10,7 @@ import { keysOf } from 'utils'
 import { AdvantageBinding } from 'structure/dnd'
 import type CreatureFacade from 'structure/database/files/creature/facade'
 import type ConditionData from 'structure/database/files/condition/data'
-import type { ISourceBinding } from 'types/database/files/creature'
+import type { ISourceBinding } from 'types/sourceBinding'
 import styles from '../styles.module.scss'
 import StoryScript from 'structure/language/storyscript'
 
@@ -59,40 +59,40 @@ const DefenseConditionBox: React.FC<DefenseConditionBoxProps> = ({ facade }) => 
             <div className={styles.defensesBox}>
                 <b>Defenses</b>
                 { advantages.length > 0 &&
-                    <Tooltip title={<SourceTooltips type='advantage' sources={advantages}/>}>
+                    <Tooltip title={<SourceTooltips sources={{ advantage: advantages }}/>}>
                         <span>
                             <Icon className='small-icon' icon='advantage'/>
                         </span>
                     </Tooltip>
                 }{ disadvantages.length > 0 &&
-                    <Tooltip title={<SourceTooltips type='advantage' sources={disadvantages}/>}>
+                    <Tooltip title={<SourceTooltips sources={{ disadvantage: disadvantages }}/>}>
                         <span>
-                            <Icon className='small-icon' icon='advantage'/>
+                            <Icon className='small-icon' icon='disadvantage'/>
                         </span>
                     </Tooltip>
                 }{ keysOf(damageImmunities).map((binding) =>
-                    <Tooltip key={`dmg-${binding}`} title={<SourceTooltips type='damageImmunity' sources={damageImmunities[binding]}/>}>
+                    <Tooltip key={`dmg-${binding}`} title={<SourceTooltips sources={{ damageImmunity: damageImmunities[binding] }}/>}>
                         <span>
                             <Icon className='small-icon' icon='immunity'/>
                             { facade.translator(`enum-damageBinding-${binding}`) }
                         </span>
                     </Tooltip>
                 )}{ keysOf(conditionImmunities).map((binding) =>
-                    <Tooltip key={`cnd-${binding}`} title={<SourceTooltips type='conditionImmunity' sources={conditionImmunities[binding]}/>}>
+                    <Tooltip key={`cnd-${binding}`} title={<SourceTooltips sources={{ conditionImmunity: conditionImmunities[binding] }}/>}>
                         <span>
                             <Icon className='small-icon' icon='immunity'/>
                             { facade.translator(`enum-conditionBinding-${binding}`) }
                         </span>
                     </Tooltip>
                 )}{ keysOf(resistances).map((binding) =>
-                    <Tooltip key={`res-${binding}`} title={<SourceTooltips type='resistance' sources={resistances[binding]}/>}>
+                    <Tooltip key={`res-${binding}`} title={<SourceTooltips sources={{ resistance: resistances[binding] }}/>}>
                         <span>
                             <Icon className='small-icon' icon='resistance'/>
                             { facade.translator(`enum-damageBinding-${binding}`) }
                         </span>
                     </Tooltip>
                 )}{ keysOf(vulnerabilities).map((binding) =>
-                    <Tooltip key={`vul-${binding}`} title={<SourceTooltips type='vulnerability' sources={vulnerabilities[binding]}/>}>
+                    <Tooltip key={`vul-${binding}`} title={<SourceTooltips sources={{ vulnerability: vulnerabilities[binding] }}/>}>
                         <span>
                             <Icon className='small-icon' icon='vulnerability'/>
                             { facade.translator(`enum-damageBinding-${binding}`) }

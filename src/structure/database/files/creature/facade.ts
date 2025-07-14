@@ -11,7 +11,8 @@ import { Die } from 'structure/dice/die'
 import type { ObjectId } from 'types'
 import type { TranslationHandler } from 'utils/hooks/localization'
 import type { IBonusGroup, IProperties } from 'types/editor'
-import type { ICreatureData, ISourceBinding } from 'types/database/files/creature'
+import type { ICreatureData } from 'types/database/files/creature'
+import type { ISourceBinding } from 'types/sourceBinding'
 
 class CreatureFacade implements ICreatureData {
     public readonly data: CreatureData

@@ -10,7 +10,6 @@ import CreatureFacade from '../creature/facade'
 import { IAggregateClassDataSpellInfo, LevelModifyType, resolveAggregateClassDataSpellInfo } from '../class/levelData'
 import type ClassLevelData from '../class/levelData'
 import type ConditionData from '../condition/data'
-import { SourceType } from '../modifier/modifier'
 import ItemArmorData from '../item/armor'
 import { asNumber, isKeyOf, keysOf } from 'utils'
 import { getMaxProficiencyLevel, getPreviousClassLevels } from 'utils/calculations'
@@ -19,7 +18,8 @@ import { type ClassLevel, type CreatureType, type Language, type SizeType, Armor
 import type { ObjectId } from 'types'
 import type { ICharacterData } from 'types/database/files/character'
 import type { IProperties } from 'types/editor'
-import type { ISourceBinding } from 'types/database/files/creature'
+import { type ISourceBinding, SourceType } from 'types/sourceBinding'
+import { createAdvantageBindingSourceDescription } from 'utils/sourceDescriptionHelpers'
 
 class CharacterFacade extends CreatureFacade implements ICharacterData {
     public override readonly data: CharacterData
@@ -190,10 +190,9 @@ class CharacterFacade extends CreatureFacade implements ICharacterData {
     public override get disadvantages(): Partial<Record<AdvantageBinding, readonly ISourceBinding[]>> {
         const value = { ...this.data.disadvantages }
         if (this.isNotProficientInEquippedArmor) {
-            const source = { source: null, description: 'Not proficient in Equipped Armor' }
-            value[AdvantageBinding.Checks] = [...(value[AdvantageBinding.Checks] ?? []), source]
-            value[AdvantageBinding.Saves] = [...(value[AdvantageBinding.Saves] ?? []), source]
-            value[AdvantageBinding.Attack] = [...(value[AdvantageBinding.Attack] ?? []), source]
+            value[AdvantageBinding.Checks] = [...(value[AdvantageBinding.Checks] ?? []), { source: null, description: createAdvantageBindingSourceDescription(AdvantageBinding.Checks, 'Not proficient in equipped armor') }]
+            value[AdvantageBinding.Saves] = [...(value[AdvantageBinding.Saves] ?? []), { source: null, description: createAdvantageBindingSourceDescription(AdvantageBinding.Saves, 'Not proficient in equipped armor') }]
+            value[AdvantageBinding.Attack] = [...(value[AdvantageBinding.Attack] ?? []), { source: null, description: createAdvantageBindingSourceDescription(AdvantageBinding.Attack, 'Not proficient in equipped armor') }]
         }
         return this.modifier.disadvantages.call(value, this.properties, this.storage.choices)
     }

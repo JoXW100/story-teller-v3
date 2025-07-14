@@ -8,7 +8,8 @@ import { asEnum, asNumber, isBoolean, isCalcValue, isEnum, isNumber, isObjectId,
 import type { ObjectId, Simplify } from 'types'
 import type { TokenContext } from 'types/language'
 import type { DataPropertyMap } from 'types/database'
-import type { ICreatureData, ISourceBinding } from 'types/database/files/creature'
+import type { ICreatureData } from 'types/database/files/creature'
+import type { ISourceBinding } from 'types/sourceBinding'
 
 export function isSourceBinding(value: unknown): value is ISourceBinding {
     return isRecord(value) && isObjectIdOrNull(value.source) && isString(value.description)

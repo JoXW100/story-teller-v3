@@ -7,7 +7,7 @@ import { getPreviousClassLevels } from 'utils/calculations'
 import { toAbility } from 'utils/importers/stringFormatAbilityImporter'
 import { OptionalAttribute, PreparedSpellPreparationType, type SpellPreparationType } from 'structure/dnd'
 import { DocumentType, EmptyProperties } from 'structure/database'
-import Modifier, { SourceType } from 'structure/database/files/modifier/modifier'
+import Modifier from 'structure/database/files/modifier/modifier'
 import CreatureFacade from 'structure/database/files/creature/facade'
 import CharacterFacade from 'structure/database/files/character/facade'
 import type { AbilityData } from 'structure/database/files/ability/factory'
@@ -23,6 +23,7 @@ import type SubraceDocument from 'structure/database/files/subrace'
 import type { ItemData } from 'structure/database/files/item/factory'
 import type { ObjectId } from 'types'
 import type { IProperties } from 'types/editor'
+import { SourceType } from 'types/sourceBinding'
 
 interface ICreatureFacadeState {
     facade: CreatureFacade

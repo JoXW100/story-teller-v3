@@ -157,7 +157,7 @@ export function getMaxProficiencyLevel(...proficiencies: (ProficiencyLevel | und
 export function getSkillAdvantageBinding(skill: Skill): AdvantageBinding {
     switch (skill) {
         case Skill.Acrobatics:
-            return AdvantageBinding.AthleticsCheck
+            return AdvantageBinding.AcrobaticsCheck
         case Skill.AnimalHandling:
             return AdvantageBinding.AnimalHandlingCheck
         case Skill.Arcana:

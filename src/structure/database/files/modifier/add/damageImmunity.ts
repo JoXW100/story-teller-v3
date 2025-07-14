@@ -1,13 +1,13 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
 import type Modifier from '../modifier'
-import { SourceType } from '../modifier'
 import { createSingleChoiceData, createDefaultChoiceData, validateChoiceData, simplifySingleChoiceData } from '../../../choice'
 import { asEnum, isEnum, isNumber, isString } from 'utils'
+import { createDamageBindingSourceDescription } from 'utils/sourceDescriptionHelpers'
 import { DamageBinding } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IModifierAddDamageImmunityData } from 'types/database/files/modifier'
-import type { ISourceBinding } from 'types/database/files/creature'
+import { SourceType, type ISourceBinding } from 'types/sourceBinding'
 import type { SingleChoiceData } from 'types/database/choice'
 
 class ModifierAddDamageImmunityData extends ModifierAddDataBase implements IModifierAddDamageImmunityData {
@@ -75,7 +75,7 @@ class ModifierAddDamageImmunityData extends ModifierAddDataBase implements IModi
                         ...value[choice] ?? [],
                         {
                             source: modifier.findSource(key, value => value.type !== SourceType.Modifier),
-                            description: self.notes
+                            description: createDamageBindingSourceDescription(choice, self.notes)
                         } satisfies ISourceBinding
                     ]
                 }

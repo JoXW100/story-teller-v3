@@ -1,28 +1,32 @@
+import { Fragment } from 'react'
 import Elements from 'components/elements'
-import { isObjectId } from 'utils'
+import { isObjectId, keysOf } from 'utils'
 import { useTranslator } from 'utils/hooks/localization'
-import type { ISourceBinding } from 'types/database/files/creature'
+import { ISourceBinding } from 'types/sourceBinding'
 
 export type SourceEnumType = 'advantage' | 'disadvantage' | 'resistance' | 'vulnerability' | 'damageImmunity' | 'conditionImmunity'
 type SourceTooltipsParams = React.PropsWithRef<{
-    type: SourceEnumType
     title?: string
-    sources?: readonly ISourceBinding[]
+    sources?: Partial<Record<SourceEnumType, readonly ISourceBinding[]>>
 }>
 
-const SourceTooltips: React.FC<SourceTooltipsParams> = ({ type, title, sources = [] }) => {
+const SourceTooltips: React.FC<SourceTooltipsParams> = ({ title, sources }) => {
     const translator = useTranslator()
-    return sources.length > 0 && (
+    return sources && (
         <span>
-            <b>{`${translator(`binding-${type}`)}: ${title ?? ''}`}</b>
-            { sources?.map((value, index) => (
-                <div key={index}>
-                    {`${value.description.trim()}: `}
-                    { isObjectId(value.source?.key) && <>
-                        <Elements.linkTitle fileId={value.source.key} newTab={true}/>
-                    </>}
-                </div>
-            ))}
+            { keysOf(sources).map((type, index) => 
+                <Fragment key={index}>
+                    <b>{`${translator(`binding-${type}`)}: ${title ?? ''}`}</b>
+                    { sources[type]?.map((value, index) => (
+                        <div key={index}>
+                            {`${value.description.trim()}: `}
+                            { isObjectId(value.source?.key) &&
+                                <Elements.linkTitle fileId={value.source.key} newTab={true}/>
+                            }
+                        </div>
+                    ))}
+                </Fragment>
+            )}
         </span>
     )
 }

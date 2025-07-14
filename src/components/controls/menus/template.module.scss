@@ -40,12 +40,11 @@
     display: flex;
     height: $iconSmallSize;
     min-width: 0;
-    flex-shrink: 0;
     border: none;
     outline: none;
     font: inherit;
     padding: 0 5px;
-    flex: 1;
+    flex: 1 0;
 
     &[data=highlight] {
         filter: brightness(120%);
@@ -69,11 +68,9 @@
 }
 
 .row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    display: flex;
     direction: ltr;
     height: min-content;
-    align-items: center;
     background-color: inherit;
     align-items: stretch;
     user-select: text;
@@ -84,23 +81,11 @@
 .collection {
     display: flex;
     min-width: 0;
+    flex: 1;
     flex-direction: column;
 
     &[error=true] {
         color: color(error) !important;
-    }
-}
-
-.itemComponent {
-    display: flex;
-    margin-right: 2px;
-    height: 100%;
-    flex: 1;
-
-    & > button {
-        max-width: $smallButtonWidth;
-        min-width: $smallButtonWidth;
-        flex: 1;
     }
 }
 

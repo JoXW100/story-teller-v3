@@ -384,6 +384,9 @@ $size: $iconSmallSize;
 .attributeBox {
     @extend .sheetBox;
     border-radius: 15px;
+    position: relative;
+    padding-bottom: $iconSmallSize / 2;
+    margin-bottom: $iconSmallSize / 2;
 
     & > div {
         width: 100%;
@@ -532,7 +535,7 @@ $size: $iconSmallSize;
     font-size: small;
     & > div {
         display: grid;
-        grid-template-columns: 0.8cm 10px minmax(0, 1fr) $iconSmallSize * 2 55px;
+        grid-template-columns: 1cm 0.1cm minmax(0, 1fr) 55px;
         gap: 5px;
         height: $iconSmallSize;
         width: 100%;
@@ -579,17 +582,34 @@ $size: $iconSmallSize;
     }
 }
 
-.iconHolder {
+.attributeIconHolder {
+    @include colorDecoration(second);
     display: flex;
+    width: fit-content;
+    position: absolute;
+    border: 1px solid;
     justify-content: center;
-    & > * {
-        &[disabled] {
-            filter: opacity(60%) grayscale(0.8)
-        }
+    max-height: $iconSmallSize;
+    max-width: $iconSmallSize;
+    border-radius: 100%;
+    top: calc(100% - $iconSmallSize / 2);
+    
+    svg {
+        padding: 3px;
+    }
+}
 
-        & > svg {
-            padding: 1px;
-        }
+.proficiencyIconHolder {
+    display: flex;
+    width: fit-content;
+    position: absolute;
+    justify-content: center;
+    max-height: $iconSmallSize;
+    max-width: $iconSmallSize;
+    right: calc(100% + 3px);
+    
+    svg {
+        padding: 3px;
     }
 }
 

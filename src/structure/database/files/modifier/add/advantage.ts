@@ -1,13 +1,13 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
 import type Modifier from '../modifier'
-import { SourceType } from '../modifier'
 import { createDefaultChoiceData, createSingleChoiceData, simplifySingleChoiceData, validateChoiceData } from '../../../choice'
 import { asEnum, isEnum, isNumber, isString } from 'utils'
+import { createAdvantageBindingSourceDescription } from 'utils/sourceDescriptionHelpers'
 import { AdvantageBinding } from 'structure/dnd'
 import type { Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IModifierAddAdvantageData } from 'types/database/files/modifier'
-import type { ISourceBinding } from 'types/database/files/creature'
+import { SourceType, type ISourceBinding } from 'types/sourceBinding'
 import type { SingleChoiceData } from 'types/database/choice'
 
 class ModifierAddAdvantageData extends ModifierAddDataBase implements IModifierAddAdvantageData {
@@ -75,7 +75,7 @@ class ModifierAddAdvantageData extends ModifierAddDataBase implements IModifierA
                         ...value[choice] ?? [],
                         {
                             source: modifier.findSource(key, value => value.type !== SourceType.Modifier),
-                            description: self.notes
+                            description: createAdvantageBindingSourceDescription(choice, self.notes)
                         } satisfies ISourceBinding
                     ]
                 }

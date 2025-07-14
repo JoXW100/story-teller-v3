@@ -1,14 +1,9 @@
 import type { IDatabaseFileData, IDatabaseFileStorage } from '..'
 import type { CalcValue } from 'structure/database'
-import type { ISourceData } from 'structure/database/files/modifier/modifier'
 import type { DieType } from 'structure/dice'
 import type { AdvantageBinding, Alignment, ArmorType, Attribute, ConditionBinding, CreatureType, Language, MovementType, OptionalAttribute, ProficiencyLevel, ProficiencyLevelBasic, DamageBinding, Sense, SizeType, Skill, ToolType, WeaponTypeValue, SpellLevel } from 'structure/dnd'
 import type { ObjectId } from 'types'
-
-export interface ISourceBinding {
-    readonly source: ISourceData | null
-    readonly description: string
-}
+import type { ISourceBinding } from 'types/sourceBinding'
 
 export interface ICreatureData extends IDatabaseFileData {
     readonly name: string

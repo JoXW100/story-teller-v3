@@ -1,33 +1,17 @@
 import type ModifierDocument from '.'
+import type { ModifierData } from './factory'
 import { keysOf } from 'utils'
 import Condition, { ConditionType } from 'structure/database/condition'
 import { Skill, Attribute, type AdvantageBinding, type ConditionBinding, type Language, MovementType, type OptionalAttribute, type ProficiencyLevelBasic, type DamageBinding, Sense, type SizeType, type ProficiencyLevel, type ToolType, type ArmorType, type WeaponTypeValue, type SpellPreparationType } from 'structure/dnd'
 import type { ObjectId } from 'types'
 import type { IEditorChoiceData } from 'types/database/choice'
-import type { ISourceBinding } from 'types/database/files/creature'
 import type { IProperties } from 'types/editor'
-import type { ModifierData } from './factory'
+import type { ISourceBinding, ISourceData, SourceType } from 'types/sourceBinding'
 
 export interface IModifierEventHandler<T, D = ModifierData> {
     key: string
     data: D
     apply: (value: T, choices: Record<string, unknown>, properties: Partial<IProperties>, variables: Record<string, unknown>) => T
-}
-
-export enum SourceType {
-    Ability = 'abi',
-    Class = 'cla',
-    Subclass = 'scl',
-    Race = 'rce',
-    Subrace = 'src',
-    Condition = 'cnd',
-    Item = 'ite',
-    Modifier = 'mod'
-}
-
-export interface ISourceData {
-    type: SourceType
-    key: string | ObjectId
 }
 
 export interface IModifierProperties {

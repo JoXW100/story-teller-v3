@@ -4,7 +4,7 @@ import { asNumber, isNumber, isObjectId, isString } from 'utils'
 import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IModifierAddLinkedData } from 'types/database/files/modifier'
-import { SourceType } from '../modifier'
+import { SourceType } from 'types/sourceBinding'
 
 class ModifierAddLinkedData extends ModifierAddDataBase implements IModifierAddLinkedData {
     public override readonly subtype = ModifierAddType.Linked

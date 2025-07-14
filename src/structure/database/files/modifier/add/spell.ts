@@ -1,6 +1,5 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
 import type Modifier from '../modifier'
-import { SourceType } from '../modifier'
 import { createMultipleChoiceData, createDefaultChoiceData, validateChoiceData, simplifyMultipleChoiceData } from '../../../choice'
 import { asEnum, asObjectId, isEnum, isNumber, isObjectId, isObjectIdOrNull } from 'utils'
 import { DocumentType } from 'structure/database'
@@ -9,6 +8,7 @@ import type { DataPropertyMap } from 'types/database'
 import type { MultipleChoiceData } from 'types/database/choice'
 import type { IModifierAddSpellData } from 'types/database/files/modifier'
 import { OptionalAttribute } from 'structure/dnd'
+import { SourceType } from 'types/sourceBinding'
 
 class ModifierAddSpellData extends ModifierAddDataBase implements IModifierAddSpellData {
     public override readonly subtype = ModifierAddType.Spell

@@ -809,7 +809,8 @@ class DebugHandler {
                     hitScaling: {},
                     effects: {},
                     reach: 0,
-                    range: 0
+                    range: 0,
+                    rangeLong: 0
                 }
             }
             case OldItemType.Trinket:

@@ -1,12 +1,14 @@
 import { Tooltip } from '@mui/material'
 import Elements from 'components/elements'
 import Icon from 'components/controls/icon'
-import SourceTooltips from './sourceTooltips'
+import SourceTooltips, { SourceEnumType } from './sourceTooltips'
 import { getAttributeSaveAdvantageBinding } from 'utils/calculations'
 import { useLocalizedEnums } from 'utils/hooks/localization'
 import { Attribute } from 'structure/dnd'
 import { RollMethodType, RollType } from 'structure/dice'
 import type CreatureFacade from 'structure/database/files/creature/facade'
+import type { ISourceBinding } from 'types/sourceBinding'
+import { IconType } from 'assets/icons'
 import styles from '../styles.module.scss'
 
 type AttributesBoxParams = React.PropsWithRef<{
@@ -22,6 +24,16 @@ const AttributesBox: React.FC<AttributesBoxParams> = ({ facade }) => {
             { Object.values(Attribute).map((attr, index) => {
                 const name = options[attr]
                 const binding = getAttributeSaveAdvantageBinding(attr)
+                const sources = {} as Partial<Record<SourceEnumType, readonly ISourceBinding[]>>
+                let icon = null as IconType | null
+                if (binding in advantages) {
+                    sources['advantage'] = advantages[binding]!
+                    icon = 'advantage'
+                }
+                if (binding in disadvantages) {
+                    sources['disadvantage'] = disadvantages[binding]!
+                    icon = icon !== null ? 'advantageDisadvantage' : 'disadvantage'
+                }
                 return (
                     <div className={styles.attributeBox} key={index}>
                         <Elements.bold>{name}</Elements.bold>
@@ -45,18 +57,13 @@ const AttributesBox: React.FC<AttributesBoxParams> = ({ facade }) => {
                             critDieCount={facade.critDieCount}
                             mode={RollMethodType.Normal}
                             type={RollType.Save}/>
-                        <span className={styles.iconHolder}>
-                            <Tooltip title={binding in advantages && <SourceTooltips type='advantage' sources={advantages[binding]}/>}>
-                                <span disabled={!(binding in advantages)}>
-                                    <Icon className='small-icon' icon='advantage'/>
+                        { icon !== null &&
+                            <Tooltip title={<SourceTooltips sources={sources}/>}>
+                                <span className={styles.attributeIconHolder}>
+                                    <Icon className='small-icon' icon={icon}/>
                                 </span>
                             </Tooltip>
-                            <Tooltip title={binding in disadvantages && <SourceTooltips type='disadvantage' sources={disadvantages[binding]}/>}>
-                                <span disabled={!(binding in disadvantages)}>
-                                    <Icon className='small-icon' icon='disadvantage'/>
-                                </span>
-                            </Tooltip>
-                        </span>
+                        }
                     </div>
                 )
             })}

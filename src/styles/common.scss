@@ -189,6 +189,8 @@ a > .square {
 .font-h2 { @include fontHeader2; }
 .font-h3 { @include fontHeader3; }
 
+.relative { position: relative; }
+
 #continueButton {
     & > div {
         background-image: url('https://utfs.io/f/zMULclXHF285X3XgMph590X7VxLA64HQiWGqsTBhElDCkSUp'), url('https://utfs.io/f/zMULclXHF285X3XgMph590X7VxLA64HQiWGqsTBhElDCkSUp');

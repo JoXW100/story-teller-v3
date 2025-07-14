@@ -142,7 +142,7 @@ export function nullifyEmptyRecord<T extends object>(value: T): T | null {
  * @returns True if the value is a valid object id, otherwise, false
  */
 export function isObjectId(value: unknown): value is ObjectId {
-    return typeof value === 'string' && /^[0-9a-fA-F]{24}$/.test(value)
+    return /^[0-9a-fA-F]{24}$/.test(String(value))
 }
 
 /**

@@ -1091,6 +1091,7 @@
 
             "icon-story": "Story",
             "icon-advantage": "Advantage",
+            "icon-advantageDisadvantage": "Advantage & Disadvantage",
             "icon-disadvantage": "Disadvantage",
             "icon-resistance": "Resistance",
             "icon-immunity": "Immunity",

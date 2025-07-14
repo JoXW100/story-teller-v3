@@ -42,6 +42,7 @@ import ClassIcon from '@mui/icons-material/SchoolSharp'
 import ItemIcon from '@mui/icons-material/ShieldSharp'
 // other
 import AdvantageIcon from './advantage.svg'
+import AdvantageDisadvantageIcon from './advantageDisadvantage.svg'
 import CampIcon from './camp.svg'
 import ConcentrationIcon from './concentration.svg'
 import CritIcon from './crit.svg'
@@ -122,6 +123,7 @@ const IconMap = {
     // other
     'story': StoryIcon as React.FC<IconParams>,
     'advantage': AdvantageIcon as React.FC<IconParams>,
+    'advantageDisadvantage': AdvantageDisadvantageIcon as React.FC<IconParams>,
     'disadvantage': DisadvantageIcon as React.FC<IconParams>,
     'resistance': ResistanceIcon as React.FC<IconParams>,
     'immunity': ImmunityIcon as React.FC<IconParams>,

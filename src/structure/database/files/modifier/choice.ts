@@ -3,13 +3,13 @@ import { ModifierAddType } from './add'
 import { ModifierType } from './common'
 import ModifierDataBase from './data'
 import type Modifier from './modifier'
-import { SourceType } from './modifier'
 import { isNumber, isRecord, isString, keysOf } from 'utils'
 import { hasObjectProperties, simplifyObjectProperties, validateObjectProperties } from 'structure/database'
 import Condition, { ConditionType } from 'structure/database/condition'
 import type { Simplify } from 'types'
 import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
 import type { IModifierChoiceData } from 'types/database/files/modifier'
+import { SourceType } from 'types/sourceBinding'
 
 export const ModifierChoiceDataFactory: IDatabaseFactory<IModifierChoiceData, ModifierChoiceData> = {
     create: function (data: Simplify<IModifierChoiceData> = {}): ModifierChoiceData {

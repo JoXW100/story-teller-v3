@@ -122,7 +122,7 @@ const EditComponent: React.FC<ListTemplateComponentProps<any, any, ListMenuProps
     }
 
     if (params.type === 'enum') {
-        const style = params.itemClassName !== undefined ? `${params.itemClassName} ${styles.dropdown}` : styles.input
+        const style = params.itemClassName !== undefined ? `${params.itemClassName} ${styles.dropdown}` : styles.dropdown
         return (
             <DropdownMenu
                 className={style}

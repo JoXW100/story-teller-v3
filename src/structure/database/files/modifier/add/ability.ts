@@ -1,6 +1,5 @@
 import ModifierAddDataBase, { ModifierAddType } from '.'
 import type Modifier from '../modifier'
-import { SourceType } from '../modifier'
 import { createDefaultChoiceData, createMultipleChoiceData, simplifyMultipleChoiceData, validateChoiceData } from '../../../choice'
 import { asObjectId, isNumber, isObjectId, isObjectIdOrNull } from 'utils'
 import { DocumentType } from 'structure/database'
@@ -8,6 +7,7 @@ import type { ObjectId, Simplify } from 'types'
 import type { DataPropertyMap } from 'types/database'
 import type { IModifierAddAbilityData } from 'types/database/files/modifier'
 import type { MultipleChoiceData } from 'types/database/choice'
+import { SourceType } from 'types/sourceBinding'
 
 class ModifierAddAbilityData extends ModifierAddDataBase implements IModifierAddAbilityData {
     public override readonly subtype = ModifierAddType.Ability

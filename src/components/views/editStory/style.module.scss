@@ -86,6 +86,13 @@
     }
 }
 
+.listMenu {
+    button {
+        height: $menuItemHeaderHeight !important;
+        width: $menuItemHeaderHeight !important;
+    }
+}
+
 .listMenuItem {
     height: $menuItemHeaderHeight;
 }
