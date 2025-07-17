@@ -1,6 +1,6 @@
 import AbilityDocument from 'structure/database/files/ability'
 import { AbilityRenderer } from '.'
-import type { LinkRendererProps } from '..'
+import type { LinkRendererProps } from '../utils'
 
 const AbilityLinkRenderer: React.FC<LinkRendererProps> = ({ file }) => {
     if (file instanceof AbilityDocument) {

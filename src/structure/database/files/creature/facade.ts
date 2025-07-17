@@ -264,14 +264,13 @@ class CreatureFacade implements ICreatureData {
     }
 
     public get passivePerceptionValue(): number {
-        const proficiency = getProficiencyLevelValue(ProficiencyLevel.None)
         switch (this.passivePerception.mode) {
             case CalcMode.Override:
                 return this.passivePerception.value ?? 0
             case CalcMode.Auto:
-                return 10 + this.getAttributeModifier(Attribute.WIS) + proficiency * this.proficiencyValue
+                return 10 + this.getSkillModifier(Skill.Perception)
             case CalcMode.Modify:
-                return 10 + this.getAttributeModifier(Attribute.WIS) + proficiency * this.proficiencyValue + (this.passivePerception.value ?? 0)
+                return 10 + this.getSkillModifier(Skill.Perception) + (this.passivePerception.value ?? 0)
         }
     }
 
@@ -280,14 +279,13 @@ class CreatureFacade implements ICreatureData {
     }
 
     public get passiveInvestigationValue(): number {
-        const proficiency = getProficiencyLevelValue(ProficiencyLevel.None)
         switch (this.passiveInvestigation.mode) {
             case CalcMode.Override:
                 return this.passiveInvestigation.value ?? 0
             case CalcMode.Auto:
-                return 10 + this.getAttributeModifier(Attribute.INT) + proficiency * this.proficiencyValue
+                return 10 + this.getSkillModifier(Skill.Investigation)
             case CalcMode.Modify:
-                return 10 + this.getAttributeModifier(Attribute.INT) + proficiency * this.proficiencyValue + (this.passiveInvestigation.value ?? 0)
+                return 10 + this.getSkillModifier(Skill.Investigation) + (this.passiveInvestigation.value ?? 0)
         }
     }
 
@@ -296,14 +294,13 @@ class CreatureFacade implements ICreatureData {
     }
 
     public get passiveInsightValue(): number {
-        const proficiency = getProficiencyLevelValue(ProficiencyLevel.None)
         switch (this.passiveInsight.mode) {
             case CalcMode.Override:
                 return this.passiveInsight.value ?? 0
             case CalcMode.Auto:
-                return 10 + this.getAttributeModifier(Attribute.WIS) + proficiency * this.proficiencyValue
+                return 10 + this.getSkillModifier(Skill.Insight)
             case CalcMode.Modify:
-                return 10 + this.getAttributeModifier(Attribute.WIS) + proficiency * this.proficiencyValue + (this.passiveInsight.value ?? 0)
+                return 10 + this.getSkillModifier(Skill.Insight) + (this.passiveInsight.value ?? 0)
         }
     }
 

@@ -18,7 +18,7 @@ class ItemWeaponRangedData extends ItemWeaponDataBase implements IItemWeaponRang
         super(data)
         this.subtype = data.subtype ?? ItemWeaponRangedData.properties.subtype.value
         this.range = data.range ?? ItemWeaponRangedData.properties.range.value
-        this.rangeLong = data.range ?? ItemWeaponRangedData.properties.rangeLong.value
+        this.rangeLong = data.rangeLong ?? ItemWeaponRangedData.properties.rangeLong.value
     }
 
     public override createAbility(): AbilityRangedAttackData | null {

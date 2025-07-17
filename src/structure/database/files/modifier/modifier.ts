@@ -22,7 +22,7 @@ export interface IModifierProperties {
 
 export class ModifierEvent<T> {
     private readonly properties: IModifierProperties
-    public readonly subscribers: IModifierEventHandler<T>[] = []
+    public readonly subscribers: Record<string, IModifierEventHandler<T>> = {}
 
     public constructor(properties: IModifierProperties) {
         this.properties = properties
@@ -40,7 +40,7 @@ export class ModifierEvent<T> {
     }
 
     public subscribe(handler: IModifierEventHandler<T>): void {
-        this.subscribers.push(handler)
+        this.subscribers[handler.key] = handler
     }
 }
 

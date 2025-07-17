@@ -14,22 +14,6 @@ const roll20FeatureSimpleExpr = /^(?:([\w ]+): *)?([^.]+)\. *([\s\S]*)/mi
 const rollTextExpr = /([0-9]*d[0-9]+(?: *[+-]? *[0-9]+)?)( *)/ig
 const checkTextExpr = /DC +([0-9]+) *(?:(\w+)?( *))/ig
 
-function getAbilityType(ability: string): AbilityType {
-    switch (ability?.toLowerCase()) {
-        case 'melee weapon attack':
-            return AbilityType.MeleeWeapon
-        case 'ranged weapon attack':
-            return AbilityType.RangedWeapon
-        case 'melee attack': // unknown
-            return AbilityType.MeleeAttack
-        case 'ranged attack': // unknown
-        case 'melee or ranged weapon attack':
-            return AbilityType.RangedAttack
-        default:
-            return AbilityType.Feature
-    }
-}
-
 function getTargetType(target: string): TargetType {
     switch (target?.toLowerCase()) {
         case 'one target':
@@ -146,7 +130,7 @@ export function toAbility(text: string): AbilityData | null {
     } else {
         const action = getAction(res[1])
         const name = res[2] ?? 'Missing name'
-        const type = getAbilityType(res[3])
+        const type = res[3]?.toLocaleLowerCase()
         const mod = getRollMod(res[4])
         const ranges = getRange(res[5])
         const target = getTargetType(res[6])
@@ -156,11 +140,12 @@ export function toAbility(text: string): AbilityData | null {
         const damageType = asEnum(res[10], DamageType, DamageType.None)
         const description = toRichText(res[11] ?? '')
         switch (type) {
-            case AbilityType.Attack: {
+            case 'attack':
+            case 'spell attack': {
                 const base: IAbilityAttackDataBase = {
                     name: name,
                     description: description,
-                    type: type,
+                    type: AbilityType.Attack,
                     action: action ?? ActionType.Action,
                     condition: {
                         type: EffectConditionType.Hit,
@@ -194,12 +179,13 @@ export function toAbility(text: string): AbilityData | null {
                         break
                 }
             } break
-            case AbilityType.MeleeAttack:
-            case AbilityType.MeleeWeapon:
+            case 'melee attack':
+            case 'melee weapon attack':
+            case 'melee spell attack':
                 result = {
                     name: name,
                     description: description,
-                    type: type,
+                    type: type === 'melee weapon attack' ? AbilityType.MeleeWeapon : AbilityType.MeleeAttack,
                     action: action ?? ActionType.Action,
                     condition: {
                         type: EffectConditionType.Hit,
@@ -212,12 +198,13 @@ export function toAbility(text: string): AbilityData | null {
                     modifiers: []
                 }
                 break
-            case AbilityType.RangedAttack:
-            case AbilityType.RangedWeapon:
+            case 'ranged attack':
+            case 'ranged weapon attack':
+            case 'ranged spell attack':
                 result = {
                     name: name,
                     description: description,
-                    type: type,
+                    type: type === 'ranged weapon attack' ? AbilityType.RangedWeapon : AbilityType.RangedAttack,
                     action: action ?? ActionType.Action,
                     condition: {
                         type: EffectConditionType.Hit,
@@ -231,7 +218,6 @@ export function toAbility(text: string): AbilityData | null {
                     modifiers: []
                 } satisfies IAbilityData
                 break
-            case AbilityType.Feature:
             default:
                 result = {
                     name: name,

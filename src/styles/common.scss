@@ -29,6 +29,10 @@
     flex: 1;
 }
 
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
 .flex-end {
     justify-self: flex-end;
 }
@@ -109,6 +113,18 @@
 .gap-3 { gap: 3px; }
 .gap-4 { gap: 4px; }
 .gap-5 { gap: 5px; }
+
+.gap-column-1 { column-gap: 1px; }
+.gap-column-2 { column-gap: 2px; }
+.gap-column-3 { column-gap: 3px; }
+.gap-column-4 { column-gap: 4px; }
+.gap-column-5 { column-gap: 5px; }
+
+.gap-row-1 { row-gap: 1px; }
+.gap-row-2 { row-gap: 2px; }
+.gap-row-3 { row-gap: 3px; }
+.gap-row-4 { row-gap: 4px; }
+.gap-row-5 { row-gap: 5px; }
 
 .square { 
     aspect-ratio: 1 / 1; 

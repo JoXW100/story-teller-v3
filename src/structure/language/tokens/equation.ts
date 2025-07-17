@@ -6,6 +6,7 @@ import Constant from 'structure/equation/constant'
 import Negation from 'structure/equation/negation'
 import Variable from 'structure/equation/variable'
 import { Division, Addition, Subtraction, Multiplication } from 'structure/equation/binary'
+import { CeilCommand, FloorCommand, MaxCommand, MinCommand } from 'structure/equation/command'
 
 class EquationToken extends Token {
     private _equation: SymbolicExpression | null = null
@@ -35,7 +36,8 @@ class EquationToken extends Token {
 
         switch (token.content) {
             case '}':
-            case ')': {
+            case ')':
+            case ',': {
                 return null
             }
             case '(': {
@@ -71,6 +73,38 @@ class EquationToken extends Token {
                     return this.parseOperator(tokenizer, new Variable(nameToken.content))
                 }
             }
+            case 'ceil': {
+                const args = this.parseCommandArgs(tokenizer, 1)
+                if (args.length !== 1) {
+                    return null
+                } else {
+                    return this.parseOperator(tokenizer, new CeilCommand(args))
+                }
+            }
+            case 'floor': {
+                const args = this.parseCommandArgs(tokenizer, 1)
+                if (args.length !== 1) {
+                    return null
+                } else {
+                    return this.parseOperator(tokenizer, new FloorCommand(args))
+                }
+            }
+            case 'max': {
+                const args = this.parseCommandArgs(tokenizer)
+                if (args.length === 0) {
+                    return null
+                } else {
+                    return this.parseOperator(tokenizer, new MaxCommand(args))
+                }
+            }
+            case 'min': {
+                const args = this.parseCommandArgs(tokenizer)
+                if (args.length === 0) {
+                    return null
+                } else {
+                    return this.parseOperator(tokenizer, new MinCommand(args))
+                }
+            }
             default:
                 if (!isNumeric(token.content)) {
                     tokenizer.addMarker(`Invalid value: ${token.content}`, token)
@@ -81,6 +115,43 @@ class EquationToken extends Token {
         }
     }
 
+    private parseCommandArgs(tokenizer: Tokenizer, count: number = -1): SymbolicExpression[] {
+        const token = tokenizer.next(true)
+        if (token === null) {
+            this.finalize(tokenizer, 'Unexpected end of text')
+            return []
+        }
+
+        if (token.content !== '(') {
+            this.finalize(tokenizer, "Missing command arguments, expected '('")
+            return []
+        }
+        const args = [] as SymbolicExpression[]
+        while (true) {
+            const result = this.parsePrimary(tokenizer)
+            console.log("Parsing equation.result", result)
+            if (result !== null) {
+                args.push(result)
+            } 
+            
+            if (tokenizer.token.content !== ',') {
+                break
+            }
+        }
+
+        if (tokenizer.token.content !== ')') {
+            this.finalize(tokenizer, "Unbalanced parenthesis, expected ')'")
+            return []
+        }
+
+        if (count >= 0 && args.length !== count) {
+            this.finalize(tokenizer, `Mismatching command arguments, has ${args.length}, expected ${count}`)
+            return []
+        }
+
+        return args
+    }
+
     private parseOperator(tokenizer: Tokenizer, lhs: SymbolicExpression): SymbolicExpression {
         const token = tokenizer.next(true)
         if (token === null) {
@@ -89,7 +160,8 @@ class EquationToken extends Token {
 
         switch (token.content) {
             case '}':
-            case ')': {
+            case ')':
+            case ',': {
                 return lhs
             }
             case '/': {

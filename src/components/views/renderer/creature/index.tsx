@@ -17,7 +17,7 @@ import { RollMethodType, RollType } from 'structure/dice'
 import type CreatureDocument from 'structure/database/files/creature'
 import type { EnumTypeKey, EnumTypeValue } from 'structure/enums'
 import { OptionalAttribute, type SpellLevel } from 'structure/dnd'
-import type { ISourceBinding } from 'types/database/files/creature'
+import type { ISourceBinding } from 'types/sourceBinding'
 
 const Pages = {
     'actions': { key: 'render-page-actions' },
@@ -32,7 +32,7 @@ type BindingGroupProps<T extends EnumTypeKey> = React.PropsWithRef<{
 
 const BindingGroup = <T extends EnumTypeKey>({ type, binding, bindings }: BindingGroupProps<T>): React.ReactNode => {
     const options = useLocalizedEnums(binding)
-    return keysOf(bindings).some((key) => bindings[key]!.length > 0) && <div className='flex gap-4'>
+    return keysOf(bindings).some((key) => bindings[key]!.length > 0) && <div className='flex flex-wrap gap-column-4'>
         <LocalizedText className='font-bold no-line-break' id={`binding-${type}-title`}/>
         { keysOf(bindings).map((key) => {
             const value = bindings[key]!

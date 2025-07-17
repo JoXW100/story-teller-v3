@@ -44,7 +44,8 @@ class ModifierBonusAbilityScoreData extends ModifierBonusDataBase implements IMo
                 apply: function (value, _, properties, variables): number {
                     const modifier = this.data as ModifierBonusAbilityScoreData
                     const varKey = `attributes.${attribute}.bonus`
-                    const bonus = variables[varKey] = asNumber(variables[varKey], 0) + resolveScaling(modifier.scaling, properties) * (modifier.attributes[attribute] ?? 0)
+                    const bonus = resolveScaling(modifier.scaling, properties) * asNumber(modifier.attributes[attribute], 0)
+                    variables[varKey] = asNumber(variables[varKey], 0) + bonus
                     return value + bonus
                 }
             })

@@ -8,7 +8,7 @@ import { useLocalizedEnums } from 'utils/hooks/localization'
 import type { LanguageKey } from 'assets'
 import { isSourceBinding } from 'structure/database/files/creature/data'
 import { getEnumType, type EnumTypeKey } from 'structure/enums'
-import type { ISourceBinding } from 'types/database/files/creature'
+import { ISourceBinding } from 'types/sourceBinding'
 import styles from '../style.module.scss'
 
 type BindingInputComponentParams = React.PropsWithoutRef<{

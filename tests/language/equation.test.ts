@@ -35,4 +35,15 @@ describe('Variable Token Tests', () => {
         expect(token.equation).not.toBeNull()
         expect(token.value).toEqual(9)
     })
+
+    test('Test correct parse with commands', () => {
+        const text = '8 + floor((max(13, 15) - 11) / 2)' // initial % should not be included
+        const token = new EquationToken()
+        const tokenizer = new Tokenizer(ElementDefinitionDictionary, text)
+        token.parse(tokenizer)
+
+        expect(tokenizer.markers).toHaveLength(0)
+        expect(token.equation).not.toBeNull()
+        expect(token.value).toEqual(10)
+    })
 })
