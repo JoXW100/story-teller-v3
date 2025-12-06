@@ -4,7 +4,7 @@ import type { ElementDefinitions } from 'structure/elements/dictionary'
 import type { DataPropertyMap, IDatabaseFactory, IDatabaseFile } from 'types/database'
 import type { ObjectId } from 'types'
 import type { IToken } from 'types/language'
-import type { DocumentIDataMap, DocumentIStorageMap } from 'types/database/files/factory'
+import type { DocumentIDataMap, DocumentIStorageMap } from 'types/database/files'
 
 abstract class DatabaseFile<T extends DocumentFileType = DocumentFileType, D extends DocumentIDataMap[T] = any, S extends DocumentIStorageMap[T] = any> extends DatabaseObject implements IDatabaseFile<T, D, S> {
     public readonly storyId: ObjectId

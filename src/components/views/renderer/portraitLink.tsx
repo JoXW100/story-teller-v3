@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
-import type { LinkRendererProps } from '.'
+import { Tooltip } from '@mui/material'
+import { LinkRendererProps } from './utils'
 import Elements, { ElementDictionary } from 'components/elements'
 import CreatureData from 'structure/database/files/creature/data'
 import NPCData from 'structure/database/files/npc/data'
-import { Tooltip } from '@mui/material'
 
 const PortraitLinkRenderer: React.FC<LinkRendererProps> = ({ file }) => {
     const descriptionToken = useMemo(() => {

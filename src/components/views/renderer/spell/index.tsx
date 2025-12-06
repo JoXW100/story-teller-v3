@@ -12,7 +12,6 @@ const SpellDocumentRender: React.FC = () => {
     return (
         <div className={styles.rendererBox} data='true'>
             <SpellRenderer
-                id={context.file.id}
                 data={data}
                 properties={EmptyProperties}
                 attackBonuses={EmptyBonusGroup}

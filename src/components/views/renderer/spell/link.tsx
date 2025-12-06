@@ -1,5 +1,5 @@
 import LinkRenderer from './spell'
-import type { LinkRendererProps } from '..'
+import { LinkRendererProps } from '../utils'
 import SpellDocument from 'structure/database/files/spell'
 import { EmptyBonusGroup, EmptyProperties } from 'structure/database'
 

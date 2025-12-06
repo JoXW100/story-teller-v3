@@ -6,7 +6,7 @@ import type { DataPropertyMap, IDatabaseFactory } from 'types/database'
 import type { ITextData } from 'types/database/files/text'
 
 const TextDataFactory: IDatabaseFactory<ITextData, TextData> = {
-    create: function (data: Simplify<ITextData>): TextData {
+    create: function (data: Simplify<ITextData> = {}): TextData {
         return new TextData(data)
     },
     is: function (data: unknown): data is ITextData {

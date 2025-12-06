@@ -1,4 +1,4 @@
-import { DefaultRenderer, DefaultLinkRenderer } from './default'
+import { DefaultLinkRenderer, DefaultRenderer } from './default'
 import TextDocumentRenderer from './text'
 import CreatureDocumentRenderer from './creature'
 import PortraitLinkRenderer from './portraitLink'
@@ -55,5 +55,5 @@ export const LinkRenderer: React.FC<LinkRendererProps> = ({ file }) => {
         const Component = DocumentRendererMap[file.type].link
         return <Component file={file}/>
     }
-    return <DefaultLinkRenderer/>
+    return <DefaultLinkRenderer file={file}/>
 }

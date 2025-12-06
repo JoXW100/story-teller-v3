@@ -29,7 +29,7 @@ import type { DBResponse } from 'types/database'
 import { DamageType, type DiceType, EffectCondition, AbilityType as OldAbilityType, type RestType as OldRestType, ScalingType as OldScalingType, ArmorType as OldArmorType, ItemType as OldItemType, TargetType as OldTargetType, Gender } from 'types/old/dnd'
 import { CalculationMode, FileType, type IFileContent, type IOptionType } from 'types/old/files'
 import type { ICreatureStorage as IOldCreatureStorage, ICreatureMetadata } from 'types/old/files/creature'
-import type { ISourceBinding, ICreatureData, ICreatureStorage } from 'types/database/files/creature'
+import type { ICreatureData, ICreatureStorage } from 'types/database/files/creature'
 import type { ICharacterStorage as IOldCharacterStorage, ICharacterMetadata } from 'types/old/files/character'
 import type { ICharacterStorage, IInventoryItemData, ICharacterData } from 'types/database/files/character'
 import type { IClassMetadata } from 'types/old/files/class'
@@ -49,13 +49,14 @@ import type { IAbilityDataBase, IAbilityData } from 'types/database/files/abilit
 import type { IAbilityMetadata } from 'types/old/files/ability'
 import type { IChargesData } from 'types/database/charges'
 import type { INPCData } from 'types/database/files/npc'
+import type { ISourceBinding } from 'types/sourceBinding'
 import type IOldEffect from 'types/old/files/iEffect'
 import type ICreatureActionData from 'types/old/files/iConditionalHitEffect'
 
 interface IDebugCollections {
-    main: Collection
-    temp: Collection
-    backup: Collection
+    readonly main: Collection
+    readonly temp: Collection
+    readonly backup: Collection
 }
 
 class DebugHandler {

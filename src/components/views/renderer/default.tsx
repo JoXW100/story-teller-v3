@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react'
-import type { LinkRendererProps } from '.'
+import { LinkRendererProps } from './utils'
 import { Context } from 'components/contexts/file'
 import Elements, { ElementDictionary } from 'components/elements'
 
